@@ -85,10 +85,10 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		VerificationEmailTemplateId: data.Get("verification_email_template_id").(string),
 		VerifyRegistration:          data.Get("verify_registration").(bool),
 		EmailConfiguration: fusionauth.ApplicationEmailConfiguration{
-			EmailVerificationEmailTemplateId: data.Get("email_verification_template_id").(string),
-			ForgotPasswordEmailTemplateId:    data.Get("forgot_password_template_id").(string),
-			PasswordlessEmailTemplateId:      data.Get("passwordless_email_template_id").(string),
-			SetPasswordEmailTemplateId:       data.Get("set_password_email_template_id").(string),
+			EmailVerificationEmailTemplateId: data.Get("email_configuration.0.email_verification_template_id").(string),
+			ForgotPasswordEmailTemplateId:    data.Get("email_configuration.0.forgot_password_template_id").(string),
+			PasswordlessEmailTemplateId:      data.Get("email_configuration.0.passwordless_email_template_id").(string),
+			SetPasswordEmailTemplateId:       data.Get("email_configuration.0.set_password_email_template_id").(string),
 		},
 	}
 
