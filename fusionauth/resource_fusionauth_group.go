@@ -30,6 +30,7 @@ func newGroup() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 				Description: "The Application Roles to assign to this group.",
+				ForceNew:    true,
 			},
 			"tenant_id": {
 				Type:         schema.TypeString,
@@ -123,23 +124,7 @@ func updateGroup(data *schema.ResourceData, i interface{}) error {
 	}
 
 	if faErrs != nil {
-		_, faErrs, err := client.FAClient.DeleteGroup(id)
-		if err != nil {
-			return err
-		}
-
-		if faErrs != nil {
-			return fmt.Errorf("DeleteGroup errors: %v", faErrs)
-		}
-		_, faErrs, err = client.FAClient.CreateGroup(id, g)
-
-		if err != nil {
-			return fmt.Errorf("CreateGroup err: %v", err)
-		}
-
-		if faErrs != nil {
-			return fmt.Errorf("CreateGroup errors: %v", faErrs)
-		}
+		return fmt.Errorf("CreateGroup errors: %v", faErrs)
 	}
 
 	return nil
