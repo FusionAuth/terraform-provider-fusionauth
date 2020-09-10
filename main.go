@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/gpsinsight/terraform-provider-fusionauth/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/plugin"
-	"gitlab.com/gpsi/api/fusionauth-tf-provider/fusionauth"
 )
 
 func main() {
