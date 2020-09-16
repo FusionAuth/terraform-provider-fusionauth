@@ -643,6 +643,11 @@ func newEmailConfiguration() *schema.Resource {
 				Optional:    true,
 				Description: "The default From Name used in sending emails when a from name is not provided on an individual email template. This is the display name part of the email address ( i.e. Jared Dunn <jared@piedpiper.com>).",
 			},
+			"default_from_email": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The default email address that emails will be sent from when a from address is not provided on an individual email template. This is the address part email address (i.e. Jared Dunn <jared@piedpiper.com>).",
+			},
 			"forgot_password_email_template_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
