@@ -209,6 +209,7 @@ resource "fusionauth_tenant" "example" {
 * `data` - (Optional) An object that can hold any information about the Tenant that should be persisted.
 * `email_configuration` - (Required)
     - `default_from_name` - (Optional) The default From Name used in sending emails when a from name is not provided on an individual email template. This is the display name part of the email address ( i.e. Jared Dunn <jared@piedpiper.com>).
+    - `default_from_email` - (Optional) The default email address that emails will be sent from when a from address is not provided on an individual email template. This is the address part email address (i.e. Jared Dunn <jared@piedpiper.com>).
     - `forgot_password_email_template_id` - (Optional) The Id of the Email Template that is used when a user is sent a forgot password email.
     - `host` - (Required) The host name of the SMTP server that FusionAuth will use.
     - `password` - (Optional) An optional password FusionAuth will use to authenticate with the SMTP server.
