@@ -16,7 +16,7 @@ type OpenIDAppConfig struct {
 	ButtonImageURL     string          `json:"buttonImageURL,omitempty"`
 	ButtonText         string          `json:"buttonText,omitempty"`
 	OAuth2             OAuth2AppConfig `json:"oauth2,omitempty"`
-	CreateRegistration bool            `json:"createRegistration,omitempty"`
+	CreateRegistration bool            `json:"createRegistration"`
 	Enabled            bool            `json:"enabled,omitempty"`
 }
 

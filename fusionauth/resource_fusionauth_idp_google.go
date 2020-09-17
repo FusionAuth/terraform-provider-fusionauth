@@ -18,7 +18,7 @@ type GoogleAppConfig struct {
 	ClientID           string `json:"client_id,omitempty"`
 	ClientSecret       string `json:"client_secret,omitempty"`
 	Scope              string `json:"scope,omitempty"`
-	CreateRegistration bool   `json:"createRegistration,omitempty"`
+	CreateRegistration bool   `json:"createRegistration"`
 	Enabled            bool   `json:"enabled,omitempty"`
 }
 
