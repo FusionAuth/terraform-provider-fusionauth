@@ -36,6 +36,7 @@ func newApplication() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"application_ids": {
@@ -82,6 +83,7 @@ func newApplication() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"access_token_populate_id": {
@@ -175,6 +177,7 @@ func newApplication() *schema.Resource {
 			"samlv2_configuration": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
+				Computed: true,
 				Elem:     newSamlv2Configuration(),
 				Optional: true,
 			},
@@ -199,6 +202,7 @@ func newApplication() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"email_verification_template_id": {
@@ -307,6 +311,7 @@ func newOAuthConfiguration() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The OAuth 2.0 client secret. If you leave this blank during a POST, a secure secret will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored.",
+				Computed:    true,
 			},
 			"device_verification_url": {
 				Type:        schema.TypeString,

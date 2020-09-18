@@ -120,77 +120,140 @@ func buildRequireable(key string, data *schema.ResourceData) fusionauth.Requirab
 func buildResourceDataFromApplication(a fusionauth.Application, data *schema.ResourceData) {
 	_ = data.Set("tenant_id", a.TenantId)
 	_ = data.Set("authentication_token_configuration_enabled", a.AuthenticationTokenConfiguration.Enabled)
-	_ = data.Set("clean_speak_configuration.0.application_ids", a.CleanSpeakConfiguration.ApplicationIds)
-	_ = data.Set(
-		"clean_speak_configuration.0.username_moderation.0.application_id",
-		a.CleanSpeakConfiguration.UsernameModeration.ApplicationId,
-	)
-	_ = data.Set(
-		"clean_speak_configuration.0.username_moderation.0.enabled",
-		a.CleanSpeakConfiguration.UsernameModeration.Enabled,
-	)
+
+	_ = data.Set("clean_speak_configuration", []map[string]interface{}{
+		{
+			"application_ids": a.CleanSpeakConfiguration.ApplicationIds,
+			"username_moderation": []map[string]interface{}{
+				{
+					"application_id": a.CleanSpeakConfiguration.UsernameModeration.ApplicationId,
+					"enabled":        a.CleanSpeakConfiguration.UsernameModeration.Enabled,
+				},
+			},
+		},
+	})
+
 	_ = data.Set("data", a.Data)
-	_ = data.Set("jwt_configuration.0.enabled", a.JwtConfiguration.Enabled)
-	_ = data.Set("jwt_configuration.0.access_token_id", a.JwtConfiguration.AccessTokenKeyId)
-	_ = data.Set("jwt_configuration.0.id_token_key_id", a.JwtConfiguration.IdTokenKeyId)
-	_ = data.Set("jwt_configuration.0.refresh_token_ttl_minutes", a.JwtConfiguration.RefreshTokenTimeToLiveInMinutes)
-	_ = data.Set("jwt_configuration.0.ttl_seconds", a.JwtConfiguration.TimeToLiveInSeconds)
-	_ = data.Set("lambda_configuration.0.access_token_populate_id", a.LambdaConfiguration.AccessTokenPopulateId)
-	_ = data.Set("lambda_configuration.0.id_token_populate_id", a.LambdaConfiguration.IdTokenPopulateId)
-	_ = data.Set("lambda_configuration.0.samlv2_populate_id", a.LambdaConfiguration.Samlv2PopulateId)
-	_ = data.Set("login_configuration.0.allow_token_refresh", a.LoginConfiguration.AllowTokenRefresh)
-	_ = data.Set("login_configuration.0.generate_refresh_tokens", a.LoginConfiguration.GenerateRefreshTokens)
-	_ = data.Set("login_configuration.0.require_authentication", a.LoginConfiguration.RequireAuthentication)
+
+	_ = data.Set("jwt_configuration", []map[string]interface{}{
+		{
+			"enabled":                   a.JwtConfiguration.Enabled,
+			"access_token_id":           a.JwtConfiguration.AccessTokenKeyId,
+			"id_token_key_id":           a.JwtConfiguration.IdTokenKeyId,
+			"refresh_token_ttl_minutes": a.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
+			"ttl_seconds":               a.JwtConfiguration.TimeToLiveInSeconds,
+		},
+	})
+
+	_ = data.Set("lambda_configuration", []map[string]interface{}{
+		{
+			"access_token_populate_id": a.LambdaConfiguration.AccessTokenPopulateId,
+			"id_token_populate_id":     a.LambdaConfiguration.IdTokenPopulateId,
+			"samlv2_populate_id":       a.LambdaConfiguration.Samlv2PopulateId,
+		},
+	})
+
+	_ = data.Set("login_configuration", []map[string]interface{}{
+		{
+			"allow_token_refresh":     a.LoginConfiguration.AllowTokenRefresh,
+			"generate_refresh_tokens": a.LoginConfiguration.GenerateRefreshTokens,
+			"require_authentication":  a.LoginConfiguration.RequireAuthentication,
+		},
+	})
+
 	_ = data.Set("name", a.Name)
-	_ = data.Set("oauth_configuration.0.authorized_origin_urls", a.OauthConfiguration.AuthorizedOriginURLs)
-	_ = data.Set("oauth_configuration.0.authorized_redirect_urls", a.OauthConfiguration.AuthorizedRedirectURLs)
-	_ = data.Set("oauth_configuration.0.client_secret", a.OauthConfiguration.ClientSecret)
-	_ = data.Set("oauth_configuration.0.device_verification_url", a.OauthConfiguration.DeviceVerificationURL)
-	_ = data.Set("oauth_configuration.0.generate_refresh_tokens", a.OauthConfiguration.GenerateRefreshTokens)
-	_ = data.Set("oauth_configuration.0.logout_url", a.OauthConfiguration.LogoutURL)
-	_ = data.Set("oauth_configuration.0.require_client_authentication", a.OauthConfiguration.RequireClientAuthentication)
-	_ = data.Set("oauth_configuration.0.logout_behavior", a.OauthConfiguration.LogoutBehavior)
-	_ = data.Set("oauth_configuration.0.authorized_origin_urls", a.OauthConfiguration.AuthorizedOriginURLs)
-	_ = data.Set("oauth_configuration.0.authorized_origienabled_grants_urls", a.OauthConfiguration.EnabledGrants)
+
+	_ = data.Set("oauth_configuration", []map[string]interface{}{
+		{
+			"authorized_origin_urls":        a.OauthConfiguration.AuthorizedOriginURLs,
+			"authorized_redirect_urls":      a.OauthConfiguration.AuthorizedRedirectURLs,
+			"client_secret":                 a.OauthConfiguration.ClientSecret,
+			"device_verification_url":       a.OauthConfiguration.DeviceVerificationURL,
+			"generate_refresh_tokens":       a.OauthConfiguration.GenerateRefreshTokens,
+			"logout_url":                    a.OauthConfiguration.LogoutURL,
+			"require_client_authentication": a.OauthConfiguration.RequireClientAuthentication,
+			"logout_behavior":               a.OauthConfiguration.LogoutBehavior,
+			"enabled_grants":                a.OauthConfiguration.EnabledGrants,
+		},
+	})
+
 	_ = data.Set("passwordless_configuration_enabled", a.PasswordlessConfiguration.Enabled)
-	_ = data.Set("registration_configuration.0.enabled", a.RegistrationConfiguration.Enabled)
-	_ = data.Set("registration_configuration.0.birth_date.0.enabled", a.RegistrationConfiguration.BirthDate.Enabled)
-	_ = data.Set("registration_configuration.0.birth_date.0.required", a.RegistrationConfiguration.BirthDate.Required)
-	_ = data.Set("registration_configuration.0.confirm_password", a.RegistrationConfiguration.ConfirmPassword)
-	_ = data.Set("registration_configuration.0.first_name.0.enabled", a.RegistrationConfiguration.FirstName.Enabled)
-	_ = data.Set("registration_configuration.0.first_name.0.required", a.RegistrationConfiguration.FirstName.Required)
-	_ = data.Set("registration_configuration.0.full_name.0.enabled", a.RegistrationConfiguration.FullName.Enabled)
-	_ = data.Set("registration_configuration.0.full_name.0.required", a.RegistrationConfiguration.FullName.Required)
-	_ = data.Set("registration_configuration.0.last_name.0.enabled", a.RegistrationConfiguration.LastName.Enabled)
-	_ = data.Set("registration_configuration.0.last_name.0.required", a.RegistrationConfiguration.LastName.Required)
-	_ = data.Set("registration_configuration.0.middle_name.0.enabled", a.RegistrationConfiguration.MiddleName.Enabled)
-	_ = data.Set("registration_configuration.0.middle_name.0.required", a.RegistrationConfiguration.MiddleName.Required)
-	_ = data.Set("registration_configuration.0.mobile_phone.0.enabled", a.RegistrationConfiguration.MobilePhone.Enabled)
-	_ = data.Set("registration_configuration.0.mobile_phone.0.required", a.RegistrationConfiguration.MobilePhone.Required)
-	_ = data.Set("registration_configuration.0.login_id_type", a.RegistrationConfiguration.LoginIdType)
-	_ = data.Set("registration_configuration.0.type", a.RegistrationConfiguration.Type)
-	_ = data.Set("registration_delete_policy.0.unverified_enabled", a.RegistrationDeletePolicy.Unverified.Enabled)
-	_ = data.Set(
-		"registration_delete_policy.0.unverified_number_of_days_to_retain",
-		a.RegistrationDeletePolicy.Unverified.NumberOfDaysToRetain,
-	)
-	_ = data.Set("registration_configuration.0.form_id", a.RegistrationConfiguration.FormId)
-	_ = data.Set("samlv2_configuration.0.enabled", a.Samlv2Configuration.Enabled)
-	_ = data.Set("samlv2_configuration.0.audience", a.Samlv2Configuration.Audience)
-	_ = data.Set("samlv2_configuration.0.callback_url", a.Samlv2Configuration.CallbackURL)
-	_ = data.Set("samlv2_configuration.0.debug", a.Samlv2Configuration.Debug)
-	_ = data.Set("samlv2_configuration.0.issuer", a.Samlv2Configuration.Issuer)
-	_ = data.Set("samlv2_configuration.0.key_id", a.Samlv2Configuration.KeyId)
-	_ = data.Set("samlv2_configuration.0.logout_url", a.Samlv2Configuration.LogoutURL)
-	_ = data.Set(
-		"samlv2_configuration.0.xml_signature_canonicalization_method",
-		a.Samlv2Configuration.XmlSignatureC14nMethod,
-	)
+
+	_ = data.Set("registration_configuration", []map[string]interface{}{
+		{
+			"enabled": a.RegistrationConfiguration.Enabled,
+			"birth_date": []map[string]interface{}{
+				{
+					"enabled":  a.RegistrationConfiguration.BirthDate.Enabled,
+					"required": a.RegistrationConfiguration.BirthDate.Required,
+				},
+			},
+			"confirm_password": a.RegistrationConfiguration.ConfirmPassword,
+			"first_name": []map[string]interface{}{
+				{
+					"enabled":  a.RegistrationConfiguration.FirstName.Enabled,
+					"required": a.RegistrationConfiguration.FirstName.Required,
+				},
+			},
+			"full_name": []map[string]interface{}{
+				{
+					"enabled":  a.RegistrationConfiguration.FullName.Enabled,
+					"required": a.RegistrationConfiguration.FullName.Required,
+				},
+			},
+			"last_name": []map[string]interface{}{
+				{
+					"enabled":  a.RegistrationConfiguration.LastName.Enabled,
+					"required": a.RegistrationConfiguration.LastName.Required,
+				},
+			},
+			"middle_name": []map[string]interface{}{
+				{
+					"enabled":  a.RegistrationConfiguration.MiddleName.Enabled,
+					"required": a.RegistrationConfiguration.MiddleName.Required,
+				},
+			},
+			"mobile_phone": []map[string]interface{}{
+				{
+					"enabled":  a.RegistrationConfiguration.MobilePhone.Enabled,
+					"required": a.RegistrationConfiguration.MobilePhone.Required,
+				},
+			},
+			"login_id_type": a.RegistrationConfiguration.LoginIdType,
+			"type":          a.RegistrationConfiguration.Type,
+			"form_id":       a.RegistrationConfiguration.FormId,
+		},
+	})
+
+	_ = data.Set("registration_delete_policy", []map[string]interface{}{
+		{
+			"unverified_enabled":                  a.RegistrationDeletePolicy.Unverified.Enabled,
+			"unverified_number_of_days_to_retain": a.RegistrationDeletePolicy.Unverified.NumberOfDaysToRetain,
+		},
+	})
+
+	_ = data.Set("samlv2_configuration", []map[string]interface{}{
+		{
+			"enabled":                               a.Samlv2Configuration.Enabled,
+			"audience":                              a.Samlv2Configuration.Audience,
+			"callback_url":                          a.Samlv2Configuration.CallbackURL,
+			"debug":                                 a.Samlv2Configuration.Debug,
+			"issuer":                                a.Samlv2Configuration.Issuer,
+			"key_id":                                a.Samlv2Configuration.KeyId,
+			"logout_url":                            a.Samlv2Configuration.LogoutURL,
+			"xml_signature_canonicalization_method": a.Samlv2Configuration.XmlSignatureC14nMethod,
+		},
+	})
+
 	_ = data.Set("verification_email_template_id", a.VerificationEmailTemplateId)
 	_ = data.Set("verify_registration", a.VerifyRegistration)
 
-	_ = data.Set("email_configuration.0.email_verification_template_id", a.EmailConfiguration.EmailVerificationEmailTemplateId)
-	_ = data.Set("email_configuration.0.forgot_password_template_id", a.EmailConfiguration.ForgotPasswordEmailTemplateId)
-	_ = data.Set("email_configuration.0.passwordless_email_template_id", a.EmailConfiguration.PasswordlessEmailTemplateId)
-	_ = data.Set("email_configuration.0.set_password_email_template_id", a.EmailConfiguration.SetPasswordEmailTemplateId)
+	_ = data.Set("email_configuration", []map[string]interface{}{
+		{
+			"email_verification_template_id": a.EmailConfiguration.EmailVerificationEmailTemplateId,
+			"forgot_password_template_id":    a.EmailConfiguration.ForgotPasswordEmailTemplateId,
+			"passwordless_email_template_id": a.EmailConfiguration.PasswordlessEmailTemplateId,
+			"set_password_email_template_id": a.EmailConfiguration.SetPasswordEmailTemplateId,
+		},
+	})
 }
