@@ -131,6 +131,7 @@ func newTenant() *schema.Resource {
 						"refresh_token_expiration_policy": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "Fixed",
 							ValidateFunc: validation.StringInSlice([]string{
 								"Fixed",
 								"SlidingWindow",
@@ -156,6 +157,7 @@ func newTenant() *schema.Resource {
 						"refresh_token_usage_policy": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "Reusable",
 							ValidateFunc: validation.StringInSlice([]string{
 								"Reusable",
 								"OneTimeUse",
@@ -729,6 +731,7 @@ func newPasswordValidationRules() *schema.Resource {
 				Optional: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -838,6 +841,8 @@ func buildTentant(data *schema.ResourceData) fusionauth.Tenant {
 			VerificationEmailTemplateId:   data.Get("email_configuration.0.verification_email_template_id").(string),
 			VerifyEmail:                   data.Get("email_configuration.0.verify_email").(bool),
 			VerifyEmailWhenChanged:        data.Get("email_configuration.0.verify_email_when_changed").(bool),
+			DefaultFromEmail:              data.Get("email_configuration.0.default_from_email").(string),
+			DefaultFromName:               data.Get("email_configuration.0.default_from_name").(string),
 		},
 		EventConfiguration: buildEventConfiguration("event_configuration", data),
 		ExternalIdentifierConfiguration: fusionauth.ExternalIdentifierConfiguration{
@@ -1022,100 +1027,161 @@ func buildEventConfiguration(key string, data *schema.ResourceData) fusionauth.E
 func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData) {
 	_ = data.Set("data", t.Data)
 
-	_ = data.Set("email_configuration.0.forgot_password_email_template_id", t.EmailConfiguration.ForgotPasswordEmailTemplateId)
-	_ = data.Set("email_configuration.0.host", t.EmailConfiguration.Host)
-	_ = data.Set("email_configuration.0.password", t.EmailConfiguration.Password)
-	_ = data.Set("email_configuration.0.passwordless_email_template_id", t.EmailConfiguration.PasswordlessEmailTemplateId)
-	_ = data.Set("email_configuration.0.port", t.EmailConfiguration.Port)
-	_ = data.Set("email_configuration.0.properties", t.EmailConfiguration.Properties)
-	_ = data.Set("email_configuration.0.security", t.EmailConfiguration.Security)
-	_ = data.Set("email_configuration.0.set_password_email_template_id", t.EmailConfiguration.SetPasswordEmailTemplateId)
-	_ = data.Set("email_configuration.0.username", t.EmailConfiguration.Username)
-	_ = data.Set("email_configuration.0.verification_email_template_id", t.EmailConfiguration.VerificationEmailTemplateId)
-	_ = data.Set("email_configuration.0.verify_email", t.EmailConfiguration.VerifyEmail)
-	_ = data.Set("email_configuration.0.verify_email_when_changed", t.EmailConfiguration.VerifyEmailWhenChanged)
+	_ = data.Set("email_configuration", []map[string]interface{}{
+		{
+			"forgot_password_email_template_id": t.EmailConfiguration.ForgotPasswordEmailTemplateId,
+			"host":                              t.EmailConfiguration.Host,
+			"password":                          t.EmailConfiguration.Password,
+			"passwordless_email_template_id":    t.EmailConfiguration.PasswordlessEmailTemplateId,
+			"port":                              t.EmailConfiguration.Port,
+			"properties":                        t.EmailConfiguration.Properties,
+			"security":                          t.EmailConfiguration.Security,
+			"set_password_email_template_id":    t.EmailConfiguration.SetPasswordEmailTemplateId,
+			"username":                          t.EmailConfiguration.Username,
+			"verification_email_template_id":    t.EmailConfiguration.VerificationEmailTemplateId,
+			"verify_email":                      t.EmailConfiguration.VerifyEmail,
+			"verify_email_when_changed":         t.EmailConfiguration.VerifyEmailWhenChanged,
+			"default_from_email":                t.EmailConfiguration.DefaultFromEmail,
+			"default_from_name":                 t.EmailConfiguration.DefaultFromName,
+		},
+	})
 
-	_ = data.Set("external_identifier_configuration.0.authorization_grant_id_time_to_live_in_seconds", t.ExternalIdentifierConfiguration.AuthorizationGrantIdTimeToLiveInSeconds)
-	_ = data.Set("external_identifier_configuration.0.change_password_id_generator.0.length", t.ExternalIdentifierConfiguration.ChangePasswordIdGenerator.Length)
-	_ = data.Set("external_identifier_configuration.0.change_password_id_generator.0.type", t.ExternalIdentifierConfiguration.ChangePasswordIdGenerator.Type)
-	_ = data.Set("external_identifier_configuration.0.change_password_id_time_to_live_in_seconds", t.ExternalIdentifierConfiguration.ChangePasswordIdTimeToLiveInSeconds)
-	_ = data.Set("external_identifier_configuration.0.device_code_time_to_live_in_seconds", t.ExternalIdentifierConfiguration.DeviceCodeTimeToLiveInSeconds)
-	_ = data.Set("external_identifier_configuration.0.device_user_code_id_generator.0.length", t.ExternalIdentifierConfiguration.DeviceUserCodeIdGenerator.Length)
-	_ = data.Set("external_identifier_configuration.0.device_user_code_id_generator.0.type", t.ExternalIdentifierConfiguration.DeviceUserCodeIdGenerator.Type)
-	_ = data.Set("external_identifier_configuration.0.email_verification_id_generator.0.length", t.ExternalIdentifierConfiguration.EmailVerificationIdGenerator.Length)
-	_ = data.Set("external_identifier_configuration.0.email_verification_id_generator.0.type", t.ExternalIdentifierConfiguration.EmailVerificationIdGenerator.Type)
-	_ = data.Set("external_identifier_configuration.0.email_verification_id_time_to_live_in_seconds", t.ExternalIdentifierConfiguration.EmailVerificationIdTimeToLiveInSeconds)
-	_ = data.Set("external_identifier_configuration.0.external_authentication_id_time_to_live_in_seconds", t.ExternalIdentifierConfiguration.ExternalAuthenticationIdTimeToLiveInSeconds)
-	_ = data.Set("external_identifier_configuration.0.one_time_password_time_to_live_in_seconds", t.ExternalIdentifierConfiguration.OneTimePasswordTimeToLiveInSeconds)
-	_ = data.Set("external_identifier_configuration.0.passwordless_login_generator.0.length", t.ExternalIdentifierConfiguration.PasswordlessLoginGenerator.Length)
-	_ = data.Set("external_identifier_configuration.0.passwordless_login_generator.0.type", t.ExternalIdentifierConfiguration.PasswordlessLoginGenerator.Type)
-	_ = data.Set("external_identifier_configuration.0.passwordless_login_time_to_live_in_seconds", t.ExternalIdentifierConfiguration.PasswordlessLoginTimeToLiveInSeconds)
-	_ = data.Set("external_identifier_configuration.0.registration_verification_id_generator.0.length", t.ExternalIdentifierConfiguration.RegistrationVerificationIdTimeToLiveInSeconds)
-	_ = data.Set("external_identifier_configuration.0.registration_verification_id_generator.0.type", t.ExternalIdentifierConfiguration.RegistrationVerificationIdGenerator.Type)
-	_ = data.Set("external_identifier_configuration.0.registration_verification_id_time_to_live_in_seconds", t.ExternalIdentifierConfiguration.RegistrationVerificationIdTimeToLiveInSeconds)
-	_ = data.Set("external_identifier_configuration.0.setup_password_id_generator.0.length", t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length)
-	_ = data.Set("external_identifier_configuration.0.setup_password_id_generator.0.type", t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type)
-	_ = data.Set("external_identifier_configuration.0.setup_password_id_time_to_live_in_seconds", t.ExternalIdentifierConfiguration.SetupPasswordIdTimeToLiveInSeconds)
-	_ = data.Set("external_identifier_configuration.0.two_factor_id_time_to_live_in_seconds", t.ExternalIdentifierConfiguration.TwoFactorIdTimeToLiveInSeconds)
-	_ = data.Set("external_identifier_configuration.0.two_factor_trust_id_time_to_live_in_seconds", t.ExternalIdentifierConfiguration.TwoFactorTrustIdTimeToLiveInSeconds)
+	_ = data.Set("external_identifier_configuration", []map[string]interface{}{
+		{
+			"authorization_grant_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.AuthorizationGrantIdTimeToLiveInSeconds,
+			"change_password_id_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.ChangePasswordIdGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.ChangePasswordIdGenerator.Type,
+			}},
+			"change_password_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.ChangePasswordIdTimeToLiveInSeconds,
+			"device_code_time_to_live_in_seconds":        t.ExternalIdentifierConfiguration.DeviceCodeTimeToLiveInSeconds,
+			"device_user_code_id_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.DeviceUserCodeIdGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.DeviceUserCodeIdGenerator.Type,
+			}},
+			"email_verification_id_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.EmailVerificationIdGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.EmailVerificationIdGenerator.Type,
+			}},
+			"email_verification_id_time_to_live_in_seconds":      t.ExternalIdentifierConfiguration.EmailVerificationIdTimeToLiveInSeconds,
+			"external_authentication_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.ExternalAuthenticationIdTimeToLiveInSeconds,
+			"one_time_password_time_to_live_in_seconds":          t.ExternalIdentifierConfiguration.OneTimePasswordTimeToLiveInSeconds,
+			"passwordless_login_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.PasswordlessLoginGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.PasswordlessLoginGenerator.Type,
+			}},
+			"passwordless_login_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.PasswordlessLoginTimeToLiveInSeconds,
+			"registration_verification_id_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.RegistrationVerificationIdGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.RegistrationVerificationIdGenerator.Type,
+			}},
+			"registration_verification_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.RegistrationVerificationIdTimeToLiveInSeconds,
+			"setup_password_id_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type,
+			}},
+			"setup_password_id_time_to_live_in_seconds":   t.ExternalIdentifierConfiguration.SetupPasswordIdTimeToLiveInSeconds,
+			"two_factor_id_time_to_live_in_seconds":       t.ExternalIdentifierConfiguration.TwoFactorIdTimeToLiveInSeconds,
+			"two_factor_trust_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.TwoFactorTrustIdTimeToLiveInSeconds,
+		},
+	})
 
-	_ = data.Set("failed_authentication_configuration.0.action_duration", t.FailedAuthenticationConfiguration.ActionDuration)
-	_ = data.Set("failed_authentication_configuration.0.action_duration_unit", t.FailedAuthenticationConfiguration.ActionDurationUnit)
-	_ = data.Set("failed_authentication_configuration.0.reset_count_in_seconds", t.FailedAuthenticationConfiguration.ResetCountInSeconds)
-	_ = data.Set("failed_authentication_configuration.0.too_many_attempts", t.FailedAuthenticationConfiguration.TooManyAttempts)
-	_ = data.Set("failed_authentication_configuration.0.user_action_id", t.FailedAuthenticationConfiguration.UserActionId)
+	_ = data.Set("failed_authentication_configuration", []map[string]interface{}{
+		{
+			"action_duration":        t.FailedAuthenticationConfiguration.ActionDuration,
+			"action_duration_unit":   t.FailedAuthenticationConfiguration.ActionDurationUnit,
+			"reset_count_in_seconds": t.FailedAuthenticationConfiguration.ResetCountInSeconds,
+			"too_many_attempts":      t.FailedAuthenticationConfiguration.TooManyAttempts,
+			"user_action_id":         t.FailedAuthenticationConfiguration.UserActionId,
+		},
+	})
 
-	_ = data.Set("family_configuration.0.allow_child_registrations", t.FamilyConfiguration.AllowChildRegistrations)
-	_ = data.Set("family_configuration.0.confirm_child_email_template_id", t.FamilyConfiguration.ConfirmChildEmailTemplateId)
-	_ = data.Set("family_configuration.0.delete_orphaned_accounts", t.FamilyConfiguration.DeleteOrphanedAccounts)
-	_ = data.Set("family_configuration.0.delete_orphaned_accounts_days", t.FamilyConfiguration.DeleteOrphanedAccountsDays)
-	_ = data.Set("family_configuration.0.enabled", t.FamilyConfiguration.Enabled)
-	_ = data.Set("family_configuration.0.family_request_email_template_id", t.FamilyConfiguration.FamilyRequestEmailTemplateId)
-	_ = data.Set("family_configuration.0.maximum_child_age", t.FamilyConfiguration.MaximumChildAge)
-	_ = data.Set("family_configuration.0.minimum_owner_age", t.FamilyConfiguration.MinimumOwnerAge)
-	_ = data.Set("family_configuration.0.parent_email_required", t.FamilyConfiguration.ParentEmailRequired)
-	_ = data.Set("family_configuration.0.parent_registration_email_template_id", t.FamilyConfiguration.ParentRegistrationEmailTemplateId)
+	_ = data.Set("family_configuration", []map[string]interface{}{
+		{
+			"allow_child_registrations":             t.FamilyConfiguration.AllowChildRegistrations,
+			"confirm_child_email_template_id":       t.FamilyConfiguration.ConfirmChildEmailTemplateId,
+			"delete_orphaned_accounts":              t.FamilyConfiguration.DeleteOrphanedAccounts,
+			"delete_orphaned_accounts_days":         t.FamilyConfiguration.DeleteOrphanedAccountsDays,
+			"enabled":                               t.FamilyConfiguration.Enabled,
+			"family_request_email_template_id":      t.FamilyConfiguration.FamilyRequestEmailTemplateId,
+			"maximum_child_age":                     t.FamilyConfiguration.MaximumChildAge,
+			"minimum_owner_age":                     t.FamilyConfiguration.MinimumOwnerAge,
+			"parent_email_required":                 t.FamilyConfiguration.ParentEmailRequired,
+			"parent_registration_email_template_id": t.FamilyConfiguration.ParentRegistrationEmailTemplateId,
+		},
+	})
 
 	_ = data.Set("http_session_max_inactive_interval", t.HttpSessionMaxInactiveInterval)
 
 	_ = data.Set("issuer", t.Issuer)
-	_ = data.Set("jwt_configuration.0.access_token_key_id", t.JwtConfiguration.AccessTokenKeyId)
-	_ = data.Set("jwt_configuration.0.id_token_key_id", t.JwtConfiguration.IdTokenKeyId)
-	_ = data.Set("jwt_configuration.0.refresh_token_expiration_policy", t.JwtConfiguration.RefreshTokenExpirationPolicy)
-	_ = data.Set("jwt_configuration.0.refresh_token_revocation_policy_on_login_prevented", t.JwtConfiguration.RefreshTokenRevocationPolicy.OnLoginPrevented)
-	_ = data.Set("jwt_configuration.0.refresh_token_revocation_policy_on_password_change", t.JwtConfiguration.RefreshTokenRevocationPolicy.OnPasswordChanged)
-	_ = data.Set("jwt_configuration.0.refresh_token_usage_policy", t.JwtConfiguration.RefreshTokenUsagePolicy)
-	_ = data.Set("jwt_configuration.0.id_token_key_id", t.JwtConfiguration.IdTokenKeyId)
-	_ = data.Set("jwt_configuration.0.time_to_live_in_seconds", t.JwtConfiguration.TimeToLiveInSeconds)
 
+	_ = data.Set("jwt_configuration", []map[string]interface{}{
+		{
+			"access_token_key_id":                                t.JwtConfiguration.AccessTokenKeyId,
+			"id_token_key_id":                                    t.JwtConfiguration.IdTokenKeyId,
+			"refresh_token_expiration_policy":                    t.JwtConfiguration.RefreshTokenExpirationPolicy,
+			"refresh_token_revocation_policy_on_login_prevented": t.JwtConfiguration.RefreshTokenRevocationPolicy.OnLoginPrevented,
+			"refresh_token_revocation_policy_on_password_change": t.JwtConfiguration.RefreshTokenRevocationPolicy.OnPasswordChanged,
+			"refresh_token_usage_policy":                         t.JwtConfiguration.RefreshTokenUsagePolicy,
+			"refresh_token_time_to_live_in_minutes":              t.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
+			"time_to_live_in_seconds":                            t.JwtConfiguration.TimeToLiveInSeconds,
+		},
+	})
 	_ = data.Set("logout_url", t.LogoutURL)
 
-	_ = data.Set("maximum_password_age.0.enabled", t.MaximumPasswordAge.Enabled)
-	_ = data.Set("maximum_password_age.0.days", t.MaximumPasswordAge.Days)
-	_ = data.Set("minimum_password_age.0.enabled", t.MinimumPasswordAge.Enabled)
-	_ = data.Set("minimum_password_age.0.seconds", t.MinimumPasswordAge.Seconds)
+	_ = data.Set("maximum_password_age", []map[string]interface{}{
+		{
+			"enabled": t.MaximumPasswordAge.Enabled,
+			"days":    t.MaximumPasswordAge.Days,
+		},
+	})
+	_ = data.Set("minimum_password_age", []map[string]interface{}{
+		{
+			"enabled": t.MinimumPasswordAge.Enabled,
+			"seconds": t.MinimumPasswordAge.Seconds,
+		},
+	})
+
 	_ = data.Set("name", t.Name)
 
-	_ = data.Set("password_encryption_configuration.0.encryption_scheme", t.PasswordEncryptionConfiguration.EncryptionScheme)
-	_ = data.Set("password_encryption_configuration.0.encryption_scheme_factor", t.PasswordEncryptionConfiguration.EncryptionSchemeFactor)
-	_ = data.Set("password_encryption_configuration.0.modify_encryption_scheme_on_login", t.PasswordEncryptionConfiguration.ModifyEncryptionSchemeOnLogin)
-	_ = data.Set("password_validation_rules.0.breach_detection.0.enabled", t.PasswordValidationRules.BreachDetection.Enabled)
-	_ = data.Set("password_validation_rules.0.breach_detection.0.match_mode", t.PasswordValidationRules.BreachDetection.MatchMode)
-	_ = data.Set("password_validation_rules.0.breach_detection.0.notify_user_email_template_id", t.PasswordValidationRules.BreachDetection.NotifyUserEmailTemplateId)
-	_ = data.Set("password_validation_rules.0.breach_detection.0.on_login", t.PasswordValidationRules.BreachDetection.OnLogin)
-	_ = data.Set("password_validation_rules.0.max_length", t.PasswordValidationRules.MaxLength)
-	_ = data.Set("password_validation_rules.0.min_length", t.PasswordValidationRules.MinLength)
-	_ = data.Set("password_validation_rules.0.remember_previous_passwords.0.enabled", t.PasswordValidationRules.RememberPreviousPasswords.Enabled)
-	_ = data.Set("password_validation_rules.0.remember_previous_passwords.0.count", t.PasswordValidationRules.RememberPreviousPasswords.Count)
-	_ = data.Set("password_validation_rules.0.required_mixed_case", t.PasswordValidationRules.RequireMixedCase)
-	_ = data.Set("password_validation_rules.0.require_non_alpha", t.PasswordValidationRules.RequireNonAlpha)
-	_ = data.Set("password_validation_rules.0.require_number", t.PasswordValidationRules.RequireNumber)
-	_ = data.Set("password_validation_rules.0.validate_on_login", t.PasswordValidationRules.ValidateOnLogin)
+	_ = data.Set("password_encryption_configuration", []map[string]interface{}{
+		{
+			"encryption_scheme":                 t.PasswordEncryptionConfiguration.EncryptionScheme,
+			"encryption_scheme_factor":          t.PasswordEncryptionConfiguration.EncryptionSchemeFactor,
+			"modify_encryption_scheme_on_login": t.PasswordEncryptionConfiguration.ModifyEncryptionSchemeOnLogin,
+		},
+	})
+
+	_ = data.Set("password_validation_rules", []map[string]interface{}{
+		{
+			"breach_detection": []map[string]interface{}{{
+				"enabled":                       t.PasswordValidationRules.BreachDetection.Enabled,
+				"match_mode":                    t.PasswordValidationRules.BreachDetection.MatchMode,
+				"notify_user_email_template_id": t.PasswordValidationRules.BreachDetection.NotifyUserEmailTemplateId,
+				"on_login":                      t.PasswordValidationRules.BreachDetection.OnLogin,
+			}},
+			"max_length": t.PasswordValidationRules.MaxLength,
+			"min_length": t.PasswordValidationRules.MinLength,
+			"remember_previous_passwords": []map[string]interface{}{{
+				"enabled": t.PasswordValidationRules.RememberPreviousPasswords.Enabled,
+				"count":   t.PasswordValidationRules.RememberPreviousPasswords.Count,
+			},
+			},
+			"required_mixed_case": t.PasswordValidationRules.RequireMixedCase,
+			"require_non_alpha":   t.PasswordValidationRules.RequireNonAlpha,
+			"require_number":      t.PasswordValidationRules.RequireNumber,
+			"validate_on_login":   t.PasswordValidationRules.ValidateOnLogin,
+		},
+	})
 
 	_ = data.Set("theme_id", t.ThemeId)
 
-	_ = data.Set("user_delete_policy.0.unverified_enabled", t.UserDeletePolicy.Unverified.Enabled)
-	_ = data.Set("user_delete_policy.0.unverified_number_of_days_to_retain", t.UserDeletePolicy.Unverified.NumberOfDaysToRetain)
+	_ = data.Set("user_delete_policy", []map[string]interface{}{
+		{
+			"unverified_enabled":                  t.UserDeletePolicy.Unverified.Enabled,
+			"unverified_number_of_days_to_retain": t.UserDeletePolicy.Unverified.NumberOfDaysToRetain,
+		},
+	})
 
 	e := make([]map[string]interface{}, 0, len(t.EventConfiguration.Events))
 	for k, v := range t.EventConfiguration.Events {
