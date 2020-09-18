@@ -255,24 +255,30 @@ func readWebhook(data *schema.ResourceData, i interface{}) error {
 	_ = data.Set("application_ids", l.ApplicationIds)
 	_ = data.Set("connect_timeout", l.ConnectTimeout)
 	_ = data.Set("description", l.Description)
-	_ = data.Set("events_enabled.0.user_action", l.EventsEnabled[fusionauth.EventType_UserAction])
-	_ = data.Set("events_enabled.0.user_bulk_create", l.EventsEnabled[fusionauth.EventType_UserBulkCreate])
-	_ = data.Set("events_enabled.0.user_create", l.EventsEnabled[fusionauth.EventType_UserCreate])
-	_ = data.Set("events_enabled.0.user_email_verified", l.EventsEnabled[fusionauth.EventType_UserEmailVerified])
-	_ = data.Set("events_enabled.0.user_update", l.EventsEnabled[fusionauth.EventType_UserUpdate])
-	_ = data.Set("events_enabled.0.user_deactivate", l.EventsEnabled[fusionauth.EventType_UserDeactivate])
-	_ = data.Set("events_enabled.0.user_reactivate", l.EventsEnabled[fusionauth.EventType_UserReactivate])
-	_ = data.Set("events_enabled.0.user_login_success", l.EventsEnabled[fusionauth.EventType_UserLoginSuccess])
-	_ = data.Set("events_enabled.0.user_login_failed", l.EventsEnabled[fusionauth.EventType_UserLoginFailed])
-	_ = data.Set("events_enabled.0.user_password_breach", l.EventsEnabled[fusionauth.EventType_UserPasswordBreach])
-	_ = data.Set("events_enabled.0.user_registration_create", l.EventsEnabled[fusionauth.EventType_UserRegistrationCreate])
-	_ = data.Set("events_enabled.0.user_registration_update", l.EventsEnabled[fusionauth.EventType_UserRegistrationUpdate])
-	_ = data.Set("events_enabled.0.user_registration_delete", l.EventsEnabled[fusionauth.EventType_UserRegistrationDelete])
-	_ = data.Set("events_enabled.0.user_registration_verified", l.EventsEnabled[fusionauth.EventType_UserRegistrationVerified])
-	_ = data.Set("events_enabled.0.user_delete", l.EventsEnabled[fusionauth.EventType_UserDelete])
-	_ = data.Set("events_enabled.0.jwt_public_key_update", l.EventsEnabled[fusionauth.EventType_JWTPublicKeyUpdate])
-	_ = data.Set("events_enabled.0.jwt_refresh", l.EventsEnabled[fusionauth.EventType_JWTRefresh])
-	_ = data.Set("events_enabled.0.jwt_refresh_token_revoke", l.EventsEnabled[fusionauth.EventType_JWTRefreshTokenRevoke])
+
+	_ = data.Set("events_enabled", []map[string]interface{}{
+		{
+			"user_action":                l.EventsEnabled[fusionauth.EventType_UserAction],
+			"user_bulk_create":           l.EventsEnabled[fusionauth.EventType_UserBulkCreate],
+			"user_create":                l.EventsEnabled[fusionauth.EventType_UserCreate],
+			"user_email_verified":        l.EventsEnabled[fusionauth.EventType_UserEmailVerified],
+			"user_update":                l.EventsEnabled[fusionauth.EventType_UserUpdate],
+			"user_deactivate":            l.EventsEnabled[fusionauth.EventType_UserDeactivate],
+			"user_reactivate":            l.EventsEnabled[fusionauth.EventType_UserReactivate],
+			"user_login_success":         l.EventsEnabled[fusionauth.EventType_UserLoginSuccess],
+			"user_login_failed":          l.EventsEnabled[fusionauth.EventType_UserLoginFailed],
+			"user_password_breach":       l.EventsEnabled[fusionauth.EventType_UserPasswordBreach],
+			"user_registration_create":   l.EventsEnabled[fusionauth.EventType_UserRegistrationCreate],
+			"user_registration_update":   l.EventsEnabled[fusionauth.EventType_UserRegistrationUpdate],
+			"user_registration_delete":   l.EventsEnabled[fusionauth.EventType_UserRegistrationDelete],
+			"user_registration_verified": l.EventsEnabled[fusionauth.EventType_UserRegistrationVerified],
+			"user_delete":                l.EventsEnabled[fusionauth.EventType_UserDelete],
+			"jwt_public_key_update":      l.EventsEnabled[fusionauth.EventType_JWTPublicKeyUpdate],
+			"jwt_refresh":                l.EventsEnabled[fusionauth.EventType_JWTRefresh],
+			"jwt_refresh_token_revoke":   l.EventsEnabled[fusionauth.EventType_JWTRefreshTokenRevoke],
+		},
+	})
+
 	_ = data.Set("global", l.Global)
 	_ = data.Set("headers", l.Headers)
 	_ = data.Set("http_authentication_password", l.HttpAuthenticationPassword)
