@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -278,27 +279,58 @@ func readOpenIDConnect(data *schema.ResourceData, i interface{}) error {
 	var ipb OpenIDConnectIdenityProviderBody
 	_ = json.Unmarshal(b, &ipb)
 
-	buildResourceFromOpenIDConnect(ipb.IdentityProvider, data)
-	return nil
+	return buildResourceFromOpenIDConnect(ipb.IdentityProvider, data)
 }
 
-func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, data *schema.ResourceData) {
-	_ = data.Set("button_image_url", o.ButtonImageURL)
-	_ = data.Set("button_text", o.ButtonText)
-	_ = data.Set("debug", o.Debug)
-	_ = data.Set("domains", o.Domains)
-	_ = data.Set("enabled", o.Enabled)
-	_ = data.Set("lambda_reconcile_id", o.LambdaConfiguration.ReconcileId)
-	_ = data.Set("name", o.Name)
-	_ = data.Set("oauth2_authorization_endpoint", o.Oauth2.AuthorizationEndpoint)
-	_ = data.Set("oauth2_client_id", o.Oauth2.ClientId)
-	_ = data.Set("oauth2_client_secret", o.Oauth2.ClientSecret)
-	_ = data.Set("oauth2_client_authentication_method", o.Oauth2.ClientAuthenticationMethod)
-	_ = data.Set("oauth2_email_claim", o.Oauth2.EmailClaim)
-	_ = data.Set("oauth2_issuer", o.Oauth2.Issuer)
-	_ = data.Set("oauth2_scope", o.Oauth2.Scope)
-	_ = data.Set("oauth2_token_endpoint", o.Oauth2.TokenEndpoint)
-	_ = data.Set("oauth2_user_info_endpoint", o.Oauth2.UserinfoEndpoint)
+func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, data *schema.ResourceData) error {
+	if err := data.Set("button_image_url", o.ButtonImageURL); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.button_image_url: %s", err.Error())
+	}
+	if err := data.Set("button_text", o.ButtonText); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.button_text: %s", err.Error())
+	}
+	if err := data.Set("debug", o.Debug); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.debug: %s", err.Error())
+	}
+	if err := data.Set("domains", o.Domains); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.domains: %s", err.Error())
+	}
+	if err := data.Set("enabled", o.Enabled); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.enabled: %s", err.Error())
+	}
+	if err := data.Set("lambda_reconcile_id", o.LambdaConfiguration.ReconcileId); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.lambda_reconcile_id: %s", err.Error())
+	}
+	if err := data.Set("name", o.Name); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.name: %s", err.Error())
+	}
+	if err := data.Set("oauth2_authorization_endpoint", o.Oauth2.AuthorizationEndpoint); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.oauth2_authorization_endpoint: %s", err.Error())
+	}
+	if err := data.Set("oauth2_client_id", o.Oauth2.ClientId); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.oauth2_client_id: %s", err.Error())
+	}
+	if err := data.Set("oauth2_client_secret", o.Oauth2.ClientSecret); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.oauth2_client_secret: %s", err.Error())
+	}
+	if err := data.Set("oauth2_client_authentication_method", o.Oauth2.ClientAuthenticationMethod); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.oauth2_client_authentication_method: %s", err.Error())
+	}
+	if err := data.Set("oauth2_email_claim", o.Oauth2.EmailClaim); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.oauth2_email_claim: %s", err.Error())
+	}
+	if err := data.Set("oauth2_issuer", o.Oauth2.Issuer); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.oauth2_issuer: %s", err.Error())
+	}
+	if err := data.Set("oauth2_scope", o.Oauth2.Scope); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.oauth2_scope: %s", err.Error())
+	}
+	if err := data.Set("oauth2_token_endpoint", o.Oauth2.TokenEndpoint); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.oauth2_token_endpoint: %s", err.Error())
+	}
+	if err := data.Set("oauth2_user_info_endpoint", o.Oauth2.UserinfoEndpoint); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.oauth2_user_info_endpoint: %s", err.Error())
+	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}
 	// with one of the values being map[string]interface{}
@@ -319,7 +351,11 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 			"oauth2_scope":         v.OAuth2.Scope,
 		})
 	}
-	_ = data.Set("application_configuration", ac)
+	if err := data.Set("application_configuration", ac); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.application_configuration: %s", err.Error())
+	}
+
+	return nil
 }
 
 func updateOpenIDConnect(data *schema.ResourceData, i interface{}) error {

@@ -93,9 +93,15 @@ func readGroup(data *schema.ResourceData, i interface{}) error {
 	}
 
 	t := resp.Group
-	_ = data.Set("name", t.Name)
-	_ = data.Set("tenant_id", t.TenantId)
-	_ = data.Set("data", t.Data)
+	if err := data.Set("name", t.Name); err != nil {
+		return fmt.Errorf("group.name: %s", err.Error())
+	}
+	if err := data.Set("tenant_id", t.TenantId); err != nil {
+		return fmt.Errorf("group.tenant_id: %s", err.Error())
+	}
+	if err := data.Set("data", t.Data); err != nil {
+		return fmt.Errorf("group.data: %s", err.Error())
+	}
 
 	var s []string
 
@@ -104,7 +110,9 @@ func readGroup(data *schema.ResourceData, i interface{}) error {
 			s = append(s, t.Roles[i][j].Id)
 		}
 	}
-	_ = data.Set("role_ids", s)
+	if err := data.Set("role_ids", s); err != nil {
+		return fmt.Errorf("group.role_ids: %s", err.Error())
+	}
 	return nil
 }
 

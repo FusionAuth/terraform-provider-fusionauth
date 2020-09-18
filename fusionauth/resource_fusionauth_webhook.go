@@ -252,11 +252,17 @@ func readWebhook(data *schema.ResourceData, i interface{}) error {
 	}
 
 	l := resp.Webhook
-	_ = data.Set("application_ids", l.ApplicationIds)
-	_ = data.Set("connect_timeout", l.ConnectTimeout)
-	_ = data.Set("description", l.Description)
+	if err := data.Set("application_ids", l.ApplicationIds); err != nil {
+		return fmt.Errorf("webhook.application_ids: %s", err.Error())
+	}
+	if err := data.Set("connect_timeout", l.ConnectTimeout); err != nil {
+		return fmt.Errorf("webhook.connect_timeout: %s", err.Error())
+	}
+	if err := data.Set("description", l.Description); err != nil {
+		return fmt.Errorf("webhook.description: %s", err.Error())
+	}
 
-	_ = data.Set("events_enabled", []map[string]interface{}{
+	err = data.Set("events_enabled", []map[string]interface{}{
 		{
 			"user_action":                l.EventsEnabled[fusionauth.EventType_UserAction],
 			"user_bulk_create":           l.EventsEnabled[fusionauth.EventType_UserBulkCreate],
@@ -278,14 +284,31 @@ func readWebhook(data *schema.ResourceData, i interface{}) error {
 			"jwt_refresh_token_revoke":   l.EventsEnabled[fusionauth.EventType_JWTRefreshTokenRevoke],
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("webhook.events_enabled: %s", err.Error())
+	}
 
-	_ = data.Set("global", l.Global)
-	_ = data.Set("headers", l.Headers)
-	_ = data.Set("http_authentication_password", l.HttpAuthenticationPassword)
-	_ = data.Set("http_authentication_username", l.HttpAuthenticationUsername)
-	_ = data.Set("read_timeout", l.ReadTimeout)
-	_ = data.Set("ssl_certificate", l.SslCertificate)
-	_ = data.Set("url", l.Url)
+	if err := data.Set("global", l.Global); err != nil {
+		return fmt.Errorf("webhook.global: %s", err.Error())
+	}
+	if err := data.Set("headers", l.Headers); err != nil {
+		return fmt.Errorf("webhook.headers: %s", err.Error())
+	}
+	if err := data.Set("http_authentication_password", l.HttpAuthenticationPassword); err != nil {
+		return fmt.Errorf("webhook.http_authentication_password: %s", err.Error())
+	}
+	if err := data.Set("http_authentication_username", l.HttpAuthenticationUsername); err != nil {
+		return fmt.Errorf("webhook.http_authentication_username: %s", err.Error())
+	}
+	if err := data.Set("read_timeout", l.ReadTimeout); err != nil {
+		return fmt.Errorf("webhook.read_timeout: %s", err.Error())
+	}
+	if err := data.Set("ssl_certificate", l.SslCertificate); err != nil {
+		return fmt.Errorf("webhook.ssl_certificate: %s", err.Error())
+	}
+	if err := data.Set("url", l.Url); err != nil {
+		return fmt.Errorf("webhook.url: %s", err.Error())
+	}
 	return nil
 }
 

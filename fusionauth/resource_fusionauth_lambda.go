@@ -104,11 +104,21 @@ func readLambda(data *schema.ResourceData, i interface{}) error {
 	}
 
 	l := resp.Lambda
-	_ = data.Set("body", l.Body)
-	_ = data.Set("debug", l.Debug)
-	_ = data.Set("enabled", l.Enabled)
-	_ = data.Set("name", l.Name)
-	_ = data.Set("type", l.Type)
+	if err := data.Set("body", l.Body); err != nil {
+		return fmt.Errorf("lambda.body: %s", err.Error())
+	}
+	if err := data.Set("debug", l.Debug); err != nil {
+		return fmt.Errorf("lambda.debug: %s", err.Error())
+	}
+	if err := data.Set("enabled", l.Enabled); err != nil {
+		return fmt.Errorf("lambda.enabled: %s", err.Error())
+	}
+	if err := data.Set("name", l.Name); err != nil {
+		return fmt.Errorf("lambda.name: %s", err.Error())
+	}
+	if err := data.Set("type", l.Type); err != nil {
+		return fmt.Errorf("lambda.type: %s", err.Error())
+	}
 
 	return nil
 }

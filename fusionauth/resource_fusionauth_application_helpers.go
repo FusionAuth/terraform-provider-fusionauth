@@ -1,6 +1,8 @@
 package fusionauth
 
 import (
+	"fmt"
+
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -117,11 +119,15 @@ func buildRequireable(key string, data *schema.ResourceData) fusionauth.Requirab
 	}
 }
 
-func buildResourceDataFromApplication(a fusionauth.Application, data *schema.ResourceData) {
-	_ = data.Set("tenant_id", a.TenantId)
-	_ = data.Set("authentication_token_configuration_enabled", a.AuthenticationTokenConfiguration.Enabled)
+func buildResourceDataFromApplication(a fusionauth.Application, data *schema.ResourceData) error {
+	if err := data.Set("tenant_id", a.TenantId); err != nil {
+		return fmt.Errorf("application.tenant_id: %s", err.Error())
+	}
+	if err := data.Set("authentication_token_configuration_enabled", a.AuthenticationTokenConfiguration.Enabled); err != nil {
+		return fmt.Errorf("application.authentication_token_configuration_enabled: %s", err.Error())
+	}
 
-	_ = data.Set("clean_speak_configuration", []map[string]interface{}{
+	err := data.Set("clean_speak_configuration", []map[string]interface{}{
 		{
 			"application_ids": a.CleanSpeakConfiguration.ApplicationIds,
 			"username_moderation": []map[string]interface{}{
@@ -132,10 +138,15 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			},
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("application.clean_speak_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("data", a.Data)
+	if err := data.Set("data", a.Data); err != nil {
+		return fmt.Errorf("application.data: %s", err.Error())
+	}
 
-	_ = data.Set("jwt_configuration", []map[string]interface{}{
+	err = data.Set("jwt_configuration", []map[string]interface{}{
 		{
 			"enabled":                   a.JwtConfiguration.Enabled,
 			"access_token_id":           a.JwtConfiguration.AccessTokenKeyId,
@@ -144,26 +155,37 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"ttl_seconds":               a.JwtConfiguration.TimeToLiveInSeconds,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("application.jwt_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("lambda_configuration", []map[string]interface{}{
+	err = data.Set("lambda_configuration", []map[string]interface{}{
 		{
 			"access_token_populate_id": a.LambdaConfiguration.AccessTokenPopulateId,
 			"id_token_populate_id":     a.LambdaConfiguration.IdTokenPopulateId,
 			"samlv2_populate_id":       a.LambdaConfiguration.Samlv2PopulateId,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("application.lambda_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("login_configuration", []map[string]interface{}{
+	err = data.Set("login_configuration", []map[string]interface{}{
 		{
 			"allow_token_refresh":     a.LoginConfiguration.AllowTokenRefresh,
 			"generate_refresh_tokens": a.LoginConfiguration.GenerateRefreshTokens,
 			"require_authentication":  a.LoginConfiguration.RequireAuthentication,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("application.login_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("name", a.Name)
+	if err := data.Set("name", a.Name); err != nil {
+		return fmt.Errorf("application.name: %s", err.Error())
+	}
 
-	_ = data.Set("oauth_configuration", []map[string]interface{}{
+	err = data.Set("oauth_configuration", []map[string]interface{}{
 		{
 			"authorized_origin_urls":        a.OauthConfiguration.AuthorizedOriginURLs,
 			"authorized_redirect_urls":      a.OauthConfiguration.AuthorizedRedirectURLs,
@@ -176,10 +198,15 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"enabled_grants":                a.OauthConfiguration.EnabledGrants,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("application.oauth_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("passwordless_configuration_enabled", a.PasswordlessConfiguration.Enabled)
+	if err := data.Set("passwordless_configuration_enabled", a.PasswordlessConfiguration.Enabled); err != nil {
+		return fmt.Errorf("application.passwordless_configuration_enabled: %s", err.Error())
+	}
 
-	_ = data.Set("registration_configuration", []map[string]interface{}{
+	err = data.Set("registration_configuration", []map[string]interface{}{
 		{
 			"enabled": a.RegistrationConfiguration.Enabled,
 			"birth_date": []map[string]interface{}{
@@ -224,15 +251,21 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"form_id":       a.RegistrationConfiguration.FormId,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("application.registration_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("registration_delete_policy", []map[string]interface{}{
+	err = data.Set("registration_delete_policy", []map[string]interface{}{
 		{
 			"unverified_enabled":                  a.RegistrationDeletePolicy.Unverified.Enabled,
 			"unverified_number_of_days_to_retain": a.RegistrationDeletePolicy.Unverified.NumberOfDaysToRetain,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("application.registration_delete_policy: %s", err.Error())
+	}
 
-	_ = data.Set("samlv2_configuration", []map[string]interface{}{
+	err = data.Set("samlv2_configuration", []map[string]interface{}{
 		{
 			"enabled":                               a.Samlv2Configuration.Enabled,
 			"audience":                              a.Samlv2Configuration.Audience,
@@ -244,11 +277,18 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"xml_signature_canonicalization_method": a.Samlv2Configuration.XmlSignatureC14nMethod,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("application.samlv2_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("verification_email_template_id", a.VerificationEmailTemplateId)
-	_ = data.Set("verify_registration", a.VerifyRegistration)
+	if err := data.Set("verification_email_template_id", a.VerificationEmailTemplateId); err != nil {
+		return fmt.Errorf("application.verification_email_template_id: %s", err.Error())
+	}
+	if err := data.Set("verify_registration", a.VerifyRegistration); err != nil {
+		return fmt.Errorf("application.verify_registration: %s", err.Error())
+	}
 
-	_ = data.Set("email_configuration", []map[string]interface{}{
+	err = data.Set("email_configuration", []map[string]interface{}{
 		{
 			"email_verification_template_id": a.EmailConfiguration.EmailVerificationEmailTemplateId,
 			"forgot_password_template_id":    a.EmailConfiguration.ForgotPasswordEmailTemplateId,
@@ -256,4 +296,9 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"set_password_email_template_id": a.EmailConfiguration.SetPasswordEmailTemplateId,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("application.email_configuration: %s", err.Error())
+	}
+
+	return nil
 }

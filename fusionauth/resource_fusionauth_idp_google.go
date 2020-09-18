@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -200,18 +201,31 @@ func readIDPGoogle(data *schema.ResourceData, i interface{}) error {
 	var ipb GoogleIdentityProviderBody
 	_ = json.Unmarshal(b, &ipb)
 
-	buildResourceFromIDPGoogle(ipb.IdentityProvider, data)
-	return nil
+	return buildResourceFromIDPGoogle(ipb.IdentityProvider, data)
 }
 
-func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schema.ResourceData) {
-	_ = data.Set("button_text", o.ButtonText)
-	_ = data.Set("debug", o.Debug)
-	_ = data.Set("enabled", o.Enabled)
-	_ = data.Set("lambda_reconcile_id", o.LambdaConfiguration.ReconcileId)
-	_ = data.Set("client_id", o.ClientId)
-	_ = data.Set("client_secret", o.ClientSecret)
-	_ = data.Set("scope", o.Scope)
+func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schema.ResourceData) error {
+	if err := data.Set("button_text", o.ButtonText); err != nil {
+		return fmt.Errorf("idpGoogle.button_text: %s", err.Error())
+	}
+	if err := data.Set("debug", o.Debug); err != nil {
+		return fmt.Errorf("idpGoogle.debug: %s", err.Error())
+	}
+	if err := data.Set("enabled", o.Enabled); err != nil {
+		return fmt.Errorf("idpGoogle.enabled: %s", err.Error())
+	}
+	if err := data.Set("lambda_reconcile_id", o.LambdaConfiguration.ReconcileId); err != nil {
+		return fmt.Errorf("idpGoogle.lambda_reconcile_id: %s", err.Error())
+	}
+	if err := data.Set("client_id", o.ClientId); err != nil {
+		return fmt.Errorf("idpGoogle.client_id: %s", err.Error())
+	}
+	if err := data.Set("client_secret", o.ClientSecret); err != nil {
+		return fmt.Errorf("idpGoogle.client_secret: %s", err.Error())
+	}
+	if err := data.Set("scope", o.Scope); err != nil {
+		return fmt.Errorf("idpGoogle.scope: %s", err.Error())
+	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}
 	// with one of the values being map[string]interface{}
@@ -232,7 +246,10 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 			"scope":               v.Scope,
 		})
 	}
-	_ = data.Set("application_configuration", ac)
+	if err := data.Set("application_configuration", ac); err != nil {
+		return fmt.Errorf("idpGoogle.application_configuration: %s", err.Error())
+	}
+	return nil
 }
 
 func updateIDPGoogle(data *schema.ResourceData, i interface{}) error {

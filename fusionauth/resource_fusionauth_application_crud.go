@@ -52,9 +52,8 @@ func readApplication(data *schema.ResourceData, i interface{}) error {
 	if err != nil {
 		return err
 	}
-	buildResourceDataFromApplication(resp.Application, data)
 
-	return nil
+	return buildResourceDataFromApplication(resp.Application, data)
 }
 
 func updateApplication(data *schema.ResourceData, i interface{}) error {

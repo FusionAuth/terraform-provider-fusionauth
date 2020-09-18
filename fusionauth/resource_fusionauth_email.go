@@ -129,16 +129,36 @@ func readEmail(data *schema.ResourceData, i interface{}) error {
 	}
 
 	t := resp.EmailTemplate
-	_ = data.Set("default_from_name", t.DefaultFromName)
-	_ = data.Set("default_html_template", t.DefaultHtmlTemplate)
-	_ = data.Set("default_subject", t.DefaultSubject)
-	_ = data.Set("default_text_template", t.DefaultTextTemplate)
-	_ = data.Set("from_email", t.FromEmail)
-	_ = data.Set("localized_from_names", t.LocalizedFromNames)
-	_ = data.Set("localized_html_templates", t.LocalizedHtmlTemplates)
-	_ = data.Set("localized_subjects", t.LocalizedSubjects)
-	_ = data.Set("localized_text_templates", t.LocalizedTextTemplates)
-	_ = data.Set("name", t.Name)
+	if err := data.Set("default_from_name", t.DefaultFromName); err != nil {
+		return fmt.Errorf("email.default_from_name: %s", err.Error())
+	}
+	if err := data.Set("default_html_template", t.DefaultHtmlTemplate); err != nil {
+		return fmt.Errorf("email.default_html_template: %s", err.Error())
+	}
+	if err := data.Set("default_subject", t.DefaultSubject); err != nil {
+		return fmt.Errorf("email.default_subject: %s", err.Error())
+	}
+	if err := data.Set("default_text_template", t.DefaultTextTemplate); err != nil {
+		return fmt.Errorf("email.default_text_template: %s", err.Error())
+	}
+	if err := data.Set("from_email", t.FromEmail); err != nil {
+		return fmt.Errorf("email.from_email: %s", err.Error())
+	}
+	if err := data.Set("localized_from_names", t.LocalizedFromNames); err != nil {
+		return fmt.Errorf("email.localized_from_names: %s", err.Error())
+	}
+	if err := data.Set("localized_html_templates", t.LocalizedHtmlTemplates); err != nil {
+		return fmt.Errorf("email.localized_html_templates: %s", err.Error())
+	}
+	if err := data.Set("localized_subjects", t.LocalizedSubjects); err != nil {
+		return fmt.Errorf("email.localized_subjects: %s", err.Error())
+	}
+	if err := data.Set("localized_text_templates", t.LocalizedTextTemplates); err != nil {
+		return fmt.Errorf("email.localized_text_templates: %s", err.Error())
+	}
+	if err := data.Set("name", t.Name); err != nil {
+		return fmt.Errorf("email.name: %s", err.Error())
+	}
 
 	return nil
 }
