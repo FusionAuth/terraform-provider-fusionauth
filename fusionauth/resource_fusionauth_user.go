@@ -249,27 +249,66 @@ func readUser(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("RetrieveUser errors: %v", faErrs)
 	}
 
-	_ = data.Set("tenant_id", resp.User.TenantId)
-	_ = data.Set("birth_date", resp.User.BirthDate)
-	_ = data.Set("data", resp.User.Data)
-	_ = data.Set("email", resp.User.Email)
-	_ = data.Set("expiry", resp.User.Expiry)
-	_ = data.Set("first_name", resp.User.FirstName)
-	_ = data.Set("full_name", resp.User.FullName)
-	_ = data.Set("image_url", resp.User.ImageUrl)
-	_ = data.Set("last_name", resp.User.LastName)
-	_ = data.Set("middle_name", resp.User.MiddleName)
-	_ = data.Set("mobile_phone", resp.User.MobilePhone)
-	_ = data.Set("parent_email", resp.User.ParentEmail)
-	_ = data.Set("preferred_languages", resp.User.PreferredLanguages)
-	_ = data.Set("timezone", resp.User.Timezone)
-	_ = data.Set("two_factor_delivery", resp.User.TwoFactorDelivery)
-	_ = data.Set("two_factor_enabled", resp.User.TwoFactorEnabled)
-	_ = data.Set("two_factor_secret", resp.User.TwoFactorSecret)
-	_ = data.Set("username", resp.User.Username)
-	_ = data.Set("username_status", resp.User.UsernameStatus)
-	_ = data.Set("encryption_scheme", resp.User.EncryptionScheme)
-	_ = data.Set("password_change_required", resp.User.PasswordChangeRequired)
+	if err := data.Set("tenant_id", resp.User.TenantId); err != nil {
+		return fmt.Errorf("user.tenant_id: %s", err.Error())
+	}
+	if err := data.Set("birth_date", resp.User.BirthDate); err != nil {
+		return fmt.Errorf("user.birth_date: %s", err.Error())
+	}
+	if err := data.Set("data", resp.User.Data); err != nil {
+		return fmt.Errorf("user.data: %s", err.Error())
+	}
+	if err := data.Set("email", resp.User.Email); err != nil {
+		return fmt.Errorf("user.email: %s", err.Error())
+	}
+	if err := data.Set("expiry", resp.User.Expiry); err != nil {
+		return fmt.Errorf("user.expiry: %s", err.Error())
+	}
+	if err := data.Set("first_name", resp.User.FirstName); err != nil {
+		return fmt.Errorf("user.first_name: %s", err.Error())
+	}
+	if err := data.Set("full_name", resp.User.FullName); err != nil {
+		return fmt.Errorf("user.full_name: %s", err.Error())
+	}
+	if err := data.Set("image_url", resp.User.ImageUrl); err != nil {
+		return fmt.Errorf("user.image_url: %s", err.Error())
+	}
+	if err := data.Set("last_name", resp.User.LastName); err != nil {
+		return fmt.Errorf("user.last_name: %s", err.Error())
+	}
+	if err := data.Set("middle_name", resp.User.MiddleName); err != nil {
+		return fmt.Errorf("user.middle_name: %s", err.Error())
+	}
+	if err := data.Set("mobile_phone", resp.User.MobilePhone); err != nil {
+		return fmt.Errorf("user.mobile_phone: %s", err.Error())
+	}
+	if err := data.Set("parent_email", resp.User.ParentEmail); err != nil {
+		return fmt.Errorf("user.parent_email: %s", err.Error())
+	}
+	if err := data.Set("preferred_languages", resp.User.PreferredLanguages); err != nil {
+		return fmt.Errorf("user.preferred_languages: %s", err.Error())
+	}
+	if err := data.Set("timezone", resp.User.Timezone); err != nil {
+		return fmt.Errorf("user.timezone: %s", err.Error())
+	}
+	if err := data.Set("two_factor_delivery", resp.User.TwoFactorDelivery); err != nil {
+		return fmt.Errorf("user.two_factor_delivery: %s", err.Error())
+	}
+	if err := data.Set("two_factor_enabled", resp.User.TwoFactorEnabled); err != nil {
+		return fmt.Errorf("user.two_factor_enabled: %s", err.Error())
+	}
+	if err := data.Set("two_factor_secret", resp.User.TwoFactorSecret); err != nil {
+		return fmt.Errorf("user.two_factor_secret: %s", err.Error())
+	}
+	if err := data.Set("username", resp.User.Username); err != nil {
+		return fmt.Errorf("user.username: %s", err.Error())
+	}
+	if err := data.Set("username_status", resp.User.UsernameStatus); err != nil {
+		return fmt.Errorf("user.username_status: %s", err.Error())
+	}
+	if err := data.Set("password_change_required", resp.User.PasswordChangeRequired); err != nil {
+		return fmt.Errorf("user.password_change_required: %s", err.Error())
+	}
 
 	return nil
 }

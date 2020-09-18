@@ -1024,10 +1024,12 @@ func buildEventConfiguration(key string, data *schema.ResourceData) fusionauth.E
 	return fusionauth.EventConfiguration{Events: ev}
 }
 
-func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData) {
-	_ = data.Set("data", t.Data)
+func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData) error {
+	if err := data.Set("data", t.Data); err != nil {
+		return fmt.Errorf("tenant.data: %s", err.Error())
+	}
 
-	_ = data.Set("email_configuration", []map[string]interface{}{
+	err := data.Set("email_configuration", []map[string]interface{}{
 		{
 			"forgot_password_email_template_id": t.EmailConfiguration.ForgotPasswordEmailTemplateId,
 			"host":                              t.EmailConfiguration.Host,
@@ -1045,8 +1047,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"default_from_name":                 t.EmailConfiguration.DefaultFromName,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("tenant.email_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("external_identifier_configuration", []map[string]interface{}{
+	err = data.Set("external_identifier_configuration", []map[string]interface{}{
 		{
 			"authorization_grant_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.AuthorizationGrantIdTimeToLiveInSeconds,
 			"change_password_id_generator": []map[string]interface{}{{
@@ -1085,8 +1090,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"two_factor_trust_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.TwoFactorTrustIdTimeToLiveInSeconds,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("tenant.external_identifier_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("failed_authentication_configuration", []map[string]interface{}{
+	err = data.Set("failed_authentication_configuration", []map[string]interface{}{
 		{
 			"action_duration":        t.FailedAuthenticationConfiguration.ActionDuration,
 			"action_duration_unit":   t.FailedAuthenticationConfiguration.ActionDurationUnit,
@@ -1095,8 +1103,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"user_action_id":         t.FailedAuthenticationConfiguration.UserActionId,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("tenant.failed_authentication_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("family_configuration", []map[string]interface{}{
+	err = data.Set("family_configuration", []map[string]interface{}{
 		{
 			"allow_child_registrations":             t.FamilyConfiguration.AllowChildRegistrations,
 			"confirm_child_email_template_id":       t.FamilyConfiguration.ConfirmChildEmailTemplateId,
@@ -1110,12 +1121,19 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"parent_registration_email_template_id": t.FamilyConfiguration.ParentRegistrationEmailTemplateId,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("tenant.family_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("http_session_max_inactive_interval", t.HttpSessionMaxInactiveInterval)
+	if err := data.Set("http_session_max_inactive_interval", t.HttpSessionMaxInactiveInterval); err != nil {
+		return fmt.Errorf("tenant.http_session_max_inactive_interval: %s", err.Error())
+	}
 
-	_ = data.Set("issuer", t.Issuer)
+	if err := data.Set("issuer", t.Issuer); err != nil {
+		return fmt.Errorf("tenant.issuer: %s", err.Error())
+	}
 
-	_ = data.Set("jwt_configuration", []map[string]interface{}{
+	err = data.Set("jwt_configuration", []map[string]interface{}{
 		{
 			"access_token_key_id":                                t.JwtConfiguration.AccessTokenKeyId,
 			"id_token_key_id":                                    t.JwtConfiguration.IdTokenKeyId,
@@ -1127,32 +1145,49 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"time_to_live_in_seconds":                            t.JwtConfiguration.TimeToLiveInSeconds,
 		},
 	})
-	_ = data.Set("logout_url", t.LogoutURL)
+	if err != nil {
+		return fmt.Errorf("tenant.jwt_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("maximum_password_age", []map[string]interface{}{
+	if err := data.Set("logout_url", t.LogoutURL); err != nil {
+		return fmt.Errorf("tenant.logout_url: %s", err.Error())
+	}
+
+	err = data.Set("maximum_password_age", []map[string]interface{}{
 		{
 			"enabled": t.MaximumPasswordAge.Enabled,
 			"days":    t.MaximumPasswordAge.Days,
 		},
 	})
-	_ = data.Set("minimum_password_age", []map[string]interface{}{
+	if err != nil {
+		return fmt.Errorf("tenant.maximum_password_age: %s", err.Error())
+	}
+	err = data.Set("minimum_password_age", []map[string]interface{}{
 		{
 			"enabled": t.MinimumPasswordAge.Enabled,
 			"seconds": t.MinimumPasswordAge.Seconds,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("tenant.minimum_password_age: %s", err.Error())
+	}
 
-	_ = data.Set("name", t.Name)
+	if err := data.Set("name", t.Name); err != nil {
+		return fmt.Errorf("tenant.name: %s", err.Error())
+	}
 
-	_ = data.Set("password_encryption_configuration", []map[string]interface{}{
+	err = data.Set("password_encryption_configuration", []map[string]interface{}{
 		{
 			"encryption_scheme":                 t.PasswordEncryptionConfiguration.EncryptionScheme,
 			"encryption_scheme_factor":          t.PasswordEncryptionConfiguration.EncryptionSchemeFactor,
 			"modify_encryption_scheme_on_login": t.PasswordEncryptionConfiguration.ModifyEncryptionSchemeOnLogin,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("tenant.password_encryption_configuration: %s", err.Error())
+	}
 
-	_ = data.Set("password_validation_rules", []map[string]interface{}{
+	err = data.Set("password_validation_rules", []map[string]interface{}{
 		{
 			"breach_detection": []map[string]interface{}{{
 				"enabled":                       t.PasswordValidationRules.BreachDetection.Enabled,
@@ -1173,15 +1208,23 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"validate_on_login":   t.PasswordValidationRules.ValidateOnLogin,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("tenant.password_validation_rules: %s", err.Error())
+	}
 
-	_ = data.Set("theme_id", t.ThemeId)
+	if err := data.Set("theme_id", t.ThemeId); err != nil {
+		return fmt.Errorf("tenant.theme_id: %s", err.Error())
+	}
 
-	_ = data.Set("user_delete_policy", []map[string]interface{}{
+	err = data.Set("user_delete_policy", []map[string]interface{}{
 		{
 			"unverified_enabled":                  t.UserDeletePolicy.Unverified.Enabled,
 			"unverified_number_of_days_to_retain": t.UserDeletePolicy.Unverified.NumberOfDaysToRetain,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("tenant.user_delete_policy: %s", err.Error())
+	}
 
 	e := make([]map[string]interface{}, 0, len(t.EventConfiguration.Events))
 	for k, v := range t.EventConfiguration.Events {
@@ -1191,7 +1234,12 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"enabled":          v.Enabled,
 		})
 	}
-	_ = data.Set("event_configuration", e)
+	err = data.Set("event_configuration", e)
+	if err != nil {
+		return fmt.Errorf("tenant.event_configuration: %s", err.Error())
+	}
+
+	return nil
 }
 
 func createTenant(data *schema.ResourceData, i interface{}) error {
@@ -1226,9 +1274,8 @@ func readTenant(data *schema.ResourceData, i interface{}) error {
 	if faErrs != nil {
 		return fmt.Errorf("RetrieveTenant errors: %v", faErrs)
 	}
-	buildResourceDataFromTenant(resp.Tenant, data)
 
-	return nil
+	return buildResourceDataFromTenant(resp.Tenant, data)
 }
 
 func updateTenant(data *schema.ResourceData, i interface{}) error {

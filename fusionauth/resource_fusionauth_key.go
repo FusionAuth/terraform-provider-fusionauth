@@ -88,8 +88,12 @@ func readKey(data *schema.ResourceData, i interface{}) error {
 	}
 
 	l := resp.Key
-	_ = data.Set("algorithm", l.Algorithm)
-	_ = data.Set("name", l.Name)
+	if err := data.Set("algorithm", l.Algorithm); err != nil {
+		return fmt.Errorf("key.algorithm: %s", err.Error())
+	}
+	if err := data.Set("name", l.Name); err != nil {
+		return fmt.Errorf("key.name: %s", err.Error())
+	}
 
 	return nil
 }

@@ -239,33 +239,87 @@ func readTheme(data *schema.ResourceData, i interface{}) error {
 	}
 
 	t := resp.Theme
-	_ = data.Set("default_messages", t.DefaultMessages)
-	_ = data.Set("localized_messages", t.LocalizedMessages)
-	_ = data.Set("name", t.Name)
-	_ = data.Set("stylesheet", t.Stylesheet)
-	_ = data.Set("email_complete", t.Templates.EmailComplete)
-	_ = data.Set("email_send", t.Templates.EmailSend)
-	_ = data.Set("email_verify", t.Templates.EmailVerify)
-	_ = data.Set("helpers", t.Templates.Helpers)
-	_ = data.Set("oauth2_authorize", t.Templates.Oauth2Authorize)
-	_ = data.Set("oauth2_child_registration_not_allowed", t.Templates.Oauth2ChildRegistrationNotAllowed)
-	_ = data.Set("oauth2_child_registration_not_allowed_complete", t.Templates.Oauth2ChildRegistrationNotAllowedComplete)
-	_ = data.Set("oauth2_complete_registration", t.Templates.Oauth2CompleteRegistration)
-	_ = data.Set("oauth2_error", t.Templates.Oauth2Error)
-	_ = data.Set("oauth2_logout", t.Templates.Oauth2Logout)
-	_ = data.Set("oauth2_two_factor", t.Templates.Oauth2TwoFactor)
-	_ = data.Set("oauth2_register", t.Templates.Oauth2Register)
-	_ = data.Set("oauth2_device", t.Templates.Oauth2Device)
-	_ = data.Set("oauth2_device_complete", t.Templates.Oauth2DeviceComplete)
-	_ = data.Set("oauth2_passwordless", t.Templates.Oauth2Passwordless)
-	_ = data.Set("oauth2_wait", t.Templates.Oauth2Wait)
-	_ = data.Set("password_change", t.Templates.PasswordChange)
-	_ = data.Set("password_complete", t.Templates.PasswordComplete)
-	_ = data.Set("password_forgot", t.Templates.PasswordForgot)
-	_ = data.Set("password_sent", t.Templates.PasswordSent)
-	_ = data.Set("registration_complete", t.Templates.RegistrationComplete)
-	_ = data.Set("registration_send", t.Templates.RegistrationSend)
-	_ = data.Set("registration_verify", t.Templates.RegistrationVerify)
+	if err := data.Set("default_messages", t.DefaultMessages); err != nil {
+		return fmt.Errorf("theme.default_messages: %s", err.Error())
+	}
+	if err := data.Set("localized_messages", t.LocalizedMessages); err != nil {
+		return fmt.Errorf("theme.localized_messages: %s", err.Error())
+	}
+	if err := data.Set("name", t.Name); err != nil {
+		return fmt.Errorf("theme.name: %s", err.Error())
+	}
+	if err := data.Set("stylesheet", t.Stylesheet); err != nil {
+		return fmt.Errorf("theme.stylesheet: %s", err.Error())
+	}
+	if err := data.Set("email_complete", t.Templates.EmailComplete); err != nil {
+		return fmt.Errorf("theme.email_complete: %s", err.Error())
+	}
+	if err := data.Set("email_send", t.Templates.EmailSend); err != nil {
+		return fmt.Errorf("theme.email_send: %s", err.Error())
+	}
+	if err := data.Set("email_verify", t.Templates.EmailVerify); err != nil {
+		return fmt.Errorf("theme.email_verify: %s", err.Error())
+	}
+	if err := data.Set("helpers", t.Templates.Helpers); err != nil {
+		return fmt.Errorf("theme.helpers: %s", err.Error())
+	}
+	if err := data.Set("oauth2_authorize", t.Templates.Oauth2Authorize); err != nil {
+		return fmt.Errorf("theme.oauth2_authorize: %s", err.Error())
+	}
+	if err := data.Set("oauth2_child_registration_not_allowed", t.Templates.Oauth2ChildRegistrationNotAllowed); err != nil {
+		return fmt.Errorf("theme.oauth2_child_registration_not_allowed: %s", err.Error())
+	}
+	if err := data.Set("oauth2_child_registration_not_allowed_complete", t.Templates.Oauth2ChildRegistrationNotAllowedComplete); err != nil {
+		return fmt.Errorf("theme.oauth2_child_registration_not_allowed_complete: %s", err.Error())
+	}
+	if err := data.Set("oauth2_complete_registration", t.Templates.Oauth2CompleteRegistration); err != nil {
+		return fmt.Errorf("theme.oauth2_complete_registration: %s", err.Error())
+	}
+	if err := data.Set("oauth2_error", t.Templates.Oauth2Error); err != nil {
+		return fmt.Errorf("theme.oauth2_error: %s", err.Error())
+	}
+	if err := data.Set("oauth2_logout", t.Templates.Oauth2Logout); err != nil {
+		return fmt.Errorf("theme.oauth2_logout: %s", err.Error())
+	}
+	if err := data.Set("oauth2_two_factor", t.Templates.Oauth2TwoFactor); err != nil {
+		return fmt.Errorf("theme.oauth2_two_factor: %s", err.Error())
+	}
+	if err := data.Set("oauth2_register", t.Templates.Oauth2Register); err != nil {
+		return fmt.Errorf("theme.oauth2_register: %s", err.Error())
+	}
+	if err := data.Set("oauth2_device", t.Templates.Oauth2Device); err != nil {
+		return fmt.Errorf("theme.oauth2_device: %s", err.Error())
+	}
+	if err := data.Set("oauth2_device_complete", t.Templates.Oauth2DeviceComplete); err != nil {
+		return fmt.Errorf("theme.oauth2_device_complete: %s", err.Error())
+	}
+	if err := data.Set("oauth2_passwordless", t.Templates.Oauth2Passwordless); err != nil {
+		return fmt.Errorf("theme.oauth2_passwordless: %s", err.Error())
+	}
+	if err := data.Set("oauth2_wait", t.Templates.Oauth2Wait); err != nil {
+		return fmt.Errorf("theme.oauth2_wait: %s", err.Error())
+	}
+	if err := data.Set("password_change", t.Templates.PasswordChange); err != nil {
+		return fmt.Errorf("theme.password_change: %s", err.Error())
+	}
+	if err := data.Set("password_complete", t.Templates.PasswordComplete); err != nil {
+		return fmt.Errorf("theme.password_complete: %s", err.Error())
+	}
+	if err := data.Set("password_forgot", t.Templates.PasswordForgot); err != nil {
+		return fmt.Errorf("theme.password_forgot: %s", err.Error())
+	}
+	if err := data.Set("password_sent", t.Templates.PasswordSent); err != nil {
+		return fmt.Errorf("theme.password_sent: %s", err.Error())
+	}
+	if err := data.Set("registration_complete", t.Templates.RegistrationComplete); err != nil {
+		return fmt.Errorf("theme.registration_complete: %s", err.Error())
+	}
+	if err := data.Set("registration_send", t.Templates.RegistrationSend); err != nil {
+		return fmt.Errorf("theme.registration_send: %s", err.Error())
+	}
+	if err := data.Set("registration_verify", t.Templates.RegistrationVerify); err != nil {
+		return fmt.Errorf("theme.registration_verify: %s", err.Error())
+	}
 
 	return nil
 }
