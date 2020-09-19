@@ -21,6 +21,12 @@ func newTenant() *schema.Resource {
 				Description:  "The optional Id of an existing Tenant to make a copy of. If present, the tenant.id and tenant.name values of the request body will be applied to the new Tenant, all other values will be copied from the source Tenant to the new Tenant.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"tenant_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id to use for the new Tenant. If not specified a secure random UUID will be generated.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"data": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -1249,7 +1255,11 @@ func createTenant(data *schema.ResourceData, i interface{}) error {
 		SourceTenantId: data.Get("source_tentant_id").(string),
 	}
 
-	resp, faErrs, err := client.FAClient.CreateTenant("", t)
+	var tid string
+	if t, ok := data.GetOk("tenant_id"); ok {
+		tid = t.(string)
+	}
+	resp, faErrs, err := client.FAClient.CreateTenant(tid, t)
 
 	if err != nil {
 		return fmt.Errorf("CreateTenant err: %v", err)
