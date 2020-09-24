@@ -14,7 +14,6 @@ type GoogleIdentityProviderBody struct {
 }
 
 type GoogleAppConfig struct {
-	ButtonImageURL     string `json:"buttonImageURL,omitempty"`
 	ButtonText         string `json:"buttonText,omitempty"`
 	ClientID           string `json:"client_id,omitempty"`
 	ClientSecret       string `json:"client_secret,omitempty"`
@@ -237,7 +236,6 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	for k, v := range m {
 		ac = append(ac, map[string]interface{}{
 			"application_id":      k,
-			"button_image_url":    v.ButtonImageURL,
 			"button_text":         v.ButtonText,
 			"client_id":           v.ClientID,
 			"client_secret":       v.ClientSecret,
