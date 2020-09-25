@@ -34,6 +34,7 @@ func Provider() terraform.ResourceProvider {
 			"fusionauth_application_role":    newApplicationRole(),
 			"fusionauth_idp_open_id_connect": newIDPOpenIDConnect(),
 			"fusionauth_idp_google":          newIDPGoogle(),
+			"fusionauth_registration":        newRegistration(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"fusionauth_application": dataSourceApplication(),
