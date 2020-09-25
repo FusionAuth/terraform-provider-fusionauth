@@ -4,7 +4,7 @@ linters:
     - bodyclose
     - deadcode
     - dogsled
-    - dupl
+    # - dupl
     - errcheck
     - gochecknoglobals
     - gochecknoinits
