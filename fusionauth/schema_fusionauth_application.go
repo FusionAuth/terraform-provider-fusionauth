@@ -33,10 +33,11 @@ func newApplication() *schema.Resource {
 				Description: "Determines if Users can have Authentication Tokens associated with this Application. This feature may not be enabled for the FusionAuth application.",
 			},
 			"clean_speak_configuration": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"application_ids": {
@@ -46,9 +47,10 @@ func newApplication() *schema.Resource {
 							Description: "An array of UUIDs that map to the CleanSpeak applications for this Application. It is possible that a single Application in FusionAuth might have multiple Applications in CleanSpeak. For example, a FusionAuth Application for a game might have one CleanSpeak Application for usernames and another Application for chat.",
 						},
 						"username_moderation": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
+							Type:       schema.TypeList,
+							MaxItems:   1,
+							Optional:   true,
+							ConfigMode: schema.SchemaConfigModeAttr,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -80,10 +82,11 @@ func newApplication() *schema.Resource {
 				Optional: true,
 			},
 			"lambda_configuration": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Optional:   true,
+				Computed:   true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"access_token_populate_id": {
@@ -175,11 +178,12 @@ func newApplication() *schema.Resource {
 				},
 			},
 			"samlv2_configuration": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Computed: true,
-				Elem:     newSamlv2Configuration(),
-				Optional: true,
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem:       newSamlv2Configuration(),
+				Optional:   true,
 			},
 			"verification_email_template_id": {
 				Type:        schema.TypeString,
@@ -199,10 +203,11 @@ func newApplication() *schema.Resource {
 				Description: "An array of Webhook Ids. For Webhooks that are not already configured for All Applications, specifying an Id on this request will indicate the associated Webhook should handle events for this application.",
 			},
 			"email_configuration": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"email_verification_template_id": {
