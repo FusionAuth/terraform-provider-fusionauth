@@ -37,7 +37,9 @@ func Provider() terraform.ResourceProvider {
 			"fusionauth_registration":        newRegistration(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"fusionauth_application": dataSourceApplication(),
+			"fusionauth_application":      dataSourceApplication(),
+			"fusionauth_tenant":           dataSourceTenant(),
+			"fusionauth_application_role": dataSourceApplicationRole(),
 		},
 		ConfigureFunc: configureClient,
 	}
