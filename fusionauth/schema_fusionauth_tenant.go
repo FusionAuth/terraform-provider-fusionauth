@@ -734,10 +734,11 @@ func newPasswordValidationRules() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"breach_detection": {
-				Optional: true,
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Computed: true,
+				Optional:   true,
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
