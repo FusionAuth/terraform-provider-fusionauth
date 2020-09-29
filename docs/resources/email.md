@@ -19,6 +19,7 @@ resource "fusionauth_email" "HelloWorld" {
 
 ## Argument Reference
 
+* `email_id` - (Optional) The Id to use for the new Email Template. If not specified a secure random UUID will be generated.
 * `default_from_name` - (Required) The default From Name used when sending emails. If not provided, and a localized value cannot be determined, the default value for the tenant will be used. This is the display name part of the email address ( i.e. Jared Dunn <jared@piedpiper.com>).
 * `default_html_template` - (Required) The default HTML Email Template.
 * `default_subject` - (Required) The default Subject used when sending emails.
