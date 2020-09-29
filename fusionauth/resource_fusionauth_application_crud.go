@@ -36,10 +36,11 @@ func createApplication(data *schema.ResourceData, i interface{}) error {
 	if faErrs != nil {
 		return fmt.Errorf("CreateApplication errors: %v", faErrs)
 	}
-	if ar.Application.TenantId == "" {
-		_ = data.Set("tenant_id", resp.Application.TenantId)
-	}
+
 	data.SetId(resp.Application.Id)
+	if err := buildResourceDataFromApplication(resp.Application, data); err != nil {
+		return err
+	}
 
 	return nil
 }
