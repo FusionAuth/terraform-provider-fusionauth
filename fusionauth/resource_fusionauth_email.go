@@ -5,6 +5,7 @@ import (
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func newEmail() *schema.Resource {
@@ -14,6 +15,12 @@ func newEmail() *schema.Resource {
 		Update: updateEmail,
 		Delete: deleteEmail,
 		Schema: map[string]*schema.Schema{
+			"email_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id to use for the new Email Template. If not specified a secure random UUID will be generated.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"default_from_name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -103,7 +110,12 @@ func createEmail(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	e := buildEmail(data)
 
-	resp, faErrs, err := client.FAClient.CreateEmailTemplate("", fusionauth.EmailTemplateRequest{
+	var eid string
+	if ei, ok := data.GetOk("email_id"); ok {
+		eid = ei.(string)
+	}
+
+	resp, faErrs, err := client.FAClient.CreateEmailTemplate(eid, fusionauth.EmailTemplateRequest{
 		EmailTemplate: e,
 	})
 
