@@ -37,7 +37,7 @@ func dataSourceTenantRead(data *schema.ResourceData, i interface{}) error {
 		}
 	}
 	if t == nil {
-		return fmt.Errorf("couldn't find application %s", name)
+		return fmt.Errorf("couldn't find tenant %s", name)
 	}
 	data.SetId(t.Id)
 	return nil
