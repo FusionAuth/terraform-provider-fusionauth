@@ -28,6 +28,21 @@ func newRegistration() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 				ForceNew:     true,
 			},
+			"authentication_token": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The authentication token that may be used in place of the User’s password when authenticating against this application represented by this registration. This parameter is ignored if generateAuthenticationToken is set to true and instead the value will be generated.",
+				ValidateFunc: validation.IsUUID,
+				Computed:     true,
+			},
+			"generate_authentication_token": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      false,
+				Description:  "Determines if FusionAuth should generate an Authentication Token for this registration.",
+				ValidateFunc: validation.IsUUID,
+				Computed:     true,
+			},
 			"application_id": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -84,6 +99,7 @@ func buildRegistration(data *schema.ResourceData) fusionauth.RegistrationRequest
 			Roles:              handleStringSlice("roles", data),
 			Username:           data.Get("username").(string),
 		},
+		GenerateAuthenticationToken:  data.Get("generate_authentication_token").(bool),
 		SkipRegistrationVerification: data.Get("skip_registration_validation").(bool),
 	}
 }
@@ -94,11 +110,12 @@ func createRegistration(data *schema.ResourceData, i interface{}) error {
 		SkipRegistrationVerification bool                        `json:"skipRegistrationVerification"`
 	}{
 		Registration: fusionauth.UserRegistration{
-			ApplicationId:      data.Get("application_id").(string),
-			Data:               data.Get("data").(map[string]interface{}),
-			PreferredLanguages: handleStringSlice("preferred_languages", data),
-			Roles:              handleStringSlice("roles", data),
-			Username:           data.Get("username").(string),
+			ApplicationId:       data.Get("application_id").(string),
+			AuthenticationToken: data.Get("authentication_token").(string),
+			Data:                data.Get("data").(map[string]interface{}),
+			PreferredLanguages:  handleStringSlice("preferred_languages", data),
+			Roles:               handleStringSlice("roles", data),
+			Username:            data.Get("username").(string),
 		},
 		SkipRegistrationVerification: data.Get("skip_registration_validation").(bool),
 	}
@@ -113,7 +130,7 @@ func createRegistration(data *schema.ResourceData, i interface{}) error {
 	_ = json.Unmarshal(b, &reg)
 
 	data.SetId(reg.Registration.Id)
-	return nil
+	return buildResourceDataFromRegistration(reg.Registration, data)
 }
 
 func sendCreateRegistration(b []byte, uid string, aid string, client Client) ([]byte, error) {
@@ -160,19 +177,29 @@ func readRegistration(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("RetrieveRegistration errors: %v", faErrs)
 	}
 
-	if err := data.Set("data", resp.Registration.Data); err != nil {
+	return buildResourceDataFromRegistration(resp.Registration, data)
+}
+
+func buildResourceDataFromRegistration(r fusionauth.UserRegistration, data *schema.ResourceData) error {
+	if err := data.Set("authentication_token", r.AuthenticationToken); err != nil {
+		return fmt.Errorf("registration.authentication_token: %s", err.Error())
+	}
+	if err := data.Set("application_id", r.ApplicationId); err != nil {
+		return fmt.Errorf("registration.application_id: %s", err.Error())
+	}
+	if err := data.Set("data", r.Data); err != nil {
 		return fmt.Errorf("registration.data: %s", err.Error())
 	}
-	if err := data.Set("preferred_languages", resp.Registration.PreferredLanguages); err != nil {
+	if err := data.Set("preferred_languages", r.PreferredLanguages); err != nil {
 		return fmt.Errorf("registration.preferred_languages: %s", err.Error())
 	}
-	if err := data.Set("roles", resp.Registration.Roles); err != nil {
+	if err := data.Set("roles", r.Roles); err != nil {
 		return fmt.Errorf("registration.roles: %s", err.Error())
 	}
-	if err := data.Set("timezone", resp.Registration.Timezone); err != nil {
+	if err := data.Set("timezone", r.Timezone); err != nil {
 		return fmt.Errorf("registration.timezone: %s", err.Error())
 	}
-	if err := data.Set("username", resp.Registration.Username); err != nil {
+	if err := data.Set("username", r.Username); err != nil {
 		return fmt.Errorf("registration.username: %s", err.Error())
 	}
 
