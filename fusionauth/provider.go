@@ -40,6 +40,7 @@ func Provider() terraform.ResourceProvider {
 			"fusionauth_application":      dataSourceApplication(),
 			"fusionauth_tenant":           dataSourceTenant(),
 			"fusionauth_application_role": dataSourceApplicationRole(),
+			"fusionauth_idp":              dataSourceIDP(),
 		},
 		ConfigureFunc: configureClient,
 	}
