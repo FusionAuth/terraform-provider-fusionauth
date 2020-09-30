@@ -41,7 +41,6 @@ func newRegistration() *schema.Resource {
 				Default:      false,
 				Description:  "Determines if FusionAuth should generate an Authentication Token for this registration.",
 				ValidateFunc: validation.IsUUID,
-				Computed:     true,
 			},
 			"application_id": {
 				Type:         schema.TypeString,
