@@ -106,8 +106,8 @@ func readIdenityProviders(client Client) ([]byte, error) {
 
 	b, _ := ioutil.ReadAll(resp.Body)
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("status: %d, response: \n\t%s", resp.StatusCode, string(b))
+	if err := checkResponse(resp.StatusCode, nil); err != nil {
+		return b, err
 	}
 	return b, nil
 }

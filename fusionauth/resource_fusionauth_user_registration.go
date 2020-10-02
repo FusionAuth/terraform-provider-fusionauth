@@ -158,8 +158,8 @@ func sendCreateRegistration(b []byte, uid string, aid string, client Client) ([]
 
 	b, _ = ioutil.ReadAll(resp.Body)
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("status: %d, response: \n\t%s", resp.StatusCode, string(b))
+	if err := checkResponse(resp.StatusCode, nil); err != nil {
+		return nil, err
 	}
 	return b, nil
 }
@@ -172,8 +172,8 @@ func readRegistration(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("RetrieveRegistration err: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("RetrieveRegistration errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return buildResourceDataFromRegistration(resp.Registration, data)
@@ -209,13 +209,13 @@ func updateRegistration(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	ur := buildRegistration(data)
 
-	_, faErrs, err := client.FAClient.UpdateRegistration(data.Get("user_id").(string), ur)
+	resp, faErrs, err := client.FAClient.UpdateRegistration(data.Get("user_id").(string), ur)
 	if err != nil {
 		return fmt.Errorf("UpdateRegistration err: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("UpdateRegistration errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
@@ -224,14 +224,13 @@ func updateRegistration(data *schema.ResourceData, i interface{}) error {
 func deleteRegistration(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 
-	_, faErrs, err := client.FAClient.DeleteRegistration(data.Get("user_id").(string), data.Get("application_id").(string))
+	resp, faErrs, err := client.FAClient.DeleteRegistration(data.Get("user_id").(string), data.Get("application_id").(string))
 	if err != nil {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("DeleteRegistration errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
-
 	return nil
 }

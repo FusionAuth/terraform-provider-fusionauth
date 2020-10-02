@@ -224,8 +224,8 @@ func createUser(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("CreateUser err: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("CreateUser errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 	data.SetId(resp.User.Id)
 	_ = data.Set("send_set_password_email", nil)
@@ -245,8 +245,8 @@ func readUser(data *schema.ResourceData, i interface{}) error {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("RetrieveUser errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	if err := data.Set("tenant_id", resp.User.TenantId); err != nil {
@@ -317,13 +317,13 @@ func updateUser(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	u := buildUser(data)
 
-	_, faErrs, err := client.FAClient.UpdateUser(data.Id(), u)
+	resp, faErrs, err := client.FAClient.UpdateUser(data.Id(), u)
 	if err != nil {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("UpdateUser errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
@@ -333,13 +333,13 @@ func deleteUser(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	id := data.Id()
 
-	_, faErrs, err := client.FAClient.DeleteUser(id)
+	resp, faErrs, err := client.FAClient.DeleteUser(id)
 	if err != nil {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("DeleteUser errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil

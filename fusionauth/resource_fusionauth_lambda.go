@@ -83,8 +83,8 @@ func createLambda(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("CreateLambda err: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("CreateLambda errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 	data.SetId(resp.Lambda.Id)
 	return nil
@@ -99,8 +99,8 @@ func readLambda(data *schema.ResourceData, i interface{}) error {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("UpdateLambda errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	l := resp.Lambda
@@ -127,15 +127,15 @@ func updateLambda(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	l := buildLambda(data)
 
-	_, faErrs, err := client.FAClient.UpdateLambda(data.Id(), fusionauth.LambdaRequest{
+	resp, faErrs, err := client.FAClient.UpdateLambda(data.Id(), fusionauth.LambdaRequest{
 		Lambda: l,
 	})
 	if err != nil {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("UpdateLambda errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
@@ -145,13 +145,13 @@ func deleteLambda(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	id := data.Id()
 
-	_, faErrs, err := client.FAClient.DeleteLambda(id)
+	resp, faErrs, err := client.FAClient.DeleteLambda(id)
 	if err != nil {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("DeleteLambda errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil

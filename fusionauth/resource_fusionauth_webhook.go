@@ -235,8 +235,8 @@ func createWebhook(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("CreateWebhook err: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("CreateWebhook errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 	data.SetId(resp.Webhook.Id)
 	return nil
@@ -248,6 +248,10 @@ func readWebhook(data *schema.ResourceData, i interface{}) error {
 
 	resp, err := client.FAClient.RetrieveWebhook(id)
 	if err != nil {
+		return err
+	}
+
+	if err := checkResponse(resp.StatusCode, nil); err != nil {
 		return err
 	}
 
@@ -316,15 +320,15 @@ func updateWebhook(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	l := buildWebhook(data)
 
-	_, faErrs, err := client.FAClient.UpdateWebhook(data.Id(), fusionauth.WebhookRequest{
+	resp, faErrs, err := client.FAClient.UpdateWebhook(data.Id(), fusionauth.WebhookRequest{
 		Webhook: l,
 	})
 	if err != nil {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("UpdateWebhook errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
@@ -334,13 +338,13 @@ func deleteWebhook(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	id := data.Id()
 
-	_, faErrs, err := client.FAClient.DeleteWebhook(id)
+	resp, faErrs, err := client.FAClient.DeleteWebhook(id)
 	if err != nil {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("DeleteWebhook errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil

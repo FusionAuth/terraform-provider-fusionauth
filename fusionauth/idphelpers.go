@@ -15,13 +15,13 @@ func deleteIdentityProvider(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	id := data.Id()
 
-	_, faErrs, err := client.FAClient.DeleteIdentityProvider(id)
+	resp, faErrs, err := client.FAClient.DeleteIdentityProvider(id)
 	if err != nil {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("DeleteIdentityProvider errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
@@ -49,6 +49,9 @@ func readIdenityProvider(id string, client Client) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	if err := checkResponse(resp.StatusCode, nil); err != nil {
+		return nil, err
+	}
 
 	b, _ := ioutil.ReadAll(resp.Body)
 
@@ -81,7 +84,9 @@ func createIdenityProvider(b []byte, client Client) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-
+	if err := checkResponse(resp.StatusCode, nil); err != nil {
+		return nil, err
+	}
 	bb, _ := ioutil.ReadAll(resp.Body)
 
 	if resp.StatusCode > 299 {
@@ -113,7 +118,9 @@ func updateIdenityProvider(b []byte, id string, client Client) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-
+	if err := checkResponse(resp.StatusCode, nil); err != nil {
+		return nil, err
+	}
 	bb, _ := ioutil.ReadAll(resp.Body)
 
 	if resp.StatusCode > 299 {

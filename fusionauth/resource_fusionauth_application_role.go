@@ -71,8 +71,8 @@ func createApplicationRole(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("CreateApplicationRole errors: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("CreateApplicationRole errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	data.SetId(resp.Role.Id)
@@ -90,7 +90,7 @@ func updateApplicationRole(data *schema.ResourceData, i interface{}) error {
 	ar := buildApplicationRole(data)
 	aid := data.Get("application_id").(string)
 
-	_, faErrs, err := client.FAClient.UpdateApplicationRole(
+	resp, faErrs, err := client.FAClient.UpdateApplicationRole(
 		aid, data.Id(), fusionauth.ApplicationRequest{Role: ar},
 	)
 
@@ -98,8 +98,8 @@ func updateApplicationRole(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("CreateApplicationRole errors: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("CreateApplicationRole errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
@@ -111,13 +111,12 @@ func deleteApplicationRole(data *schema.ResourceData, i interface{}) error {
 	id := data.Id()
 	aid := data.Get("application_id").(string)
 
-	_, faErrs, err := client.FAClient.DeleteApplicationRole(aid, id)
+	resp, faErrs, err := client.FAClient.DeleteApplicationRole(aid, id)
 	if err != nil {
 		return err
 	}
-
-	if faErrs != nil {
-		return fmt.Errorf("DeleteApplicationRole errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil

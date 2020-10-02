@@ -34,6 +34,9 @@ func dataSourceApplicationRoleRead(data *schema.ResourceData, i interface{}) err
 	if err != nil {
 		return err
 	}
+	if err := checkResponse(resp.StatusCode, nil); err != nil {
+		return err
+	}
 	name := data.Get("name").(string)
 	var role *fusionauth.ApplicationRole
 
