@@ -1266,8 +1266,8 @@ func createTenant(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("CreateTenant err: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("CreateTenant errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	data.SetId(resp.Tenant.Id)
@@ -1282,8 +1282,8 @@ func readTenant(data *schema.ResourceData, i interface{}) error {
 	if err != nil {
 		return err
 	}
-	if faErrs != nil {
-		return fmt.Errorf("RetrieveTenant errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return buildResourceDataFromTenant(resp.Tenant, data)
@@ -1297,14 +1297,13 @@ func updateTenant(data *schema.ResourceData, i interface{}) error {
 		SourceTenantId: data.Get("source_tentant_id").(string),
 	}
 
-	_, faErrs, err := client.FAClient.UpdateTenant(data.Id(), t)
+	resp, faErrs, err := client.FAClient.UpdateTenant(data.Id(), t)
 
 	if err != nil {
 		return fmt.Errorf("UpdateTenant err: %v", err)
 	}
-
-	if faErrs != nil {
-		return fmt.Errorf("UpdateTenant errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
@@ -1312,13 +1311,13 @@ func updateTenant(data *schema.ResourceData, i interface{}) error {
 
 func deleteTenant(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
-	_, faErrs, err := client.FAClient.DeleteTenant(data.Id())
+	resp, faErrs, err := client.FAClient.DeleteTenant(data.Id())
 	if err != nil {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("DeleteTenant errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil

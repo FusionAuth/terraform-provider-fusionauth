@@ -217,8 +217,8 @@ func createTheme(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("CreateTheme err: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("CreateTheme errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	data.SetId(resp.Theme.Id)
@@ -234,8 +234,8 @@ func readTheme(data *schema.ResourceData, i interface{}) error {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("RetrieveTheme errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	t := resp.Theme
@@ -336,8 +336,8 @@ func updateTheme(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("UpdateTheme err: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("UpdateTheme errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	data.SetId(resp.Theme.Id)
@@ -348,14 +348,13 @@ func deleteTheme(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	id := data.Id()
 
-	_, faErrs, err := client.FAClient.DeleteTheme(id)
+	resp, faErrs, err := client.FAClient.DeleteTheme(id)
 	if err != nil {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("DeleteTheme errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
-
 	return nil
 }
