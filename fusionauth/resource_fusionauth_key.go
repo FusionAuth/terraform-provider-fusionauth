@@ -66,10 +66,10 @@ func createKey(data *schema.ResourceData, i interface{}) error {
 	if err != nil {
 		return fmt.Errorf("CreateKey err: %v", err)
 	}
-
-	if faErrs != nil {
-		return fmt.Errorf("CreateKey errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
+
 	data.SetId(resp.Key.Id)
 	return nil
 }
@@ -82,9 +82,8 @@ func readKey(data *schema.ResourceData, i interface{}) error {
 	if err != nil {
 		return err
 	}
-
-	if faErrs != nil {
-		return fmt.Errorf("RetrieveKey errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	l := resp.Key
@@ -102,15 +101,14 @@ func updateKey(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	l := buildKey(data)
 
-	_, faErrs, err := client.FAClient.UpdateKey(data.Id(), fusionauth.KeyRequest{
+	resp, faErrs, err := client.FAClient.UpdateKey(data.Id(), fusionauth.KeyRequest{
 		Key: l,
 	})
 	if err != nil {
 		return err
 	}
-
-	if faErrs != nil {
-		return fmt.Errorf("UpdateKey errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
@@ -120,13 +118,12 @@ func deleteKey(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	id := data.Id()
 
-	_, faErrs, err := client.FAClient.DeleteKey(id)
+	resp, faErrs, err := client.FAClient.DeleteKey(id)
 	if err != nil {
 		return err
 	}
-
-	if faErrs != nil {
-		return fmt.Errorf("DeleteKey errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil

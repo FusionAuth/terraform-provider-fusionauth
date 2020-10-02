@@ -122,9 +122,8 @@ func createEmail(data *schema.ResourceData, i interface{}) error {
 	if err != nil {
 		return fmt.Errorf("CreateEmailTemplate err: %v", err)
 	}
-
-	if faErrs != nil {
-		return fmt.Errorf("CreateEmailTemplate errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	data.SetId(resp.EmailTemplate.Id)
@@ -137,6 +136,9 @@ func readEmail(data *schema.ResourceData, i interface{}) error {
 
 	resp, err := client.FAClient.RetrieveEmailTemplate(id)
 	if err != nil {
+		return err
+	}
+	if err := checkResponse(resp.StatusCode, nil); err != nil {
 		return err
 	}
 
@@ -179,7 +181,7 @@ func updateEmail(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	e := buildEmail(data)
 
-	_, faErrs, err := client.FAClient.UpdateEmailTemplate(data.Id(), fusionauth.EmailTemplateRequest{
+	resp, faErrs, err := client.FAClient.UpdateEmailTemplate(data.Id(), fusionauth.EmailTemplateRequest{
 		EmailTemplate: e,
 	})
 
@@ -187,8 +189,8 @@ func updateEmail(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("UpdateEmailTemplate err: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("UpdateEmailTemplate errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
@@ -198,13 +200,12 @@ func deleteEmail(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	id := data.Id()
 
-	_, faErrs, err := client.FAClient.DeleteEmailTemplate(id)
+	resp, faErrs, err := client.FAClient.DeleteEmailTemplate(id)
 	if err != nil {
 		return err
 	}
-
-	if faErrs != nil {
-		return fmt.Errorf("DeleteEmailTemplate errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil

@@ -32,9 +32,8 @@ func createApplication(data *schema.ResourceData, i interface{}) error {
 	if err != nil {
 		return fmt.Errorf("CreateApplication errors: %v", err)
 	}
-
-	if faErrs != nil {
-		return fmt.Errorf("CreateApplication errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	data.SetId(resp.Application.Id)
@@ -53,6 +52,9 @@ func readApplication(data *schema.ResourceData, i interface{}) error {
 	if err != nil {
 		return err
 	}
+	if err := checkResponse(resp.StatusCode, nil); err != nil {
+		return err
+	}
 
 	return buildResourceDataFromApplication(resp.Application, data)
 }
@@ -66,14 +68,13 @@ func updateApplication(data *schema.ResourceData, i interface{}) error {
 	if hooks, ok := data.GetOk("webhooks"); ok {
 		ar.WebhookIds = hooks.([]string)
 	}
-	_, faErrs, err := client.FAClient.UpdateApplication(data.Id(), ar)
 
+	resp, faErrs, err := client.FAClient.UpdateApplication(data.Id(), ar)
 	if err != nil {
 		return fmt.Errorf("UpdateApplication err: %v", err)
 	}
-
-	if faErrs != nil {
-		return fmt.Errorf("UpdateApplication errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
@@ -81,13 +82,12 @@ func updateApplication(data *schema.ResourceData, i interface{}) error {
 
 func deleteApplication(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
-	_, faErrs, err := client.FAClient.DeleteApplication(data.Id())
+	resp, faErrs, err := client.FAClient.DeleteApplication(data.Id())
 	if err != nil {
 		return err
 	}
-
-	if faErrs != nil {
-		return fmt.Errorf("DeleteApplication errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil

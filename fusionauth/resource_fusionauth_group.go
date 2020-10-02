@@ -72,8 +72,8 @@ func createGroup(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("CreateGroup err: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("CreateGroup errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	data.SetId(resp.Group.Id)
@@ -88,8 +88,8 @@ func readGroup(data *schema.ResourceData, i interface{}) error {
 	if err != nil {
 		return fmt.Errorf("RetrieveGroup err: %v", err)
 	}
-	if faErrs != nil {
-		return fmt.Errorf("RetrieveGroup errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	t := resp.Group
@@ -125,14 +125,14 @@ func updateGroup(data *schema.ResourceData, i interface{}) error {
 	defer func() {
 		client.FAClient.TenantId = oldTenantID
 	}()
-	_, faErrs, err := client.FAClient.UpdateGroup(id, g)
+	resp, faErrs, err := client.FAClient.UpdateGroup(id, g)
 
 	if err != nil {
 		return fmt.Errorf("UpdateGroup err: %v", err)
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("CreateGroup errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
@@ -142,13 +142,13 @@ func deleteGroup(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	id := data.Id()
 
-	_, faErrs, err := client.FAClient.DeleteGroup(id)
+	resp, faErrs, err := client.FAClient.DeleteGroup(id)
 	if err != nil {
 		return err
 	}
 
-	if faErrs != nil {
-		return fmt.Errorf("DeleteGroup errors: %v", faErrs)
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
 	}
 
 	return nil
