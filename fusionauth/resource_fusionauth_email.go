@@ -27,9 +27,10 @@ func newEmail() *schema.Resource {
 				Description: "The default From Name used when sending emails. If not provided, and a localized value cannot be determined, the default value for the tenant will be used. This is the display name part of the email address ( i.e. Jared Dunn <jared@piedpiper.com>).",
 			},
 			"default_html_template": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The default HTML Email Template.",
+				Type:             schema.TypeString,
+				Required:         true,
+				Description:      "The default HTML Email Template.",
+				DiffSuppressFunc: templateCompare,
 			},
 			"default_subject": {
 				Type:        schema.TypeString,
@@ -37,9 +38,10 @@ func newEmail() *schema.Resource {
 				Description: "The default Subject used when sending emails.",
 			},
 			"default_text_template": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The default Text Email Template.",
+				Type:             schema.TypeString,
+				Required:         true,
+				Description:      "The default Text Email Template.",
+				DiffSuppressFunc: templateCompare,
 			},
 			"from_email": {
 				Type:        schema.TypeString,
