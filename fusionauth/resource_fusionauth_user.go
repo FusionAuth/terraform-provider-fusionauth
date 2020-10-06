@@ -228,8 +228,6 @@ func createUser(data *schema.ResourceData, i interface{}) error {
 		return err
 	}
 	data.SetId(resp.User.Id)
-	_ = data.Set("send_set_password_email", nil)
-	_ = data.Set("skip_verification", nil)
 	if u.User.TenantId == "" {
 		_ = data.Set("tenant_id", resp.User.TenantId)
 	}
