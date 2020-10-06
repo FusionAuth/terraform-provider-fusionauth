@@ -37,11 +37,10 @@ func newRegistration() *schema.Resource {
 				Sensitive:    true,
 			},
 			"generate_authentication_token": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      false,
-				Description:  "Determines if FusionAuth should generate an Authentication Token for this registration.",
-				ValidateFunc: validation.IsUUID,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Determines if FusionAuth should generate an Authentication Token for this registration.",
 			},
 			"application_id": {
 				Type:         schema.TypeString,
