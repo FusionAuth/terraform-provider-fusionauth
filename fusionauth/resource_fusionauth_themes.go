@@ -23,7 +23,8 @@ func newTheme() *schema.Resource {
 			},
 			"default_messages": {
 				Type:             schema.TypeString,
-				Required:         true,
+				Optional:         true,
+				Computed:         true,
 				Description:      "A properties file formatted String containing at least all of the message keys defined in the FusionAuth shipped messages file. Required if not copying an existing Theme.",
 				DiffSuppressFunc: templateCompare,
 			},
@@ -40,144 +41,168 @@ func newTheme() *schema.Resource {
 			"stylesheet": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A CSS stylesheet used to style the templates.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"email_complete": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /email/complete page. This page is used after a user has verified their email address by clicking the URL in the email. After FusionAuth has updated their user object to indicate that their email was verified, the browser is redirected to this page.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"email_send": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /email/send page. This page is used after a user has asked for the verification email to be resent. This can happen if the URL in the email expired and the user clicked it. In this case, the user can provide their email address again and FusionAuth will resend the email. After the user submits their email and FusionAuth re-sends a verification email to them, the browser is redirected to this page.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"email_verify": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /email/verify page by clicking the URL from the verification email and the verificationId has expired. FusionAuth expires verificationId after a period of time (which is configurable). If the user has a URL from the verification email that has expired, this page will be rendered and the error will be displayed to the user.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"helpers": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that contains all of the macros and templates used by the rest of the loginTheme FreeMarker templates (i.e. oauth2Authorize). This allows you to configure the general layout of your UI configuration and login theme without having to copy and paste HTML into each of the templates.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_authorize": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/authorize page. This is the main login page for FusionAuth and is used for all interactive OAuth and OpenId Connect workflows.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_child_registration_not_allowed": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/child-registration-not-allowed page. This is where the child must provide their parent’s email address to ask their parent to create an account for them.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_child_registration_not_allowed_complete": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/child-registration-not-allowed-complete page. This is where the browser is taken after the child provides their parent’s email address.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_complete_registration": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/complete-registration page. This page is used for users that have accounts but might be missing required fields.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_error": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/error page. This page is used if the user starts or is in the middle of the OAuth workflow and any type of error occurs. This could be caused by the user messing with the URL or internally some type of information wasn’t passed between the OAuth endpoints correctly. For example, if you are federating login to an external IdP and that IdP does not properly echo the state parameter, FusionAuth’s OAuth workflow will break and this page will be displayed.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_logout": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/logout page. This page is used if the user initiates a logout. This page causes the user to be logged out of all associated applications via a front-channel mechanism before being redirected.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_register": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/register page. This page is used for users that need to register (sign-up)",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_device": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_device_complete": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_passwordless": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_wait": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_two_factor": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/two-factor page. This page is used if the user has two-factor authentication enabled and they need to type in their code again. FusionAuth will properly handle the SMS or authenticator app processing on the back end. This page contains the form that the user will put their code into.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"password_change": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /password/change page. This page is used if the user is required to change their password or if they have requested a password reset. This page contains the form that allows the user to provide a new password.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"password_complete": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /password/complete page. This page is used after the user has successfully updated their password (or reset it). This page should instruct the user that their password was updated and that they need to login again.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"password_forgot": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /password/forgot page. This page is used when a user starts the forgot password workflow. This page renders the form where the user types in their email address.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"password_sent": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /password/sent page. This page is used when a user has submitted the forgot password form with their email. FusionAuth does not indicate back to the user if their email address was valid in order to prevent malicious activity that could reveal valid email addresses. Therefore, this page should indicate to the user that if their email was valid, they will receive an email shortly with a link to reset their password.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"registration_complete": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /registration/complete page. This page is used after a user has verified their email address for a specific application (i.e. a user registration) by clicking the URL in the email. After FusionAuth has updated their registration object to indicate that their email was verified, the browser is redirected to this page.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"registration_send": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /registration/send page. This page is used after a user has asked for the application specific verification email to be resent. This can happen if the URL in the email expired and the user clicked it. In this case, the user can provide their email address again and FusionAuth will resend the email. After the user submits their email and FusionAuth re-sends a verification email to them, the browser is redirected to this page.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"registration_verify": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				Description:      "A FreeMarker template that is rendered when the user requests the /registration/verify page by clicking the URL from the application specific verification email and the verificationId has expired. FusionAuth expires verificationId after a period of time (which is configurable). If the user has a URL from the verification email that has expired, this page will be rendered and the error will be displayed to the user.",
 				DiffSuppressFunc: templateCompare,
 			},
@@ -233,11 +258,16 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 
 func createTheme(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
-	t := buildTheme(data)
 
-	resp, faErrs, err := client.FAClient.CreateTheme("", fusionauth.ThemeRequest{
-		Theme: t,
-	})
+	req := fusionauth.ThemeRequest{
+		Theme: buildTheme(data),
+	}
+
+	if srcTheme, ok := data.GetOk("source_theme_id"); ok {
+		req.SourceThemeId = srcTheme.(string)
+	}
+
+	resp, faErrs, err := client.FAClient.CreateTheme("", req)
 
 	if err != nil {
 		return fmt.Errorf("CreateTheme err: %v", err)
@@ -248,7 +278,7 @@ func createTheme(data *schema.ResourceData, i interface{}) error {
 	}
 
 	data.SetId(resp.Theme.Id)
-	return nil
+	return buildResourceDataFromTheme(resp.Theme, data)
 }
 
 func readTheme(data *schema.ResourceData, i interface{}) error {
@@ -265,6 +295,51 @@ func readTheme(data *schema.ResourceData, i interface{}) error {
 	}
 
 	t := resp.Theme
+
+	return buildResourceDataFromTheme(t, data)
+}
+
+func updateTheme(data *schema.ResourceData, i interface{}) error {
+	client := i.(Client)
+	req := fusionauth.ThemeRequest{
+		Theme: buildTheme(data),
+	}
+
+	if srcTheme, ok := data.GetOk("source_theme_id"); ok {
+		req.SourceThemeId = srcTheme.(string)
+	}
+
+	resp, faErrs, err := client.FAClient.UpdateTheme(data.Id(), req)
+
+	if err != nil {
+		return fmt.Errorf("UpdateTheme err: %v", err)
+	}
+
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
+	}
+
+	data.SetId(resp.Theme.Id)
+
+	return buildResourceDataFromTheme(resp.Theme, data)
+}
+
+func deleteTheme(data *schema.ResourceData, i interface{}) error {
+	client := i.(Client)
+	id := data.Id()
+
+	resp, faErrs, err := client.FAClient.DeleteTheme(id)
+	if err != nil {
+		return err
+	}
+
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return err
+	}
+	return nil
+}
+
+func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) error {
 	if err := data.Set("default_messages", t.DefaultMessages); err != nil {
 		return fmt.Errorf("theme.default_messages: %s", err.Error())
 	}
@@ -347,40 +422,5 @@ func readTheme(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("theme.registration_verify: %s", err.Error())
 	}
 
-	return nil
-}
-
-func updateTheme(data *schema.ResourceData, i interface{}) error {
-	client := i.(Client)
-	t := buildTheme(data)
-
-	resp, faErrs, err := client.FAClient.UpdateTheme(data.Id(), fusionauth.ThemeRequest{
-		Theme: t,
-	})
-
-	if err != nil {
-		return fmt.Errorf("UpdateTheme err: %v", err)
-	}
-
-	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
-	}
-
-	data.SetId(resp.Theme.Id)
-	return nil
-}
-
-func deleteTheme(data *schema.ResourceData, i interface{}) error {
-	client := i.(Client)
-	id := data.Id()
-
-	resp, faErrs, err := client.FAClient.DeleteTheme(id)
-	if err != nil {
-		return err
-	}
-
-	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
-	}
 	return nil
 }

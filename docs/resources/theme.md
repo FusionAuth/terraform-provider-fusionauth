@@ -39,7 +39,7 @@ resource "fusionauth_theme" "mytheme" {
 ## Argument Reference
 
 * `source_theme_id` - (Optional) The optional Id of an existing Theme to make a copy of. If present, the defaultMessages, localizedMessages, templates, and stylesheet from the source Theme will be copied to the new Theme.
-* `default_messages` - (Required) A properties file formatted String containing at least all of the message keys defined in the FusionAuth shipped messages file. Required if not copying an existing Theme.
+* `default_messages` - (Optional) A properties file formatted String containing at least all of the message keys defined in the FusionAuth shipped messages file. Required if not copying an existing Theme.
 * `localized_messages` - (Optional) A Map of localized versions of the messages. The key is the Locale and the value is a properties file formatted String.
 * `name` - (Required) A unique name for the Theme.
 * `stylesheet` - (Optional) A CSS stylesheet used to style the templates.
