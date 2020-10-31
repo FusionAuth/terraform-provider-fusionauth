@@ -21,6 +21,9 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			},
 		},
 		Data: data.Get("data").(map[string]interface{}),
+		FormConfiguration: fusionauth.ApplicationFormConfiguration{
+			AdminRegistrationFormId: data.Get("form_configuration.0.admin_registration_form_id").(string),
+		},
 		JwtConfiguration: fusionauth.JWTConfiguration{
 			Enableable:                      buildEnableable("jwt_configuration.0.enabled", data),
 			AccessTokenKeyId:                data.Get("jwt_configuration.0.access_token_id").(string),
@@ -73,13 +76,15 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			},
 		},
 		Samlv2Configuration: fusionauth.SAMLv2Configuration{
-			Enableable:  buildEnableable("samlv2_configuration.0.enabled", data),
-			Audience:    data.Get("samlv2_configuration.0.audience").(string),
-			CallbackURL: data.Get("samlv2_configuration.0.callback_url").(string),
-			Debug:       data.Get("samlv2_configuration.0.debug").(bool),
-			Issuer:      data.Get("samlv2_configuration.0.issuer").(string),
-			KeyId:       data.Get("samlv2_configuration.0.key_id").(string),
-			LogoutURL:   data.Get("samlv2_configuration.0.logout_url").(string),
+			Enableable:               buildEnableable("samlv2_configuration.0.enabled", data),
+			Audience:                 data.Get("samlv2_configuration.0.audience").(string),
+			CallbackURL:              data.Get("samlv2_configuration.0.callback_url").(string),
+			Debug:                    data.Get("samlv2_configuration.0.debug").(bool),
+			DefaultVerificationKeyId: data.Get("samlv2_configuration.0.default_verification_key_id").(string),
+			Issuer:                   data.Get("samlv2_configuration.0.issuer").(string),
+			KeyId:                    data.Get("samlv2_configuration.0.key_id").(string),
+			LogoutURL:                data.Get("samlv2_configuration.0.logout_url").(string),
+			RequireSignedRequests:    data.Get("samlv2_configuration.0.required_signed_requests").(bool),
 			XmlSignatureC14nMethod: fusionauth.CanonicalizationMethod(
 				data.Get("samlv2_configuration.0.xml_signature_canonicalization_method").(string),
 			),
@@ -144,6 +149,15 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	if err := data.Set("data", a.Data); err != nil {
 		return fmt.Errorf("application.data: %s", err.Error())
+	}
+
+	err = data.Set("form_configuration", []map[string]interface{}{
+		{
+			"admin_registration_form_id": a.FormConfiguration.AdminRegistrationFormId,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("application.form_configuration: %s", err.Error())
 	}
 
 	err = data.Set("jwt_configuration", []map[string]interface{}{
@@ -271,9 +285,11 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"audience":                              a.Samlv2Configuration.Audience,
 			"callback_url":                          a.Samlv2Configuration.CallbackURL,
 			"debug":                                 a.Samlv2Configuration.Debug,
+			"default_verification_key_id":           a.Samlv2Configuration.DefaultVerificationKeyId,
 			"issuer":                                a.Samlv2Configuration.Issuer,
 			"key_id":                                a.Samlv2Configuration.KeyId,
 			"logout_url":                            a.Samlv2Configuration.LogoutURL,
+			"required_signed_requests":              a.Samlv2Configuration.RequireSignedRequests,
 			"xml_signature_canonicalization_method": a.Samlv2Configuration.XmlSignatureC14nMethod,
 		},
 	})

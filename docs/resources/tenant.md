@@ -140,6 +140,7 @@ resource "fusionauth_tenant" "example" {
       type   = "randomBytes"
     }
     registration_verification_id_time_to_live_in_seconds = 86400
+    saml_v2_authn_request_id_ttl_seconds = 300
     setup_password_id_generator {
       length = 32
       type   = "randomBytes"
@@ -162,6 +163,9 @@ resource "fusionauth_tenant" "example" {
     maximum_child_age             = 12
     minimum_owner_age             = 21
     parent_email_required         = false
+  }
+  form_configuration {
+    admin_user_form_id = "e92751a5-25f4-4bca-ad91-66cdf67725d2"
   }
   http_session_max_inactive_interval = 3600
   issuer                             = "https://example.com"
@@ -251,6 +255,7 @@ resource "fusionauth_tenant" "example" {
         - `length` - (Required) The length of the secure generator used for generating the change password Id.
         - `type` - (Required) The type of the secure generator used for generating the change password Id.
     - `registration_verification_id_time_to_live_in_seconds` - (Required) The time in seconds until a registration verification Id is no longer valid and cannot be used by the Verify Registration API. Value must be greater than 0.
+    - `saml_v2_authn_request_id_ttl_seconds` - (Optional) The time in seconds that a SAML AuthN request will be eligible for use to authenticate with FusionAuth.
     - `setup_password_id_generator` - (Required)
         - `length` - (Required) The length of the secure generator used for generating the change password Id.
         - `type` - (Required) The type of the secure generator used for generating the change password Id.
@@ -274,6 +279,8 @@ resource "fusionauth_tenant" "example" {
     - `minimum_owner_age` - (Optional) The minimum age to be an owner. Value must be greater than 0.
     - `parent_email_required` - (Optional) Whether a parent email is required.
     - `parent_registration_email_template_id` - (Optional) The unique Id of the email template to use for parent registration.
+* `form_configuration` - (Optional)
+    - `admin_user_form_id` - (Optional) The unique Id of the form to use for the Add and Edit User form when used in the FusionAuth admin UI.
 * `http_session_max_inactive_interval` - (Optional) Time in seconds until an inactive session will be invalidated. Used when creating a new session in the FusionAuth OAuth frontend.
 * `issuer` - (Required) The named issuer used to sign tokens, this is generally your public fully qualified domain.
 * `jwt_configuration` - (Required)
