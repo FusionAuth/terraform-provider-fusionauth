@@ -8,6 +8,9 @@
 resource "fusionauth_application" "Forum"{
     tenant_id = fusionauth_tenant.portal.id
     authentication_token_configuration_enabled = false
+    form_configuration {
+        admin_registration_form_id = "e37dff97-9a94-48af-a0a6-c0bdfdd62c48"
+    }
     jwt_configuration {
         access_token_id = 
         enabled=  true
@@ -86,6 +89,8 @@ resource "fusionauth_application" "Forum"{
         * `enabled` - (Optional) True if CleanSpeak username moderation is enabled.
         * `application_id` - (Optional) The Id of the CleanSpeak application that usernames are sent to for moderation.
 * `data` - (Optional) An object that can hold any information about the Application that should be persisted.
+* `form_configuration` - (Optional)
+    - `admin_registration_form_id` - (Optional) The unique Id of the form to use for the Add and Edit User Registration form when used in the FusionAuth admin UI."
 * `jwt_configuration` - (Optional)
     - `access_token_id` - (Optional) The Id of the signing key used to sign the access token.
     - `enabled` - (Optional) Indicates if this application is using the JWT configuration defined here or the global JWT configuration defined by the System Configuration. If this is false the signing algorithm configured in the System Configuration will be used. If true the signing algorithm defined in this application will be used.
@@ -143,10 +148,12 @@ resource "fusionauth_application" "Forum"{
     - `audience` - (Optional) The audience for the SAML response sent to back to the service provider from FusionAuth. Some service providers require different audience values than the issuer and this configuration option lets you change the audience in the response.
     - `callback_url` - (Required) The URL of the callback (sometimes called the Assertion Consumer Service or ACS). This is where FusionAuth sends the browser after the user logs in via SAML.
     - `debug` - (Optional) Whether or not FusionAuth will log SAML debug messages to the event log. This is useful for debugging purposes.
+    - `default_verification_key_id` - (Optional) Default verification key to use for HTTP Redirect Bindings, and for POST Bindings when no key is found in request.
     - `enabled` - (Optional) Whether or not the SAML IdP for this Application is enabled or not.
     - `issuer` - (Required) The issuer that identifies the service provider and allows FusionAuth to load the correct Application and SAML configuration. If you don’t know the issuer, you can often times put in anything here and FusionAuth will display an error message with the issuer from the service provider when you test the SAML login.
     - `key_id` - (Optional) The id of the Key used to sign the SAML response. If you do not specify this property, FusionAuth will create a new key and associate it with this Application.
     - `logout_url` - (Optional) The URL that the browser is taken to after the user logs out of the SAML service provider. Often service providers need this URL in order to correctly hook up single-logout. Note that FusionAuth does not support the SAML single-logout profile because most service providers to not support it properly.
+    - `required_signed_requests` - (Optional) If set to true, will force verification through the key store.
     - `xml_signature_canonicalization_method` - (Optional) The XML signature canonicalization method used when digesting and signing the SAML response. Unfortunately, many service providers do not correctly implement the XML signature specifications and force a specific canonicalization method. This setting allows you to change the canonicalization method to match the service provider. Often, service providers don’t even document their required method. You might need to contact enterprise support at the service provider to figure out what method they use.
 * `verification_email_template_id` - (Optional) The Id of the Email Template that is used to send the Registration Verification emails to users. If the verifyRegistration field is true this field is required.
 * `verify_registration` - (Optional) Whether or not registrations to this Application may be verified. When this is set to true the verificationEmailTemplateId parameter is also required.

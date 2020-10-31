@@ -107,6 +107,23 @@ func newTenant() *schema.Resource {
 				Optional: true,
 				Elem:     newFamilyConfiguration(),
 			},
+			"form_configuration": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"admin_user_form_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+							Description:  "The unique Id of the form to use for the Add and Edit User form when used in the FusionAuth admin UI.",
+						},
+					},
+				},
+			},
 			"http_session_max_inactive_interval": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -596,6 +613,12 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				Description:  "The time in seconds until a registration verification Id is no longer valid and cannot be used by the Verify Registration API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
+			"saml_v2_authn_request_id_ttl_seconds": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     300,
+				Description: "The time in seconds that a SAML AuthN request will be eligible for use to authenticate with FusionAuth.",
+			},
 			"setup_password_id_generator": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -906,6 +929,7 @@ func buildTentant(data *schema.ResourceData) fusionauth.Tenant {
 			RegistrationVerificationIdTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.registration_verification_id_time_to_live_in_seconds",
 			).(int),
+			Samlv2AuthNRequestIdTimeToLiveInSeconds: data.Get("external_identifier_configuration.0.saml_v2_authn_request_id_ttl_seconds").(int),
 			SetupPasswordIdGenerator: fusionauth.SecureGeneratorConfiguration{
 				Length: data.Get("external_identifier_configuration.0.setup_password_id_generator.0.length").(int),
 				Type: fusionauth.SecureGeneratorType(
@@ -942,6 +966,9 @@ func buildTentant(data *schema.ResourceData) fusionauth.Tenant {
 			MinimumOwnerAge:                   data.Get("family_configuration.0.minimum_owner_age").(int),
 			ParentEmailRequired:               data.Get("family_configuration.0.parent_email_required").(bool),
 			ParentRegistrationEmailTemplateId: data.Get("family_configuration.0.parent_registration_email_template_id").(string),
+		},
+		FormConfiguration: fusionauth.TenantFormConfiguration{
+			AdminUserFormId: data.Get("form_configuration.0.admin_user_form_id").(string),
 		},
 		HttpSessionMaxInactiveInterval: data.Get("http_session_max_inactive_interval").(int),
 		Issuer:                         data.Get("issuer").(string),
@@ -1088,6 +1115,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"type":   t.ExternalIdentifierConfiguration.RegistrationVerificationIdGenerator.Type,
 			}},
 			"registration_verification_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.RegistrationVerificationIdTimeToLiveInSeconds,
+			"saml_v2_authn_request_id_ttl_seconds":                 t.ExternalIdentifierConfiguration.Samlv2AuthNRequestIdTimeToLiveInSeconds,
 			"setup_password_id_generator": []map[string]interface{}{{
 				"length": t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type,
@@ -1130,6 +1158,15 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	})
 	if err != nil {
 		return fmt.Errorf("tenant.family_configuration: %s", err.Error())
+	}
+
+	err = data.Set("form_configuration", []map[string]interface{}{
+		{
+			"admin_user_form_id": t.FormConfiguration.AdminUserFormId,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("tenant.form_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("http_session_max_inactive_interval", t.HttpSessionMaxInactiveInterval); err != nil {

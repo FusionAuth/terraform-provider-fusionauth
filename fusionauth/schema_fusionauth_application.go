@@ -75,6 +75,23 @@ func newApplication() *schema.Resource {
 				Optional:    true,
 				Description: "An object that can hold any information about the Application that should be persisted.",
 			},
+			"form_configuration": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"admin_registration_form_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+							Description:  "The unique Id of the form to use for the Add and Edit User Registration form when used in the FusionAuth admin UI.",
+						},
+					},
+				},
+			},
 			"jwt_configuration": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -252,6 +269,7 @@ func newSamlv2Configuration() *schema.Resource {
 			"callback_url": {
 				Type:        schema.TypeString,
 				Required:    true,
+				Deprecated:  "Deprecated in version 1.20",
 				Description: "The URL of the callback (sometimes called the Assertion Consumer Service or ACS). This is where FusionAuth sends the browser after the user logs in via SAML.",
 			},
 			"debug": {
@@ -259,6 +277,12 @@ func newSamlv2Configuration() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 				Description: "Whether or not FusionAuth will log SAML debug messages to the event log. This is useful for debugging purposes.",
+			},
+			"default_verification_key_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "Default verification key to use for HTTP Redirect Bindings, and for POST Bindings when no key is found in request.",
+				ValidateFunc: validation.IsUUID,
 			},
 			"enabled": {
 				Type:        schema.TypeBool,
@@ -280,6 +304,12 @@ func newSamlv2Configuration() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The URL that the browser is taken to after the user logs out of the SAML service provider. Often service providers need this URL in order to correctly hook up single-logout. Note that FusionAuth does not support the SAML single-logout profile because most service providers to not support it properly.",
+			},
+			"required_signed_requests": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "If set to true, will force verification through the key store.",
 			},
 			"xml_signature_canonicalization_method": {
 				Type:     schema.TypeString,
