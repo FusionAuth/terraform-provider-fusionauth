@@ -26,5 +26,5 @@ resource "fusionauth_form" "form" {
 * `form_id` - (Optional) The Id to use for the new Form. If not specified a secure random UUID will be generated.
 * `data` - (Optional) An object that can hold any information about the Form Field that should be persisted.
 * `name` - (Required) The unique name of the Form Field.
-* `steps` - (Optional) An ordered list of objects containing one or more Form Fields. A Form must have at least one step defined.
-    - `fields` - (Optional) An ordered list of Form Field Ids assigned to this step.
+* `steps` - (Required) An ordered list of objects containing one or more Form Fields. A Form must have at least one step defined.
+    - `fields` - (Required) An ordered list of Form Field Ids assigned to this step.

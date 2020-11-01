@@ -12,6 +12,8 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
 * application
 * application/{application_id}/role
 * email
+* form
+* form field
 * group
 * key
 * lambda
