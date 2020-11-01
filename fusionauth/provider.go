@@ -37,6 +37,7 @@ func Provider() terraform.ResourceProvider {
 			"fusionauth_registration":         newRegistration(),
 			"fusionauth_system_configuration": resourceSystemConfiguration(),
 			"fusionauth_form_field":           resourceFormField(),
+			"fusionauth_form":                 resourceForm(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"fusionauth_application":      dataSourceApplication(),
