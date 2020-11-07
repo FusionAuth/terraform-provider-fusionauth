@@ -28,3 +28,4 @@ resource "fusionauth_form" "form" {
 * `name` - (Required) The unique name of the Form Field.
 * `steps` - (Required) An ordered list of objects containing one or more Form Fields. A Form must have at least one step defined.
     - `fields` - (Required) An ordered list of Form Field Ids assigned to this step.
+* `type` - (Optional) The type of form being created, a form type cannot be changed after the form has been created.
