@@ -48,6 +48,18 @@ func resourceForm() *schema.Resource {
 					},
 				},
 			},
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The type of form being created, a form type cannot be changed after the form has been created.",
+				Default:     "registration",
+				ForceNew:    true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"registration",
+					"adminRegistration",
+					"adminUser",
+				}, false),
+			},
 		},
 	}
 }
@@ -135,6 +147,7 @@ func buildForm(data *schema.ResourceData) fusionauth.Form {
 		Data:  data.Get("data").(map[string]interface{}),
 		Name:  data.Get("name").(string),
 		Steps: steps,
+		Type:  fusionauth.FormType(data.Get("type").(string)),
 	}
 }
 
@@ -156,5 +169,9 @@ func buildResourceDataFromForm(data *schema.ResourceData, f fusionauth.Form) err
 	if err := data.Set("steps", fs); err != nil {
 		return fmt.Errorf("form.steps: %s", err.Error())
 	}
+	if err := data.Set("type", f.Type); err != nil {
+		return fmt.Errorf("form.type: %s", err.Error())
+	}
+
 	return nil
 }
