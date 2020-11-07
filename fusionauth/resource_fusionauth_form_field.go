@@ -259,7 +259,23 @@ func validateKey(i interface{}, k string) (warnings []string, errors []error) {
 	}
 
 	switch v {
-	case "registration.username", "user.birthDate", "user.email", "user.firstName", "user.fullName", "user.lastName", "user.middleName", "user.mobilePhone", "user.password", "user.username":
+	case "registration.preferredLanguages",
+		"registration.roles",
+		"registration.timezone",
+		"registration.username",
+		"user.birthDate",
+		"user.email",
+		"user.firstName",
+		"user.fullName",
+		"user.imageUrl",
+		"user.lastName",
+		"user.middleName",
+		"user.mobilePhone",
+		"user.password",
+		"user.preferredLanguages",
+		"user.timezone",
+		"user.twoFactorEnabled",
+		"user.username":
 		return
 	default:
 		if !strings.HasPrefix(v, "user.data.") && !strings.HasPrefix(v, "registration.data.") {
@@ -269,15 +285,22 @@ func validateKey(i interface{}, k string) (warnings []string, errors []error) {
 					"valid options for %q are: %q or start with %q",
 					k,
 					[]string{
+						"registration.preferredLanguages",
+						"registration.roles",
+						"registration.timezone",
 						"registration.username",
 						"user.birthDate",
 						"user.email",
 						"user.firstName",
 						"user.fullName",
+						"user.imageUrl",
 						"user.lastName",
 						"user.middleName",
 						"user.mobilePhone",
 						"user.password",
+						"user.preferredLanguages",
+						"user.timezone",
+						"user.twoFactorEnabled",
 						"user.username",
 					},
 					[]string{
