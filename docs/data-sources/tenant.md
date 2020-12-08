@@ -1,4 +1,4 @@
-# Tentan Resource
+# Tenant Resource
 
 A FusionAuth Tenant is a named object that represents a discrete namespace for Users, Applications and Groups. A user is unique by email address or username within a tenant.
 
