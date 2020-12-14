@@ -23,4 +23,4 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
 * themes
 * user
 * webhook
-* tentants
+* tenants
