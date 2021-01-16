@@ -78,6 +78,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		Samlv2Configuration: fusionauth.SAMLv2Configuration{
 			Enableable:               buildEnableable("samlv2_configuration.0.enabled", data),
 			Audience:                 data.Get("samlv2_configuration.0.audience").(string),
+			AuthorizedRedirectURLs:   handleStringSlice("samlv2_configuration.0.authorized_redirect_urls", data),
 			CallbackURL:              data.Get("samlv2_configuration.0.callback_url").(string),
 			Debug:                    data.Get("samlv2_configuration.0.debug").(bool),
 			DefaultVerificationKeyId: data.Get("samlv2_configuration.0.default_verification_key_id").(string),
@@ -87,6 +88,9 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			RequireSignedRequests:    data.Get("samlv2_configuration.0.required_signed_requests").(bool),
 			XmlSignatureC14nMethod: fusionauth.CanonicalizationMethod(
 				data.Get("samlv2_configuration.0.xml_signature_canonicalization_method").(string),
+			),
+			XmlSignatureLocation: fusionauth.XMLSignatureLocation(
+				data.Get("samlv2_configuration.0.xml_signature_location").(string),
 			),
 		},
 		VerificationEmailTemplateId: data.Get("verification_email_template_id").(string),
@@ -283,6 +287,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		{
 			"enabled":                               a.Samlv2Configuration.Enabled,
 			"audience":                              a.Samlv2Configuration.Audience,
+			"authorized_redirect_urls":              a.Samlv2Configuration.AuthorizedRedirectURLs,
 			"callback_url":                          a.Samlv2Configuration.CallbackURL,
 			"debug":                                 a.Samlv2Configuration.Debug,
 			"default_verification_key_id":           a.Samlv2Configuration.DefaultVerificationKeyId,
@@ -291,6 +296,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"logout_url":                            a.Samlv2Configuration.LogoutURL,
 			"required_signed_requests":              a.Samlv2Configuration.RequireSignedRequests,
 			"xml_signature_canonicalization_method": a.Samlv2Configuration.XmlSignatureC14nMethod,
+			"xml_signature_location":                a.Samlv2Configuration.XmlSignatureLocation,
 		},
 	})
 	if err != nil {

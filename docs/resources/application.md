@@ -146,6 +146,7 @@ resource "fusionauth_application" "Forum"{
     - `unverified_number_of_days_to_retain` - (Optional) The number of days from registration a user’s registration will be retained before being deleted for not completing registration verification. This field is required when application.registrationDeletePolicy.enabled is set to true. Value must be greater than 0.
 * `samlv2_configuration` - (Optional)
     - `audience` - (Optional) The audience for the SAML response sent to back to the service provider from FusionAuth. Some service providers require different audience values than the issuer and this configuration option lets you change the audience in the response.
+    - `authorized_redirect_urls` - (Required) An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.
     - `callback_url` - (Required) The URL of the callback (sometimes called the Assertion Consumer Service or ACS). This is where FusionAuth sends the browser after the user logs in via SAML.
     - `debug` - (Optional) Whether or not FusionAuth will log SAML debug messages to the event log. This is useful for debugging purposes.
     - `default_verification_key_id` - (Optional) Default verification key to use for HTTP Redirect Bindings, and for POST Bindings when no key is found in request.
@@ -155,6 +156,7 @@ resource "fusionauth_application" "Forum"{
     - `logout_url` - (Optional) The URL that the browser is taken to after the user logs out of the SAML service provider. Often service providers need this URL in order to correctly hook up single-logout. Note that FusionAuth does not support the SAML single-logout profile because most service providers to not support it properly.
     - `required_signed_requests` - (Optional) If set to true, will force verification through the key store.
     - `xml_signature_canonicalization_method` - (Optional) The XML signature canonicalization method used when digesting and signing the SAML response. Unfortunately, many service providers do not correctly implement the XML signature specifications and force a specific canonicalization method. This setting allows you to change the canonicalization method to match the service provider. Often, service providers don’t even document their required method. You might need to contact enterprise support at the service provider to figure out what method they use.
+    - `xml_signature_location` - (Optional) The location to place the XML signature when signing a successful SAML response.
 * `verification_email_template_id` - (Optional) The Id of the Email Template that is used to send the Registration Verification emails to users. If the verifyRegistration field is true this field is required.
 * `verify_registration` - (Optional) Whether or not registrations to this Application may be verified. When this is set to true the verificationEmailTemplateId parameter is also required.
 * `webhook_ids` - (Optional) An array of Webhook Ids. For Webhooks that are not already configured for All Applications, specifying an Id on this request will indicate the associated Webhook should handle events for this application.
