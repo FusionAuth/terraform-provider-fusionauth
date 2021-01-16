@@ -266,6 +266,12 @@ func newSamlv2Configuration() *schema.Resource {
 				Optional:    true,
 				Description: "The audience for the SAML response sent to back to the service provider from FusionAuth. Some service providers require different audience values than the issuer and this configuration option lets you change the audience in the response.",
 			},
+			"authorized_redirect_urls": {
+				Type:        schema.TypeSet,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+				Description: "An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.",
+			},
 			"callback_url": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -322,6 +328,16 @@ func newSamlv2Configuration() *schema.Resource {
 					"inclusive_with_comments",
 				}, false),
 				Description: "The XML signature canonicalization method used when digesting and signing the SAML response. Unfortunately, many service providers do not correctly implement the XML signature specifications and force a specific canonicalization method. This setting allows you to change the canonicalization method to match the service provider. Often, service providers don’t even document their required method. You might need to contact enterprise support at the service provider to figure out what method they use.",
+			},
+			"xml_signature_location": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "Assertion",
+				ValidateFunc: validation.StringInSlice([]string{
+					"Assertion",
+					"Response",
+				}, false),
+				Description: "The location to place the XML signature when signing a successful SAML response.",
 			},
 		},
 	}
