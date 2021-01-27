@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -290,6 +291,10 @@ func readTheme(data *schema.ResourceData, i interface{}) error {
 		return err
 	}
 
+	if resp.StatusCode == http.StatusNotFound {
+		data.SetId("")
+		return nil
+	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
 		return err
 	}

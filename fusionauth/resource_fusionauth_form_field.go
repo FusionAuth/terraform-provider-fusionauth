@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"fmt"
+	"net/http"
 	"regexp"
 	"strings"
 
@@ -150,6 +151,11 @@ func readFormField(data *schema.ResourceData, i interface{}) error {
 	resp, err := client.FAClient.RetrieveFormField(id)
 	if err != nil {
 		return err
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		data.SetId("")
+		return nil
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
 		return err

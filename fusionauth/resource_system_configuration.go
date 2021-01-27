@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -200,6 +201,11 @@ func readSystemConfiguration(data *schema.ResourceData, i interface{}) error {
 	resp, err := client.FAClient.RetrieveSystemConfiguration()
 	if err != nil {
 		return fmt.Errorf("RetrieveSystemConfiguration err: %v", err)
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		data.SetId("")
+		return nil
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
 		return err
