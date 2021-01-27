@@ -172,6 +172,10 @@ func readRegistration(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("RetrieveRegistration err: %v", err)
 	}
 
+	if resp.StatusCode == http.StatusNotFound {
+		data.SetId("")
+		return nil
+	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
 		return err
 	}
