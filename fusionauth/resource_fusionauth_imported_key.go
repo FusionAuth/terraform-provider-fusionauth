@@ -159,13 +159,6 @@ func deleteImportedKey(data *schema.ResourceData, i interface{}) error {
 	return nil
 }
 func buildImportedKey(data *schema.ResourceData) fusionauth.Key {
-	// clean := func(s string) string {
-	// 	// s = strings.ReplaceAll(s, " ", "")
-	// 	// s = strings.ReplaceAll(s, "\t", "")
-	// 	s = strings.ReplaceAll(s, "\r\n", "\n")
-	// 	s = strings.ReplaceAll(s, "\n", "")
-	// 	return s
-	// }
 	return fusionauth.Key{
 		Algorithm:   fusionauth.KeyAlgorithm(data.Get("algorithm").(string)),
 		Certificate: data.Get("certificate").(string),
