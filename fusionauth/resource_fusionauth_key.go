@@ -19,6 +19,7 @@ func newKey() *schema.Resource {
 			"algorithm": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"ES256",
 					"ES384",
@@ -30,7 +31,7 @@ func newKey() *schema.Resource {
 					"HS384",
 					"HS512",
 				}, false),
-				Description: "The algorithm used to encrypt the Key. ",
+				Description: "The algorithm used to encrypt the Key.",
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -40,6 +41,7 @@ func newKey() *schema.Resource {
 			"length": {
 				Type:        schema.TypeInt,
 				Optional:    true,
+				ForceNew:    true,
 				Description: "The length of the RSA or EC certificate. This field is required when generating RSA key types.",
 			},
 		},
@@ -98,6 +100,9 @@ func readKey(data *schema.ResourceData, i interface{}) error {
 	}
 	if err := data.Set("name", l.Name); err != nil {
 		return fmt.Errorf("key.name: %s", err.Error())
+	}
+	if err := data.Set("length", l.Length); err != nil {
+		return fmt.Errorf("key.length: %s", err.Error())
 	}
 
 	return nil
