@@ -123,6 +123,9 @@ func resourceFormField() *schema.Resource {
 				},
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 	}
 }
 

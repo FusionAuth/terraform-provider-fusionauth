@@ -62,6 +62,9 @@ func resourceForm() *schema.Resource {
 				}, false),
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 	}
 }
 
