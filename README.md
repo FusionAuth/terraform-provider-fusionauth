@@ -16,10 +16,12 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
 * form field
 * group
 * key
+* imported key
 * lambda
 * indentity provider
     - OpenID Connect
     - Google
+    - Apple
 * themes
 * user
 * webhook
