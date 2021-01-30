@@ -2,7 +2,6 @@ package fusionauth
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -12,9 +11,13 @@ import (
 func newKey() *schema.Resource {
 	return &schema.Resource{
 		Create: createKey,
-		Read:   readKey,
-		Update: updateKey,
-		Delete: deleteKey,
+		Read: func(data *schema.ResourceData, i interface{}) error {
+			return keyRead(data, buildResourceDataFromKey, i)
+		},
+		Update: func(data *schema.ResourceData, i interface{}) error {
+			return keyUpdate(data, buildKey, i)
+		},
+		Delete: keyDelete,
 		Schema: map[string]*schema.Schema{
 			"algorithm": {
 				Type:     schema.TypeString,
@@ -77,64 +80,15 @@ func createKey(data *schema.ResourceData, i interface{}) error {
 	return nil
 }
 
-func readKey(data *schema.ResourceData, i interface{}) error {
-	client := i.(Client)
-	id := data.Id()
-
-	resp, faErrs, err := client.FAClient.RetrieveKey(id)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode == http.StatusNotFound {
-		data.SetId("")
-		return nil
-	}
-	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
-	}
-
-	l := resp.Key
-	if err := data.Set("algorithm", l.Algorithm); err != nil {
+func buildResourceDataFromKey(data *schema.ResourceData, res fusionauth.Key) error {
+	if err := data.Set("algorithm", res.Algorithm); err != nil {
 		return fmt.Errorf("key.algorithm: %s", err.Error())
 	}
-	if err := data.Set("name", l.Name); err != nil {
+	if err := data.Set("name", res.Name); err != nil {
 		return fmt.Errorf("key.name: %s", err.Error())
 	}
-	if err := data.Set("length", l.Length); err != nil {
+	if err := data.Set("length", res.Length); err != nil {
 		return fmt.Errorf("key.length: %s", err.Error())
-	}
-
-	return nil
-}
-
-func updateKey(data *schema.ResourceData, i interface{}) error {
-	client := i.(Client)
-	l := buildKey(data)
-
-	resp, faErrs, err := client.FAClient.UpdateKey(data.Id(), fusionauth.KeyRequest{
-		Key: l,
-	})
-	if err != nil {
-		return err
-	}
-	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func deleteKey(data *schema.ResourceData, i interface{}) error {
-	client := i.(Client)
-	id := data.Id()
-
-	resp, faErrs, err := client.FAClient.DeleteKey(id)
-	if err != nil {
-		return err
-	}
-	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
 	}
 
 	return nil

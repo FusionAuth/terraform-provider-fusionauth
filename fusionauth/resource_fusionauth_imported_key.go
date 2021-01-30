@@ -2,7 +2,6 @@ package fusionauth
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -12,9 +11,13 @@ import (
 func resourceImportedKey() *schema.Resource {
 	return &schema.Resource{
 		Create: createImportedKey,
-		Read:   readImportedKey,
-		Update: updateImportedKey,
-		Delete: deleteImportedKey,
+		Read: func(data *schema.ResourceData, i interface{}) error {
+			return keyRead(data, buildResourceDataFromImportedKey, i)
+		},
+		Update: func(data *schema.ResourceData, i interface{}) error {
+			return keyUpdate(data, buildImportedKey, i)
+		},
+		Delete: keyDelete,
 		Schema: map[string]*schema.Schema{
 			"algorithm": {
 				Type:     schema.TypeString,
@@ -107,57 +110,6 @@ func createImportedKey(data *schema.ResourceData, i interface{}) error {
 	return nil
 }
 
-func readImportedKey(data *schema.ResourceData, i interface{}) error {
-	client := i.(Client)
-	id := data.Id()
-
-	resp, faErrs, err := client.FAClient.RetrieveKey(id)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode == http.StatusNotFound {
-		data.SetId("")
-		return nil
-	}
-	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
-	}
-
-	return buildResourceDataFromImportedKey(data, resp.Key)
-}
-
-func updateImportedKey(data *schema.ResourceData, i interface{}) error {
-	client := i.(Client)
-	l := buildImportedKey(data)
-
-	resp, faErrs, err := client.FAClient.UpdateKey(data.Id(), fusionauth.KeyRequest{
-		Key: l,
-	})
-	if err != nil {
-		return err
-	}
-	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func deleteImportedKey(data *schema.ResourceData, i interface{}) error {
-	client := i.(Client)
-	id := data.Id()
-
-	resp, faErrs, err := client.FAClient.DeleteKey(id)
-	if err != nil {
-		return err
-	}
-	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
-	}
-
-	return nil
-}
 func buildImportedKey(data *schema.ResourceData) fusionauth.Key {
 	return fusionauth.Key{
 		Algorithm:   fusionauth.KeyAlgorithm(data.Get("algorithm").(string)),
@@ -170,6 +122,7 @@ func buildImportedKey(data *schema.ResourceData) fusionauth.Key {
 		Type:        fusionauth.KeyType(data.Get("type").(string)),
 	}
 }
+
 func buildResourceDataFromImportedKey(data *schema.ResourceData, res fusionauth.Key) error {
 	if err := data.Set("algorithm", res.Algorithm); err != nil {
 		return fmt.Errorf("key.algorithm: %s", err.Error())
