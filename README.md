@@ -24,5 +24,6 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
     - Apple
 * themes
 * user
+* user action
 * webhook
 * tenants
