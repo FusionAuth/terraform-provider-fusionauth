@@ -71,7 +71,7 @@ func resourceUserAction() *schema.Resource {
 			"prevent_login": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Whether or not this User Action will prevent user login. When this value is set to true the action must also be marked as a time based action. See `temporal`",
+				Description: "Whether or not this User Action will prevent user login. When this value is set to true the action must also be marked as a time based action. See `temporal`.",
 			},
 			"send_end_event": {
 				Type:        schema.TypeBool,
@@ -204,7 +204,7 @@ func readUserAction(data *schema.ResourceData, i interface{}) error {
 		return fmt.Errorf("user_action.modify_email_template_id: %s", err.Error())
 	}
 
-	var options []map[string]interface{}
+	options := make([]map[string]interface{}, 0, len(resp.UserAction.Options))
 	for _, opt := range resp.UserAction.Options {
 		options = append(options, map[string]interface{}{
 			"name":            opt.Name,
@@ -314,7 +314,7 @@ func deleteUserAction(data *schema.ResourceData, i interface{}) error {
 }
 
 func buildUserActionOptions(d interface{}) []fusionauth.UserActionOption {
-	var opts []fusionauth.UserActionOption
+	opts := make([]fusionauth.UserActionOption, 0, len(d.([]*schema.ResourceData)))
 	for _, v := range d.([]*schema.ResourceData) {
 		uao := fusionauth.UserActionOption{
 			Name: v.Get("name").(string),
