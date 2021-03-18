@@ -22,6 +22,7 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
     - OpenID Connect
     - Google
     - Apple
+    - External JWT
 * themes
 * user
 * user action
