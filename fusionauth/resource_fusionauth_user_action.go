@@ -106,9 +106,7 @@ func resourceUserAction() *schema.Resource {
 	}
 }
 
-func createUserAction(data *schema.ResourceData, i interface{}) error {
-	client := i.(Client)
-
+func buildUserAction(data *schema.ResourceData) fusionauth.UserAction {
 	ua := fusionauth.UserAction{
 		Name: data.Get("name").(string),
 	}
@@ -155,8 +153,14 @@ func createUserAction(data *schema.ResourceData, i interface{}) error {
 		ua.UserNotificationsEnabled = d.(bool)
 	}
 
+	return ua
+}
+
+func createUserAction(data *schema.ResourceData, i interface{}) error {
+	client := i.(Client)
+
 	resp, faErrs, err := client.FAClient.CreateUserAction("", fusionauth.UserActionRequest{
-		UserAction: ua,
+		UserAction: buildUserAction(data),
 	})
 
 	if err != nil {
@@ -239,55 +243,8 @@ func readUserAction(data *schema.ResourceData, i interface{}) error {
 func updateUserAction(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 
-	ua := fusionauth.UserAction{}
-
-	if data.HasChange("name") {
-		ua.Name = data.Get("name").(string)
-	}
-	if data.HasChange("cancel_email_template_id") {
-		ua.CancelEmailTemplateId = data.Get("cancel_email_template_id").(string)
-	}
-	if data.HasChange("end_email_template_id") {
-		ua.EndEmailTemplateId = data.Get("end_email_template_id").(string)
-	}
-	if data.HasChange("include_email_in_event_json") {
-		ua.IncludeEmailInEventJSON = data.Get("include_email_in_event_json").(bool)
-	}
-	if data.HasChange("localized_names") {
-		names := data.Get("localized_names").(map[string]interface{})
-		ua.LocalizedNames = make(map[string]string)
-
-		for k, v := range names {
-			ua.LocalizedNames[k] = v.(string)
-		}
-	}
-	if data.HasChange("modify_email_template_id") {
-		ua.ModifyEmailTemplateId = data.Get("modify_email_template_id").(string)
-	}
-	if data.HasChange("options") {
-		ua.Options = buildUserActionOptions(data.Get("options"))
-	}
-	if data.HasChange("prevent_login") {
-		ua.PreventLogin = data.Get("prevent_login").(bool)
-	}
-	if data.HasChange("send_end_event") {
-		ua.SendEndEvent = data.Get("send_end_event").(bool)
-	}
-	if data.HasChange("start_email_template_id") {
-		ua.StartEmailTemplateId = data.Get("start_email_template_id").(string)
-	}
-	if data.HasChange("temporal") {
-		ua.Temporal = data.Get("temporal").(bool)
-	}
-	if data.HasChange("user_emailing_enabled") {
-		ua.UserEmailingEnabled = data.Get("user_emailing_enabled").(bool)
-	}
-	if data.HasChange("user_notifications_enabled") {
-		ua.UserNotificationsEnabled = data.Get("user_notifications_enabled").(bool)
-	}
-
 	resp, faErrs, err := client.FAClient.UpdateUserAction(data.Id(), fusionauth.UserActionRequest{
-		UserAction: ua,
+		UserAction: buildUserAction(data),
 	})
 	if err != nil {
 		return fmt.Errorf("UpdateUserAction err: %v", err)
