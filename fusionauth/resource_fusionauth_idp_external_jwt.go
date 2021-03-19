@@ -87,9 +87,10 @@ func resourceIDPExternalJWT() *schema.Resource {
 			// 	Description: "A map of public keys used to verify JWT signatures issued from the configured Identity Provider. The key is the key identifier, this may be referred to as the kid or for X.509 certificates the x5t claim may be used.\nThe map may contain one entry with an empty map key. When provided this key will be used when no header claim is provided to indicate which public key should be used to verify the signature. Generally speaking this will only be used when the Identity Provider issues JWTs without a key identifier in the header.",
 			// },
 			"lambda_reconcile_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.",
+				ValidateFunc: validation.IsUUID,
 			},
 			"name": {
 				Type:        schema.TypeString,
