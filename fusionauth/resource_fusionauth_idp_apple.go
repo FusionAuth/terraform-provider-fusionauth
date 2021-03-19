@@ -106,9 +106,10 @@ func resourceIDPApple() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"lambda_reconcile_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.",
+				ValidateFunc: validation.IsUUID,
 			},
 			"scope": {
 				Type:        schema.TypeString,
