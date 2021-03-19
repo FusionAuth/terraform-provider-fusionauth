@@ -23,6 +23,7 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
     - Google
     - Apple
     - External JWT
+    - SAML v2
 * themes
 * user
 * user action
