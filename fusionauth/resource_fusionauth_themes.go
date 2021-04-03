@@ -207,6 +207,13 @@ func newTheme() *schema.Resource {
 				Description:      "A FreeMarker template that is rendered when the user requests the /registration/verify page by clicking the URL from the application specific verification email and the verificationId has expired. FusionAuth expires verificationId after a period of time (which is configurable). If the user has a URL from the verification email that has expired, this page will be rendered and the error will be displayed to the user.",
 				DiffSuppressFunc: templateCompare,
 			},
+			"samlv2_logout": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "This page is used if the user initiates a SAML logout. This page causes the user to be logged out of all associated applications via a front-channel mechanism before being redirected.",
+				DiffSuppressFunc: templateCompare,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -244,6 +251,7 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 			RegistrationComplete:                      data.Get("registration_complete").(string),
 			RegistrationSend:                          data.Get("registration_send").(string),
 			RegistrationVerify:                        data.Get("registration_verify").(string),
+			Samlv2Logout:                              data.Get("samlv2_logout").(string),
 		},
 	}
 
@@ -425,6 +433,9 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) e
 	}
 	if err := data.Set("registration_verify", t.Templates.RegistrationVerify); err != nil {
 		return fmt.Errorf("theme.registration_verify: %s", err.Error())
+	}
+	if err := data.Set("samlv2_logout", t.Templates.Samlv2Logout); err != nil {
+		return fmt.Errorf("theme.samlv2_logout: %s", err.Error())
 	}
 
 	return nil
