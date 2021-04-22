@@ -197,9 +197,6 @@ func buildUser(data *schema.ResourceData) fusionauth.UserRequest {
 				EncryptionScheme:       data.Get("encryption_scheme").(string),
 				Password:               data.Get("password").(string),
 				PasswordChangeRequired: data.Get("password_change_required").(bool),
-				TwoFactorDelivery:      fusionauth.TwoFactorDelivery(data.Get("two_factor_delivery").(string)),
-				TwoFactorEnabled:       data.Get("two_factor_enabled").(bool),
-				TwoFactorSecret:        data.Get("two_factor_secret").(string),
 				Username:               data.Get("username").(string),
 				UsernameStatus:         fusionauth.ContentStatus(data.Get("username_status").(string)),
 			},
@@ -207,6 +204,33 @@ func buildUser(data *schema.ResourceData) fusionauth.UserRequest {
 		SendSetPasswordEmail: data.Get("send_set_password_email").(bool),
 		SkipVerification:     data.Get("skip_verification").(bool),
 	}
+
+	if data.Get("two_factor_enabled").(bool) {
+		var tfms []fusionauth.TwoFactorMethod
+
+		if _, ok := data.GetOk("two_factor_secret"); ok {
+			tfms = append(tfms, fusionauth.TwoFactorMethod{
+				// There doesn't seem to be a constant for this in the API client - I got this from FusionAuth
+				Method: "authenticator",
+				Secret: data.Get("two_factor_secret").(string),
+			})
+		}
+
+		if data.Get("two_factor_delivery").(string) == string(fusionauth.TwoFactorDelivery_TextMessage) {
+			tfms = append(tfms, fusionauth.TwoFactorMethod{
+				// I can't find documentation to confirm that this is actually the same string that we need,
+				// and I don't have twilio plugged in to my FusionAuth server so I can't
+				// check
+				Method:      string(fusionauth.TwoFactorDelivery_TextMessage),
+				MobilePhone: data.Get("mobile_phone").(string),
+			})
+		}
+
+		u.User.TwoFactor = fusionauth.UserTwoFactorConfiguration{
+			Methods: tfms,
+		}
+	}
+
 	return u
 }
 
@@ -294,15 +318,6 @@ func readUser(data *schema.ResourceData, i interface{}) error {
 	if err := data.Set("timezone", resp.User.Timezone); err != nil {
 		return fmt.Errorf("user.timezone: %s", err.Error())
 	}
-	if err := data.Set("two_factor_delivery", resp.User.TwoFactorDelivery); err != nil {
-		return fmt.Errorf("user.two_factor_delivery: %s", err.Error())
-	}
-	if err := data.Set("two_factor_enabled", resp.User.TwoFactorEnabled); err != nil {
-		return fmt.Errorf("user.two_factor_enabled: %s", err.Error())
-	}
-	if err := data.Set("two_factor_secret", resp.User.TwoFactorSecret); err != nil {
-		return fmt.Errorf("user.two_factor_secret: %s", err.Error())
-	}
 	if err := data.Set("username", resp.User.Username); err != nil {
 		return fmt.Errorf("user.username: %s", err.Error())
 	}
@@ -311,6 +326,27 @@ func readUser(data *schema.ResourceData, i interface{}) error {
 	}
 	if err := data.Set("password_change_required", resp.User.PasswordChangeRequired); err != nil {
 		return fmt.Errorf("user.password_change_required: %s", err.Error())
+	}
+
+	// Two factor stuff until we can incorporate the full changes
+	authenticator := false
+	delivery := string(fusionauth.TwoFactorDelivery_None)
+	for _, tfm := range resp.User.TwoFactor.Methods {
+		if tfm.Method == string(fusionauth.TwoFactorDelivery_TextMessage) {
+			delivery = string(fusionauth.TwoFactorDelivery_TextMessage)
+		}
+		if tfm.Method == "authenticator" {
+			authenticator = true
+			if err := data.Set("two_factor_secret", tfm.Secret); err != nil {
+				return fmt.Errorf("user.two_factor_secret: %s", err.Error())
+			}
+		}
+	}
+	if err := data.Set("two_factor_delivery", delivery); err != nil {
+		return fmt.Errorf("user.two_factor_delivery: %s", err.Error())
+	}
+	if err := data.Set("two_factor_enabled", authenticator); err != nil {
+		return fmt.Errorf("user.two_factor_enabled: %s", err.Error())
 	}
 
 	return nil
