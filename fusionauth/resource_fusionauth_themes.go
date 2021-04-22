@@ -46,6 +46,41 @@ func newTheme() *schema.Resource {
 				Description:      "A CSS stylesheet used to style the templates.",
 				DiffSuppressFunc: templateCompare,
 			},
+			"account_edit": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that contains the account edit page.",
+				DiffSuppressFunc: templateCompare,
+			},
+			"account_index": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that contains the account index page, this is the account landing page.",
+				DiffSuppressFunc: templateCompare,
+			},
+			"account_two_factor_disable": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that contains the two factor disable form.",
+				DiffSuppressFunc: templateCompare,
+			},
+			"account_two_factor_enable": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that contains the two factor enable form.",
+				DiffSuppressFunc: templateCompare,
+			},
+			"account_two_factor_index": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that contains the two factor index page.",
+				DiffSuppressFunc: templateCompare,
+			},
 			"email_complete": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -72,6 +107,13 @@ func newTheme() *schema.Resource {
 				Optional:         true,
 				Computed:         true,
 				Description:      "A FreeMarker template that contains all of the macros and templates used by the rest of the loginTheme FreeMarker templates (i.e. oauth2Authorize). This allows you to configure the general layout of your UI configuration and login theme without having to copy and paste HTML into each of the templates.",
+				DiffSuppressFunc: templateCompare,
+			},
+			"index": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that contains the main index page, this is the root landing page.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_authorize": {
@@ -142,6 +184,13 @@ func newTheme() *schema.Resource {
 				Optional:         true,
 				Computed:         true,
 				Description:      "A FreeMarker template",
+				DiffSuppressFunc: templateCompare,
+			},
+			"oauth2_two_factor_methods": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that contains the OAuth2 two-factor option form.",
 				DiffSuppressFunc: templateCompare,
 			},
 			"oauth2_wait": {
@@ -228,10 +277,16 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 		Name:       data.Get("name").(string),
 		Stylesheet: data.Get("stylesheet").(string),
 		Templates: fusionauth.Templates{
+			AccountEdit:                       data.Get("account_edit").(string),
+			AccountIndex:                      data.Get("account_index").(string),
+			AccountTwoFactorDisable:           data.Get("account_two_factor_disable").(string),
+			AccountTwoFactorEnable:            data.Get("account_two_factor_enable").(string),
+			AccountTwoFactorIndex:             data.Get("account_two_factor_index").(string),
 			EmailComplete:                     data.Get("email_complete").(string),
 			EmailSend:                         data.Get("email_send").(string),
 			EmailVerify:                       data.Get("email_verify").(string),
 			Helpers:                           data.Get("helpers").(string),
+			Index:                             data.Get("index").(string),
 			Oauth2Authorize:                   data.Get("oauth2_authorize").(string),
 			Oauth2ChildRegistrationNotAllowed: data.Get("oauth2_child_registration_not_allowed").(string),
 			Oauth2ChildRegistrationNotAllowedComplete: data.Get("oauth2_child_registration_not_allowed_complete").(string),
@@ -239,6 +294,7 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 			Oauth2Error:                               data.Get("oauth2_error").(string),
 			Oauth2Logout:                              data.Get("oauth2_logout").(string),
 			Oauth2TwoFactor:                           data.Get("oauth2_two_factor").(string),
+			Oauth2TwoFactorMethods:                    data.Get("oauth2_two_factor_methods").(string),
 			Oauth2Register:                            data.Get("oauth2_register").(string),
 			Oauth2Device:                              data.Get("oauth2_device").(string),
 			Oauth2DeviceComplete:                      data.Get("oauth2_device_complete").(string),
@@ -365,6 +421,21 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) e
 	if err := data.Set("stylesheet", t.Stylesheet); err != nil {
 		return fmt.Errorf("theme.stylesheet: %s", err.Error())
 	}
+	if err := data.Set("account_edit", t.Templates.AccountEdit); err != nil {
+		return fmt.Errorf("theme.account_edit: %s", err.Error())
+	}
+	if err := data.Set("account_index", t.Templates.AccountIndex); err != nil {
+		return fmt.Errorf("theme.account_index: %s", err.Error())
+	}
+	if err := data.Set("account_two_factor_disable", t.Templates.AccountTwoFactorDisable); err != nil {
+		return fmt.Errorf("theme.account_two_factor_disable: %s", err.Error())
+	}
+	if err := data.Set("account_two_factor_enable", t.Templates.AccountTwoFactorEnable); err != nil {
+		return fmt.Errorf("theme.account_two_factor_enable: %s", err.Error())
+	}
+	if err := data.Set("account_two_factor_index", t.Templates.AccountTwoFactorIndex); err != nil {
+		return fmt.Errorf("theme.account_two_factor_index: %s", err.Error())
+	}
 	if err := data.Set("email_complete", t.Templates.EmailComplete); err != nil {
 		return fmt.Errorf("theme.email_complete: %s", err.Error())
 	}
@@ -376,6 +447,9 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) e
 	}
 	if err := data.Set("helpers", t.Templates.Helpers); err != nil {
 		return fmt.Errorf("theme.helpers: %s", err.Error())
+	}
+	if err := data.Set("index", t.Templates.Index); err != nil {
+		return fmt.Errorf("theme.index: %s", err.Error())
 	}
 	if err := data.Set("oauth2_authorize", t.Templates.Oauth2Authorize); err != nil {
 		return fmt.Errorf("theme.oauth2_authorize: %s", err.Error())
@@ -397,6 +471,9 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) e
 	}
 	if err := data.Set("oauth2_two_factor", t.Templates.Oauth2TwoFactor); err != nil {
 		return fmt.Errorf("theme.oauth2_two_factor: %s", err.Error())
+	}
+	if err := data.Set("oauth2_two_factor_methods", t.Templates.Oauth2TwoFactorMethods); err != nil {
+		return fmt.Errorf("theme.oauth2_two_factor_methods: %s", err.Error())
 	}
 	if err := data.Set("oauth2_register", t.Templates.Oauth2Register); err != nil {
 		return fmt.Errorf("theme.oauth2_register: %s", err.Error())
