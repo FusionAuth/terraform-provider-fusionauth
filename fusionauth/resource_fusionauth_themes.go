@@ -408,7 +408,7 @@ func deleteTheme(data *schema.ResourceData, i interface{}) error {
 	return nil
 }
 
-func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) error {
+func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) error { //nolint:gocognit,gocyclo
 	if err := data.Set("default_messages", t.DefaultMessages); err != nil {
 		return fmt.Errorf("theme.default_messages: %s", err.Error())
 	}
