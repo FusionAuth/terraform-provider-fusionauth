@@ -225,6 +225,7 @@ func buildTentant(data *schema.ResourceData) fusionauth.Tenant {
 				Enableable:     buildEnableable("username_configuration.0.unique.0.enabled", data),
 				NumberOfDigits: data.Get("username_configuration.0.unique.0.number_of_digits").(int),
 				Separator:      data.Get("username_configuration.0.unique.0.separator").(string),
+				Strategy:       fusionauth.UniqueUsernameStrategy(data.Get("username_configuration.0.unique.0.strategy").(string)),
 			},
 		},
 	}
@@ -507,6 +508,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"enabled":          t.UsernameConfiguration.Unique.Enabled,
 				"number_of_digits": t.UsernameConfiguration.Unique.NumberOfDigits,
 				"separator":        t.UsernameConfiguration.Unique.Separator,
+				"strategy":         t.UsernameConfiguration.Unique.Strategy,
 			}},
 		},
 	})

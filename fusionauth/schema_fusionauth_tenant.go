@@ -422,6 +422,16 @@ func newTenant() *schema.Resource {
 										Default:     "#",
 										Description: "A single character to use as a separator from the requested username and a unique suffix that is added when a duplicate username is detected. This value can be a single non-alphanumeric ASCII character.",
 									},
+									"strategy": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Default:  "OnCollision",
+										ValidateFunc: validation.StringInSlice([]string{
+											"Always",
+											"OnCollision",
+										}, false),
+										Description: "This strategy instructions FusionAuth when to append a unique suffix to the username. ",
+									},
 								},
 							},
 						},

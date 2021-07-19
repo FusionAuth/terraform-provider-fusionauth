@@ -347,6 +347,7 @@ resource "fusionauth_tenant" "example" {
         * `enabled` - (Optional) When true, FusionAuth will handle username collisions by generating a random suffix.
         * `number_of_digits` - (Optional) The maximum number of digits to use when building a unique suffix for a username. A number will be randomly selected and will be 1 or more digits up to this configured value in length. For example, if this value is 5, the suffix will be a number between 00001 and 99999, inclusive.
         * `separator` - (Optional) A single character to use as a separator from the requested username and a unique suffix that is added when a duplicate username is detected. This value can be a single non-alphanumeric ASCII character.
+        * `strategy` - (Optional) When enabled the user’s password will be validated during login. If the password does not meet the currently configured validation rules the user will be required to change their password.
 * `user_delete_policy` - (Optional)
     - `unverified_enabled` - (Optional) Indicates that users without a verified email address will be permanently deleted after tenant.userDeletePolicy.unverified.numberOfDaysToRetain days.
     - `unverified_number_of_days_to_retain` - (Optional)
