@@ -92,6 +92,21 @@ func resourceIDPExternalJWT() *schema.Resource {
 				Description:  "The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"linking_strategy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"CreatePendingLink",
+					"LinkAnonymously",
+					"LinkByEmail",
+					"LinkByEmailForExistingUser",
+					"LinkByUsername",
+					"LinkByUsernameForExistingUser",
+					"Unsupported",
+				}, false),
+				Description: "The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.",
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -187,8 +202,9 @@ func buildIDPExternalJWT(data *schema.ResourceData) IDPExternalJWTProviderBody {
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
-			Name: data.Get("name").(string),
-			Type: fusionauth.IdentityProviderType_ExternalJWT,
+			Name:            data.Get("name").(string),
+			Type:            fusionauth.IdentityProviderType_ExternalJWT,
+			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 		},
 		Domains:            handleStringSlice("domains", data),
 		HeaderKeyParameter: data.Get("header_key_parameter").(string),
@@ -269,6 +285,9 @@ func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionau
 	}
 	if err := data.Set("unique_identity_claim", res.UniqueIdentityClaim); err != nil {
 		return fmt.Errorf("idpExternalJwt.unique_identity_claim: %s", err.Error())
+	}
+	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
+		return fmt.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

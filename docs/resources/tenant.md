@@ -227,6 +227,9 @@ resource "fusionauth_tenant" "example" {
     - `verification_email_template_id` - () The If of the Email Template that is used to send the verification emails to users. These emails are used to verify that a user’s email address is valid. If either the verifyEmail or verifyEmailWhenChanged fields are true this field is required.
     - `verify_email` - (Optional) Whether the user’s email addresses are verified when the registers with your application.
     - `verify_email_when_changed` - (Optional) Whether the user’s email addresses are verified when the user changes them.
+    - `unverified` - (Optional)
+        - `allow_email_change_when_gated` - (Optional) When this value is set to true, the user is allowed to change their email address when they are gated because they haven’t verified their email address.
+        - `behavior` = (Optional) The behavior when detecting breaches at time of user login
 * `event_configuration` - (Optional)
     - `event` - (Optional) The event type
     - `enabled` - (Optional) Whether or not FusionAuth should send these types of events to any configured Webhooks.
@@ -244,6 +247,9 @@ resource "fusionauth_tenant" "example" {
     - `email_verification_id_generator` - (Required)
         - `length` - (Required) The length of the secure generator used for generating the change password Id.
         - `type` - (Required) The type of the secure generator used for generating the change password Id.
+    - `email_verification_one_time_code_generator` - (Required)
+        - `length` - (Required) The length of the secure generator used for generating the email verification one time code.
+        - `type` - (Optional) The type of the secure generator used for generating the email verification one time code.
     - `email_verification_id_time_to_live_in_seconds` - (Required) The time in seconds until a email verification Id is no longer valid and cannot be used by the Verify Email API. Value must be greater than 0.
     - `external_authentication_id_time_to_live_in_seconds` - (Required) The time in seconds until an external authentication Id is no longer valid and cannot be used by the Token API. Value must be greater than 0.
     - `one_time_password_time_to_live_in_seconds` - (Required) The time in seconds until a One Time Password is no longer valid and cannot be used by the Login API. Value must be greater than 0.
@@ -254,6 +260,9 @@ resource "fusionauth_tenant" "example" {
     - `registration_verification_id_generator` - (Required)
         - `length` - (Required) The length of the secure generator used for generating the change password Id.
         - `type` - (Required) The type of the secure generator used for generating the change password Id.
+    - `registration_verification_one_time_code_generator` - (Required)
+        - `length` - (Required) The length of the secure generator used for generating the registration verification one time code.
+        - `type` - (Optional) The type of the secure generator used for generating the registration verification one time code.
     - `registration_verification_id_time_to_live_in_seconds` - (Required) The time in seconds until a registration verification Id is no longer valid and cannot be used by the Verify Registration API. Value must be greater than 0.
     - `saml_v2_authn_request_id_ttl_seconds` - (Optional) The time in seconds that a SAML AuthN request will be eligible for use to authenticate with FusionAuth.
     - `setup_password_id_generator` - (Required)
@@ -262,6 +271,9 @@ resource "fusionauth_tenant" "example" {
     - `setup_password_id_time_to_live_in_seconds` - (Required) The time in seconds until a setup password Id is no longer valid and cannot be used by the Change Password API. Value must be greater than 0.
     - `two_factor_id_time_to_live_in_seconds` - (Required) The time in seconds until a two factor Id is no longer valid and cannot be used by the Two Factor Login API. Value must be greater than 0.
     - `two_factor_trust_id_time_to_live_in_seconds` - (Require) The time in seconds until an issued Two Factor trust Id is no longer valid and the User will be required to complete Two Factor authentication during the next authentication attempt. Value must be greater than 0.
+    - `two_factor_one_time_code_id_generator` - (Required)
+        - `length` - (Required) TThe length of the secure generator used for generating the the two factor code Id.
+        - `type` - (Optional) The type of the secure generator used for generating the two factor one time code Id.
 * `failed_authentication_configuration` - (Optional)
     - `action_duration` - (Required) The duration of the User Action. This value along with the actionDurationUnit will be used to set the duration of the User Action. Value must be greater than 0. 
     - `action_duration_unit` - (Optional) The unit of time associated with a duration.
@@ -299,6 +311,16 @@ resource "fusionauth_tenant" "example" {
 * `minimum_password_age` - (Optional)
     - `seconds` - (Optional) The password minimum age in seconds. When enabled FusionAuth will not allow a password to be changed until it reaches this minimum age. Required when systemConfiguration.minimumPasswordAge.enabled is set to true.
     - `enabled` - (Optional) Indicates that the minimum password age is enabled and being enforced.
+* `multi_factor_configuration` - (Optional)
+    - `authenticator` - (Optional)
+        * `enabled` - (Optional) When enabled, users may utilize an authenticator application to complete a multi-factor authentication request. This method uses TOTP (Time-Based One-Time Password) as defined in RFC 6238 and often uses an native mobile app such as Google Authenticator.
+    - `email` - (Optional)
+        * `enabled` - (Optional) When enabled, users may utilize an email address to complete a multi-factor authentication request.
+        * `template_id` - (Optional) The Id of the email template that is used when notifying a user to complete a multi-factor authentication request.
+    - `sms` - (Optional)
+        * `enabled` - (Optional) When enabled, users may utilize a mobile phone number to complete a multi-factor authentication request.
+        * `messenger_id` - (Optional) The messenger that is used to deliver a SMS multi-factor authentication request.
+        * `template_id` - (Optional) The Id of the SMS template that is used when notifying a user to complete a multi-factor authentication request.
 * `name` - (Required) The unique name of the Tenant.
 * `password_encryption_configuration` - (Optional)
     - `encryption_scheme` - (Optional) The default method for encrypting the User’s password.
@@ -320,6 +342,11 @@ resource "fusionauth_tenant" "example" {
     - `require_number` - (Optional) Whether to force the user to use at least one number.
     - `validate_on_login` - (Optional) When enabled the user’s password will be validated during login. If the password does not meet the currently configured validation rules the user will be required to change their password.
 * `theme_id` - (Required) The unique Id of the theme to be used to style the login page and other end user templates.
+* `username_configuration` - (Optional)
+    - `unique` - (Optional) Indicates that users without a verified email address will be permanently deleted after tenant.userDeletePolicy.unverified.numberOfDaysToRetain days.
+        * `enabled` - (Optional) When true, FusionAuth will handle username collisions by generating a random suffix.
+        * `number_of_digits` - (Optional) The maximum number of digits to use when building a unique suffix for a username. A number will be randomly selected and will be 1 or more digits up to this configured value in length. For example, if this value is 5, the suffix will be a number between 00001 and 99999, inclusive.
+        * `separator` - (Optional) A single character to use as a separator from the requested username and a unique suffix that is added when a duplicate username is detected. This value can be a single non-alphanumeric ASCII character.
 * `user_delete_policy` - (Optional)
     - `unverified_enabled` - (Optional) Indicates that users without a verified email address will be permanently deleted after tenant.userDeletePolicy.unverified.numberOfDaysToRetain days.
     - `unverified_number_of_days_to_retain` - (Optional)

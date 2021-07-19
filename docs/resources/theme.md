@@ -74,3 +74,9 @@ resource "fusionauth_theme" "mytheme" {
 * `registration_send` - (Optional)
 * `registration_verify` - (Optional) A FreeMarker template that is rendered when the user requests the /registration/verify page by clicking the URL from the application specific verification email and the verificationId has expired. FusionAuth expires verificationId after a period of time (which is configurable). If the user has a URL from the verification email that has expired, this page will be rendered and the error will be displayed to the user.
 * `samlv2_logout` - (Optional)
+* `email_sent` - (Optional)
+* `email_verification_required` - (Optional)
+* `registration_sent` - (Optional)
+* `oauth2_authorized_not_registered` - (Optional)
+* `oauth2_start_idp_link` - (Optional)
+* `registration_verification_required` - (Optional)

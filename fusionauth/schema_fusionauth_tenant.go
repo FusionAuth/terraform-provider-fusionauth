@@ -240,6 +240,86 @@ func newTenant() *schema.Resource {
 					},
 				},
 			},
+			"multi_factor_configuration": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"authenticator": {
+							Type:       schema.TypeList,
+							MaxItems:   1,
+							Optional:   true,
+							Computed:   true,
+							ConfigMode: schema.SchemaConfigModeAttr,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     true,
+										Description: "When enabled, users may utilize an authenticator application to complete a multi-factor authentication request. This method uses TOTP (Time-Based One-Time Password) as defined in RFC 6238 and often uses an native mobile app such as Google Authenticator.",
+									},
+								},
+							},
+						},
+						"email": {
+							Type:       schema.TypeList,
+							MaxItems:   1,
+							Optional:   true,
+							Computed:   true,
+							ConfigMode: schema.SchemaConfigModeAttr,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "When enabled, users may utilize an email address to complete a multi-factor authentication request.",
+									},
+									"template_id": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.IsUUID,
+										Description:  "The Id of the email template that is used when notifying a user to complete a multi-factor authentication request.",
+									},
+								},
+							},
+						},
+						"sms": {
+							Type:       schema.TypeList,
+							MaxItems:   1,
+							Optional:   true,
+							Computed:   true,
+							ConfigMode: schema.SchemaConfigModeAttr,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "When enabled, users may utilize a mobile phone number to complete a multi-factor authentication request.",
+									},
+									"messenger_id": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.IsUUID,
+										Description:  "The messenger that is used to deliver a SMS multi-factor authentication request.",
+									},
+									"template_id": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.IsUUID,
+										Description:  "The Id of the SMS template that is used when notifying a user to complete a multi-factor authentication request.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -306,6 +386,44 @@ func newTenant() *schema.Resource {
 							Optional:     true,
 							Description:  "The number of days from creation users will be retained before being deleted for not completing email verification. This field is required when tenant.userDeletePolicy.unverified.enabled is set to true. Value must be greater than 0.",
 							ValidateFunc: validation.IntAtLeast(1),
+						},
+					},
+				},
+			},
+			"username_configuration": {
+				Optional: true,
+				Computed: true,
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"unique": {
+							Optional: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "When true, FusionAuth will handle username collisions by generating a random suffix.",
+									},
+									"number_of_digits": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      5,
+										Description:  "The maximum number of digits to use when building a unique suffix for a username. A number will be randomly selected and will be 1 or more digits up to this configured value in length. For example, if this value is 5, the suffix will be a number between 00001 and 99999, inclusive.",
+										ValidateFunc: validation.IntInSlice([]int{3, 4, 5, 6, 7, 8, 9, 10}),
+									},
+									"separator": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Default:     "#",
+										Description: "A single character to use as a separator from the requested username and a unique suffix that is added when a duplicate username is detected. This value can be a single non-alphanumeric ASCII character.",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -530,6 +648,32 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 					},
 				},
 			},
+			"email_verification_one_time_code_generator": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Required: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"length": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: "The length of the secure generator used for generating the email verification one time code.",
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "randomAlphaNumeric",
+							ValidateFunc: validation.StringInSlice([]string{
+								"randomAlpha",
+								"randomAlphaNumeric",
+								"randomBytes",
+								"randomDigits.",
+							}, false),
+							Description: "The type of the secure generator used for generating the email verification one time code.",
+						},
+					},
+				},
+			},
 			"email_verification_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
 				Required:     true,
@@ -604,6 +748,32 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 					},
 				},
 			},
+			"registration_verification_one_time_code_generator": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Required: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"length": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: "The length of the secure generator used for generating the registration verification one time code.",
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "randomAlphaNumeric",
+							ValidateFunc: validation.StringInSlice([]string{
+								"randomAlpha",
+								"randomAlphaNumeric",
+								"randomBytes",
+								"randomDigits.",
+							}, false),
+							Description: "The type of the secure generator used for generating the registration verification one time code.",
+						},
+					},
+				},
+			},
 			"registration_verification_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
 				Required:     true,
@@ -646,6 +816,32 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The time in seconds until a setup password Id is no longer valid and cannot be used by the Change Password API. Value must be greater than 0.",
+			},
+			"two_factor_one_time_code_id_generator": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Required: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"length": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: "The length of the secure generator used for generating the the two factor code Id.",
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "randomAlphaNumeric",
+							ValidateFunc: validation.StringInSlice([]string{
+								"randomAlpha",
+								"randomAlphaNumeric",
+								"randomBytes",
+								"randomDigits.",
+							}, false),
+							Description: "The type of the secure generator used for generating the two factor one time code Id.",
+						},
+					},
+				},
 			},
 			"two_factor_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
@@ -723,6 +919,33 @@ func newEmailConfiguration() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The Id of the Email Template that is used when a user had their account created for them and they must set their password manually and they are sent an email to set their password.",
+			},
+			"unverified": {
+				Optional:   true,
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allow_email_change_when_gated": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When this value is set to true, the user is allowed to change their email address when they are gated because they haven’t verified their email address.",
+						},
+						"behavior": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								"Allow",
+								"Gated",
+							}, false),
+							Default:     "Allow",
+							Description: "The behavior when detecting breaches at time of user login",
+						},
+					},
+				},
 			},
 			"username": {
 				Type:        schema.TypeString,

@@ -110,6 +110,32 @@ func newIDPGoogle() *schema.Resource {
 				Description:  "The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"linking_strategy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"CreatePendingLink",
+					"LinkAnonymously",
+					"LinkByEmail",
+					"LinkByEmailForExistingUser",
+					"LinkByUsername",
+					"LinkByUsernameForExistingUser",
+					"Unsupported",
+				}, false),
+				Description: "The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.",
+			},
+			"login_method": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "UseRedirect",
+				ValidateFunc: validation.StringInSlice([]string{
+					"UsePopup",
+					"UseRedirect",
+					"LinkByEmail",
+				}, false),
+				Description: "The login method to use for this Identity Provider.",
+			},
 			"scope": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -131,11 +157,13 @@ func buildIDPGoogle(data *schema.ResourceData) GoogleIdentityProviderBody {
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
-			Type: fusionauth.IdentityProviderType_Google,
+			Type:            fusionauth.IdentityProviderType_Google,
+			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 		},
 		ClientId:     data.Get("client_id").(string),
 		ClientSecret: data.Get("client_secret").(string),
 		Scope:        data.Get("scope").(string),
+		LoginMethod:  fusionauth.IdentityProviderLoginMethod(data.Get("login_method").(string)),
 	}
 
 	ac := buildGoogleAppConfig("application_configuration", data)
@@ -226,7 +254,12 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	if err := data.Set("scope", o.Scope); err != nil {
 		return fmt.Errorf("idpGoogle.scope: %s", err.Error())
 	}
-
+	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
+		return fmt.Errorf("idpGoogle.linking_strategy: %s", err.Error())
+	}
+	if err := data.Set("login_method", o.LoginMethod); err != nil {
+		return fmt.Errorf("idpGoogle.login_method: %s", err.Error())
+	}
 	// Since this is coming down as an interface and would end up being map[string]interface{}
 	// with one of the values being map[string]interface{}
 	b, _ := json.Marshal(o.ApplicationConfiguration)
