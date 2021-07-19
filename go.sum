@@ -42,10 +42,8 @@ cloud.google.com/go/storage v1.14.0/go.mod h1:GrKmX003DSIwi9o29oFT7YDnHYwZoctc3f
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/FusionAuth/go-client v0.0.0-20210402232214-a0b4642bd108 h1:kd8J7a4IB7lF5LQWES7VbY2Iy+WBgEFT8P5m+V3rqLo=
-github.com/FusionAuth/go-client v0.0.0-20210402232214-a0b4642bd108/go.mod h1:SyRrXMJAzMVQLiJjKfQUR59dRI3jPyZv+BXIZ//HwE4=
-github.com/FusionAuth/go-client v0.0.0-20210420175811-24f3c9c36ef7 h1:y4BSUVDNWwCPD317dMIqau0FO41vM310mnnh+CVPGXA=
-github.com/FusionAuth/go-client v0.0.0-20210420175811-24f3c9c36ef7/go.mod h1:SyRrXMJAzMVQLiJjKfQUR59dRI3jPyZv+BXIZ//HwE4=
+github.com/FusionAuth/go-client v0.0.0-20210621014118-d202c594088b h1:P5epgwv7Ipy8G9Xg+aWl5Qg6oQ+pe9yp1nhfCpgM8+c=
+github.com/FusionAuth/go-client v0.0.0-20210621014118-d202c594088b/go.mod h1:SyRrXMJAzMVQLiJjKfQUR59dRI3jPyZv+BXIZ//HwE4=
 github.com/Masterminds/goutils v1.1.0/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
 github.com/Masterminds/goutils v1.1.1 h1:5nUrii3FMTL5diU80unEVvNevw1nH4+ZV4DSLVJLSYI=
 github.com/Masterminds/goutils v1.1.1/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=

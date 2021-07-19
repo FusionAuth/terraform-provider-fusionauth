@@ -54,3 +54,5 @@ resource "fusionauth_idp_saml_v2" "Saml" {
 * `sign_request` - (Optional) When true authentication requests sent to the identity provider will be signed.
 * `use_name_for_email` - (Optional) Whether or not FusionAuth will use the NameID element value as the email address of the user for reconciliation processing. If this is false, then the `email_claim` property must be set. 
 * `xml_signature_canonicalization_method` - (Optional) The XML signature canonicalization method used when digesting and signing the SAML request.
+* `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.
+* `post_request` - (Optional) Set this value equal to true if you wish to use POST bindings with this OpenID Connect identity provider. The default value of false means that a redirect binding which uses a GET request will be used.

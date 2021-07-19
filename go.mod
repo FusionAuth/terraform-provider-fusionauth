@@ -5,7 +5,7 @@ go 1.16
 require (
 	cloud.google.com/go v0.81.0 // indirect
 	cloud.google.com/go/storage v1.14.0 // indirect
-	github.com/FusionAuth/go-client v0.0.0-20210420175811-24f3c9c36ef7
+	github.com/FusionAuth/go-client v0.0.0-20210621014118-d202c594088b
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/aws/aws-sdk-go v1.38.12 // indirect

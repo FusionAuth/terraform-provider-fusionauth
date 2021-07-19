@@ -151,6 +151,29 @@ func newApplication() *schema.Resource {
 					},
 				},
 			},
+			"multi_factor_configuration": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"email_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+							Description:  "The Id of the email template that is used when notifying a user to complete a multi-factor authentication request.",
+						},
+						"sms_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+							Description:  "The Id of the SMS template that is used when notifying a user to complete a multi-factor authentication request.",
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -201,6 +224,12 @@ func newApplication() *schema.Resource {
 				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem:       newSamlv2Configuration(),
 				Optional:   true,
+			},
+			"theme_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The unique Id of the theme to be used to style the login page and other end user templates.",
+				ValidateFunc: validation.IsUUID,
 			},
 			"verification_email_template_id": {
 				Type:        schema.TypeString,
@@ -269,13 +298,13 @@ func newSamlv2Configuration() *schema.Resource {
 			"authorized_redirect_urls": {
 				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
+				Required:    true,
 				Description: "An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.",
 			},
 			"callback_url": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Deprecated:  "Deprecated in version 1.20",
+				Optional:    true,
+				Deprecated:  "In version 1.20.0 and beyond, Callback URLs can be managed via authorized_redirect_urls.",
 				Description: "The URL of the callback (sometimes called the Assertion Consumer Service or ACS). This is where FusionAuth sends the browser after the user logs in via SAML.",
 			},
 			"debug": {
@@ -305,6 +334,95 @@ func newSamlv2Configuration() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The id of the Key used to sign the SAML response. If you do not specify this property, FusionAuth will create a new key and associate it with this Application.",
+			},
+			"logout": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"behavior": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "AllParticipants",
+							ValidateFunc: validation.StringInSlice([]string{
+								"AllParticipants",
+								"OnlyOriginator",
+							}, false),
+							Description: "This configuration is functionally equivalent to the Logout Behavior found in the OAuth2 configuration.",
+						},
+						"default_verification_key_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+							Description:  "The unique Id of the Key used to verify the signature if the public key cannot be determined by the KeyInfo element when using POST bindings, or the key used to verify the signature when using HTTP Redirect bindings.",
+						},
+						"key_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+							Description:  "The unique Id of the Key used to sign the SAML Logout response.",
+						},
+						"require_signed_requests": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Set this parameter equal to true to require the SAML v2 Service Provider to sign the Logout request. When this value is true all Logout requests missing a signature will be rejected.",
+						},
+						"single_logout": {
+							Type:       schema.TypeList,
+							MaxItems:   1,
+							Optional:   true,
+							ConfigMode: schema.SchemaConfigModeAttr,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether or not SAML Single Logout for this SAML IdP is enabled.",
+									},
+									"key_id": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.IsUUID,
+										Description:  "The unique Id of the Key used to sign the SAML Single Logout response.",
+									},
+									"url": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The URL at which you want to receive the LogoutRequest from FusionAuth.",
+									},
+									"xml_signature_canonicalization_method": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Default:  "exclusive_with_comments",
+										ValidateFunc: validation.StringInSlice([]string{
+											"exclusive",
+											"exclusive_with_comments",
+											"inclusive",
+											"inclusive_with_comments",
+										}, false),
+										Description: "The XML signature canonicalization method used when digesting and signing the SAML Single Logout response. Unfortunately, many service providers do not correctly implement the XML signature specifications and force a specific canonicalization method. This setting allows you to change the canonicalization method to match the service provider. Often, service providers don’t even document their required method. You might need to contact enterprise support at the service provider to figure out what method they use.",
+									},
+								},
+							},
+						},
+						"xml_signature_canonicalization_method": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "exclusive_with_comments",
+							ValidateFunc: validation.StringInSlice([]string{
+								"exclusive",
+								"exclusive_with_comments",
+								"inclusive",
+								"inclusive_with_comments",
+							}, false),
+							Description: "The XML signature canonicalization method used when digesting and signing the SAML Logout response. Unfortunately, many service providers do not correctly implement the XML signature specifications and force a specific canonicalization method. This setting allows you to change the canonicalization method to match the service provider. Often, service providers don’t even document their required method. You might need to contact enterprise support at the service provider to figure out what method they use.",
+						},
+					},
+				},
 			},
 			"logout_url": {
 				Type:        schema.TypeString,
@@ -358,11 +476,28 @@ func newOAuthConfiguration() *schema.Resource {
 				Optional:    true,
 				Description: "An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.",
 			},
+			"client_authentication_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "Required",
+				ValidateFunc: validation.StringInSlice([]string{
+					"Required",
+					"NotRequired",
+					"NotRequiredWhenUsingPKCE",
+				}, false),
+				Description: "Determines the client authentication requirements for the OAuth 2.0 Token endpoint.",
+			},
 			"client_secret": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The OAuth 2.0 client secret. If you leave this blank during a POST, a secure secret will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored.",
 				Computed:    true,
+			},
+			"debug": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Whether or not FusionAuth will log a debug Event Log. This is particular useful for debugging the authorization code exchange with the Token endpoint during an Authorization Code grant.",
 			},
 			"device_verification_url": {
 				Type:        schema.TypeString,
@@ -395,11 +530,29 @@ func newOAuthConfiguration() *schema.Resource {
 				Optional:    true,
 				Description: "The logout URL for the Application. FusionAuth will redirect to this URL after the user logs out of OAuth.",
 			},
+			"proof_key_for_code_exchange_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "NotRequired",
+				ValidateFunc: validation.StringInSlice([]string{
+					"Required",
+					"NotRequired",
+					"NotRequiredWhenUsingClientAuthentication",
+				}, false),
+				Description: "Determines the PKCE requirements when using the authorization code grant.",
+			},
 			"require_client_authentication": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
+				Deprecated:  "In version 1.28.0 and beyond, client authentication can be managed via oauth_configuration.client_authentication_policy.",
 				Description: "Determines if the OAuth 2.0 Token endpoint requires client authentication. If this is enabled, the client must provide client credentials when using the Token endpoint. The client_id and client_secret may be provided using a Basic Authorization HTTP header, or by sending these parameters in the request body using POST data.",
+			},
+			"require_registration": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "When enabled the user will be required to be registered, or complete registration before redirecting to the configured callback in the authorization code grant or the implicit grant. This configuration does not currently apply to any other grant.",
 			},
 		},
 	}
@@ -427,11 +580,13 @@ func newJWTConfiguration() *schema.Resource {
 			"refresh_token_ttl_minutes": {
 				Type:        schema.TypeInt,
 				Optional:    true,
+				Default:     43200,
 				Description: "The length of time in minutes the JWT refresh token will live before it is expired and is not able to be exchanged for a JWT.",
 			},
 			"ttl_seconds": {
 				Type:        schema.TypeInt,
 				Optional:    true,
+				Default:     3600,
 				Description: "The length of time in seconds the JWT will live before it is expired and no longer valid.",
 			},
 		},

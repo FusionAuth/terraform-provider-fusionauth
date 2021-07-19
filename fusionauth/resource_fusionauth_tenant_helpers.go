@@ -25,6 +25,10 @@ func buildTentant(data *schema.ResourceData) fusionauth.Tenant {
 			VerifyEmailWhenChanged:        data.Get("email_configuration.0.verify_email_when_changed").(bool),
 			DefaultFromEmail:              data.Get("email_configuration.0.default_from_email").(string),
 			DefaultFromName:               data.Get("email_configuration.0.default_from_name").(string),
+			Unverified: fusionauth.EmailUnverifiedOptions{
+				AllowEmailChangeWhenGated: data.Get("email_configuration.0.unverified.0.allow_email_change_when_gated").(bool),
+				Behavior:                  fusionauth.UnverifiedBehavior(data.Get("email_configuration.0.unverified.0.behavior").(string)),
+			},
 		},
 		EventConfiguration: buildEventConfiguration("event_configuration", data),
 		ExternalIdentifierConfiguration: fusionauth.ExternalIdentifierConfiguration{
@@ -97,6 +101,24 @@ func buildTentant(data *schema.ResourceData) fusionauth.Tenant {
 			TwoFactorTrustIdTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.two_factor_trust_id_time_to_live_in_seconds",
 			).(int),
+			EmailVerificationOneTimeCodeGenerator: fusionauth.SecureGeneratorConfiguration{
+				Length: data.Get("external_identifier_configuration.0.email_verification_one_time_code_generator.0.length").(int),
+				Type: fusionauth.SecureGeneratorType(
+					data.Get("external_identifier_configuration.0.email_verification_one_time_code_generator.0.type").(string),
+				),
+			},
+			RegistrationVerificationOneTimeCodeGenerator: fusionauth.SecureGeneratorConfiguration{
+				Length: data.Get("external_identifier_configuration.0.registration_verification_one_time_code_generator.0.length").(int),
+				Type: fusionauth.SecureGeneratorType(
+					data.Get("external_identifier_configuration.0.registration_verification_one_time_code_generator.0.type").(string),
+				),
+			},
+			TwoFactorOneTimeCodeIdGenerator: fusionauth.SecureGeneratorConfiguration{
+				Length: data.Get("external_identifier_configuration.0.two_factor_one_time_code_id_generator.0.length").(int),
+				Type: fusionauth.SecureGeneratorType(
+					data.Get("external_identifier_configuration.0.two_factor_one_time_code_id_generator.0.type").(string),
+				),
+			},
 		},
 		FailedAuthenticationConfiguration: fusionauth.FailedAuthenticationConfiguration{
 			ActionDuration: int64(data.Get("failed_authentication_configuration.0.action_duration").(int)),
@@ -145,6 +167,20 @@ func buildTentant(data *schema.ResourceData) fusionauth.Tenant {
 			Enableable: buildEnableable("minimum_password_age.0.enabled", data),
 			Seconds:    data.Get("minimum_password_age.0.seconds").(int),
 		},
+		MultiFactorConfiguration: fusionauth.TenantMultiFactorConfiguration{
+			Authenticator: fusionauth.MultiFactorAuthenticatorMethod{
+				Enableable: buildEnableable("multi_factor_configuration.0.authenticator.0.enabled", data),
+			},
+			Email: fusionauth.MultiFactorEmailMethod{
+				Enableable: buildEnableable("multi_factor_configuration.0.email.0.enabled", data),
+				TemplateId: data.Get("multi_factor_configuration.0.email.0.template_id").(string),
+			},
+			Sms: fusionauth.MultiFactorSMSMethod{
+				Enableable:  buildEnableable("multi_factor_configuration.0.sms.0.enabled", data),
+				MessengerId: data.Get("multi_factor_configuration.0.sms.0.messenger_id").(string),
+				TemplateId:  data.Get("multi_factor_configuration.0.sms.0.template_id").(string),
+			},
+		},
 		Name: data.Get("name").(string),
 		PasswordEncryptionConfiguration: fusionauth.PasswordEncryptionConfiguration{
 			EncryptionScheme:       data.Get("password_encryption_configuration.0.encryption_scheme").(string),
@@ -182,6 +218,13 @@ func buildTentant(data *schema.ResourceData) fusionauth.Tenant {
 			Unverified: fusionauth.TimeBasedDeletePolicy{
 				Enableable:           buildEnableable("user_delete_policy.0.unverified_enabled", data),
 				NumberOfDaysToRetain: data.Get("user_delete_policy.0.unverified_number_of_days_to_retain").(int),
+			},
+		},
+		UsernameConfiguration: fusionauth.TenantUsernameConfiguration{
+			Unique: fusionauth.UniqueUsernameConfiguration{
+				Enableable:     buildEnableable("username_configuration.0.unique.0.enabled", data),
+				NumberOfDigits: data.Get("username_configuration.0.unique.0.number_of_digits").(int),
+				Separator:      data.Get("username_configuration.0.unique.0.separator").(string),
 			},
 		},
 	}
@@ -231,6 +274,10 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"verify_email_when_changed":         t.EmailConfiguration.VerifyEmailWhenChanged,
 			"default_from_email":                t.EmailConfiguration.DefaultFromEmail,
 			"default_from_name":                 t.EmailConfiguration.DefaultFromName,
+			"unverified": []map[string]interface{}{{
+				"allow_email_change_when_gated": t.EmailConfiguration.Unverified.AllowEmailChangeWhenGated,
+				"behavior":                      t.EmailConfiguration.Unverified.Behavior,
+			}},
 		},
 	})
 	if err != nil {
@@ -275,6 +322,18 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"setup_password_id_time_to_live_in_seconds":   t.ExternalIdentifierConfiguration.SetupPasswordIdTimeToLiveInSeconds,
 			"two_factor_id_time_to_live_in_seconds":       t.ExternalIdentifierConfiguration.TwoFactorIdTimeToLiveInSeconds,
 			"two_factor_trust_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.TwoFactorTrustIdTimeToLiveInSeconds,
+			"email_verification_one_time_code_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type,
+			}},
+			"registration_verification_one_time_code_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type,
+			}},
+			"two_factor_one_time_code_id_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type,
+			}},
 		},
 	})
 	if err != nil {
@@ -368,6 +427,26 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return fmt.Errorf("tenant.minimum_password_age: %s", err.Error())
 	}
 
+	err = data.Set("multi_factor_configuration", []map[string]interface{}{
+		{
+			"authenticator": []map[string]interface{}{{
+				"enabled": t.MultiFactorConfiguration.Authenticator.Enabled,
+			}},
+			"email": []map[string]interface{}{{
+				"enabled":     t.MultiFactorConfiguration.Email.Enabled,
+				"template_id": t.MultiFactorConfiguration.Email.TemplateId,
+			}},
+			"sms": []map[string]interface{}{{
+				"enabled":      t.MultiFactorConfiguration.Sms.Enabled,
+				"messenger_id": t.MultiFactorConfiguration.Sms.MessengerId,
+				"template_id":  t.MultiFactorConfiguration.Sms.TemplateId,
+			}},
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("tenant.multi_factor_configuration: %s", err.Error())
+	}
+
 	if err := data.Set("name", t.Name); err != nil {
 		return fmt.Errorf("tenant.name: %s", err.Error())
 	}
@@ -420,6 +499,19 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	})
 	if err != nil {
 		return fmt.Errorf("tenant.user_delete_policy: %s", err.Error())
+	}
+
+	err = data.Set("username_configuration", []map[string]interface{}{
+		{
+			"unique": []map[string]interface{}{{
+				"enabled":          t.UsernameConfiguration.Unique.Enabled,
+				"number_of_digits": t.UsernameConfiguration.Unique.NumberOfDigits,
+				"separator":        t.UsernameConfiguration.Unique.Separator,
+			}},
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("tenant.username_configuration: %s", err.Error())
 	}
 
 	e := make([]map[string]interface{}, 0, len(t.EventConfiguration.Events))

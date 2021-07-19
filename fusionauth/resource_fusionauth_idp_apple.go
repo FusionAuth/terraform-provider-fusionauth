@@ -111,6 +111,21 @@ func resourceIDPApple() *schema.Resource {
 				Description:  "The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"linking_strategy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"CreatePendingLink",
+					"LinkAnonymously",
+					"LinkByEmail",
+					"LinkByEmailForExistingUser",
+					"LinkByUsername",
+					"LinkByUsernameForExistingUser",
+					"Unsupported",
+				}, false),
+				Description: "The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.",
+			},
 			"scope": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -202,7 +217,8 @@ func buildIDPApple(data *schema.ResourceData) AppleIdentityProviderBody {
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
-			Type: fusionauth.IdentityProviderType_Apple,
+			Type:            fusionauth.IdentityProviderType_Apple,
+			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 		},
 		KeyId:      data.Get("key_id").(string),
 		Scope:      data.Get("scope").(string),
@@ -263,6 +279,9 @@ func buildResourceFromIDPApple(o fusionauth.AppleIdentityProvider, data *schema.
 	}
 	if err := data.Set("team_id", o.TeamId); err != nil {
 		return fmt.Errorf("idpApple.team_id: %s", err.Error())
+	}
+	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
+		return fmt.Errorf("idpApple.linking_strategy: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

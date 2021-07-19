@@ -120,6 +120,21 @@ func newIDPOpenIDConnect() *schema.Resource {
 				Description:  "The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"linking_strategy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"CreatePendingLink",
+					"LinkAnonymously",
+					"LinkByEmail",
+					"LinkByEmailForExistingUser",
+					"LinkByUsername",
+					"LinkByUsernameForExistingUser",
+					"Unsupported",
+				}, false),
+				Description: "The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.",
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -178,6 +193,12 @@ func newIDPOpenIDConnect() *schema.Resource {
 				Optional:    true,
 				Description: "The top-level userinfo endpoint for the OpenID Connect identity provider. You can leave this blank if you provide the issuer field, which will be used to make a request to the OpenID Connect .well-known endpoint in order to dynamically resolve the userinfo endpoint. If you provide an issuer then this field will be ignored.",
 			},
+			"post_request": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Set this value equal to true if you wish to use POST bindings with this OpenID Connect identity provider. The default value of false means that a redirect binding which uses a GET request will be used.",
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -195,10 +216,12 @@ func buildOpenIDConnect(data *schema.ResourceData) OpenIDConnectIdenityProviderB
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
-			Name: data.Get("name").(string),
-			Type: fusionauth.IdentityProviderType_OpenIDConnect,
+			Name:            data.Get("name").(string),
+			Type:            fusionauth.IdentityProviderType_OpenIDConnect,
+			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 		},
-		Domains: handleStringSlice("domains", data),
+		PostRequest: data.Get("post_request").(bool),
+		Domains:     handleStringSlice("domains", data),
 		Oauth2: fusionauth.IdentityProviderOauth2Configuration{
 			AuthorizationEndpoint: data.Get("oauth2_authorization_endpoint").(string),
 			ClientId:              data.Get("oauth2_client_id").(string),
@@ -331,6 +354,13 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 	}
 	if err := data.Set("oauth2_user_info_endpoint", o.Oauth2.UserinfoEndpoint); err != nil {
 		return fmt.Errorf("idpOpenIDConnect.oauth2_user_info_endpoint: %s", err.Error())
+	}
+	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
+		return fmt.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
+	}
+
+	if err := data.Set("post_request", o.PostRequest); err != nil {
+		return fmt.Errorf("idpOpenIDConnect.post_request: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

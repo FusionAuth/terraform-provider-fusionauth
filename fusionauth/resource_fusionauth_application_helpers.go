@@ -41,17 +41,29 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			GenerateRefreshTokens: data.Get("login_configuration.0.generate_refresh_tokens").(bool),
 			RequireAuthentication: data.Get("login_configuration.0.require_authentication").(bool),
 		},
+		MultiFactorConfiguration: fusionauth.ApplicationMultiFactorConfiguration{
+			Email: fusionauth.MultiFactorEmailTemplate{
+				TemplateId: data.Get("multi_factor_configuration.0.email_template_id").(string),
+			},
+			Sms: fusionauth.MultiFactorSMSTemplate{
+				TemplateId: data.Get("multi_factor_configuration.0.sms_template_id").(string),
+			},
+		},
 		Name: data.Get("name").(string),
 		OauthConfiguration: fusionauth.OAuth2Configuration{
-			AuthorizedOriginURLs:        handleStringSlice("oauth_configuration.0.authorized_origin_urls", data),
-			AuthorizedRedirectURLs:      handleStringSlice("oauth_configuration.0.authorized_redirect_urls", data),
-			ClientSecret:                data.Get("oauth_configuration.0.client_secret").(string),
-			DeviceVerificationURL:       data.Get("oauth_configuration.0.device_verification_url").(string),
-			GenerateRefreshTokens:       data.Get("oauth_configuration.0.generate_refresh_tokens").(bool),
-			LogoutURL:                   data.Get("oauth_configuration.0.logout_url").(string),
-			RequireClientAuthentication: data.Get("oauth_configuration.0.require_client_authentication").(bool),
-			LogoutBehavior:              fusionauth.LogoutBehavior(data.Get("oauth_configuration.0.logout_behavior").(string)),
-			EnabledGrants:               buildGrants("oauth_configuration.0.enabled_grants", data),
+			AuthorizedOriginURLs:          handleStringSlice("oauth_configuration.0.authorized_origin_urls", data),
+			AuthorizedRedirectURLs:        handleStringSlice("oauth_configuration.0.authorized_redirect_urls", data),
+			ClientAuthenticationPolicy:    fusionauth.ClientAuthenticationPolicy(data.Get("oauth_configuration.0.client_authentication_policy").(string)),
+			ClientSecret:                  data.Get("oauth_configuration.0.client_secret").(string),
+			Debug:                         data.Get("oauth_configuration.0.debug").(bool),
+			DeviceVerificationURL:         data.Get("oauth_configuration.0.device_verification_url").(string),
+			GenerateRefreshTokens:         data.Get("oauth_configuration.0.generate_refresh_tokens").(bool),
+			LogoutURL:                     data.Get("oauth_configuration.0.logout_url").(string),
+			ProofKeyForCodeExchangePolicy: fusionauth.ProofKeyForCodeExchangePolicy(data.Get("oauth_configuration.0.proof_key_for_code_exchange_policy").(string)),
+			RequireClientAuthentication:   data.Get("oauth_configuration.0.require_client_authentication").(bool),
+			LogoutBehavior:                fusionauth.LogoutBehavior(data.Get("oauth_configuration.0.logout_behavior").(string)),
+			EnabledGrants:                 buildGrants("oauth_configuration.0.enabled_grants", data),
+			RequireRegistration:           data.Get("oauth_configuration.0.require_registration").(bool),
 		},
 		PasswordlessConfiguration: fusionauth.PasswordlessConfiguration{
 			Enableable: buildEnableable("passwordless_configuration_enabled", data),
@@ -85,7 +97,24 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			Issuer:                   data.Get("samlv2_configuration.0.issuer").(string),
 			KeyId:                    data.Get("samlv2_configuration.0.key_id").(string),
 			LogoutURL:                data.Get("samlv2_configuration.0.logout_url").(string),
-			RequireSignedRequests:    data.Get("samlv2_configuration.0.required_signed_requests").(bool),
+			Logout: fusionauth.SAMLv2Logout{
+				Behavior:                 fusionauth.SAMLLogoutBehavior(data.Get("samlv2_configuration.0.logout.0.behavior").(string)),
+				DefaultVerificationKeyId: data.Get("samlv2_configuration.0.logout.0.default_verification_key_id").(string),
+				KeyId:                    data.Get("samlv2_configuration.0.logout.0.key_id").(string),
+				RequireSignedRequests:    data.Get("samlv2_configuration.0.logout.0.require_signed_requests").(bool),
+				SingleLogout: fusionauth.SAMLv2SingleLogout{
+					Enableable: buildEnableable("samlv2_configuration.0.logout.0.single_logout.0.enabled", data),
+					KeyId:      data.Get("samlv2_configuration.0.logout.0.single_logout.0.key_id").(string),
+					Url:        data.Get("samlv2_configuration.0.logout.0.single_logout.0.url").(string),
+					XmlSignatureC14nMethod: fusionauth.CanonicalizationMethod(
+						data.Get("samlv2_configuration.0.logout.0.single_logout.0.xml_signature_canonicalization_method").(string),
+					),
+				},
+				XmlSignatureC14nMethod: fusionauth.CanonicalizationMethod(
+					data.Get("samlv2_configuration.0.logout.0.xml_signature_canonicalization_method").(string),
+				),
+			},
+			RequireSignedRequests: data.Get("samlv2_configuration.0.required_signed_requests").(bool),
 			XmlSignatureC14nMethod: fusionauth.CanonicalizationMethod(
 				data.Get("samlv2_configuration.0.xml_signature_canonicalization_method").(string),
 			),
@@ -93,6 +122,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 				data.Get("samlv2_configuration.0.xml_signature_location").(string),
 			),
 		},
+		ThemeId:                     data.Get("theme_id").(string),
 		VerificationEmailTemplateId: data.Get("verification_email_template_id").(string),
 		VerifyRegistration:          data.Get("verify_registration").(bool),
 		EmailConfiguration: fusionauth.ApplicationEmailConfiguration{
@@ -199,21 +229,35 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return fmt.Errorf("application.login_configuration: %s", err.Error())
 	}
 
+	err = data.Set("multi_factor_configuration", []map[string]interface{}{
+		{
+			"email_template_id": a.MultiFactorConfiguration.Email.TemplateId,
+			"sms_template_id":   a.MultiFactorConfiguration.Sms.TemplateId,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("application.multi_factor_configuration: %s", err.Error())
+	}
+
 	if err := data.Set("name", a.Name); err != nil {
 		return fmt.Errorf("application.name: %s", err.Error())
 	}
 
 	err = data.Set("oauth_configuration", []map[string]interface{}{
 		{
-			"authorized_origin_urls":        a.OauthConfiguration.AuthorizedOriginURLs,
-			"authorized_redirect_urls":      a.OauthConfiguration.AuthorizedRedirectURLs,
-			"client_secret":                 a.OauthConfiguration.ClientSecret,
-			"device_verification_url":       a.OauthConfiguration.DeviceVerificationURL,
-			"generate_refresh_tokens":       a.OauthConfiguration.GenerateRefreshTokens,
-			"logout_url":                    a.OauthConfiguration.LogoutURL,
-			"require_client_authentication": a.OauthConfiguration.RequireClientAuthentication,
-			"logout_behavior":               a.OauthConfiguration.LogoutBehavior,
-			"enabled_grants":                a.OauthConfiguration.EnabledGrants,
+			"authorized_origin_urls":             a.OauthConfiguration.AuthorizedOriginURLs,
+			"authorized_redirect_urls":           a.OauthConfiguration.AuthorizedRedirectURLs,
+			"client_authentication_policy":       a.OauthConfiguration.ClientAuthenticationPolicy,
+			"client_secret":                      a.OauthConfiguration.ClientSecret,
+			"debug":                              a.OauthConfiguration.Debug,
+			"device_verification_url":            a.OauthConfiguration.DeviceVerificationURL,
+			"generate_refresh_tokens":            a.OauthConfiguration.GenerateRefreshTokens,
+			"logout_url":                         a.OauthConfiguration.LogoutURL,
+			"require_client_authentication":      a.OauthConfiguration.RequireClientAuthentication,
+			"logout_behavior":                    a.OauthConfiguration.LogoutBehavior,
+			"enabled_grants":                     a.OauthConfiguration.EnabledGrants,
+			"require_registration":               a.OauthConfiguration.RequireRegistration,
+			"proof_key_for_code_exchange_policy": a.OauthConfiguration.ProofKeyForCodeExchangePolicy,
 		},
 	})
 	if err != nil {
@@ -285,14 +329,31 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	err = data.Set("samlv2_configuration", []map[string]interface{}{
 		{
-			"enabled":                               a.Samlv2Configuration.Enabled,
-			"audience":                              a.Samlv2Configuration.Audience,
-			"authorized_redirect_urls":              a.Samlv2Configuration.AuthorizedRedirectURLs,
-			"callback_url":                          a.Samlv2Configuration.CallbackURL,
-			"debug":                                 a.Samlv2Configuration.Debug,
-			"default_verification_key_id":           a.Samlv2Configuration.DefaultVerificationKeyId,
-			"issuer":                                a.Samlv2Configuration.Issuer,
-			"key_id":                                a.Samlv2Configuration.KeyId,
+			"enabled":                     a.Samlv2Configuration.Enabled,
+			"audience":                    a.Samlv2Configuration.Audience,
+			"authorized_redirect_urls":    a.Samlv2Configuration.AuthorizedRedirectURLs,
+			"callback_url":                a.Samlv2Configuration.CallbackURL,
+			"debug":                       a.Samlv2Configuration.Debug,
+			"default_verification_key_id": a.Samlv2Configuration.DefaultVerificationKeyId,
+			"issuer":                      a.Samlv2Configuration.Issuer,
+			"key_id":                      a.Samlv2Configuration.KeyId,
+			"logout": []map[string]interface{}{
+				{
+					"behavior":                    a.Samlv2Configuration.Logout.Behavior,
+					"default_verification_key_id": a.Samlv2Configuration.Logout.DefaultVerificationKeyId,
+					"key_id":                      a.Samlv2Configuration.Logout.KeyId,
+					"require_signed_requests":     a.Samlv2Configuration.Logout.RequireSignedRequests,
+					"single_logout": []map[string]interface{}{
+						{
+							"enabled":                               a.Samlv2Configuration.Logout.SingleLogout.Enabled,
+							"key_id":                                a.Samlv2Configuration.Logout.SingleLogout.KeyId,
+							"url":                                   a.Samlv2Configuration.Logout.SingleLogout.Url,
+							"xml_signature_canonicalization_method": a.Samlv2Configuration.Logout.SingleLogout.XmlSignatureC14nMethod,
+						},
+					},
+					"xml_signature_canonicalization_method": a.Samlv2Configuration.Logout.XmlSignatureC14nMethod,
+				},
+			},
 			"logout_url":                            a.Samlv2Configuration.LogoutURL,
 			"required_signed_requests":              a.Samlv2Configuration.RequireSignedRequests,
 			"xml_signature_canonicalization_method": a.Samlv2Configuration.XmlSignatureC14nMethod,
@@ -306,6 +367,10 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 	if err := data.Set("verification_email_template_id", a.VerificationEmailTemplateId); err != nil {
 		return fmt.Errorf("application.verification_email_template_id: %s", err.Error())
 	}
+	if err := data.Set("theme_id", a.ThemeId); err != nil {
+		return fmt.Errorf("application.theme_id: %s", err.Error())
+	}
+
 	if err := data.Set("verify_registration", a.VerifyRegistration); err != nil {
 		return fmt.Errorf("application.verify_registration: %s", err.Error())
 	}

@@ -113,6 +113,21 @@ func resourceIDPSAMLv2() *schema.Resource {
 				Description:  "The id of a SAML reconcile lambda that is applied when the identity provider sends back a successful SAML response.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"linking_strategy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"CreatePendingLink",
+					"LinkAnonymously",
+					"LinkByEmail",
+					"LinkByEmailForExistingUser",
+					"LinkByUsername",
+					"LinkByUsernameForExistingUser",
+					"Unsupported",
+				}, false),
+				Description: "The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.",
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -229,8 +244,9 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
-			Name: data.Get("name").(string),
-			Type: fusionauth.IdentityProviderType_SAMLv2,
+			Name:            data.Get("name").(string),
+			Type:            fusionauth.IdentityProviderType_SAMLv2,
+			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 		},
 		Domains:             handleStringSlice("domains", data),
 		EmailClaim:          data.Get("email_claim").(string),
@@ -292,6 +308,9 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	}
 	if err := data.Set("xml_signature_canonicalization_method", res.XmlSignatureC14nMethod); err != nil {
 		return fmt.Errorf("idpSAMLv2.xml_signature_canonicalization_method: %s", err.Error())
+	}
+	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
+		return fmt.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

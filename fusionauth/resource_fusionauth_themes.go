@@ -263,6 +263,48 @@ func newTheme() *schema.Resource {
 				Description:      "This page is used if the user initiates a SAML logout. This page causes the user to be logged out of all associated applications via a front-channel mechanism before being redirected.",
 				DiffSuppressFunc: templateCompare,
 			},
+			"email_sent": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template",
+				DiffSuppressFunc: templateCompare,
+			},
+			"email_verification_required": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template",
+				DiffSuppressFunc: templateCompare,
+			},
+			"oauth2_authorized_not_registered": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template",
+				DiffSuppressFunc: templateCompare,
+			},
+			"oauth2_start_idp_link": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template",
+				DiffSuppressFunc: templateCompare,
+			},
+			"registration_sent": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template",
+				DiffSuppressFunc: templateCompare,
+			},
+			"registration_verification_required": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template",
+				DiffSuppressFunc: templateCompare,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -308,6 +350,12 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 			RegistrationSend:                          data.Get("registration_send").(string),
 			RegistrationVerify:                        data.Get("registration_verify").(string),
 			Samlv2Logout:                              data.Get("samlv2_logout").(string),
+			EmailSent:                                 data.Get("email_sent").(string),
+			EmailVerificationRequired:                 data.Get("email_verification_required").(string),
+			RegistrationSent:                          data.Get("registration_sent").(string),
+			Oauth2AuthorizedNotRegistered:             data.Get("oauth2_authorized_not_registered").(string),
+			Oauth2StartIdPLink:                        data.Get("oauth2_start_idp_link").(string),
+			RegistrationVerificationRequired:          data.Get("registration_verification_required").(string),
 		},
 	}
 
@@ -513,6 +561,25 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) e
 	}
 	if err := data.Set("samlv2_logout", t.Templates.Samlv2Logout); err != nil {
 		return fmt.Errorf("theme.samlv2_logout: %s", err.Error())
+	}
+
+	if err := data.Set("email_sent", t.Templates.EmailSent); err != nil {
+		return fmt.Errorf("theme.email_sent: %s", err.Error())
+	}
+	if err := data.Set("email_verification_required", t.Templates.EmailVerificationRequired); err != nil {
+		return fmt.Errorf("theme.email_verification_required: %s", err.Error())
+	}
+	if err := data.Set("registration_sent", t.Templates.RegistrationSent); err != nil {
+		return fmt.Errorf("theme.registration_sent: %s", err.Error())
+	}
+	if err := data.Set("oauth2_authorized_not_registered", t.Templates.Oauth2AuthorizedNotRegistered); err != nil {
+		return fmt.Errorf("theme.oauth2_authorized_not_registered: %s", err.Error())
+	}
+	if err := data.Set("oauth2_start_idp_link", t.Templates.Oauth2StartIdPLink); err != nil {
+		return fmt.Errorf("theme.oauth2_start_idp_link: %s", err.Error())
+	}
+	if err := data.Set("registration_verification_required", t.Templates.RegistrationVerificationRequired); err != nil {
+		return fmt.Errorf("theme.registration_verification_required: %s", err.Error())
 	}
 
 	return nil

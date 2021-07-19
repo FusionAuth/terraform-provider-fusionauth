@@ -45,3 +45,4 @@ resource "fusionauth_idp_apple" "apple" {
 * `scope` - (Optional) The top-level space separated scope that you are requesting from Apple.
 * `services_id` - (Required) The unique Id of the private key downloaded from Apple and imported into Key Master that will be used to sign the client secret.
 * `team_id` - (Required) The Apple App ID Prefix, or Team ID found in your Apple Developer Account which has been configured for Sign in with Apple.
+* `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.
