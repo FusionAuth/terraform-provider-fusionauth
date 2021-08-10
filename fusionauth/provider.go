@@ -45,6 +45,7 @@ func Provider() terraform.ResourceProvider {
 			"fusionauth_idp_saml_v2":          resourceIDPSAMLv2(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
+			"fusionauth_lambda":           dataSourceLambda(),
 			"fusionauth_application":      dataSourceApplication(),
 			"fusionauth_tenant":           dataSourceTenant(),
 			"fusionauth_application_role": dataSourceApplicationRole(),
