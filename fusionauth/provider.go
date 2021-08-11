@@ -43,6 +43,7 @@ func Provider() terraform.ResourceProvider {
 			"fusionauth_user_action":          resourceUserAction(),
 			"fusionauth_idp_external_jwt":     resourceIDPExternalJWT(),
 			"fusionauth_idp_saml_v2":          resourceIDPSAMLv2(),
+			"fusionauth_api_key":              resourceAPIKey(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"fusionauth_application":      dataSourceApplication(),

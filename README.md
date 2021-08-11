@@ -9,6 +9,7 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
 
 ## Resources Available
 
+* API Key
 * application
 * application/{application_id}/role
 * email
