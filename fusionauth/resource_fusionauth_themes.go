@@ -305,6 +305,13 @@ func newTheme() *schema.Resource {
 				Description:      "A FreeMarker template",
 				DiffSuppressFunc: templateCompare,
 			},
+			"unauthorized": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template",
+				DiffSuppressFunc: templateCompare,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -356,6 +363,7 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 			Oauth2AuthorizedNotRegistered:             data.Get("oauth2_authorized_not_registered").(string),
 			Oauth2StartIdPLink:                        data.Get("oauth2_start_idp_link").(string),
 			RegistrationVerificationRequired:          data.Get("registration_verification_required").(string),
+			Unauthorized:                              data.Get("unauthorized").(string),
 		},
 	}
 
@@ -580,6 +588,9 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) e
 	}
 	if err := data.Set("registration_verification_required", t.Templates.RegistrationVerificationRequired); err != nil {
 		return fmt.Errorf("theme.registration_verification_required: %s", err.Error())
+	}
+	if err := data.Set("unauthorized", t.Templates.Unauthorized); err != nil {
+		return fmt.Errorf("theme.unauthorized: %s", err.Error())
 	}
 
 	return nil

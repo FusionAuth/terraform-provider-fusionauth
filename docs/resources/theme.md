@@ -80,3 +80,4 @@ resource "fusionauth_theme" "mytheme" {
 * `oauth2_authorized_not_registered` - (Optional)
 * `oauth2_start_idp_link` - (Optional)
 * `registration_verification_required` - (Optional)
+* `unauthorized` - (Optional)
