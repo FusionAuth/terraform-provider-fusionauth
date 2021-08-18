@@ -1,3 +1,5 @@
+run:
+  timeout: 90s
 linters:
   disable-all: true
   enable:
