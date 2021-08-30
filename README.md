@@ -19,7 +19,7 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
 * key
 * imported key
 * lambda
-* indentity provider
+* identity provider
     - OpenID Connect
     - Google
     - Apple
