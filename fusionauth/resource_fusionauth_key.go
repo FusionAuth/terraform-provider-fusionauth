@@ -19,6 +19,12 @@ func newKey() *schema.Resource {
 		},
 		Delete: keyDelete,
 		Schema: map[string]*schema.Schema{
+			"key_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id to use for the new Key. If not specified a secure random UUID will be generated.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"algorithm": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -66,7 +72,13 @@ func buildKey(data *schema.ResourceData) fusionauth.Key {
 func createKey(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	l := buildKey(data)
-	resp, faErrs, err := client.FAClient.GenerateKey("", fusionauth.KeyRequest{
+
+	var keyID string
+	if a, ok := data.GetOk("key_id"); ok {
+		keyID = a.(string)
+	}
+
+	resp, faErrs, err := client.FAClient.GenerateKey(keyID, fusionauth.KeyRequest{
 		Key: l,
 	})
 	if err != nil {

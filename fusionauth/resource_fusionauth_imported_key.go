@@ -19,6 +19,12 @@ func resourceImportedKey() *schema.Resource {
 		},
 		Delete: keyDelete,
 		Schema: map[string]*schema.Schema{
+			"key_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id to use for the new Key. If not specified a secure random UUID will be generated.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"algorithm": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -40,6 +46,7 @@ func resourceImportedKey() *schema.Resource {
 			"certificate": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
 				Description: "The certificate to import. The publicKey will be extracted from the certificate.",
 			},
@@ -57,6 +64,7 @@ func resourceImportedKey() *schema.Resource {
 			"public_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
 				Description: "The Key public key. Required if importing an RSA or EC key and a certificate is not provided.",
 			},
@@ -77,8 +85,8 @@ func resourceImportedKey() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
+				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"EC",
 					"RSA",
@@ -96,7 +104,13 @@ func resourceImportedKey() *schema.Resource {
 func createImportedKey(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	l := buildImportedKey(data)
-	resp, faErrs, err := client.FAClient.ImportKey("", fusionauth.KeyRequest{
+
+	var keyID string
+	if a, ok := data.GetOk("key_id"); ok {
+		keyID = a.(string)
+	}
+
+	resp, faErrs, err := client.FAClient.ImportKey(keyID, fusionauth.KeyRequest{
 		Key: l,
 	})
 	if err != nil {
@@ -107,7 +121,7 @@ func createImportedKey(data *schema.ResourceData, i interface{}) error {
 	}
 
 	data.SetId(resp.Key.Id)
-	return nil
+	return buildResourceDataFromImportedKey(data, resp.Key)
 }
 
 func buildImportedKey(data *schema.ResourceData) fusionauth.Key {
@@ -126,6 +140,9 @@ func buildImportedKey(data *schema.ResourceData) fusionauth.Key {
 func buildResourceDataFromImportedKey(data *schema.ResourceData, res fusionauth.Key) error {
 	if err := data.Set("algorithm", res.Algorithm); err != nil {
 		return fmt.Errorf("key.algorithm: %s", err.Error())
+	}
+	if err := data.Set("certificate", res.Algorithm); err != nil {
+		return fmt.Errorf("key.certificate: %s", err.Error())
 	}
 	if err := data.Set("kid", res.Kid); err != nil {
 		return fmt.Errorf("key.kid: %s", err.Error())

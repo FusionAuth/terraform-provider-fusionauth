@@ -16,6 +16,7 @@ resource "fusionauth_imported_key" "name" {
 
 ## Argument Reference
 
+* `key_id` - (Optional) The Id to use for the new key. If not specified a secure random UUID will be generated.
 * `algorithm` - (Optional) The algorithm used to encrypt the Key. The following values represent algorithms supported by FusionAuth:
     - `ES256` - ECDSA using P-256 curve and SHA-256 hash algorithm
     - `ES384` - ECDSA using P-384 curve and SHA-384 hash algorithm
