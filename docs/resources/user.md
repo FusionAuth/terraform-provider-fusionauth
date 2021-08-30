@@ -3,7 +3,7 @@
 
 [Users API](https://fusionauth.io/docs/v1/tech/apis/users)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_user" "example" {

@@ -3,7 +3,7 @@
 
 [User Actions API](https://fusionauth.io/docs/v1/tech/apis/user-actions/)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_user_action" "example" {

@@ -4,7 +4,7 @@ This resource contains the APIs for managing Email Templates.
 
 [Emails API](https://fusionauth.io/docs/v1/tech/apis/emails)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_email" "HelloWorld" {

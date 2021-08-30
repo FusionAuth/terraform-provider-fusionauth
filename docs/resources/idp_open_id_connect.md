@@ -10,7 +10,7 @@ If the external OpenID Connect identity provider returns a refresh token, it wil
 
 [OpenID Connect Identity Providers API](https://fusionauth.io/docs/v1/tech/apis/identity-providers/openid-connect)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_idp_open_id_connect" "OpenID" {

@@ -6,7 +6,7 @@ When a Group does not contain any Application Roles it can still be utilized to 
 
 [Groups API](https://fusionauth.io/docs/v1/tech/apis/groups)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_group" "my_group" {

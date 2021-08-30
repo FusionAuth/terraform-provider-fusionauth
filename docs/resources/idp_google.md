@@ -8,7 +8,7 @@ FusionAuth will also store the Google access_token that is returned from the log
 
 [Google Identity Providers API](https://fusionauth.io/docs/v1/tech/apis/identity-providers/google#create-the-google-identity-provider)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_idp_google" "google" {

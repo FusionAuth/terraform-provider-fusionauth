@@ -4,7 +4,7 @@ A registration is the association between a User and an Application that they lo
 
 [System Configuration API](https://fusionauth.io/docs/v1/tech/apis/system)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_system_configuration" "example" {

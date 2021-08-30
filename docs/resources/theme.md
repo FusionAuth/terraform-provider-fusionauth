@@ -4,7 +4,7 @@ This Resource is used to create a role for an Application.
 
 [Themes API]https://fusionauth.io/docs/v1/tech/apis/themes)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_theme" "mytheme" {
