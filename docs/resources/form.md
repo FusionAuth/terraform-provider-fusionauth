@@ -4,7 +4,7 @@ A FusionAuth Form is a customizable object that contains one-to-many ordered ste
 
 [Form API](https://fusionauth.io/docs/v1/tech/apis/forms/)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_form" "form" {

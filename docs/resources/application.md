@@ -2,7 +2,7 @@
 
 [Applications API](https://fusionauth.io/docs/v1/tech/apis/applications)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_application" "Forum"{
@@ -146,7 +146,7 @@ resource "fusionauth_application" "Forum"{
         * `enabled` - (Optional)
         * `required` - (Optional)
     - `type` - (Optional) The type of registration flow.
-    - `form_id` - (Optiona) The Id of an associated Form when using advanced registration configuration type. This field is required when application.registrationConfiguration.type is set to advanced.
+    - `form_id` - (Optional) The Id of an associated Form when using advanced registration configuration type. This field is required when application.registrationConfiguration.type is set to advanced.
 * `passwordless_configuration_enabled` - (Optional) Determines if passwordless login is enabled for this application.
 * `registration_delete_policy` - (Optional)
     - `unverified_enabled` - (Optional) Indicates that users without a verified registration for this application will have their registration permanently deleted after application.registrationDeletePolicy.unverified.numberOfDaysToRetain days.
@@ -165,7 +165,7 @@ resource "fusionauth_application" "Forum"{
         * `default_verification_key_id` - (Optional) The unique Id of the Key used to verify the signature if the public key cannot be determined by the KeyInfo element when using POST bindings, or the key used to verify the signature when using HTTP Redirect bindings.
         * `key_id` - (Optional) The unique Id of the Key used to sign the SAML Logout response.
         * `require_signed_requests` - (Optional) Set this parameter equal to true to require the SAML v2 Service Provider to sign the Logout request. When this value is true all Logout requests missing a signature will be rejected.
-        * `single_logout` - (Optiona)
+        * `single_logout` - (Optional)
             - `enabled` - (Optional) Whether or not SAML Single Logout for this SAML IdP is enabled.
             - `key_id` - (Optional) The unique Id of the Key used to sign the SAML Single Logout response.
             - `url` - (Optional) The URL at which you want to receive the LogoutRequest from FusionAuth.

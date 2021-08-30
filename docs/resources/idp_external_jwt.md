@@ -8,7 +8,7 @@ In order for this identity provider to use the JWT, it also needs the public key
 
 [External JWT Identity Providers API](https://fusionauth.io/docs/v1/tech/apis/identity-providers/external-jwt/)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_idp_external_jwt" "jwt" {

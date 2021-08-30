@@ -2,7 +2,7 @@
 
 [Applications API](https://fusionauth.io/docs/v1/tech/apis/applications)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 data "fusionauth_application" "FusionAuth"{

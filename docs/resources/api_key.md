@@ -5,7 +5,7 @@ The FusionAuth APIs are primarily secured using API keys. This API can only be a
 
 [API Key](https://fusionauth.io/docs/v1/tech/apis/api-keys/)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_api_key" "example" {

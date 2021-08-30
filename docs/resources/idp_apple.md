@@ -7,7 +7,7 @@ FusionAuth will also store the Apple refresh_token that is returned from the /au
 
 [Apple Identity Providers API](https://fusionauth.io/docs/v1/tech/apis/identity-providers/apple/#create-the-apple-identity-provider)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_idp_apple" "apple" {

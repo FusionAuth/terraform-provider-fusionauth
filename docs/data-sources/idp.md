@@ -1,8 +1,8 @@
 # Application Resource
 
-[Identiy Providers API](https://fusionauth.io/docs/v1/tech/apis/identity-providers/)
+[Identity Providers API](https://fusionauth.io/docs/v1/tech/apis/identity-providers/)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 data "fusionauth_idp" "FusionAuth"{

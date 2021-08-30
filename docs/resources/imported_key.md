@@ -4,7 +4,7 @@ Cryptographic keys are used in signing and verifying JWTs and verifying response
 
 [Keys API](https://fusionauth.io/docs/v1/tech/apis/keys)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_imported_key" "name" {

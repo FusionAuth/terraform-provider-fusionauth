@@ -8,7 +8,7 @@ Tenants may also be useful in a test or staging environment to allow multiple us
 
 [Tenants API](https://fusionauth.io/docs/v1/tech/apis/tenants)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 data "fusionauth_tenant" "default"{

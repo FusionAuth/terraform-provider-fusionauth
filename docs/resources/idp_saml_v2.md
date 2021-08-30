@@ -9,7 +9,7 @@ FusionAuth will locate the user’s email address in the SAML assertion which wi
 
 [SAML v2 Connect Identity Providers API](https://fusionauth.io/docs/v1/tech/apis/identity-providers/samlv2/)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_idp_saml_v2" "Saml" {

@@ -4,7 +4,7 @@ A FusionAuth Webhook is intended to consume JSON events emitted by FusionAuth. C
 
 [Webhooks API](https://fusionauth.io/docs/v1/tech/apis/webhooks)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_webhook" "example" {

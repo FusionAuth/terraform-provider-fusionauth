@@ -4,7 +4,7 @@ A FusionAuth Form Field is an object that can be customized to receive input wit
 
 [Form Field API](https://fusionauth.io/docs/v1/tech/apis/form-fields/)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 resource "fusionauth_form_field" "field" {
