@@ -12,7 +12,7 @@ func newTenant() *schema.Resource {
 		Update: updateTenant,
 		Delete: deleteTenant,
 		Schema: map[string]*schema.Schema{
-			"source_tentant_id": {
+			"source_tenant_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Description:  "The optional Id of an existing Tenant to make a copy of. If present, the tenant.id and tenant.name values of the request body will be applied to the new Tenant, all other values will be copied from the source Tenant to the new Tenant.",

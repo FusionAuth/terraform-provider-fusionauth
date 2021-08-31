@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func buildTentant(data *schema.ResourceData) fusionauth.Tenant {
+func buildTenant(data *schema.ResourceData) fusionauth.Tenant {
 	return fusionauth.Tenant{
 		Data: data.Get("data").(map[string]interface{}),
 		EmailConfiguration: fusionauth.EmailConfiguration{

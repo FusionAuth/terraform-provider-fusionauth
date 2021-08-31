@@ -11,8 +11,8 @@ import (
 func createTenant(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 	t := fusionauth.TenantRequest{
-		Tenant:         buildTentant(data),
-		SourceTenantId: data.Get("source_tentant_id").(string),
+		Tenant:         buildTenant(data),
+		SourceTenantId: data.Get("source_tenant_id").(string),
 	}
 
 	var tid string
@@ -57,8 +57,8 @@ func updateTenant(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
 
 	t := fusionauth.TenantRequest{
-		Tenant:         buildTentant(data),
-		SourceTenantId: data.Get("source_tentant_id").(string),
+		Tenant:         buildTenant(data),
+		SourceTenantId: data.Get("source_tenant_id").(string),
 	}
 
 	resp, faErrs, err := client.FAClient.UpdateTenant(data.Id(), t)
