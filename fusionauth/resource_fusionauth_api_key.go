@@ -3,6 +3,7 @@ package fusionauth
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -317,30 +318,23 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 
 	pe := make([]map[string]interface{}, 0, len(res.Permissions.Endpoints))
 	for ep := range res.Permissions.Endpoints {
-		var delete, get, patch, post, put bool
+		endpointPermission := map[string]interface{}{
+			"delete": false,
+			"get":    false,
+			"patch":  false,
+			"post":   false,
+			"put":    false,
+		}
+
 		for _, s := range res.Permissions.Endpoints[ep] {
-			switch s {
-			case "DELETE":
-				delete = true
-			case "GET":
-				get = true
-			case "PATCH":
-				patch = true
-			case "POST":
-				post = true
-			case "PUT":
-				put = true
+			method := strings.ToLower(s)
+			if _, exists := endpointPermission[method]; exists {
+				endpointPermission[method] = true
 			}
 		}
 
-		pe = append(pe, map[string]interface{}{
-			"endpoint": ep,
-			"delete":   delete,
-			"get":      get,
-			"patch":    patch,
-			"post":     post,
-			"put":      put,
-		})
+		endpointPermission["endpoint"] = ep
+		pe = append(pe, endpointPermission)
 	}
 
 	if err := data.Set("permissions_endpoints", pe); err != nil {
