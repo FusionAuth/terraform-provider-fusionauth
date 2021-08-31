@@ -44,14 +44,16 @@ func resourceImportedKey() *schema.Resource {
 				Description: "The algorithm used to encrypt the Key.",
 			},
 			"certificate": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: "The certificate to import. The publicKey will be extracted from the certificate.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ForceNew:         true,
+				Description:      "The certificate to import. The publicKey will be extracted from the certificate.",
+				DiffSuppressFunc: certKeyCompare,
 			},
 			"kid": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: "The Key identifier 'kid'.",
@@ -62,18 +64,20 @@ func resourceImportedKey() *schema.Resource {
 				Description: "The name of the Key.",
 			},
 			"public_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: "The Key public key. Required if importing an RSA or EC key and a certificate is not provided.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ForceNew:         true,
+				Description:      "The Key public key. Required if importing an RSA or EC key and a certificate is not provided.",
+				DiffSuppressFunc: certKeyCompare,
 			},
 			"private_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Sensitive:   true,
-				Description: "The Key private key. Optional if importing an RSA or EC key. If the key is only to be used for token validation, only a public key is necessary and this field may be omitted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				Sensitive:        true,
+				Description:      "The Key private key. Optional if importing an RSA or EC key. If the key is only to be used for token validation, only a public key is necessary and this field may be omitted.",
+				DiffSuppressFunc: certKeyCompare,
 			},
 			"secret": {
 				Type:        schema.TypeString,
@@ -141,7 +145,7 @@ func buildResourceDataFromImportedKey(data *schema.ResourceData, res fusionauth.
 	if err := data.Set("algorithm", res.Algorithm); err != nil {
 		return fmt.Errorf("key.algorithm: %s", err.Error())
 	}
-	if err := data.Set("certificate", res.Algorithm); err != nil {
+	if err := data.Set("certificate", res.Certificate); err != nil {
 		return fmt.Errorf("key.certificate: %s", err.Error())
 	}
 	if err := data.Set("kid", res.Kid); err != nil {
