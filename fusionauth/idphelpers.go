@@ -61,10 +61,17 @@ func readIdentityProvider(id string, client Client) ([]byte, error) {
 	return b, nil
 }
 
-func createIdentityProvider(b []byte, client Client) ([]byte, error) {
+func createIdentityProvider(b []byte, client Client, idpID string) ([]byte, error) {
+	var u string
+	if idpID != "" {
+		u = fmt.Sprintf("%s/%s/%s", strings.TrimRight(client.Host, "/"), "api/identity-provider", idpID)
+	} else {
+		u = fmt.Sprintf("%s/%s", strings.TrimRight(client.Host, "/"), "api/identity-provider")
+	}
+
 	req, err := http.NewRequest(
 		http.MethodPost,
-		fmt.Sprintf("%s/%s", strings.TrimRight(client.Host, "/"), "api/identity-provider"),
+		u,
 		bytes.NewBuffer(b),
 	)
 

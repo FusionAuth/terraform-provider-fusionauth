@@ -205,7 +205,7 @@ func createIDPGoogle(data *schema.ResourceData, i interface{}) error {
 
 	client := i.(Client)
 
-	bb, err := createIdentityProvider(b, client)
+	bb, err := createIdentityProvider(b, client, "")
 	if err != nil {
 		return err
 	}

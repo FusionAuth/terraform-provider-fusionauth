@@ -29,6 +29,7 @@ resource "fusionauth_idp_external_jwt" "jwt" {
 
 ## Argument Reference
 
+* `idp_id` - (Optional) The ID to use for the new identity provider. If not specified a secure random UUID will be generated.
 * `application_configuration` - (Optional) The configuration for each Application that the identity provider is enabled for.
     - `application_id` - (Optional) ID of the Application to apply this configuration to.
     - `create_registration` - (Optional) Determines if a UserRegistration is created for the User automatically or not. If a user doesn’t exist in FusionAuth and logs in through an identity provider, this boolean controls whether or not FusionAuth creates a registration for the User in the Application they are logging into.
