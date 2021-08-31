@@ -34,6 +34,13 @@ func newIDPOpenIDConnect() *schema.Resource {
 		Update: updateOpenIDConnect,
 		Delete: deleteIdentityProvider,
 		Schema: map[string]*schema.Schema{
+			"idp_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The ID to use for the new identity provider. If not specified a secure random UUID will be generated.",
+				ValidateFunc: validation.IsUUID,
+				ForceNew:     true,
+			},
 			"application_configuration": {
 				Optional:    true,
 				Type:        schema.TypeSet,
@@ -279,7 +286,7 @@ func createOpenIDConnect(data *schema.ResourceData, i interface{}) error {
 	}
 
 	client := i.(Client)
-	bb, err := createIdentityProvider(b, client)
+	bb, err := createIdentityProvider(b, client, data.Get("idp_id").(string))
 	if err != nil {
 		return err
 	}

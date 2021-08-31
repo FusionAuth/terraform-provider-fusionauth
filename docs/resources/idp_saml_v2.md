@@ -33,6 +33,7 @@ resource "fusionauth_idp_saml_v2" "Saml" {
 
 ## Argument Reference
 
+* `idp_id` - (Optional) The ID to use for the new identity provider. If not specified a secure random UUID will be generated.
 * `application_configuration` - (Optional) The configuration for each Application that the identity provider is enabled for.
     - `application_id` - (Optional) ID of the Application to apply this configuration to.
     - `button_image_url` - (Optional) This is an optional Application specific override for the top level button image URL.
