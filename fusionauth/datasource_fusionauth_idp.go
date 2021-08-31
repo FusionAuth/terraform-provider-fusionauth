@@ -12,11 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
-type IdenityProvidersResponse struct {
-	IdentityProviders []IdenityProvider `json:"identityProviders"`
+type IdentityProvidersResponse struct {
+	IdentityProviders []IdentityProvider `json:"identityProviders"`
 }
 
-type IdenityProvider struct {
+type IdentityProvider struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	Type string `json:"type"`
@@ -53,12 +53,12 @@ func dataSourceIDP() *schema.Resource {
 
 func dataSourceIDPRead(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
-	b, err := readIdenityProviders(client)
+	b, err := readIdentityProviders(client)
 	if err != nil {
 		return err
 	}
 
-	var idps IdenityProvidersResponse
+	var idps IdentityProvidersResponse
 	_ = json.Unmarshal(b, &idps)
 
 	n := data.Get("name").(string)
@@ -67,7 +67,7 @@ func dataSourceIDPRead(data *schema.ResourceData, i interface{}) error {
 	case "Apple", "Facebook", "Google", "HYPR", "Twitter":
 		n = t
 	}
-	var idp *IdenityProvider
+	var idp *IdentityProvider
 	for i := range idps.IdentityProviders {
 		if idps.IdentityProviders[i].Name == n && idps.IdentityProviders[i].Type == t {
 			idp = &idps.IdentityProviders[i]
@@ -81,7 +81,7 @@ func dataSourceIDPRead(data *schema.ResourceData, i interface{}) error {
 	return nil
 }
 
-func readIdenityProviders(client Client) ([]byte, error) {
+func readIdentityProviders(client Client) ([]byte, error) {
 	req, err := http.NewRequest(
 		http.MethodGet,
 		fmt.Sprintf("%s/%s", strings.TrimRight(client.Host, "/"), "api/identity-provider"),

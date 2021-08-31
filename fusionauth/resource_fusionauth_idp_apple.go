@@ -158,7 +158,7 @@ func createIDPApple(data *schema.ResourceData, i interface{}) error {
 
 	client := i.(Client)
 
-	bb, err := createIdenityProvider(b, client)
+	bb, err := createIdentityProvider(b, client)
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func createIDPApple(data *schema.ResourceData, i interface{}) error {
 
 func readIDPApple(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
-	b, err := readIdenityProvider(data.Id(), client)
+	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
 		return err
 	}
@@ -194,7 +194,7 @@ func updateIDPApple(data *schema.ResourceData, i interface{}) error {
 	}
 
 	client := i.(Client)
-	bb, err := updateIdenityProvider(b, data.Id(), client)
+	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
 		return err
 	}
