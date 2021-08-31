@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
-type OpenIDConnectIdenityProviderBody struct {
+type OpenIDConnectIdentityProviderBody struct {
 	IdentityProvider fusionauth.OpenIdConnectIdentityProvider `json:"identityProvider"`
 }
 
@@ -206,7 +206,7 @@ func newIDPOpenIDConnect() *schema.Resource {
 	}
 }
 
-func buildOpenIDConnect(data *schema.ResourceData) OpenIDConnectIdenityProviderBody {
+func buildOpenIDConnect(data *schema.ResourceData) OpenIDConnectIdentityProviderBody {
 	o := fusionauth.OpenIdConnectIdentityProvider{
 		ButtonImageURL: data.Get("button_image_url").(string),
 		ButtonText:     data.Get("button_text").(string),
@@ -240,7 +240,7 @@ func buildOpenIDConnect(data *schema.ResourceData) OpenIDConnectIdenityProviderB
 
 	ac := buildOpenIDAppConfig("application_configuration", data)
 	o.ApplicationConfiguration = ac
-	return OpenIDConnectIdenityProviderBody{IdentityProvider: o}
+	return OpenIDConnectIdentityProviderBody{IdentityProvider: o}
 }
 
 func buildOpenIDAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
@@ -279,7 +279,7 @@ func createOpenIDConnect(data *schema.ResourceData, i interface{}) error {
 	}
 
 	client := i.(Client)
-	bb, err := createIdenityProvider(b, client)
+	bb, err := createIdentityProvider(b, client)
 	if err != nil {
 		return err
 	}
@@ -295,12 +295,12 @@ func createOpenIDConnect(data *schema.ResourceData, i interface{}) error {
 
 func readOpenIDConnect(data *schema.ResourceData, i interface{}) error {
 	client := i.(Client)
-	b, err := readIdenityProvider(data.Id(), client)
+	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
 		return err
 	}
 
-	var ipb OpenIDConnectIdenityProviderBody
+	var ipb OpenIDConnectIdentityProviderBody
 	_ = json.Unmarshal(b, &ipb)
 
 	return buildResourceFromOpenIDConnect(ipb.IdentityProvider, data)
@@ -398,7 +398,7 @@ func updateOpenIDConnect(data *schema.ResourceData, i interface{}) error {
 	}
 
 	client := i.(Client)
-	bb, err := updateIdenityProvider(b, data.Id(), client)
+	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
 		return err
 	}

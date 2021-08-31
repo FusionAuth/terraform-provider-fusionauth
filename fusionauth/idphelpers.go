@@ -27,7 +27,7 @@ func deleteIdentityProvider(data *schema.ResourceData, i interface{}) error {
 	return nil
 }
 
-func readIdenityProvider(id string, client Client) ([]byte, error) {
+func readIdentityProvider(id string, client Client) ([]byte, error) {
 	req, err := http.NewRequest(
 		http.MethodGet,
 		fmt.Sprintf("%s/%s/%s", strings.TrimRight(client.Host, "/"), "api/identity-provider", id),
@@ -61,7 +61,7 @@ func readIdenityProvider(id string, client Client) ([]byte, error) {
 	return b, nil
 }
 
-func createIdenityProvider(b []byte, client Client) ([]byte, error) {
+func createIdentityProvider(b []byte, client Client) ([]byte, error) {
 	req, err := http.NewRequest(
 		http.MethodPost,
 		fmt.Sprintf("%s/%s", strings.TrimRight(client.Host, "/"), "api/identity-provider"),
@@ -95,7 +95,7 @@ func createIdenityProvider(b []byte, client Client) ([]byte, error) {
 	return bb, nil
 }
 
-func updateIdenityProvider(b []byte, id string, client Client) ([]byte, error) {
+func updateIdentityProvider(b []byte, id string, client Client) ([]byte, error) {
 	req, err := http.NewRequest(
 		http.MethodPut,
 		fmt.Sprintf("%s/%s/%s", strings.TrimRight(client.Host, "/"), "api/identity-provider", id),
