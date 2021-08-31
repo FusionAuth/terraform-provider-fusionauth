@@ -209,7 +209,7 @@ resource "fusionauth_tenant" "example" {
 ```
 
 ## Argument Reference
-* `source_tentant_id` - (Optional) The optional Id of an existing Tenant to make a copy of. If present, the tenant.id and tenant.name values of the request body will be applied to the new Tenant, all other values will be copied from the source Tenant to the new Tenant.
+* `source_tenant_id` - (Optional) The optional Id of an existing Tenant to make a copy of. If present, the tenant.id and tenant.name values of the request body will be applied to the new Tenant, all other values will be copied from the source Tenant to the new Tenant.
 * `tenant_id` - (Optional) The Id to use for the new Tenant. If not specified a secure random UUID will be generated.
 * `data` - (Optional) An object that can hold any information about the Tenant that should be persisted.
 * `email_configuration` - (Required)
