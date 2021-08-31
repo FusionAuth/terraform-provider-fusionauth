@@ -23,6 +23,7 @@ linters:
     - misspell
     - nakedret
     - prealloc
+    - predeclared
     - exportloopref
     - staticcheck
     - structcheck
