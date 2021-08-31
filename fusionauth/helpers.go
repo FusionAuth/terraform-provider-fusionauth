@@ -32,7 +32,7 @@ func checkResponse(statusCode int, faErrors *fusionauth.Errors) error {
 	}
 }
 
-func templateCompare(k, old, new string, d *schema.ResourceData) bool {
+func templateCompare(k, oldStr, newStr string, d *schema.ResourceData) bool {
 	clean := func(s string) string {
 		s = strings.ReplaceAll(s, " ", "")
 		s = strings.ReplaceAll(s, "\t", "")
@@ -40,7 +40,7 @@ func templateCompare(k, old, new string, d *schema.ResourceData) bool {
 		s = strings.ReplaceAll(s, "\n", "")
 		return s
 	}
-	old = clean(old)
-	new = clean(new)
-	return old == new
+	oldStr = clean(oldStr)
+	newStr = clean(newStr)
+	return oldStr == newStr
 }
