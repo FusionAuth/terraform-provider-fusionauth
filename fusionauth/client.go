@@ -18,7 +18,7 @@ type Client struct {
 func configureClient(data *schema.ResourceData) (interface{}, error) {
 	key := data.Get("api_key").(string)
 
-	parsedUrl, err := url.Parse(data.Get("host").(string))
+	parsedURL, err := url.Parse(data.Get("host").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func configureClient(data *schema.ResourceData) (interface{}, error) {
 		&http.Client{
 			Timeout: time.Second * 30,
 		},
-		parsedUrl,
+		parsedURL,
 		key,
 	)
 
