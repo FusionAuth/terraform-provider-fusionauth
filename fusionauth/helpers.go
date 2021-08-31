@@ -44,3 +44,20 @@ func templateCompare(k, oldStr, newStr string, d *schema.ResourceData) bool {
 	newStr = clean(newStr)
 	return oldStr == newStr
 }
+
+func certKeyCompare(k, oldStr, newStr string, d *schema.ResourceData) bool {
+	clean := func(s string) string {
+		s = strings.ReplaceAll(s, "\r\n", "\n")
+		s = strings.ReplaceAll(s, "\n", "")
+		s = strings.ReplaceAll(s, "-----BEGIN CERTIFICATE-----", "")
+		s = strings.ReplaceAll(s, "-----END CERTIFICATE-----", "")
+		s = strings.ReplaceAll(s, "-----BEGIN PUBLIC KEY-----", "")
+		s = strings.ReplaceAll(s, "-----END PUBLIC KEY-----", "")
+		s = strings.ReplaceAll(s, "-----BEGIN PRIVATE KEY-----", "")
+		s = strings.ReplaceAll(s, "-----END PRIVATE KEY-----", "")
+		return s
+	}
+	oldStr = clean(oldStr)
+	newStr = clean(newStr)
+	return oldStr == newStr
+}
