@@ -17,6 +17,7 @@ func dataSourceLambda() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Computed:    true,
 				Description: "The ID of the Lambda.",
 			},
 			"body": {
