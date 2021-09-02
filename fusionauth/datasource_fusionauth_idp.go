@@ -1,6 +1,7 @@
 package fusionauth
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -8,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -24,7 +26,7 @@ type IdentityProvider struct {
 
 func dataSourceIDP() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIDPRead,
+		ReadContext: dataSourceIDPRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -51,11 +53,11 @@ func dataSourceIDP() *schema.Resource {
 	}
 }
 
-func dataSourceIDPRead(data *schema.ResourceData, i interface{}) error {
+func dataSourceIDPRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProviders(client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var idps IdentityProvidersResponse
@@ -75,7 +77,7 @@ func dataSourceIDPRead(data *schema.ResourceData, i interface{}) error {
 	}
 
 	if idp == nil {
-		return fmt.Errorf("couldn't find identity provider name %s, type %s", n, t)
+		return diag.Errorf("couldn't find identity provider name %s, type %s", n, t)
 	}
 	data.SetId(idp.ID)
 	return nil

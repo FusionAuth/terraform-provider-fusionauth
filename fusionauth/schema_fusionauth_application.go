@@ -7,12 +7,12 @@ import (
 
 func newApplication() *schema.Resource {
 	return &schema.Resource{
-		Create: createApplication,
-		Read:   readApplication,
-		Update: updateApplication,
-		Delete: deleteApplication,
+		CreateContext: createApplication,
+		ReadContext:   readApplication,
+		UpdateContext: updateApplication,
+		DeleteContext: deleteApplication,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"application_id": {

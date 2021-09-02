@@ -1,10 +1,11 @@
 package fusionauth
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -24,10 +25,10 @@ type GoogleAppConfig struct {
 
 func newIDPGoogle() *schema.Resource {
 	return &schema.Resource{
-		Create: createIDPGoogle,
-		Read:   readIDPGoogle,
-		Update: updateIDPGoogle,
-		Delete: deleteIdentityProvider,
+		CreateContext: createIDPGoogle,
+		ReadContext:   readIDPGoogle,
+		UpdateContext: updateIDPGoogle,
+		DeleteContext: deleteIdentityProvider,
 		Schema: map[string]*schema.Schema{
 			"application_configuration": {
 				Optional:    true,
@@ -143,7 +144,7 @@ func newIDPGoogle() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -195,35 +196,35 @@ func buildGoogleAppConfig(key string, data *schema.ResourceData) map[string]inte
 	return m
 }
 
-func createIDPGoogle(data *schema.ResourceData, i interface{}) error {
+func createIDPGoogle(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildIDPGoogle(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 
 	bb, err := createIdentityProvider(b, client, "")
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)
 	return nil
 }
 
-func readIDPGoogle(data *schema.ResourceData, i interface{}) error {
+func readIDPGoogle(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var ipb GoogleIdentityProviderBody
@@ -232,33 +233,33 @@ func readIDPGoogle(data *schema.ResourceData, i interface{}) error {
 	return buildResourceFromIDPGoogle(ipb.IdentityProvider, data)
 }
 
-func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schema.ResourceData) error {
+func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schema.ResourceData) diag.Diagnostics {
 	if err := data.Set("button_text", o.ButtonText); err != nil {
-		return fmt.Errorf("idpGoogle.button_text: %s", err.Error())
+		return diag.Errorf("idpGoogle.button_text: %s", err.Error())
 	}
 	if err := data.Set("debug", o.Debug); err != nil {
-		return fmt.Errorf("idpGoogle.debug: %s", err.Error())
+		return diag.Errorf("idpGoogle.debug: %s", err.Error())
 	}
 	if err := data.Set("enabled", o.Enabled); err != nil {
-		return fmt.Errorf("idpGoogle.enabled: %s", err.Error())
+		return diag.Errorf("idpGoogle.enabled: %s", err.Error())
 	}
 	if err := data.Set("lambda_reconcile_id", o.LambdaConfiguration.ReconcileId); err != nil {
-		return fmt.Errorf("idpGoogle.lambda_reconcile_id: %s", err.Error())
+		return diag.Errorf("idpGoogle.lambda_reconcile_id: %s", err.Error())
 	}
 	if err := data.Set("client_id", o.ClientId); err != nil {
-		return fmt.Errorf("idpGoogle.client_id: %s", err.Error())
+		return diag.Errorf("idpGoogle.client_id: %s", err.Error())
 	}
 	if err := data.Set("client_secret", o.ClientSecret); err != nil {
-		return fmt.Errorf("idpGoogle.client_secret: %s", err.Error())
+		return diag.Errorf("idpGoogle.client_secret: %s", err.Error())
 	}
 	if err := data.Set("scope", o.Scope); err != nil {
-		return fmt.Errorf("idpGoogle.scope: %s", err.Error())
+		return diag.Errorf("idpGoogle.scope: %s", err.Error())
 	}
 	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
-		return fmt.Errorf("idpGoogle.linking_strategy: %s", err.Error())
+		return diag.Errorf("idpGoogle.linking_strategy: %s", err.Error())
 	}
 	if err := data.Set("login_method", o.LoginMethod); err != nil {
-		return fmt.Errorf("idpGoogle.login_method: %s", err.Error())
+		return diag.Errorf("idpGoogle.login_method: %s", err.Error())
 	}
 	// Since this is coming down as an interface and would end up being map[string]interface{}
 	// with one of the values being map[string]interface{}
@@ -279,28 +280,28 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 		})
 	}
 	if err := data.Set("application_configuration", ac); err != nil {
-		return fmt.Errorf("idpGoogle.application_configuration: %s", err.Error())
+		return diag.Errorf("idpGoogle.application_configuration: %s", err.Error())
 	}
 	return nil
 }
 
-func updateIDPGoogle(data *schema.ResourceData, i interface{}) error {
+func updateIDPGoogle(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildIDPGoogle(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)

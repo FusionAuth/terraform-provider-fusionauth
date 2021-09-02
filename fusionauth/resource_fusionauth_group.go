@@ -1,20 +1,21 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func newGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: createGroup,
-		Read:   readGroup,
-		Update: updateGroup,
-		Delete: deleteGroup,
+		CreateContext: createGroup,
+		ReadContext:   readGroup,
+		UpdateContext: updateGroup,
+		DeleteContext: deleteGroup,
 		Schema: map[string]*schema.Schema{
 			"data": {
 				Type:        schema.TypeMap,
@@ -41,7 +42,7 @@ func newGroup() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -59,7 +60,7 @@ func buildGroup(data *schema.ResourceData) fusionauth.GroupRequest {
 	return g
 }
 
-func createGroup(data *schema.ResourceData, i interface{}) error {
+func createGroup(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	g := buildGroup(data)
 	oldTenantID := client.FAClient.TenantId
@@ -68,26 +69,25 @@ func createGroup(data *schema.ResourceData, i interface{}) error {
 		client.FAClient.TenantId = oldTenantID
 	}()
 	resp, faErrs, err := client.FAClient.CreateGroup("", g)
-
 	if err != nil {
-		return fmt.Errorf("CreateGroup err: %v", err)
+		return diag.Errorf("CreateGroup err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(resp.Group.Id)
 	return nil
 }
 
-func readGroup(data *schema.ResourceData, i interface{}) error {
+func readGroup(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.RetrieveGroup(id)
 	if err != nil {
-		return fmt.Errorf("RetrieveGroup err: %v", err)
+		return diag.Errorf("RetrieveGroup err: %v", err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -95,18 +95,18 @@ func readGroup(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	t := resp.Group
 	if err := data.Set("name", t.Name); err != nil {
-		return fmt.Errorf("group.name: %s", err.Error())
+		return diag.Errorf("group.name: %s", err.Error())
 	}
 	if err := data.Set("tenant_id", t.TenantId); err != nil {
-		return fmt.Errorf("group.tenant_id: %s", err.Error())
+		return diag.Errorf("group.tenant_id: %s", err.Error())
 	}
 	if err := data.Set("data", t.Data); err != nil {
-		return fmt.Errorf("group.data: %s", err.Error())
+		return diag.Errorf("group.data: %s", err.Error())
 	}
 
 	var s []string
@@ -117,12 +117,12 @@ func readGroup(data *schema.ResourceData, i interface{}) error {
 		}
 	}
 	if err := data.Set("role_ids", s); err != nil {
-		return fmt.Errorf("group.role_ids: %s", err.Error())
+		return diag.Errorf("group.role_ids: %s", err.Error())
 	}
 	return nil
 }
 
-func updateGroup(data *schema.ResourceData, i interface{}) error {
+func updateGroup(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	g := buildGroup(data)
 	id := data.Id()
@@ -134,27 +134,27 @@ func updateGroup(data *schema.ResourceData, i interface{}) error {
 	resp, faErrs, err := client.FAClient.UpdateGroup(id, g)
 
 	if err != nil {
-		return fmt.Errorf("UpdateGroup err: %v", err)
+		return diag.Errorf("UpdateGroup err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func deleteGroup(data *schema.ResourceData, i interface{}) error {
+func deleteGroup(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.DeleteGroup(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil

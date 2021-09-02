@@ -1,20 +1,21 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceUserAction() *schema.Resource {
 	return &schema.Resource{
-		Create: createUserAction,
-		Read:   readUserAction,
-		Update: updateUserAction,
-		Delete: deleteUserAction,
+		CreateContext: createUserAction,
+		ReadContext:   readUserAction,
+		UpdateContext: updateUserAction,
+		DeleteContext: deleteUserAction,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -101,7 +102,7 @@ func resourceUserAction() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -156,7 +157,7 @@ func buildUserAction(data *schema.ResourceData) fusionauth.UserAction {
 	return ua
 }
 
-func createUserAction(data *schema.ResourceData, i interface{}) error {
+func createUserAction(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, faErrs, err := client.FAClient.CreateUserAction("", fusionauth.UserActionRequest{
@@ -164,24 +165,24 @@ func createUserAction(data *schema.ResourceData, i interface{}) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("CreateUser err: %v", err)
+		return diag.Errorf("CreateUser err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data.SetId(resp.UserAction.Id)
 
-	return readUserAction(data, i)
+	return readUserAction(ctx, data, i)
 }
 
-func readUserAction(data *schema.ResourceData, i interface{}) error {
+func readUserAction(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, err := client.FAClient.RetrieveUserAction(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -190,22 +191,22 @@ func readUserAction(data *schema.ResourceData, i interface{}) error {
 	}
 
 	if err := data.Set("name", resp.UserAction.Name); err != nil {
-		return fmt.Errorf("user_action.name: %s", err.Error())
+		return diag.Errorf("user_action.name: %s", err.Error())
 	}
 	if err := data.Set("cancel_email_template_id", resp.UserAction.CancelEmailTemplateId); err != nil {
-		return fmt.Errorf("user_action.cancel_email_template_id: %s", err.Error())
+		return diag.Errorf("user_action.cancel_email_template_id: %s", err.Error())
 	}
 	if err := data.Set("end_email_template_id", resp.UserAction.EndEmailTemplateId); err != nil {
-		return fmt.Errorf("user_action.end_email_template_id: %s", err.Error())
+		return diag.Errorf("user_action.end_email_template_id: %s", err.Error())
 	}
 	if err := data.Set("include_email_in_event_json", resp.UserAction.IncludeEmailInEventJSON); err != nil {
-		return fmt.Errorf("user_action.include_email_in_event_json: %s", err.Error())
+		return diag.Errorf("user_action.include_email_in_event_json: %s", err.Error())
 	}
 	if err := data.Set("localized_names", resp.UserAction.LocalizedNames); err != nil {
-		return fmt.Errorf("user_action.localized_names: %s", err.Error())
+		return diag.Errorf("user_action.localized_names: %s", err.Error())
 	}
 	if err := data.Set("modify_email_template_id", resp.UserAction.ModifyEmailTemplateId); err != nil {
-		return fmt.Errorf("user_action.modify_email_template_id: %s", err.Error())
+		return diag.Errorf("user_action.modify_email_template_id: %s", err.Error())
 	}
 
 	options := make([]map[string]interface{}, 0, len(resp.UserAction.Options))
@@ -216,55 +217,55 @@ func readUserAction(data *schema.ResourceData, i interface{}) error {
 		})
 	}
 	if err := data.Set("options", options); err != nil {
-		return fmt.Errorf("user_action.options: %s", err.Error())
+		return diag.Errorf("user_action.options: %s", err.Error())
 	}
 	if err := data.Set("prevent_login", resp.UserAction.PreventLogin); err != nil {
-		return fmt.Errorf("user_action.prevent_login: %s", err.Error())
+		return diag.Errorf("user_action.prevent_login: %s", err.Error())
 	}
 	if err := data.Set("send_end_event", resp.UserAction.SendEndEvent); err != nil {
-		return fmt.Errorf("user_action.send_end_event: %s", err.Error())
+		return diag.Errorf("user_action.send_end_event: %s", err.Error())
 	}
 	if err := data.Set("start_email_template_id", resp.UserAction.StartEmailTemplateId); err != nil {
-		return fmt.Errorf("user_action.start_email_template_id: %s", err.Error())
+		return diag.Errorf("user_action.start_email_template_id: %s", err.Error())
 	}
 	if err := data.Set("temporal", resp.UserAction.Temporal); err != nil {
-		return fmt.Errorf("user_action.temporal: %s", err.Error())
+		return diag.Errorf("user_action.temporal: %s", err.Error())
 	}
 	if err := data.Set("user_emailing_enabled", resp.UserAction.UserEmailingEnabled); err != nil {
-		return fmt.Errorf("user_action.user_emailing_enabled: %s", err.Error())
+		return diag.Errorf("user_action.user_emailing_enabled: %s", err.Error())
 	}
 	if err := data.Set("user_notifications_enabled", resp.UserAction.UserNotificationsEnabled); err != nil {
-		return fmt.Errorf("user_action.user_notifications_enabled: %s", err.Error())
+		return diag.Errorf("user_action.user_notifications_enabled: %s", err.Error())
 	}
 
 	return nil
 }
 
-func updateUserAction(data *schema.ResourceData, i interface{}) error {
+func updateUserAction(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, faErrs, err := client.FAClient.UpdateUserAction(data.Id(), fusionauth.UserActionRequest{
 		UserAction: buildUserAction(data),
 	})
 	if err != nil {
-		return fmt.Errorf("UpdateUserAction err: %v", err)
+		return diag.Errorf("UpdateUserAction err: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return readUserAction(data, i)
+	return readUserAction(ctx, data, i)
 }
 
-func deleteUserAction(data *schema.ResourceData, i interface{}) error {
+func deleteUserAction(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, faErrs, err := client.FAClient.DeleteUserAction(data.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil

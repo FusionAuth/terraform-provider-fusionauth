@@ -1,21 +1,22 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceAPIKey() *schema.Resource {
 	return &schema.Resource{
-		Create: createAPIKey,
-		Read:   readAPIKey,
-		Update: updateAPIKey,
-		Delete: deleteAPIKey,
+		CreateContext: createAPIKey,
+		ReadContext:   readAPIKey,
+		UpdateContext: updateAPIKey,
+		DeleteContext: deleteAPIKey,
 		Schema: map[string]*schema.Schema{
 			"tenant_id": {
 				Type:         schema.TypeString,
@@ -172,12 +173,12 @@ func resourceAPIKey() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func createAPIKey(data *schema.ResourceData, i interface{}) error {
+func createAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	ak := buildAPIKey(data)
 
@@ -189,39 +190,39 @@ func createAPIKey(data *schema.ResourceData, i interface{}) error {
 	kid := data.Get("key_id").(string)
 	resp, faErrs, err := client.FAClient.CreateAPIKey(kid, fusionauth.APIKeyRequest{ApiKey: ak})
 	if err != nil {
-		return fmt.Errorf("createAPIKey errors: %v", err)
+		return diag.Errorf("createAPIKey errors: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data.SetId(resp.ApiKey.Id)
 	return buildResourceDataFromAPIKey(data, resp.ApiKey)
 }
 
-func readAPIKey(data *schema.ResourceData, i interface{}) error {
+func readAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.RetrieveAPIKey(id)
 	if err != nil {
-		return fmt.Errorf("readAPIKey errors: %v", err)
+		return diag.Errorf("readAPIKey errors: %v", err)
 	}
 	if resp.StatusCode == http.StatusNotFound {
 		data.SetId("")
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return buildResourceDataFromAPIKey(data, resp.ApiKey)
 }
 
-func updateAPIKey(data *schema.ResourceData, i interface{}) error {
+func updateAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	ak := buildAPIKey(data)
 
@@ -233,28 +234,29 @@ func updateAPIKey(data *schema.ResourceData, i interface{}) error {
 
 	resp, faErrs, err := client.FAClient.UpdateAPIKey(data.Id(), fusionauth.APIKeyRequest{ApiKey: ak})
 	if err != nil {
-		return fmt.Errorf("updateAPIKey errors: %v", err)
+		return diag.Errorf("updateAPIKey errors: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(resp.ApiKey.Id)
 	return buildResourceDataFromAPIKey(data, resp.ApiKey)
 }
 
-func deleteAPIKey(data *schema.ResourceData, i interface{}) error {
+func deleteAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	resp, faErrs, err := client.FAClient.DeleteAPIKey(data.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
+
 func buildAPIKey(data *schema.ResourceData) fusionauth.APIKey {
 	ak := fusionauth.APIKey{
 		Key:      data.Get("key").(string),
@@ -300,20 +302,21 @@ func buildAPIKey(data *schema.ResourceData) fusionauth.APIKey {
 	ak.Permissions.Endpoints = m
 	return ak
 }
-func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKey) error {
+
+func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKey) diag.Diagnostics {
 	if err := data.Set("tenant_id", res.TenantId); err != nil {
-		return fmt.Errorf("apiKey.tenant_id: %s", err.Error())
+		return diag.Errorf("apiKey.tenant_id: %s", err.Error())
 	}
 	if err := data.Set("key", res.Key); err != nil {
-		return fmt.Errorf("apiKey.key: %s", err.Error())
+		return diag.Errorf("apiKey.key: %s", err.Error())
 	}
 	if desc, ok := res.MetaData.Attributes["description"]; ok {
 		if err := data.Set("description", desc); err != nil {
-			return fmt.Errorf("apiKey.description: %s", err.Error())
+			return diag.Errorf("apiKey.description: %s", err.Error())
 		}
 	}
 	if err := data.Set("tenant_id", res.TenantId); err != nil {
-		return fmt.Errorf("apiKey.tenant_id: %s", err.Error())
+		return diag.Errorf("apiKey.tenant_id: %s", err.Error())
 	}
 
 	pe := make([]map[string]interface{}, 0, len(res.Permissions.Endpoints))
@@ -338,7 +341,7 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 	}
 
 	if err := data.Set("permissions_endpoints", pe); err != nil {
-		return fmt.Errorf("apiKey.permissions_endpoints: %s", err.Error())
+		return diag.Errorf("apiKey.permissions_endpoints: %s", err.Error())
 	}
 	return nil
 }

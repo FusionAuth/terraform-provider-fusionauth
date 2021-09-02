@@ -2,26 +2,28 @@ package fusionauth
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func deleteIdentityProvider(data *schema.ResourceData, i interface{}) error {
+func deleteIdentityProvider(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.DeleteIdentityProvider(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil

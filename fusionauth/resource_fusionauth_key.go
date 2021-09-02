@@ -1,23 +1,24 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func newKey() *schema.Resource {
 	return &schema.Resource{
-		Create: createKey,
-		Read: func(data *schema.ResourceData, i interface{}) error {
+		CreateContext: createKey,
+		ReadContext: func(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 			return keyRead(data, buildResourceDataFromKey, i)
 		},
-		Update: func(data *schema.ResourceData, i interface{}) error {
+		UpdateContext: func(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 			return keyUpdate(data, buildKey, i)
 		},
-		Delete: keyDelete,
+		DeleteContext: keyDelete,
 		Schema: map[string]*schema.Schema{
 			"key_id": {
 				Type:         schema.TypeString,
@@ -55,7 +56,7 @@ func newKey() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -69,7 +70,7 @@ func buildKey(data *schema.ResourceData) fusionauth.Key {
 	return l
 }
 
-func createKey(data *schema.ResourceData, i interface{}) error {
+func createKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	l := buildKey(data)
 
@@ -82,25 +83,25 @@ func createKey(data *schema.ResourceData, i interface{}) error {
 		Key: l,
 	})
 	if err != nil {
-		return fmt.Errorf("CreateKey err: %v", err)
+		return diag.Errorf("CreateKey err: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(resp.Key.Id)
 	return nil
 }
 
-func buildResourceDataFromKey(data *schema.ResourceData, res fusionauth.Key) error {
+func buildResourceDataFromKey(data *schema.ResourceData, res fusionauth.Key) diag.Diagnostics {
 	if err := data.Set("algorithm", res.Algorithm); err != nil {
-		return fmt.Errorf("key.algorithm: %s", err.Error())
+		return diag.Errorf("key.algorithm: %s", err.Error())
 	}
 	if err := data.Set("name", res.Name); err != nil {
-		return fmt.Errorf("key.name: %s", err.Error())
+		return diag.Errorf("key.name: %s", err.Error())
 	}
 	if err := data.Set("length", res.Length); err != nil {
-		return fmt.Errorf("key.length: %s", err.Error())
+		return diag.Errorf("key.length: %s", err.Error())
 	}
 
 	return nil

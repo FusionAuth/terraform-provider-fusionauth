@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -10,16 +11,17 @@ import (
 	"time"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func newRegistration() *schema.Resource {
 	return &schema.Resource{
-		Create: createRegistration,
-		Read:   readRegistration,
-		Update: updateRegistration,
-		Delete: deleteRegistration,
+		CreateContext: createRegistration,
+		ReadContext:   readRegistration,
+		UpdateContext: updateRegistration,
+		DeleteContext: deleteRegistration,
 		Schema: map[string]*schema.Schema{
 			"user_id": {
 				Type:         schema.TypeString,
@@ -84,7 +86,7 @@ func newRegistration() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -103,7 +105,7 @@ func buildRegistration(data *schema.ResourceData) fusionauth.RegistrationRequest
 	}
 }
 
-func createRegistration(data *schema.ResourceData, i interface{}) error {
+func createRegistration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	reg := struct {
 		Registration                 fusionauth.UserRegistration `json:"registration,omitempty"`
 		SkipRegistrationVerification bool                        `json:"skipRegistrationVerification"`
@@ -123,7 +125,7 @@ func createRegistration(data *schema.ResourceData, i interface{}) error {
 	b, _ := json.Marshal(reg)
 	b, err := sendCreateRegistration(b, data.Get("user_id").(string), data.Get("application_id").(string), client)
 	if err != nil {
-		return fmt.Errorf("register err: %v", err)
+		return diag.Errorf("register err: %v", err)
 	}
 
 	_ = json.Unmarshal(b, &reg)
@@ -164,12 +166,12 @@ func sendCreateRegistration(b []byte, uid string, aid string, client Client) ([]
 	return b, nil
 }
 
-func readRegistration(data *schema.ResourceData, i interface{}) error {
+func readRegistration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, faErrs, err := client.FAClient.RetrieveRegistration(data.Get("user_id").(string), data.Get("application_id").(string))
 	if err != nil {
-		return fmt.Errorf("RetrieveRegistration err: %v", err)
+		return diag.Errorf("RetrieveRegistration err: %v", err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -177,64 +179,64 @@ func readRegistration(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return buildResourceDataFromRegistration(resp.Registration, data)
 }
 
-func buildResourceDataFromRegistration(r fusionauth.UserRegistration, data *schema.ResourceData) error {
+func buildResourceDataFromRegistration(r fusionauth.UserRegistration, data *schema.ResourceData) diag.Diagnostics {
 	if err := data.Set("authentication_token", r.AuthenticationToken); err != nil {
-		return fmt.Errorf("registration.authentication_token: %s", err.Error())
+		return diag.Errorf("registration.authentication_token: %s", err.Error())
 	}
 	if err := data.Set("application_id", r.ApplicationId); err != nil {
-		return fmt.Errorf("registration.application_id: %s", err.Error())
+		return diag.Errorf("registration.application_id: %s", err.Error())
 	}
 	if err := data.Set("data", r.Data); err != nil {
-		return fmt.Errorf("registration.data: %s", err.Error())
+		return diag.Errorf("registration.data: %s", err.Error())
 	}
 	if err := data.Set("preferred_languages", r.PreferredLanguages); err != nil {
-		return fmt.Errorf("registration.preferred_languages: %s", err.Error())
+		return diag.Errorf("registration.preferred_languages: %s", err.Error())
 	}
 	if err := data.Set("roles", r.Roles); err != nil {
-		return fmt.Errorf("registration.roles: %s", err.Error())
+		return diag.Errorf("registration.roles: %s", err.Error())
 	}
 	if err := data.Set("timezone", r.Timezone); err != nil {
-		return fmt.Errorf("registration.timezone: %s", err.Error())
+		return diag.Errorf("registration.timezone: %s", err.Error())
 	}
 	if err := data.Set("username", r.Username); err != nil {
-		return fmt.Errorf("registration.username: %s", err.Error())
+		return diag.Errorf("registration.username: %s", err.Error())
 	}
 
 	return nil
 }
 
-func updateRegistration(data *schema.ResourceData, i interface{}) error {
+func updateRegistration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	ur := buildRegistration(data)
 
 	resp, faErrs, err := client.FAClient.UpdateRegistration(data.Get("user_id").(string), ur)
 	if err != nil {
-		return fmt.Errorf("UpdateRegistration err: %v", err)
+		return diag.Errorf("UpdateRegistration err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func deleteRegistration(data *schema.ResourceData, i interface{}) error {
+func deleteRegistration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, faErrs, err := client.FAClient.DeleteRegistration(data.Get("user_id").(string), data.Get("application_id").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	return nil
 }

@@ -1,14 +1,15 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func createApplication(data *schema.ResourceData, i interface{}) error {
+func createApplication(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	ar := fusionauth.ApplicationRequest{
 		Application: buildApplication(data),
@@ -31,27 +32,23 @@ func createApplication(data *schema.ResourceData, i interface{}) error {
 
 	resp, faErrs, err := client.FAClient.CreateApplication(aid, ar)
 	if err != nil {
-		return fmt.Errorf("CreateApplication errors: %v", err)
+		return diag.Errorf("CreateApplication errors: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(resp.Application.Id)
-	if err := buildResourceDataFromApplication(resp.Application, data); err != nil {
-		return err
-	}
-
-	return nil
+	return buildResourceDataFromApplication(resp.Application, data)
 }
 
-func readApplication(data *schema.ResourceData, i interface{}) error {
+func readApplication(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, err := client.FAClient.RetrieveApplication(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -59,13 +56,13 @@ func readApplication(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return buildResourceDataFromApplication(resp.Application, data)
 }
 
-func updateApplication(data *schema.ResourceData, i interface{}) error {
+func updateApplication(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	ar := fusionauth.ApplicationRequest{
 		Application: buildApplication(data),
@@ -77,23 +74,23 @@ func updateApplication(data *schema.ResourceData, i interface{}) error {
 
 	resp, faErrs, err := client.FAClient.UpdateApplication(data.Id(), ar)
 	if err != nil {
-		return fmt.Errorf("UpdateApplication err: %v", err)
+		return diag.Errorf("UpdateApplication err: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func deleteApplication(data *schema.ResourceData, i interface{}) error {
+func deleteApplication(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	resp, faErrs, err := client.FAClient.DeleteApplication(data.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil

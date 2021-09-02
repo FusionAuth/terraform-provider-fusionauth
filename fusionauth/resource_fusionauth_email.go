@@ -1,20 +1,21 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func newEmail() *schema.Resource {
 	return &schema.Resource{
-		Create: createEmail,
-		Read:   readEmail,
-		Update: updateEmail,
-		Delete: deleteEmail,
+		CreateContext: createEmail,
+		ReadContext:   readEmail,
+		UpdateContext: updateEmail,
+		DeleteContext: deleteEmail,
 		Schema: map[string]*schema.Schema{
 			"email_id": {
 				Type:         schema.TypeString,
@@ -76,7 +77,7 @@ func newEmail() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -109,7 +110,7 @@ func buildEmail(data *schema.ResourceData) fusionauth.EmailTemplate {
 	return e
 }
 
-func createEmail(data *schema.ResourceData, i interface{}) error {
+func createEmail(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	e := buildEmail(data)
 
@@ -123,23 +124,23 @@ func createEmail(data *schema.ResourceData, i interface{}) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("CreateEmailTemplate err: %v", err)
+		return diag.Errorf("CreateEmailTemplate err: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(resp.EmailTemplate.Id)
 	return nil
 }
 
-func readEmail(data *schema.ResourceData, i interface{}) error {
+func readEmail(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, err := client.FAClient.RetrieveEmailTemplate(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -147,45 +148,45 @@ func readEmail(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	t := resp.EmailTemplate
 	if err := data.Set("default_from_name", t.DefaultFromName); err != nil {
-		return fmt.Errorf("email.default_from_name: %s", err.Error())
+		return diag.Errorf("email.default_from_name: %s", err.Error())
 	}
 	if err := data.Set("default_html_template", t.DefaultHtmlTemplate); err != nil {
-		return fmt.Errorf("email.default_html_template: %s", err.Error())
+		return diag.Errorf("email.default_html_template: %s", err.Error())
 	}
 	if err := data.Set("default_subject", t.DefaultSubject); err != nil {
-		return fmt.Errorf("email.default_subject: %s", err.Error())
+		return diag.Errorf("email.default_subject: %s", err.Error())
 	}
 	if err := data.Set("default_text_template", t.DefaultTextTemplate); err != nil {
-		return fmt.Errorf("email.default_text_template: %s", err.Error())
+		return diag.Errorf("email.default_text_template: %s", err.Error())
 	}
 	if err := data.Set("from_email", t.FromEmail); err != nil {
-		return fmt.Errorf("email.from_email: %s", err.Error())
+		return diag.Errorf("email.from_email: %s", err.Error())
 	}
 	if err := data.Set("localized_from_names", t.LocalizedFromNames); err != nil {
-		return fmt.Errorf("email.localized_from_names: %s", err.Error())
+		return diag.Errorf("email.localized_from_names: %s", err.Error())
 	}
 	if err := data.Set("localized_html_templates", t.LocalizedHtmlTemplates); err != nil {
-		return fmt.Errorf("email.localized_html_templates: %s", err.Error())
+		return diag.Errorf("email.localized_html_templates: %s", err.Error())
 	}
 	if err := data.Set("localized_subjects", t.LocalizedSubjects); err != nil {
-		return fmt.Errorf("email.localized_subjects: %s", err.Error())
+		return diag.Errorf("email.localized_subjects: %s", err.Error())
 	}
 	if err := data.Set("localized_text_templates", t.LocalizedTextTemplates); err != nil {
-		return fmt.Errorf("email.localized_text_templates: %s", err.Error())
+		return diag.Errorf("email.localized_text_templates: %s", err.Error())
 	}
 	if err := data.Set("name", t.Name); err != nil {
-		return fmt.Errorf("email.name: %s", err.Error())
+		return diag.Errorf("email.name: %s", err.Error())
 	}
 
 	return nil
 }
 
-func updateEmail(data *schema.ResourceData, i interface{}) error {
+func updateEmail(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	e := buildEmail(data)
 
@@ -194,26 +195,26 @@ func updateEmail(data *schema.ResourceData, i interface{}) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("UpdateEmailTemplate err: %v", err)
+		return diag.Errorf("UpdateEmailTemplate err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func deleteEmail(data *schema.ResourceData, i interface{}) error {
+func deleteEmail(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.DeleteEmailTemplate(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil

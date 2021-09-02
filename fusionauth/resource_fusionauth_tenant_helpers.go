@@ -1,9 +1,8 @@
 package fusionauth
 
 import (
-	"fmt"
-
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -254,9 +253,9 @@ func buildEventConfiguration(key string, data *schema.ResourceData) fusionauth.E
 	return fusionauth.EventConfiguration{Events: ev}
 }
 
-func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData) error {
+func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData) diag.Diagnostics {
 	if err := data.Set("data", t.Data); err != nil {
-		return fmt.Errorf("tenant.data: %s", err.Error())
+		return diag.Errorf("tenant.data: %s", err.Error())
 	}
 
 	err := data.Set("email_configuration", []map[string]interface{}{
@@ -282,7 +281,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.email_configuration: %s", err.Error())
+		return diag.Errorf("tenant.email_configuration: %s", err.Error())
 	}
 
 	err = data.Set("external_identifier_configuration", []map[string]interface{}{
@@ -338,7 +337,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.external_identifier_configuration: %s", err.Error())
+		return diag.Errorf("tenant.external_identifier_configuration: %s", err.Error())
 	}
 
 	err = data.Set("failed_authentication_configuration", []map[string]interface{}{
@@ -351,7 +350,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.failed_authentication_configuration: %s", err.Error())
+		return diag.Errorf("tenant.failed_authentication_configuration: %s", err.Error())
 	}
 
 	err = data.Set("family_configuration", []map[string]interface{}{
@@ -369,7 +368,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.family_configuration: %s", err.Error())
+		return diag.Errorf("tenant.family_configuration: %s", err.Error())
 	}
 
 	err = data.Set("form_configuration", []map[string]interface{}{
@@ -378,15 +377,15 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.form_configuration: %s", err.Error())
+		return diag.Errorf("tenant.form_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("http_session_max_inactive_interval", t.HttpSessionMaxInactiveInterval); err != nil {
-		return fmt.Errorf("tenant.http_session_max_inactive_interval: %s", err.Error())
+		return diag.Errorf("tenant.http_session_max_inactive_interval: %s", err.Error())
 	}
 
 	if err := data.Set("issuer", t.Issuer); err != nil {
-		return fmt.Errorf("tenant.issuer: %s", err.Error())
+		return diag.Errorf("tenant.issuer: %s", err.Error())
 	}
 
 	err = data.Set("jwt_configuration", []map[string]interface{}{
@@ -402,11 +401,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.jwt_configuration: %s", err.Error())
+		return diag.Errorf("tenant.jwt_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("logout_url", t.LogoutURL); err != nil {
-		return fmt.Errorf("tenant.logout_url: %s", err.Error())
+		return diag.Errorf("tenant.logout_url: %s", err.Error())
 	}
 
 	err = data.Set("maximum_password_age", []map[string]interface{}{
@@ -416,7 +415,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.maximum_password_age: %s", err.Error())
+		return diag.Errorf("tenant.maximum_password_age: %s", err.Error())
 	}
 	err = data.Set("minimum_password_age", []map[string]interface{}{
 		{
@@ -425,7 +424,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.minimum_password_age: %s", err.Error())
+		return diag.Errorf("tenant.minimum_password_age: %s", err.Error())
 	}
 
 	err = data.Set("multi_factor_configuration", []map[string]interface{}{
@@ -445,11 +444,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.multi_factor_configuration: %s", err.Error())
+		return diag.Errorf("tenant.multi_factor_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("name", t.Name); err != nil {
-		return fmt.Errorf("tenant.name: %s", err.Error())
+		return diag.Errorf("tenant.name: %s", err.Error())
 	}
 
 	err = data.Set("password_encryption_configuration", []map[string]interface{}{
@@ -460,7 +459,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.password_encryption_configuration: %s", err.Error())
+		return diag.Errorf("tenant.password_encryption_configuration: %s", err.Error())
 	}
 
 	err = data.Set("password_validation_rules", []map[string]interface{}{
@@ -485,11 +484,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.password_validation_rules: %s", err.Error())
+		return diag.Errorf("tenant.password_validation_rules: %s", err.Error())
 	}
 
 	if err := data.Set("theme_id", t.ThemeId); err != nil {
-		return fmt.Errorf("tenant.theme_id: %s", err.Error())
+		return diag.Errorf("tenant.theme_id: %s", err.Error())
 	}
 
 	err = data.Set("user_delete_policy", []map[string]interface{}{
@@ -499,7 +498,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.user_delete_policy: %s", err.Error())
+		return diag.Errorf("tenant.user_delete_policy: %s", err.Error())
 	}
 
 	err = data.Set("username_configuration", []map[string]interface{}{
@@ -513,7 +512,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("tenant.username_configuration: %s", err.Error())
+		return diag.Errorf("tenant.username_configuration: %s", err.Error())
 	}
 
 	e := make([]map[string]interface{}, 0, len(t.EventConfiguration.Events))
@@ -526,7 +525,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	}
 	err = data.Set("event_configuration", e)
 	if err != nil {
-		return fmt.Errorf("tenant.event_configuration: %s", err.Error())
+		return diag.Errorf("tenant.event_configuration: %s", err.Error())
 	}
 
 	return nil

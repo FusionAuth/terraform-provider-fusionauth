@@ -1,9 +1,8 @@
 package fusionauth
 
 import (
-	"fmt"
-
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -158,12 +157,12 @@ func buildRequireable(key string, data *schema.ResourceData) fusionauth.Requirab
 	}
 }
 
-func buildResourceDataFromApplication(a fusionauth.Application, data *schema.ResourceData) error {
+func buildResourceDataFromApplication(a fusionauth.Application, data *schema.ResourceData) diag.Diagnostics {
 	if err := data.Set("tenant_id", a.TenantId); err != nil {
-		return fmt.Errorf("application.tenant_id: %s", err.Error())
+		return diag.Errorf("application.tenant_id: %s", err.Error())
 	}
 	if err := data.Set("authentication_token_configuration_enabled", a.AuthenticationTokenConfiguration.Enabled); err != nil {
-		return fmt.Errorf("application.authentication_token_configuration_enabled: %s", err.Error())
+		return diag.Errorf("application.authentication_token_configuration_enabled: %s", err.Error())
 	}
 
 	err := data.Set("clean_speak_configuration", []map[string]interface{}{
@@ -178,11 +177,11 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("application.clean_speak_configuration: %s", err.Error())
+		return diag.Errorf("application.clean_speak_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("data", a.Data); err != nil {
-		return fmt.Errorf("application.data: %s", err.Error())
+		return diag.Errorf("application.data: %s", err.Error())
 	}
 
 	err = data.Set("form_configuration", []map[string]interface{}{
@@ -191,7 +190,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("application.form_configuration: %s", err.Error())
+		return diag.Errorf("application.form_configuration: %s", err.Error())
 	}
 
 	err = data.Set("jwt_configuration", []map[string]interface{}{
@@ -204,7 +203,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("application.jwt_configuration: %s", err.Error())
+		return diag.Errorf("application.jwt_configuration: %s", err.Error())
 	}
 
 	err = data.Set("lambda_configuration", []map[string]interface{}{
@@ -215,7 +214,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("application.lambda_configuration: %s", err.Error())
+		return diag.Errorf("application.lambda_configuration: %s", err.Error())
 	}
 
 	err = data.Set("login_configuration", []map[string]interface{}{
@@ -226,7 +225,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("application.login_configuration: %s", err.Error())
+		return diag.Errorf("application.login_configuration: %s", err.Error())
 	}
 
 	err = data.Set("multi_factor_configuration", []map[string]interface{}{
@@ -236,11 +235,11 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("application.multi_factor_configuration: %s", err.Error())
+		return diag.Errorf("application.multi_factor_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("name", a.Name); err != nil {
-		return fmt.Errorf("application.name: %s", err.Error())
+		return diag.Errorf("application.name: %s", err.Error())
 	}
 
 	err = data.Set("oauth_configuration", []map[string]interface{}{
@@ -261,11 +260,11 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("application.oauth_configuration: %s", err.Error())
+		return diag.Errorf("application.oauth_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("passwordless_configuration_enabled", a.PasswordlessConfiguration.Enabled); err != nil {
-		return fmt.Errorf("application.passwordless_configuration_enabled: %s", err.Error())
+		return diag.Errorf("application.passwordless_configuration_enabled: %s", err.Error())
 	}
 
 	err = data.Set("registration_configuration", []map[string]interface{}{
@@ -314,7 +313,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("application.registration_configuration: %s", err.Error())
+		return diag.Errorf("application.registration_configuration: %s", err.Error())
 	}
 
 	err = data.Set("registration_delete_policy", []map[string]interface{}{
@@ -324,7 +323,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("application.registration_delete_policy: %s", err.Error())
+		return diag.Errorf("application.registration_delete_policy: %s", err.Error())
 	}
 
 	err = data.Set("samlv2_configuration", []map[string]interface{}{
@@ -361,18 +360,18 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("application.samlv2_configuration: %s", err.Error())
+		return diag.Errorf("application.samlv2_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("verification_email_template_id", a.VerificationEmailTemplateId); err != nil {
-		return fmt.Errorf("application.verification_email_template_id: %s", err.Error())
+		return diag.Errorf("application.verification_email_template_id: %s", err.Error())
 	}
 	if err := data.Set("theme_id", a.ThemeId); err != nil {
-		return fmt.Errorf("application.theme_id: %s", err.Error())
+		return diag.Errorf("application.theme_id: %s", err.Error())
 	}
 
 	if err := data.Set("verify_registration", a.VerifyRegistration); err != nil {
-		return fmt.Errorf("application.verify_registration: %s", err.Error())
+		return diag.Errorf("application.verify_registration: %s", err.Error())
 	}
 
 	err = data.Set("email_configuration", []map[string]interface{}{
@@ -384,7 +383,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("application.email_configuration: %s", err.Error())
+		return diag.Errorf("application.email_configuration: %s", err.Error())
 	}
 
 	return nil

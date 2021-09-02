@@ -1,20 +1,21 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func newTheme() *schema.Resource {
 	return &schema.Resource{
-		Create: createTheme,
-		Read:   readTheme,
-		Update: updateTheme,
-		Delete: deleteTheme,
+		CreateContext: createTheme,
+		ReadContext:   readTheme,
+		UpdateContext: updateTheme,
+		DeleteContext: deleteTheme,
 		Schema: map[string]*schema.Schema{
 			"source_theme_id": {
 				Type:         schema.TypeString,
@@ -314,7 +315,7 @@ func newTheme() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -377,7 +378,7 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 	return t
 }
 
-func createTheme(data *schema.ResourceData, i interface{}) error {
+func createTheme(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	req := fusionauth.ThemeRequest{
@@ -391,24 +392,24 @@ func createTheme(data *schema.ResourceData, i interface{}) error {
 	resp, faErrs, err := client.FAClient.CreateTheme("", req)
 
 	if err != nil {
-		return fmt.Errorf("CreateTheme err: %v", err)
+		return diag.Errorf("CreateTheme err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(resp.Theme.Id)
 	return buildResourceDataFromTheme(resp.Theme, data)
 }
 
-func readTheme(data *schema.ResourceData, i interface{}) error {
+func readTheme(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.RetrieveTheme(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -416,7 +417,7 @@ func readTheme(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	t := resp.Theme
@@ -424,7 +425,7 @@ func readTheme(data *schema.ResourceData, i interface{}) error {
 	return buildResourceDataFromTheme(t, data)
 }
 
-func updateTheme(data *schema.ResourceData, i interface{}) error {
+func updateTheme(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	req := fusionauth.ThemeRequest{
 		Theme: buildTheme(data),
@@ -437,11 +438,11 @@ func updateTheme(data *schema.ResourceData, i interface{}) error {
 	resp, faErrs, err := client.FAClient.UpdateTheme(data.Id(), req)
 
 	if err != nil {
-		return fmt.Errorf("UpdateTheme err: %v", err)
+		return diag.Errorf("UpdateTheme err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(resp.Theme.Id)
@@ -449,148 +450,148 @@ func updateTheme(data *schema.ResourceData, i interface{}) error {
 	return buildResourceDataFromTheme(resp.Theme, data)
 }
 
-func deleteTheme(data *schema.ResourceData, i interface{}) error {
+func deleteTheme(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.DeleteTheme(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	return nil
 }
 
-func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) error { //nolint:gocognit,gocyclo
+func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) diag.Diagnostics { //nolint:gocognit,gocyclo
 	if err := data.Set("default_messages", t.DefaultMessages); err != nil {
-		return fmt.Errorf("theme.default_messages: %s", err.Error())
+		return diag.Errorf("theme.default_messages: %s", err.Error())
 	}
 	if err := data.Set("localized_messages", t.LocalizedMessages); err != nil {
-		return fmt.Errorf("theme.localized_messages: %s", err.Error())
+		return diag.Errorf("theme.localized_messages: %s", err.Error())
 	}
 	if err := data.Set("name", t.Name); err != nil {
-		return fmt.Errorf("theme.name: %s", err.Error())
+		return diag.Errorf("theme.name: %s", err.Error())
 	}
 	if err := data.Set("stylesheet", t.Stylesheet); err != nil {
-		return fmt.Errorf("theme.stylesheet: %s", err.Error())
+		return diag.Errorf("theme.stylesheet: %s", err.Error())
 	}
 	if err := data.Set("account_edit", t.Templates.AccountEdit); err != nil {
-		return fmt.Errorf("theme.account_edit: %s", err.Error())
+		return diag.Errorf("theme.account_edit: %s", err.Error())
 	}
 	if err := data.Set("account_index", t.Templates.AccountIndex); err != nil {
-		return fmt.Errorf("theme.account_index: %s", err.Error())
+		return diag.Errorf("theme.account_index: %s", err.Error())
 	}
 	if err := data.Set("account_two_factor_disable", t.Templates.AccountTwoFactorDisable); err != nil {
-		return fmt.Errorf("theme.account_two_factor_disable: %s", err.Error())
+		return diag.Errorf("theme.account_two_factor_disable: %s", err.Error())
 	}
 	if err := data.Set("account_two_factor_enable", t.Templates.AccountTwoFactorEnable); err != nil {
-		return fmt.Errorf("theme.account_two_factor_enable: %s", err.Error())
+		return diag.Errorf("theme.account_two_factor_enable: %s", err.Error())
 	}
 	if err := data.Set("account_two_factor_index", t.Templates.AccountTwoFactorIndex); err != nil {
-		return fmt.Errorf("theme.account_two_factor_index: %s", err.Error())
+		return diag.Errorf("theme.account_two_factor_index: %s", err.Error())
 	}
 	if err := data.Set("email_complete", t.Templates.EmailComplete); err != nil {
-		return fmt.Errorf("theme.email_complete: %s", err.Error())
+		return diag.Errorf("theme.email_complete: %s", err.Error())
 	}
 	if err := data.Set("email_send", t.Templates.EmailSend); err != nil {
-		return fmt.Errorf("theme.email_send: %s", err.Error())
+		return diag.Errorf("theme.email_send: %s", err.Error())
 	}
 	if err := data.Set("email_verify", t.Templates.EmailVerify); err != nil {
-		return fmt.Errorf("theme.email_verify: %s", err.Error())
+		return diag.Errorf("theme.email_verify: %s", err.Error())
 	}
 	if err := data.Set("helpers", t.Templates.Helpers); err != nil {
-		return fmt.Errorf("theme.helpers: %s", err.Error())
+		return diag.Errorf("theme.helpers: %s", err.Error())
 	}
 	if err := data.Set("index", t.Templates.Index); err != nil {
-		return fmt.Errorf("theme.index: %s", err.Error())
+		return diag.Errorf("theme.index: %s", err.Error())
 	}
 	if err := data.Set("oauth2_authorize", t.Templates.Oauth2Authorize); err != nil {
-		return fmt.Errorf("theme.oauth2_authorize: %s", err.Error())
+		return diag.Errorf("theme.oauth2_authorize: %s", err.Error())
 	}
 	if err := data.Set("oauth2_child_registration_not_allowed", t.Templates.Oauth2ChildRegistrationNotAllowed); err != nil {
-		return fmt.Errorf("theme.oauth2_child_registration_not_allowed: %s", err.Error())
+		return diag.Errorf("theme.oauth2_child_registration_not_allowed: %s", err.Error())
 	}
 	if err := data.Set("oauth2_child_registration_not_allowed_complete", t.Templates.Oauth2ChildRegistrationNotAllowedComplete); err != nil {
-		return fmt.Errorf("theme.oauth2_child_registration_not_allowed_complete: %s", err.Error())
+		return diag.Errorf("theme.oauth2_child_registration_not_allowed_complete: %s", err.Error())
 	}
 	if err := data.Set("oauth2_complete_registration", t.Templates.Oauth2CompleteRegistration); err != nil {
-		return fmt.Errorf("theme.oauth2_complete_registration: %s", err.Error())
+		return diag.Errorf("theme.oauth2_complete_registration: %s", err.Error())
 	}
 	if err := data.Set("oauth2_error", t.Templates.Oauth2Error); err != nil {
-		return fmt.Errorf("theme.oauth2_error: %s", err.Error())
+		return diag.Errorf("theme.oauth2_error: %s", err.Error())
 	}
 	if err := data.Set("oauth2_logout", t.Templates.Oauth2Logout); err != nil {
-		return fmt.Errorf("theme.oauth2_logout: %s", err.Error())
+		return diag.Errorf("theme.oauth2_logout: %s", err.Error())
 	}
 	if err := data.Set("oauth2_two_factor", t.Templates.Oauth2TwoFactor); err != nil {
-		return fmt.Errorf("theme.oauth2_two_factor: %s", err.Error())
+		return diag.Errorf("theme.oauth2_two_factor: %s", err.Error())
 	}
 	if err := data.Set("oauth2_two_factor_methods", t.Templates.Oauth2TwoFactorMethods); err != nil {
-		return fmt.Errorf("theme.oauth2_two_factor_methods: %s", err.Error())
+		return diag.Errorf("theme.oauth2_two_factor_methods: %s", err.Error())
 	}
 	if err := data.Set("oauth2_register", t.Templates.Oauth2Register); err != nil {
-		return fmt.Errorf("theme.oauth2_register: %s", err.Error())
+		return diag.Errorf("theme.oauth2_register: %s", err.Error())
 	}
 	if err := data.Set("oauth2_device", t.Templates.Oauth2Device); err != nil {
-		return fmt.Errorf("theme.oauth2_device: %s", err.Error())
+		return diag.Errorf("theme.oauth2_device: %s", err.Error())
 	}
 	if err := data.Set("oauth2_device_complete", t.Templates.Oauth2DeviceComplete); err != nil {
-		return fmt.Errorf("theme.oauth2_device_complete: %s", err.Error())
+		return diag.Errorf("theme.oauth2_device_complete: %s", err.Error())
 	}
 	if err := data.Set("oauth2_passwordless", t.Templates.Oauth2Passwordless); err != nil {
-		return fmt.Errorf("theme.oauth2_passwordless: %s", err.Error())
+		return diag.Errorf("theme.oauth2_passwordless: %s", err.Error())
 	}
 	if err := data.Set("oauth2_wait", t.Templates.Oauth2Wait); err != nil {
-		return fmt.Errorf("theme.oauth2_wait: %s", err.Error())
+		return diag.Errorf("theme.oauth2_wait: %s", err.Error())
 	}
 	if err := data.Set("password_change", t.Templates.PasswordChange); err != nil {
-		return fmt.Errorf("theme.password_change: %s", err.Error())
+		return diag.Errorf("theme.password_change: %s", err.Error())
 	}
 	if err := data.Set("password_complete", t.Templates.PasswordComplete); err != nil {
-		return fmt.Errorf("theme.password_complete: %s", err.Error())
+		return diag.Errorf("theme.password_complete: %s", err.Error())
 	}
 	if err := data.Set("password_forgot", t.Templates.PasswordForgot); err != nil {
-		return fmt.Errorf("theme.password_forgot: %s", err.Error())
+		return diag.Errorf("theme.password_forgot: %s", err.Error())
 	}
 	if err := data.Set("password_sent", t.Templates.PasswordSent); err != nil {
-		return fmt.Errorf("theme.password_sent: %s", err.Error())
+		return diag.Errorf("theme.password_sent: %s", err.Error())
 	}
 	if err := data.Set("registration_complete", t.Templates.RegistrationComplete); err != nil {
-		return fmt.Errorf("theme.registration_complete: %s", err.Error())
+		return diag.Errorf("theme.registration_complete: %s", err.Error())
 	}
 	if err := data.Set("registration_send", t.Templates.RegistrationSend); err != nil {
-		return fmt.Errorf("theme.registration_send: %s", err.Error())
+		return diag.Errorf("theme.registration_send: %s", err.Error())
 	}
 	if err := data.Set("registration_verify", t.Templates.RegistrationVerify); err != nil {
-		return fmt.Errorf("theme.registration_verify: %s", err.Error())
+		return diag.Errorf("theme.registration_verify: %s", err.Error())
 	}
 	if err := data.Set("samlv2_logout", t.Templates.Samlv2Logout); err != nil {
-		return fmt.Errorf("theme.samlv2_logout: %s", err.Error())
+		return diag.Errorf("theme.samlv2_logout: %s", err.Error())
 	}
 
 	if err := data.Set("email_sent", t.Templates.EmailSent); err != nil {
-		return fmt.Errorf("theme.email_sent: %s", err.Error())
+		return diag.Errorf("theme.email_sent: %s", err.Error())
 	}
 	if err := data.Set("email_verification_required", t.Templates.EmailVerificationRequired); err != nil {
-		return fmt.Errorf("theme.email_verification_required: %s", err.Error())
+		return diag.Errorf("theme.email_verification_required: %s", err.Error())
 	}
 	if err := data.Set("registration_sent", t.Templates.RegistrationSent); err != nil {
-		return fmt.Errorf("theme.registration_sent: %s", err.Error())
+		return diag.Errorf("theme.registration_sent: %s", err.Error())
 	}
 	if err := data.Set("oauth2_authorized_not_registered", t.Templates.Oauth2AuthorizedNotRegistered); err != nil {
-		return fmt.Errorf("theme.oauth2_authorized_not_registered: %s", err.Error())
+		return diag.Errorf("theme.oauth2_authorized_not_registered: %s", err.Error())
 	}
 	if err := data.Set("oauth2_start_idp_link", t.Templates.Oauth2StartIdPLink); err != nil {
-		return fmt.Errorf("theme.oauth2_start_idp_link: %s", err.Error())
+		return diag.Errorf("theme.oauth2_start_idp_link: %s", err.Error())
 	}
 	if err := data.Set("registration_verification_required", t.Templates.RegistrationVerificationRequired); err != nil {
-		return fmt.Errorf("theme.registration_verification_required: %s", err.Error())
+		return diag.Errorf("theme.registration_verification_required: %s", err.Error())
 	}
 	if err := data.Set("unauthorized", t.Templates.Unauthorized); err != nil {
-		return fmt.Errorf("theme.unauthorized: %s", err.Error())
+		return diag.Errorf("theme.unauthorized: %s", err.Error())
 	}
 
 	return nil

@@ -1,14 +1,15 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func createTenant(data *schema.ResourceData, i interface{}) error {
+func createTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	t := fusionauth.TenantRequest{
 		Tenant:         buildTenant(data),
@@ -22,24 +23,24 @@ func createTenant(data *schema.ResourceData, i interface{}) error {
 	resp, faErrs, err := client.FAClient.CreateTenant(tid, t)
 
 	if err != nil {
-		return fmt.Errorf("CreateTenant err: %v", err)
+		return diag.Errorf("CreateTenant err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(resp.Tenant.Id)
 	return nil
 }
 
-func readTenant(data *schema.ResourceData, i interface{}) error {
+func readTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.RetrieveTenant(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -47,13 +48,13 @@ func readTenant(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return buildResourceDataFromTenant(resp.Tenant, data)
 }
 
-func updateTenant(data *schema.ResourceData, i interface{}) error {
+func updateTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	t := fusionauth.TenantRequest{
@@ -64,24 +65,24 @@ func updateTenant(data *schema.ResourceData, i interface{}) error {
 	resp, faErrs, err := client.FAClient.UpdateTenant(data.Id(), t)
 
 	if err != nil {
-		return fmt.Errorf("UpdateTenant err: %v", err)
+		return diag.Errorf("UpdateTenant err: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func deleteTenant(data *schema.ResourceData, i interface{}) error {
+func deleteTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	resp, faErrs, err := client.FAClient.DeleteTenant(data.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil

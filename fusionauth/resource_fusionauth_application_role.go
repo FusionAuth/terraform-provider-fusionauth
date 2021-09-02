@@ -1,19 +1,20 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func newApplicationRole() *schema.Resource {
 	return &schema.Resource{
-		Create: createApplicationRole,
-		Read:   readApplicationRole,
-		Update: updateApplicationRole,
-		Delete: deleteApplicationRole,
+		CreateContext: createApplicationRole,
+		ReadContext:   readApplicationRole,
+		UpdateContext: updateApplicationRole,
+		DeleteContext: deleteApplicationRole,
 		Schema: map[string]*schema.Schema{
 			"application_id": {
 				Type:        schema.TypeString,
@@ -44,7 +45,7 @@ func newApplicationRole() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -58,7 +59,7 @@ func buildApplicationRole(data *schema.ResourceData) fusionauth.ApplicationRole 
 	}
 }
 
-func createApplicationRole(data *schema.ResourceData, i interface{}) error {
+func createApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	ar := buildApplicationRole(data)
@@ -69,11 +70,11 @@ func createApplicationRole(data *schema.ResourceData, i interface{}) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("CreateApplicationRole errors: %v", err)
+		return diag.Errorf("CreateApplicationRole errors: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(resp.Role.Id)
@@ -81,11 +82,11 @@ func createApplicationRole(data *schema.ResourceData, i interface{}) error {
 	return nil
 }
 
-func readApplicationRole(data *schema.ResourceData, i interface{}) error {
+func readApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	return nil
 }
 
-func updateApplicationRole(data *schema.ResourceData, i interface{}) error {
+func updateApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	ar := buildApplicationRole(data)
@@ -96,7 +97,7 @@ func updateApplicationRole(data *schema.ResourceData, i interface{}) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("CreateApplicationRole errors: %v", err)
+		return diag.Errorf("CreateApplicationRole errors: %v", err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -104,13 +105,13 @@ func updateApplicationRole(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func deleteApplicationRole(data *schema.ResourceData, i interface{}) error {
+func deleteApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	id := data.Id()
@@ -118,10 +119,10 @@ func deleteApplicationRole(data *schema.ResourceData, i interface{}) error {
 
 	resp, faErrs, err := client.FAClient.DeleteApplicationRole(aid, id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil

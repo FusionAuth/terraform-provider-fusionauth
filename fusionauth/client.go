@@ -1,11 +1,13 @@
 package fusionauth
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -15,12 +17,12 @@ type Client struct {
 	APIKey   string
 }
 
-func configureClient(data *schema.ResourceData) (interface{}, error) {
+func configureClient(_ context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	key := data.Get("api_key").(string)
 
 	parsedURL, err := url.Parse(data.Get("host").(string))
 	if err != nil {
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 
 	auth := fusionauth.NewClient(

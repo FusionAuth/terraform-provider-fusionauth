@@ -1,10 +1,12 @@
 package fusionauth
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -20,10 +22,10 @@ type IDPExternalJWTAppConfig struct {
 
 func resourceIDPExternalJWT() *schema.Resource {
 	return &schema.Resource{
-		Create: createIDPExternalJWT,
-		Read:   readIDPExternalJWT,
-		Update: updateIDPExternalJWT,
-		Delete: deleteIdentityProvider,
+		CreateContext: createIDPExternalJWT,
+		ReadContext:   readIDPExternalJWT,
+		UpdateContext: updateIDPExternalJWT,
+		DeleteContext: deleteIdentityProvider,
 		Schema: map[string]*schema.Schema{
 			"idp_id": {
 				Type:         schema.TypeString,
@@ -136,40 +138,40 @@ func resourceIDPExternalJWT() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func createIDPExternalJWT(data *schema.ResourceData, i interface{}) error {
+func createIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildIDPExternalJWT(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 
 	bb, err := createIdentityProvider(b, client, data.Get("idp_id").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)
 	return nil
 }
 
-func readIDPExternalJWT(data *schema.ResourceData, i interface{}) error {
+func readIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var ipb IDPExternalJWTProviderBody
@@ -178,23 +180,23 @@ func readIDPExternalJWT(data *schema.ResourceData, i interface{}) error {
 	return buildResourceDataFromIDPExternalJWT(data, ipb.IdentityProvider)
 }
 
-func updateIDPExternalJWT(data *schema.ResourceData, i interface{}) error {
+func updateIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildIDPExternalJWT(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)
@@ -257,44 +259,44 @@ func buildIDPExternalJWTAppConfig(key string, data *schema.ResourceData) map[str
 	return m
 }
 
-func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionauth.ExternalJWTIdentityProvider) error {
+func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionauth.ExternalJWTIdentityProvider) diag.Diagnostics {
 	if err := data.Set("claim_map", res.ClaimMap); err != nil {
-		return fmt.Errorf("idpExternalJwt.claim_map: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.claim_map: %s", err.Error())
 	}
 	if err := data.Set("debug", res.Debug); err != nil {
-		return fmt.Errorf("idpExternalJwt.debug: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.debug: %s", err.Error())
 	}
 	if err := data.Set("domains", res.Domains); err != nil {
-		return fmt.Errorf("idpExternalJwt.domains: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.domains: %s", err.Error())
 	}
 	if err := data.Set("enabled", res.Enabled); err != nil {
-		return fmt.Errorf("idpExternalJwt.enabled: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.enabled: %s", err.Error())
 	}
 	if err := data.Set("header_key_parameter", res.HeaderKeyParameter); err != nil {
-		return fmt.Errorf("idpExternalJwt.header_key_parameter: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.header_key_parameter: %s", err.Error())
 	}
 
 	// TODO: get keys
 	// if err := data.Set("keys", res.); err != nil {
-	// 	return fmt.Errorf("idpExternalJwt.keys: %s", err.Error())
+	// 	return diag.Errorf("idpExternalJwt.keys: %s", err.Error())
 	// }
 	if err := data.Set("lambda_reconcile_id", res.LambdaConfiguration.ReconcileId); err != nil {
-		return fmt.Errorf("idpExternalJwt.lambda_reconcile_id: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.lambda_reconcile_id: %s", err.Error())
 	}
 	if err := data.Set("name", res.Name); err != nil {
-		return fmt.Errorf("idpExternalJwt.name: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.name: %s", err.Error())
 	}
 	if err := data.Set("oauth2_authorization_endpoint", res.Oauth2.AuthorizationEndpoint); err != nil {
-		return fmt.Errorf("idpExternalJwt.oauth2_authorization_endpoint: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.oauth2_authorization_endpoint: %s", err.Error())
 	}
 	if err := data.Set("oauth2_token_endpoint", res.Oauth2.TokenEndpoint); err != nil {
-		return fmt.Errorf("idpExternalJwt.oauth2_token_endpoint: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.oauth2_token_endpoint: %s", err.Error())
 	}
 	if err := data.Set("unique_identity_claim", res.UniqueIdentityClaim); err != nil {
-		return fmt.Errorf("idpExternalJwt.unique_identity_claim: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.unique_identity_claim: %s", err.Error())
 	}
 	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
-		return fmt.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}
@@ -312,7 +314,7 @@ func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionau
 		})
 	}
 	if err := data.Set("application_configuration", ac); err != nil {
-		return fmt.Errorf("idpExternalJwt.application_configuration: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.application_configuration: %s", err.Error())
 	}
 	return nil
 }

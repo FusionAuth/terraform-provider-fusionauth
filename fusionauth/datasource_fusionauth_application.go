@@ -1,15 +1,16 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceApplication() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApplicationRead,
+		ReadContext: dataSourceApplicationRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -21,15 +22,15 @@ func dataSourceApplication() *schema.Resource {
 	}
 }
 
-func dataSourceApplicationRead(data *schema.ResourceData, i interface{}) error {
+func dataSourceApplicationRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, err := client.FAClient.RetrieveApplications()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	name := data.Get("name").(string)
 	var app *fusionauth.Application
@@ -40,7 +41,7 @@ func dataSourceApplicationRead(data *schema.ResourceData, i interface{}) error {
 		}
 	}
 	if app == nil {
-		return fmt.Errorf("couldn't find application %s", name)
+		return diag.Errorf("couldn't find application %s", name)
 	}
 	data.SetId(app.Id)
 	return nil

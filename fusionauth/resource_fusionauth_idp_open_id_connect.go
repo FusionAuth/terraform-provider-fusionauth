@@ -1,10 +1,11 @@
 package fusionauth
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -29,10 +30,10 @@ type OAuth2AppConfig struct {
 
 func newIDPOpenIDConnect() *schema.Resource {
 	return &schema.Resource{
-		Create: createOpenIDConnect,
-		Read:   readOpenIDConnect,
-		Update: updateOpenIDConnect,
-		Delete: deleteIdentityProvider,
+		CreateContext: createOpenIDConnect,
+		ReadContext:   readOpenIDConnect,
+		UpdateContext: updateOpenIDConnect,
+		DeleteContext: deleteIdentityProvider,
 		Schema: map[string]*schema.Schema{
 			"idp_id": {
 				Type:         schema.TypeString,
@@ -208,7 +209,7 @@ func newIDPOpenIDConnect() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -277,34 +278,34 @@ func buildOpenIDAppConfig(key string, data *schema.ResourceData) map[string]inte
 	return m
 }
 
-func createOpenIDConnect(data *schema.ResourceData, i interface{}) error {
+func createOpenIDConnect(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildOpenIDConnect(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 	bb, err := createIdentityProvider(b, client, data.Get("idp_id").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)
 	return nil
 }
 
-func readOpenIDConnect(data *schema.ResourceData, i interface{}) error {
+func readOpenIDConnect(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var ipb OpenIDConnectIdentityProviderBody
@@ -313,61 +314,61 @@ func readOpenIDConnect(data *schema.ResourceData, i interface{}) error {
 	return buildResourceFromOpenIDConnect(ipb.IdentityProvider, data)
 }
 
-func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, data *schema.ResourceData) error {
+func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, data *schema.ResourceData) diag.Diagnostics {
 	if err := data.Set("button_image_url", o.ButtonImageURL); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.button_image_url: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.button_image_url: %s", err.Error())
 	}
 	if err := data.Set("button_text", o.ButtonText); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.button_text: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.button_text: %s", err.Error())
 	}
 	if err := data.Set("debug", o.Debug); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.debug: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.debug: %s", err.Error())
 	}
 	if err := data.Set("domains", o.Domains); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.domains: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.domains: %s", err.Error())
 	}
 	if err := data.Set("enabled", o.Enabled); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.enabled: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.enabled: %s", err.Error())
 	}
 	if err := data.Set("lambda_reconcile_id", o.LambdaConfiguration.ReconcileId); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.lambda_reconcile_id: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.lambda_reconcile_id: %s", err.Error())
 	}
 	if err := data.Set("name", o.Name); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.name: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.name: %s", err.Error())
 	}
 	if err := data.Set("oauth2_authorization_endpoint", o.Oauth2.AuthorizationEndpoint); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.oauth2_authorization_endpoint: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.oauth2_authorization_endpoint: %s", err.Error())
 	}
 	if err := data.Set("oauth2_client_id", o.Oauth2.ClientId); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.oauth2_client_id: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.oauth2_client_id: %s", err.Error())
 	}
 	if err := data.Set("oauth2_client_secret", o.Oauth2.ClientSecret); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.oauth2_client_secret: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.oauth2_client_secret: %s", err.Error())
 	}
 	if err := data.Set("oauth2_client_authentication_method", o.Oauth2.ClientAuthenticationMethod); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.oauth2_client_authentication_method: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.oauth2_client_authentication_method: %s", err.Error())
 	}
 	if err := data.Set("oauth2_email_claim", o.Oauth2.EmailClaim); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.oauth2_email_claim: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.oauth2_email_claim: %s", err.Error())
 	}
 	if err := data.Set("oauth2_issuer", o.Oauth2.Issuer); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.oauth2_issuer: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.oauth2_issuer: %s", err.Error())
 	}
 	if err := data.Set("oauth2_scope", o.Oauth2.Scope); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.oauth2_scope: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.oauth2_scope: %s", err.Error())
 	}
 	if err := data.Set("oauth2_token_endpoint", o.Oauth2.TokenEndpoint); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.oauth2_token_endpoint: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.oauth2_token_endpoint: %s", err.Error())
 	}
 	if err := data.Set("oauth2_user_info_endpoint", o.Oauth2.UserinfoEndpoint); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.oauth2_user_info_endpoint: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.oauth2_user_info_endpoint: %s", err.Error())
 	}
 	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
-		return fmt.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
 	}
 
 	if err := data.Set("post_request", o.PostRequest); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.post_request: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.post_request: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}
@@ -390,29 +391,29 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 		})
 	}
 	if err := data.Set("application_configuration", ac); err != nil {
-		return fmt.Errorf("idpOpenIDConnect.application_configuration: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.application_configuration: %s", err.Error())
 	}
 
 	return nil
 }
 
-func updateOpenIDConnect(data *schema.ResourceData, i interface{}) error {
+func updateOpenIDConnect(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildOpenIDConnect(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)

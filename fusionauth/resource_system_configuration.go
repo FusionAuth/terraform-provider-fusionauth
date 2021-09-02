@@ -1,19 +1,20 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceSystemConfiguration() *schema.Resource {
 	return &schema.Resource{
-		Create: createSystemConfiguration,
-		Read:   readSystemConfiguration,
-		Update: updateSystemConfiguration,
-		Delete: deleteSystemConfiguration,
+		CreateContext: createSystemConfiguration,
+		ReadContext:   readSystemConfiguration,
+		UpdateContext: updateSystemConfiguration,
+		DeleteContext: deleteSystemConfiguration,
 		Schema: map[string]*schema.Schema{
 			"audit_log_configuration": {
 				Type:       schema.TypeList,
@@ -190,17 +191,17 @@ func resourceSystemConfiguration() *schema.Resource {
 	}
 }
 
-func createSystemConfiguration(data *schema.ResourceData, i interface{}) error {
+func createSystemConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	data.SetId("syscfg")
 	return updateSysCfg(buildSystemConfigurationRequest(data), client)
 }
 
-func readSystemConfiguration(data *schema.ResourceData, i interface{}) error {
+func readSystemConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	resp, err := client.FAClient.RetrieveSystemConfiguration()
 	if err != nil {
-		return fmt.Errorf("RetrieveSystemConfiguration err: %v", err)
+		return diag.Errorf("RetrieveSystemConfiguration err: %v", err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -208,29 +209,29 @@ func readSystemConfiguration(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return buildResourceFromSystemConfiguration(resp.SystemConfiguration, data)
 }
 
-func updateSystemConfiguration(data *schema.ResourceData, i interface{}) error {
+func updateSystemConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	return updateSysCfg(buildSystemConfigurationRequest(data), client)
 }
 
-func deleteSystemConfiguration(data *schema.ResourceData, i interface{}) error {
+func deleteSystemConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	return updateSysCfg(getDefaultSystemConfigurationRequest(), client)
 }
 
-func updateSysCfg(req fusionauth.SystemConfigurationRequest, client Client) error {
+func updateSysCfg(req fusionauth.SystemConfigurationRequest, client Client) diag.Diagnostics {
 	resp, faErrs, err := client.FAClient.UpdateSystemConfiguration(req)
 	if err != nil {
-		return fmt.Errorf("UpdateSystemConfiguration err: %v", err)
+		return diag.Errorf("UpdateSystemConfiguration err: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	return nil
 }
@@ -306,7 +307,7 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 	return sc
 }
 
-func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, data *schema.ResourceData) error {
+func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, data *schema.ResourceData) diag.Diagnostics {
 	err := data.Set("audit_log_configuration", []map[string]interface{}{
 		{
 			"delete": []map[string]interface{}{
@@ -318,7 +319,7 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("system_configuration.audit_log_configuration: %s", err.Error())
+		return diag.Errorf("system_configuration.audit_log_configuration: %s", err.Error())
 	}
 
 	err = data.Set("cors_configuration", []map[string]interface{}{
@@ -333,7 +334,7 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("system_configuration.cors_configuration: %s", err.Error())
+		return diag.Errorf("system_configuration.cors_configuration: %s", err.Error())
 	}
 
 	err = data.Set("event_log_configuration", []map[string]interface{}{
@@ -342,7 +343,7 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("system_configuration.event_log_configuration: %s", err.Error())
+		return diag.Errorf("system_configuration.event_log_configuration: %s", err.Error())
 	}
 
 	err = data.Set("login_record_configuration", []map[string]interface{}{
@@ -356,11 +357,11 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("system_configuration.login_record_configuration: %s", err.Error())
+		return diag.Errorf("system_configuration.login_record_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("report_timezone", sc.ReportTimezone); err != nil {
-		return fmt.Errorf("system_configuration.report_timezone: %s", err.Error())
+		return diag.Errorf("system_configuration.report_timezone: %s", err.Error())
 	}
 
 	err = data.Set("ui_configuration", []map[string]interface{}{
@@ -371,7 +372,7 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("system_configuration.ui_configuration: %s", err.Error())
+		return diag.Errorf("system_configuration.ui_configuration: %s", err.Error())
 	}
 
 	return nil
