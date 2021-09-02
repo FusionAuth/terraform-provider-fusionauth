@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func newUser() *schema.Resource {
@@ -202,21 +202,21 @@ func newUser() *schema.Resource {
 					"TextMessage",
 				}, false),
 				Default:     "None",
-				Removed:     "Removed in version 1.26.0",
+				Deprecated:  "Removed in Fusionauth version 1.26.0",
 				Description: "The User’s preferred delivery for verification codes during a two factor login request.",
 			},
 			"two_factor_enabled": {
 				Type:        schema.TypeBool,
 				Default:     false,
 				Optional:    true,
-				Removed:     "Removed in version 1.26.0",
+				Deprecated:  "Removed in Fusionauth version 1.26.0",
 				Description: "Determines if the User has two factor authentication enabled for their account or not.",
 			},
 			"two_factor_secret": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Sensitive:   true,
-				Removed:     "Removed in version 1.26.0",
+				Deprecated:  "Removed in Fusionauth version 1.26.0",
 				Description: "The Base64 encoded secret used to generate Two Factor verification codes.",
 			},
 			"username": {
