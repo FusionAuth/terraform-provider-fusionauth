@@ -1,15 +1,16 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceTenant() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceTenantRead,
+		ReadContext: dataSourceTenantRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -21,15 +22,15 @@ func dataSourceTenant() *schema.Resource {
 	}
 }
 
-func dataSourceTenantRead(data *schema.ResourceData, i interface{}) error {
+func dataSourceTenantRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, err := client.FAClient.RetrieveTenants()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	name := data.Get("name").(string)
 	var t *fusionauth.Tenant
@@ -40,7 +41,7 @@ func dataSourceTenantRead(data *schema.ResourceData, i interface{}) error {
 		}
 	}
 	if t == nil {
-		return fmt.Errorf("couldn't find tenant %s", name)
+		return diag.Errorf("couldn't find tenant %s", name)
 	}
 	data.SetId(t.Id)
 	return nil

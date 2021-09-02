@@ -1,20 +1,21 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func newLambda() *schema.Resource {
 	return &schema.Resource{
-		Create: createLambda,
-		Read:   readLambda,
-		Update: updateLambda,
-		Delete: deleteLambda,
+		CreateContext: createLambda,
+		ReadContext:   readLambda,
+		UpdateContext: updateLambda,
+		DeleteContext: deleteLambda,
 		Schema: map[string]*schema.Schema{
 			"body": {
 				Type:        schema.TypeString,
@@ -58,7 +59,7 @@ func newLambda() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -74,30 +75,30 @@ func buildLambda(data *schema.ResourceData) fusionauth.Lambda {
 	return l
 }
 
-func createLambda(data *schema.ResourceData, i interface{}) error {
+func createLambda(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	l := buildLambda(data)
 	resp, faErrs, err := client.FAClient.CreateLambda("", fusionauth.LambdaRequest{
 		Lambda: l,
 	})
 	if err != nil {
-		return fmt.Errorf("CreateLambda err: %v", err)
+		return diag.Errorf("CreateLambda err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data.SetId(resp.Lambda.Id)
 	return nil
 }
 
-func readLambda(data *schema.ResourceData, i interface{}) error {
+func readLambda(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.RetrieveLambda(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -105,30 +106,30 @@ func readLambda(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	l := resp.Lambda
 	if err := data.Set("body", l.Body); err != nil {
-		return fmt.Errorf("lambda.body: %s", err.Error())
+		return diag.Errorf("lambda.body: %s", err.Error())
 	}
 	if err := data.Set("debug", l.Debug); err != nil {
-		return fmt.Errorf("lambda.debug: %s", err.Error())
+		return diag.Errorf("lambda.debug: %s", err.Error())
 	}
 	if err := data.Set("enabled", l.Enabled); err != nil {
-		return fmt.Errorf("lambda.enabled: %s", err.Error())
+		return diag.Errorf("lambda.enabled: %s", err.Error())
 	}
 	if err := data.Set("name", l.Name); err != nil {
-		return fmt.Errorf("lambda.name: %s", err.Error())
+		return diag.Errorf("lambda.name: %s", err.Error())
 	}
 	if err := data.Set("type", l.Type); err != nil {
-		return fmt.Errorf("lambda.type: %s", err.Error())
+		return diag.Errorf("lambda.type: %s", err.Error())
 	}
 
 	return nil
 }
 
-func updateLambda(data *schema.ResourceData, i interface{}) error {
+func updateLambda(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	l := buildLambda(data)
 
@@ -136,27 +137,27 @@ func updateLambda(data *schema.ResourceData, i interface{}) error {
 		Lambda: l,
 	})
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func deleteLambda(data *schema.ResourceData, i interface{}) error {
+func deleteLambda(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.DeleteLambda(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil

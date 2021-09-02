@@ -1,22 +1,24 @@
 package fusionauth
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceFormField() *schema.Resource {
 	return &schema.Resource{
-		Create: createFormField,
-		Read:   readFormField,
-		Update: updateFormField,
-		Delete: deleteFormField,
+		CreateContext: createFormField,
+		ReadContext:   readFormField,
+		UpdateContext: updateFormField,
+		DeleteContext: deleteFormField,
 		Schema: map[string]*schema.Schema{
 			"form_field_id": {
 				Type:         schema.TypeString,
@@ -124,12 +126,12 @@ func resourceFormField() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func createFormField(data *schema.ResourceData, i interface{}) error {
+func createFormField(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	f := buildFormField(data)
 	var fid string
@@ -138,22 +140,22 @@ func createFormField(data *schema.ResourceData, i interface{}) error {
 	}
 	resp, faErrs, err := client.FAClient.CreateFormField(fid, fusionauth.FormFieldRequest{Field: f})
 	if err != nil {
-		return fmt.Errorf("createFormField err: %v", err)
+		return diag.Errorf("createFormField err: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data.SetId(resp.Field.Id)
 	return buildResourceDataFromFormField(data, resp.Field)
 }
 
-func readFormField(data *schema.ResourceData, i interface{}) error {
+func readFormField(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, err := client.FAClient.RetrieveFormField(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -161,37 +163,37 @@ func readFormField(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return buildResourceDataFromFormField(data, resp.Field)
 }
 
-func updateFormField(data *schema.ResourceData, i interface{}) error {
+func updateFormField(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	f := buildFormField(data)
 
 	resp, faErrs, err := client.FAClient.UpdateFormField(data.Id(), fusionauth.FormFieldRequest{Field: f})
 	if err != nil {
-		return fmt.Errorf("UpdateFormField err: %v", err)
+		return diag.Errorf("UpdateFormField err: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data.SetId(resp.Field.Id)
 	return buildResourceDataFromFormField(data, resp.Field)
 }
 
-func deleteFormField(data *schema.ResourceData, i interface{}) error {
+func deleteFormField(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.DeleteFormField(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
@@ -216,36 +218,36 @@ func buildFormField(data *schema.ResourceData) fusionauth.FormField {
 	}
 }
 
-func buildResourceDataFromFormField(data *schema.ResourceData, f fusionauth.FormField) error {
+func buildResourceDataFromFormField(data *schema.ResourceData, f fusionauth.FormField) diag.Diagnostics {
 	if err := data.Set("confirm", f.Confirm); err != nil {
-		return fmt.Errorf("webhook.confirm: %s", err.Error())
+		return diag.Errorf("webhook.confirm: %s", err.Error())
 	}
 	if err := data.Set("consent_id", f.ConsentId); err != nil {
-		return fmt.Errorf("webhook.consent_id: %s", err.Error())
+		return diag.Errorf("webhook.consent_id: %s", err.Error())
 	}
 	if err := data.Set("control", f.Control); err != nil {
-		return fmt.Errorf("webhook.control: %s", err.Error())
+		return diag.Errorf("webhook.control: %s", err.Error())
 	}
 	if err := data.Set("data", f.Data); err != nil {
-		return fmt.Errorf("webhook.data: %s", err.Error())
+		return diag.Errorf("webhook.data: %s", err.Error())
 	}
 	if err := data.Set("description", f.Description); err != nil {
-		return fmt.Errorf("webhook.description: %s", err.Error())
+		return diag.Errorf("webhook.description: %s", err.Error())
 	}
 	if err := data.Set("key", f.Key); err != nil {
-		return fmt.Errorf("webhook.key: %s", err.Error())
+		return diag.Errorf("webhook.key: %s", err.Error())
 	}
 	if err := data.Set("name", f.Name); err != nil {
-		return fmt.Errorf("webhook.name: %s", err.Error())
+		return diag.Errorf("webhook.name: %s", err.Error())
 	}
 	if err := data.Set("options", f.Options); err != nil {
-		return fmt.Errorf("webhook.options: %s", err.Error())
+		return diag.Errorf("webhook.options: %s", err.Error())
 	}
 	if err := data.Set("required", f.Required); err != nil {
-		return fmt.Errorf("webhook.required: %s", err.Error())
+		return diag.Errorf("webhook.required: %s", err.Error())
 	}
 	if err := data.Set("type", f.Type); err != nil {
-		return fmt.Errorf("webhook.type: %s", err.Error())
+		return diag.Errorf("webhook.type: %s", err.Error())
 	}
 
 	err := data.Set("validator", []map[string]interface{}{
@@ -255,7 +257,7 @@ func buildResourceDataFromFormField(data *schema.ResourceData, f fusionauth.Form
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("form_field.validator: %s", err.Error())
+		return diag.Errorf("form_field.validator: %s", err.Error())
 	}
 	return nil
 }

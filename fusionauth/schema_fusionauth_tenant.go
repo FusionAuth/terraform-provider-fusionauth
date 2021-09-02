@@ -7,10 +7,10 @@ import (
 
 func newTenant() *schema.Resource {
 	return &schema.Resource{
-		Create: createTenant,
-		Read:   readTenant,
-		Update: updateTenant,
-		Delete: deleteTenant,
+		CreateContext: createTenant,
+		ReadContext:   readTenant,
+		UpdateContext: updateTenant,
+		DeleteContext: deleteTenant,
 		Schema: map[string]*schema.Schema{
 			"source_tenant_id": {
 				Type:         schema.TypeString,
@@ -440,7 +440,7 @@ func newTenant() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }

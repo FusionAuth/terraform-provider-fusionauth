@@ -1,20 +1,21 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func newUser() *schema.Resource {
 	return &schema.Resource{
-		Create: createUser,
-		Read:   readUser,
-		Update: updateUser,
-		Delete: deleteUser,
+		CreateContext: createUser,
+		ReadContext:   readUser,
+		UpdateContext: updateUser,
+		DeleteContext: deleteUser,
 		Schema: map[string]*schema.Schema{
 			"tenant_id": {
 				Type:         schema.TypeString,
@@ -238,7 +239,7 @@ func newUser() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -279,7 +280,7 @@ func buildUser(data *schema.ResourceData) fusionauth.UserRequest {
 	return u
 }
 
-func createUser(data *schema.ResourceData, i interface{}) error {
+func createUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	u := buildUser(data)
 
@@ -291,11 +292,11 @@ func createUser(data *schema.ResourceData, i interface{}) error {
 
 	resp, faErrs, err := client.FAClient.CreateUser("", u)
 	if err != nil {
-		return fmt.Errorf("CreateUser err: %v", err)
+		return diag.Errorf("CreateUser err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data.SetId(resp.User.Id)
 	if u.User.TenantId == "" {
@@ -304,13 +305,13 @@ func createUser(data *schema.ResourceData, i interface{}) error {
 	return nil
 }
 
-func readUser(data *schema.ResourceData, i interface{}) error {
+func readUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.RetrieveUser(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -318,63 +319,63 @@ func readUser(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := data.Set("tenant_id", resp.User.TenantId); err != nil {
-		return fmt.Errorf("user.tenant_id: %s", err.Error())
+		return diag.Errorf("user.tenant_id: %s", err.Error())
 	}
 	if err := data.Set("birth_date", resp.User.BirthDate); err != nil {
-		return fmt.Errorf("user.birth_date: %s", err.Error())
+		return diag.Errorf("user.birth_date: %s", err.Error())
 	}
 	if err := data.Set("data", resp.User.Data); err != nil {
-		return fmt.Errorf("user.data: %s", err.Error())
+		return diag.Errorf("user.data: %s", err.Error())
 	}
 	if err := data.Set("email", resp.User.Email); err != nil {
-		return fmt.Errorf("user.email: %s", err.Error())
+		return diag.Errorf("user.email: %s", err.Error())
 	}
 	if err := data.Set("expiry", resp.User.Expiry); err != nil {
-		return fmt.Errorf("user.expiry: %s", err.Error())
+		return diag.Errorf("user.expiry: %s", err.Error())
 	}
 	if err := data.Set("first_name", resp.User.FirstName); err != nil {
-		return fmt.Errorf("user.first_name: %s", err.Error())
+		return diag.Errorf("user.first_name: %s", err.Error())
 	}
 	if err := data.Set("full_name", resp.User.FullName); err != nil {
-		return fmt.Errorf("user.full_name: %s", err.Error())
+		return diag.Errorf("user.full_name: %s", err.Error())
 	}
 	if err := data.Set("image_url", resp.User.ImageUrl); err != nil {
-		return fmt.Errorf("user.image_url: %s", err.Error())
+		return diag.Errorf("user.image_url: %s", err.Error())
 	}
 	if err := data.Set("last_name", resp.User.LastName); err != nil {
-		return fmt.Errorf("user.last_name: %s", err.Error())
+		return diag.Errorf("user.last_name: %s", err.Error())
 	}
 	if err := data.Set("middle_name", resp.User.MiddleName); err != nil {
-		return fmt.Errorf("user.middle_name: %s", err.Error())
+		return diag.Errorf("user.middle_name: %s", err.Error())
 	}
 	if err := data.Set("mobile_phone", resp.User.MobilePhone); err != nil {
-		return fmt.Errorf("user.mobile_phone: %s", err.Error())
+		return diag.Errorf("user.mobile_phone: %s", err.Error())
 	}
 	if err := data.Set("parent_email", resp.User.ParentEmail); err != nil {
-		return fmt.Errorf("user.parent_email: %s", err.Error())
+		return diag.Errorf("user.parent_email: %s", err.Error())
 	}
 	if err := data.Set("preferred_languages", resp.User.PreferredLanguages); err != nil {
-		return fmt.Errorf("user.preferred_languages: %s", err.Error())
+		return diag.Errorf("user.preferred_languages: %s", err.Error())
 	}
 	if err := data.Set("timezone", resp.User.Timezone); err != nil {
-		return fmt.Errorf("user.timezone: %s", err.Error())
+		return diag.Errorf("user.timezone: %s", err.Error())
 	}
 	if err := data.Set("username", resp.User.Username); err != nil {
-		return fmt.Errorf("user.username: %s", err.Error())
+		return diag.Errorf("user.username: %s", err.Error())
 	}
 	if err := data.Set("username_status", resp.User.UsernameStatus); err != nil {
-		return fmt.Errorf("user.username_status: %s", err.Error())
+		return diag.Errorf("user.username_status: %s", err.Error())
 	}
 	if err := data.Set("password_change_required", resp.User.PasswordChangeRequired); err != nil {
-		return fmt.Errorf("user.password_change_required: %s", err.Error())
+		return diag.Errorf("user.password_change_required: %s", err.Error())
 	}
 
 	if err := data.Set("two_factor_recovery_codes", resp.User.TwoFactor.RecoveryCodes); err != nil {
-		return fmt.Errorf("user.two_factor_recovery_codes: %s", err.Error())
+		return diag.Errorf("user.two_factor_recovery_codes: %s", err.Error())
 	}
 
 	tfms := make([]map[string]interface{}, 0, len(resp.User.TwoFactor.Methods))
@@ -391,34 +392,34 @@ func readUser(data *schema.ResourceData, i interface{}) error {
 		})
 	}
 	if err = data.Set("two_factor_methods", tfms); err != nil {
-		return fmt.Errorf("user.two_factor_methods: %s", err.Error())
+		return diag.Errorf("user.two_factor_methods: %s", err.Error())
 	}
 	return nil
 }
 
-func updateUser(data *schema.ResourceData, i interface{}) error {
+func updateUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	u := buildUser(data)
 
 	resp, faErrs, err := client.FAClient.UpdateUser(data.Id(), u)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func deleteUser(data *schema.ResourceData, i interface{}) error {
+func deleteUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.DeleteUser(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -426,7 +427,7 @@ func deleteUser(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil

@@ -1,20 +1,21 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceForm() *schema.Resource {
 	return &schema.Resource{
-		Create: createForm,
-		Read:   readForm,
-		Update: updateForm,
-		Delete: deleteForm,
+		CreateContext: createForm,
+		ReadContext:   readForm,
+		UpdateContext: updateForm,
+		DeleteContext: deleteForm,
 		Schema: map[string]*schema.Schema{
 			"form_id": {
 				Type:         schema.TypeString,
@@ -63,12 +64,12 @@ func resourceForm() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func createForm(data *schema.ResourceData, i interface{}) error {
+func createForm(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	f := buildForm(data)
 	var fid string
@@ -77,22 +78,22 @@ func createForm(data *schema.ResourceData, i interface{}) error {
 	}
 	resp, faErrs, err := client.FAClient.CreateForm(fid, fusionauth.FormRequest{Form: f})
 	if err != nil {
-		return fmt.Errorf("createForm err: %v", err)
+		return diag.Errorf("createForm err: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data.SetId(resp.Form.Id)
 	return buildResourceDataFromForm(data, resp.Form)
 }
 
-func readForm(data *schema.ResourceData, i interface{}) error {
+func readForm(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, err := client.FAClient.RetrieveForm(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -100,37 +101,37 @@ func readForm(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return buildResourceDataFromForm(data, resp.Form)
 }
 
-func updateForm(data *schema.ResourceData, i interface{}) error {
+func updateForm(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	f := buildForm(data)
 
 	resp, faErrs, err := client.FAClient.UpdateForm(data.Id(), fusionauth.FormRequest{Form: f})
 	if err != nil {
-		return fmt.Errorf("updateForm err: %v", err)
+		return diag.Errorf("updateForm err: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data.SetId(resp.Form.Id)
 	return buildResourceDataFromForm(data, resp.Form)
 }
 
-func deleteForm(data *schema.ResourceData, i interface{}) error {
+func deleteForm(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.DeleteForm(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
@@ -160,12 +161,12 @@ func buildForm(data *schema.ResourceData) fusionauth.Form {
 	}
 }
 
-func buildResourceDataFromForm(data *schema.ResourceData, f fusionauth.Form) error {
+func buildResourceDataFromForm(data *schema.ResourceData, f fusionauth.Form) diag.Diagnostics {
 	if err := data.Set("data", f.Data); err != nil {
-		return fmt.Errorf("form.data: %s", err.Error())
+		return diag.Errorf("form.data: %s", err.Error())
 	}
 	if err := data.Set("name", f.Name); err != nil {
-		return fmt.Errorf("form.name: %s", err.Error())
+		return diag.Errorf("form.name: %s", err.Error())
 	}
 
 	fs := make([]map[string]interface{}, 0, len(f.Steps))
@@ -176,10 +177,10 @@ func buildResourceDataFromForm(data *schema.ResourceData, f fusionauth.Form) err
 		)
 	}
 	if err := data.Set("steps", fs); err != nil {
-		return fmt.Errorf("form.steps: %s", err.Error())
+		return diag.Errorf("form.steps: %s", err.Error())
 	}
 	if err := data.Set("type", f.Type); err != nil {
-		return fmt.Errorf("form.type: %s", err.Error())
+		return diag.Errorf("form.type: %s", err.Error())
 	}
 
 	return nil

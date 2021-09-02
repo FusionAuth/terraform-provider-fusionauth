@@ -1,10 +1,11 @@
 package fusionauth
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -22,10 +23,10 @@ type SAMLAppConfig struct {
 
 func resourceIDPSAMLv2() *schema.Resource {
 	return &schema.Resource{
-		Create: createIDPSAMLv2,
-		Read:   readIDPSAMLv2,
-		Update: updateIDPSAMLv2,
-		Delete: deleteIdentityProvider,
+		CreateContext: createIDPSAMLv2,
+		ReadContext:   readIDPSAMLv2,
+		UpdateContext: updateIDPSAMLv2,
+		DeleteContext: deleteIdentityProvider,
 		Schema: map[string]*schema.Schema{
 			"idp_id": {
 				Type:         schema.TypeString,
@@ -178,38 +179,38 @@ func resourceIDPSAMLv2() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func createIDPSAMLv2(data *schema.ResourceData, i interface{}) error {
+func createIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildIDPSAMLv2(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 	bb, err := createIdentityProvider(b, client, data.Get("idp_id").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)
 	return nil
 }
-func readIDPSAMLv2(data *schema.ResourceData, i interface{}) error {
+func readIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var ipb SAMLIdentityProviderBody
@@ -218,23 +219,23 @@ func readIDPSAMLv2(data *schema.ResourceData, i interface{}) error {
 	return buildResourceDataFromIDPSAMLv2(data, ipb.IdentityProvider)
 }
 
-func updateIDPSAMLv2(data *schema.ResourceData, i interface{}) error {
+func updateIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildIDPSAMLv2(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)
@@ -270,54 +271,54 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 	s.ApplicationConfiguration = buildSAMLv2AppConfig("application_configuration", data)
 	return SAMLIdentityProviderBody{IdentityProvider: s}
 }
-func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SAMLv2IdentityProvider) error {
+func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SAMLv2IdentityProvider) diag.Diagnostics {
 	if err := data.Set("button_image_url", res.ButtonImageURL); err != nil {
-		return fmt.Errorf("idpSAMLv2.button_image_url: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.button_image_url: %s", err.Error())
 	}
 	if err := data.Set("button_text", res.ButtonText); err != nil {
-		return fmt.Errorf("idpSAMLv2.button_text: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.button_text: %s", err.Error())
 	}
 	if err := data.Set("debug", res.Debug); err != nil {
-		return fmt.Errorf("idpSAMLv2.debug: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.debug: %s", err.Error())
 	}
 	if err := data.Set("domains", res.Domains); err != nil {
-		return fmt.Errorf("idpSAMLv2.domains: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.domains: %s", err.Error())
 	}
 	if err := data.Set("email_claim", res.EmailClaim); err != nil {
-		return fmt.Errorf("idpSAMLv2.email_claim: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.email_claim: %s", err.Error())
 	}
 	if err := data.Set("enabled", res.Enabled); err != nil {
-		return fmt.Errorf("idpSAMLv2.enabled: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.enabled: %s", err.Error())
 	}
 	if err := data.Set("idp_endpoint", res.IdpEndpoint); err != nil {
-		return fmt.Errorf("idpSAMLv2.idp_endpoint: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.idp_endpoint: %s", err.Error())
 	}
 	if err := data.Set("key_id", res.KeyId); err != nil {
-		return fmt.Errorf("idpSAMLv2.key_id: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.key_id: %s", err.Error())
 	}
 	if err := data.Set("lambda_reconcile_id", res.LambdaConfiguration.ReconcileId); err != nil {
-		return fmt.Errorf("idpSAMLv2.lambda_reconcile_id: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.lambda_reconcile_id: %s", err.Error())
 	}
 	if err := data.Set("name", res.Name); err != nil {
-		return fmt.Errorf("idpSAMLv2.name: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.name: %s", err.Error())
 	}
 	if err := data.Set("post_request", res.PostRequest); err != nil {
-		return fmt.Errorf("idpSAMLv2.post_request: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.post_request: %s", err.Error())
 	}
 	if err := data.Set("request_signing_key", res.RequestSigningKeyId); err != nil {
-		return fmt.Errorf("idpSAMLv2.request_signing_key: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.request_signing_key: %s", err.Error())
 	}
 	if err := data.Set("sign_request", res.SignRequest); err != nil {
-		return fmt.Errorf("idpSAMLv2.sign_request: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.sign_request: %s", err.Error())
 	}
 	if err := data.Set("use_name_for_email", res.UseNameIdForEmail); err != nil {
-		return fmt.Errorf("idpSAMLv2.use_name_for_email: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.use_name_for_email: %s", err.Error())
 	}
 	if err := data.Set("xml_signature_canonicalization_method", res.XmlSignatureC14nMethod); err != nil {
-		return fmt.Errorf("idpSAMLv2.xml_signature_canonicalization_method: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.xml_signature_canonicalization_method: %s", err.Error())
 	}
 	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
-		return fmt.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
+		return diag.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}
@@ -337,7 +338,7 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 		})
 	}
 	if err := data.Set("application_configuration", ac); err != nil {
-		return fmt.Errorf("idpSAMLv2.application_configuration: %s", err.Error())
+		return diag.Errorf("idpSAMLv2.application_configuration: %s", err.Error())
 	}
 
 	return nil

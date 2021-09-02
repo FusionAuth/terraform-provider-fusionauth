@@ -1,19 +1,20 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func newWebhook() *schema.Resource {
 	return &schema.Resource{
-		Create: createWebhook,
-		Read:   readWebhook,
-		Update: updateWebhook,
-		Delete: deleteWebhook,
+		CreateContext: createWebhook,
+		ReadContext:   readWebhook,
+		UpdateContext: updateWebhook,
+		DeleteContext: deleteWebhook,
 		Schema: map[string]*schema.Schema{
 			"application_ids": {
 				Type:        schema.TypeSet,
@@ -170,7 +171,7 @@ func newWebhook() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -226,30 +227,30 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 	}
 }
 
-func createWebhook(data *schema.ResourceData, i interface{}) error {
+func createWebhook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	l := buildWebhook(data)
 	resp, faErrs, err := client.FAClient.CreateWebhook("", fusionauth.WebhookRequest{
 		Webhook: l,
 	})
 	if err != nil {
-		return fmt.Errorf("CreateWebhook err: %v", err)
+		return diag.Errorf("CreateWebhook err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	data.SetId(resp.Webhook.Id)
 	return nil
 }
 
-func readWebhook(data *schema.ResourceData, i interface{}) error {
+func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, err := client.FAClient.RetrieveWebhook(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -257,18 +258,18 @@ func readWebhook(data *schema.ResourceData, i interface{}) error {
 		return nil
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	l := resp.Webhook
 	if err := data.Set("application_ids", l.ApplicationIds); err != nil {
-		return fmt.Errorf("webhook.application_ids: %s", err.Error())
+		return diag.Errorf("webhook.application_ids: %s", err.Error())
 	}
 	if err := data.Set("connect_timeout", l.ConnectTimeout); err != nil {
-		return fmt.Errorf("webhook.connect_timeout: %s", err.Error())
+		return diag.Errorf("webhook.connect_timeout: %s", err.Error())
 	}
 	if err := data.Set("description", l.Description); err != nil {
-		return fmt.Errorf("webhook.description: %s", err.Error())
+		return diag.Errorf("webhook.description: %s", err.Error())
 	}
 
 	err = data.Set("events_enabled", []map[string]interface{}{
@@ -294,34 +295,34 @@ func readWebhook(data *schema.ResourceData, i interface{}) error {
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("webhook.events_enabled: %s", err.Error())
+		return diag.Errorf("webhook.events_enabled: %s", err.Error())
 	}
 
 	if err := data.Set("global", l.Global); err != nil {
-		return fmt.Errorf("webhook.global: %s", err.Error())
+		return diag.Errorf("webhook.global: %s", err.Error())
 	}
 	if err := data.Set("headers", l.Headers); err != nil {
-		return fmt.Errorf("webhook.headers: %s", err.Error())
+		return diag.Errorf("webhook.headers: %s", err.Error())
 	}
 	if err := data.Set("http_authentication_password", l.HttpAuthenticationPassword); err != nil {
-		return fmt.Errorf("webhook.http_authentication_password: %s", err.Error())
+		return diag.Errorf("webhook.http_authentication_password: %s", err.Error())
 	}
 	if err := data.Set("http_authentication_username", l.HttpAuthenticationUsername); err != nil {
-		return fmt.Errorf("webhook.http_authentication_username: %s", err.Error())
+		return diag.Errorf("webhook.http_authentication_username: %s", err.Error())
 	}
 	if err := data.Set("read_timeout", l.ReadTimeout); err != nil {
-		return fmt.Errorf("webhook.read_timeout: %s", err.Error())
+		return diag.Errorf("webhook.read_timeout: %s", err.Error())
 	}
 	if err := data.Set("ssl_certificate", l.SslCertificate); err != nil {
-		return fmt.Errorf("webhook.ssl_certificate: %s", err.Error())
+		return diag.Errorf("webhook.ssl_certificate: %s", err.Error())
 	}
 	if err := data.Set("url", l.Url); err != nil {
-		return fmt.Errorf("webhook.url: %s", err.Error())
+		return diag.Errorf("webhook.url: %s", err.Error())
 	}
 	return nil
 }
 
-func updateWebhook(data *schema.ResourceData, i interface{}) error {
+func updateWebhook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	l := buildWebhook(data)
 
@@ -329,27 +330,27 @@ func updateWebhook(data *schema.ResourceData, i interface{}) error {
 		Webhook: l,
 	})
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func deleteWebhook(data *schema.ResourceData, i interface{}) error {
+func deleteWebhook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
 	resp, faErrs, err := client.FAClient.DeleteWebhook(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil

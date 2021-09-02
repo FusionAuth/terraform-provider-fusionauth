@@ -50,6 +50,6 @@ func Provider() *schema.Provider {
 			"fusionauth_application_role": dataSourceApplicationRole(),
 			"fusionauth_idp":              dataSourceIDP(),
 		},
-		ConfigureFunc: configureClient,
+		ConfigureContextFunc: configureClient,
 	}
 }

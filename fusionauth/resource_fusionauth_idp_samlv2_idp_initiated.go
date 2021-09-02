@@ -1,10 +1,11 @@
 package fusionauth
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -20,10 +21,10 @@ type SAMLIDPInitiatedAppConfig struct {
 
 func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 	return &schema.Resource{
-		Create: createIDPSAMLv2IdPInitiated,
-		Read:   readIDPSAMLv2IdPInitiated,
-		Update: updateIDPSAMLv2IdPInitiated,
-		Delete: deleteIdentityProvider,
+		CreateContext: createIDPSAMLv2IdPInitiated,
+		ReadContext:   readIDPSAMLv2IdPInitiated,
+		UpdateContext: updateIDPSAMLv2IdPInitiated,
+		DeleteContext: deleteIdentityProvider,
 		Schema: map[string]*schema.Schema{
 			"idp_id": {
 				Type:         schema.TypeString,
@@ -120,39 +121,39 @@ func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func createIDPSAMLv2IdPInitiated(data *schema.ResourceData, i interface{}) error {
+func createIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildIDPSAMLv2IdPInitiated(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 	bb, err := createIdentityProvider(b, client, data.Get("idp_id").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)
 	return nil
 }
 
-func readIDPSAMLv2IdPInitiated(data *schema.ResourceData, i interface{}) error {
+func readIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var ipb SAMLIDPInitiatedIdentityProviderBody
@@ -161,23 +162,23 @@ func readIDPSAMLv2IdPInitiated(data *schema.ResourceData, i interface{}) error {
 	return buildResourceDataFromIDPSAMLv2IdPInitiated(data, ipb.IdentityProvider)
 }
 
-func updateIDPSAMLv2IdPInitiated(data *schema.ResourceData, i interface{}) error {
+func updateIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildIDPSAMLv2IdPInitiated(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)
@@ -205,33 +206,33 @@ func buildIDPSAMLv2IdPInitiated(data *schema.ResourceData) SAMLIDPInitiatedIdent
 	return SAMLIDPInitiatedIdentityProviderBody{IdentityProvider: s}
 }
 
-func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res fusionauth.SAMLv2IdPInitiatedIdentityProvider) error {
+func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res fusionauth.SAMLv2IdPInitiatedIdentityProvider) diag.Diagnostics {
 	if err := data.Set("debug", res.Debug); err != nil {
-		return fmt.Errorf("idpSAMLv2IdpInitiated.debug: %s", err.Error())
+		return diag.Errorf("idpSAMLv2IdpInitiated.debug: %s", err.Error())
 	}
 	if err := data.Set("email_claim", res.EmailClaim); err != nil {
-		return fmt.Errorf("idpSAMLv2IdpInitiated.email_claim: %s", err.Error())
+		return diag.Errorf("idpSAMLv2IdpInitiated.email_claim: %s", err.Error())
 	}
 	if err := data.Set("enabled", res.Enabled); err != nil {
-		return fmt.Errorf("idpSAMLv2IdpInitiated.enabled: %s", err.Error())
+		return diag.Errorf("idpSAMLv2IdpInitiated.enabled: %s", err.Error())
 	}
 	if err := data.Set("issuer", res.Issuer); err != nil {
-		return fmt.Errorf("idpSAMLv2IdpInitiated.issuer: %s", err.Error())
+		return diag.Errorf("idpSAMLv2IdpInitiated.issuer: %s", err.Error())
 	}
 	if err := data.Set("key_id", res.KeyId); err != nil {
-		return fmt.Errorf("idpSAMLv2IdpInitiated.key_id: %s", err.Error())
+		return diag.Errorf("idpSAMLv2IdpInitiated.key_id: %s", err.Error())
 	}
 	if err := data.Set("lambda_reconcile_id", res.LambdaConfiguration.ReconcileId); err != nil {
-		return fmt.Errorf("idpSAMLv2IdpInitiated.lambda_reconcile_id: %s", err.Error())
+		return diag.Errorf("idpSAMLv2IdpInitiated.lambda_reconcile_id: %s", err.Error())
 	}
 	if err := data.Set("name", res.Name); err != nil {
-		return fmt.Errorf("idpSAMLv2IdpInitiated.name: %s", err.Error())
+		return diag.Errorf("idpSAMLv2IdpInitiated.name: %s", err.Error())
 	}
 	if err := data.Set("use_name_for_email", res.UseNameIdForEmail); err != nil {
-		return fmt.Errorf("idpSAMLv2IdpInitiated.use_name_for_email: %s", err.Error())
+		return diag.Errorf("idpSAMLv2IdpInitiated.use_name_for_email: %s", err.Error())
 	}
 	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
-		return fmt.Errorf("idpSAMLv2IdpInitiated.linking_strategy: %s", err.Error())
+		return diag.Errorf("idpSAMLv2IdpInitiated.linking_strategy: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}
@@ -249,7 +250,7 @@ func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res f
 		})
 	}
 	if err := data.Set("application_configuration", ac); err != nil {
-		return fmt.Errorf("idpSAMLv2IdpInitiated.application_configuration: %s", err.Error())
+		return diag.Errorf("idpSAMLv2IdpInitiated.application_configuration: %s", err.Error())
 	}
 
 	return nil

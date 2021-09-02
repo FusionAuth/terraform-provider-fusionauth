@@ -1,15 +1,16 @@
 package fusionauth
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceApplicationRole() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApplicationRoleRead,
+		ReadContext: dataSourceApplicationRoleRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -27,15 +28,15 @@ func dataSourceApplicationRole() *schema.Resource {
 	}
 }
 
-func dataSourceApplicationRoleRead(data *schema.ResourceData, i interface{}) error {
+func dataSourceApplicationRoleRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	aid := data.Get("application_id").(string)
 	resp, err := client.FAClient.RetrieveApplication(aid)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	name := data.Get("name").(string)
 	var role *fusionauth.ApplicationRole
@@ -47,7 +48,7 @@ func dataSourceApplicationRoleRead(data *schema.ResourceData, i interface{}) err
 	}
 
 	if role == nil {
-		return fmt.Errorf("couldn't find role %s in application %s", name, aid)
+		return diag.Errorf("couldn't find role %s in application %s", name, aid)
 	}
 	data.SetId(role.Id)
 	return nil

@@ -1,10 +1,11 @@
 package fusionauth
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -25,10 +26,10 @@ type AppleAppConfig struct {
 
 func resourceIDPApple() *schema.Resource {
 	return &schema.Resource{
-		Create: createIDPApple,
-		Read:   readIDPApple,
-		Update: updateIDPApple,
-		Delete: deleteIdentityProvider,
+		CreateContext: createIDPApple,
+		ReadContext:   readIDPApple,
+		UpdateContext: updateIDPApple,
+		DeleteContext: deleteIdentityProvider,
 		Schema: map[string]*schema.Schema{
 			"application_configuration": {
 				Optional:    true,
@@ -143,40 +144,40 @@ func resourceIDPApple() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func createIDPApple(data *schema.ResourceData, i interface{}) error {
+func createIDPApple(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildIDPApple(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 
 	bb, err := createIdentityProvider(b, client, "")
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)
 	return nil
 }
 
-func readIDPApple(data *schema.ResourceData, i interface{}) error {
+func readIDPApple(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var ipb AppleIdentityProviderBody
@@ -185,23 +186,23 @@ func readIDPApple(data *schema.ResourceData, i interface{}) error {
 	return buildResourceFromIDPApple(ipb.IdentityProvider, data)
 }
 
-func updateIDPApple(data *schema.ResourceData, i interface{}) error {
+func updateIDPApple(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildIDPApple(data)
 
 	b, err := json.Marshal(o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = json.Unmarshal(bb, &o)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	data.SetId(o.IdentityProvider.Id)
@@ -255,33 +256,33 @@ func buildAppleAppConfig(key string, data *schema.ResourceData) map[string]inter
 	return m
 }
 
-func buildResourceFromIDPApple(o fusionauth.AppleIdentityProvider, data *schema.ResourceData) error {
+func buildResourceFromIDPApple(o fusionauth.AppleIdentityProvider, data *schema.ResourceData) diag.Diagnostics {
 	if err := data.Set("button_text", o.ButtonText); err != nil {
-		return fmt.Errorf("idpApple.button_text: %s", err.Error())
+		return diag.Errorf("idpApple.button_text: %s", err.Error())
 	}
 	if err := data.Set("debug", o.Debug); err != nil {
-		return fmt.Errorf("idpApple.debug: %s", err.Error())
+		return diag.Errorf("idpApple.debug: %s", err.Error())
 	}
 	if err := data.Set("enabled", o.Enabled); err != nil {
-		return fmt.Errorf("idpApple.enabled: %s", err.Error())
+		return diag.Errorf("idpApple.enabled: %s", err.Error())
 	}
 	if err := data.Set("key_id", o.KeyId); err != nil {
-		return fmt.Errorf("idpApple.key_id: %s", err.Error())
+		return diag.Errorf("idpApple.key_id: %s", err.Error())
 	}
 	if err := data.Set("lambda_reconcile_id", o.LambdaConfiguration.ReconcileId); err != nil {
-		return fmt.Errorf("idpApple.lambda_reconcile_id: %s", err.Error())
+		return diag.Errorf("idpApple.lambda_reconcile_id: %s", err.Error())
 	}
 	if err := data.Set("scope", o.Scope); err != nil {
-		return fmt.Errorf("idpApple.scope: %s", err.Error())
+		return diag.Errorf("idpApple.scope: %s", err.Error())
 	}
 	if err := data.Set("services_id", o.ServicesId); err != nil {
-		return fmt.Errorf("idpApple.services_id: %s", err.Error())
+		return diag.Errorf("idpApple.services_id: %s", err.Error())
 	}
 	if err := data.Set("team_id", o.TeamId); err != nil {
-		return fmt.Errorf("idpApple.team_id: %s", err.Error())
+		return diag.Errorf("idpApple.team_id: %s", err.Error())
 	}
 	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
-		return fmt.Errorf("idpApple.linking_strategy: %s", err.Error())
+		return diag.Errorf("idpApple.linking_strategy: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}
@@ -304,7 +305,7 @@ func buildResourceFromIDPApple(o fusionauth.AppleIdentityProvider, data *schema.
 		})
 	}
 	if err := data.Set("application_configuration", ac); err != nil {
-		return fmt.Errorf("idpApple.application_configuration: %s", err.Error())
+		return diag.Errorf("idpApple.application_configuration: %s", err.Error())
 	}
 	return nil
 }
