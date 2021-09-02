@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func buildApplication(data *schema.ResourceData) fusionauth.Application {
