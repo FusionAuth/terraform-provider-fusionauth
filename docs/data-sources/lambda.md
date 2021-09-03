@@ -1,4 +1,4 @@
-# Tenant Resource
+# Lambda Resource
 
 Lambdas are user defined JavaScript functions that may be executed at runtime to perform various functions. Lambdas may be used to customize the claims returned in a JWT, reconcile a SAML v2 response or an OpenID Connect response when using these external identity providers.
 

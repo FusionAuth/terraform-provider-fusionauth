@@ -14,11 +14,12 @@ func dataSourceLambda() *schema.Resource {
 		Read: dataSourceLambdaRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
-				Description: "The ID of the Lambda.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"id", "name"},
+				Description:  "The ID of the Lambda.",
 			},
 			"body": {
 				Type:        schema.TypeString,
@@ -31,10 +32,11 @@ func dataSourceLambda() *schema.Resource {
 				Description: "Whether or not debug event logging is enabled for this Lambda.",
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "The name of the Lambda.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				AtLeastOneOf: []string{"id", "name"},
+				Description:  "The name of the Lambda.",
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -103,8 +105,17 @@ func dataSourceLambdaRead(data *schema.ResourceData, i interface{}) error {
 	l := filteredLambdas[0]
 
 	data.SetId(l.Id)
-	data.Set("body", l.Body)
-	data.Set("debug", l.Debug)
-	data.Set("name", l.Name)
+	err = data.Set("body", l.Body)
+	if err != nil {
+		return err
+	}
+	err = data.Set("debug", l.Debug)
+	if err != nil {
+		return err
+	}
+	err = data.Set("name", l.Name)
+	if err != nil {
+		return err
+	}
 	return nil
 }
