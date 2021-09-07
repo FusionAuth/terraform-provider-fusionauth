@@ -1,17 +1,19 @@
 package fusionauth
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func dataSourceLambda() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceLambdaRead,
+		ReadContext: dataSourceLambdaRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:         schema.TypeString,
@@ -61,16 +63,16 @@ func dataSourceLambda() *schema.Resource {
 	}
 }
 
-func dataSourceLambdaRead(data *schema.ResourceData, i interface{}) error {
+func dataSourceLambdaRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	lambdaType := data.Get("type").(string)
 	resp, err := client.FAClient.RetrieveLambdasByType(fusionauth.LambdaType(lambdaType))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	name := data.Get("name").(string)
@@ -96,10 +98,10 @@ func dataSourceLambdaRead(data *schema.ResourceData, i interface{}) error {
 	}
 
 	if len(filteredLambdas) < 1 {
-		return fmt.Errorf("couldn't find lambda %s of type %s", name, lambdaType)
+		return diag.FromErr(fmt.Errorf("couldn't find lambda %s of type %s", name, lambdaType))
 	}
 	if len(filteredLambdas) > 1 {
-		return errors.New("query returned more than one lambda. Use a more specific search creteria")
+		return diag.FromErr(errors.New("query returned more than one lambda. Use a more specific search creteria"))
 	}
 
 	l := filteredLambdas[0]
@@ -107,15 +109,15 @@ func dataSourceLambdaRead(data *schema.ResourceData, i interface{}) error {
 	data.SetId(l.Id)
 	err = data.Set("body", l.Body)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	err = data.Set("debug", l.Debug)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	err = data.Set("name", l.Name)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	return nil
 }
