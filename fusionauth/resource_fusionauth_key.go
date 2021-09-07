@@ -23,6 +23,7 @@ func newKey() *schema.Resource {
 			"key_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				Description:  "The Id to use for the new Key. If not specified a secure random UUID will be generated.",
 				ValidateFunc: validation.IsUUID,
 			},
@@ -90,10 +91,17 @@ func createKey(_ context.Context, data *schema.ResourceData, i interface{}) diag
 	}
 
 	data.SetId(resp.Key.Id)
+	if err := data.Set("key_id", resp.Key.Id); err != nil {
+		return diag.Errorf("key.key_id: %s", err.Error())
+	}
+
 	return nil
 }
 
 func buildResourceDataFromKey(data *schema.ResourceData, res fusionauth.Key) diag.Diagnostics {
+	if err := data.Set("key_id", res.Id); err != nil {
+		return diag.Errorf("key.key_id: %s", err.Error())
+	}
 	if err := data.Set("algorithm", res.Algorithm); err != nil {
 		return diag.Errorf("key.algorithm: %s", err.Error())
 	}
