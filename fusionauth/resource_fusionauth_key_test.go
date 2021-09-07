@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	uuid "github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -26,7 +27,7 @@ func TestAccFusionauthKey_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test resource create
-				Config: testAccKeyResourceConfig(resourceName, startAlgorithm, startLength),
+				Config: testAccKeyResourceConfig("", resourceName, startAlgorithm, startLength),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFusionauthKeyExists(tfResourcePath),
 					resource.TestCheckResourceAttrSet(tfResourcePath, "key_id"),
@@ -37,10 +38,62 @@ func TestAccFusionauthKey_basic(t *testing.T) {
 			},
 			{
 				// Test resource update/state mutate
-				Config: testAccKeyResourceConfig(resourceName, endAlgorithm, endLength),
+				Config: testAccKeyResourceConfig("", resourceName, endAlgorithm, endLength),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFusionauthKeyExists(tfResourcePath),
 					resource.TestCheckResourceAttrSet(tfResourcePath, "key_id"),
+					resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
+					resource.TestCheckResourceAttr(tfResourcePath, "algorithm", string(endAlgorithm)),
+					resource.TestCheckResourceAttr(tfResourcePath, "length", fmt.Sprintf("%d", endLength)),
+				),
+			},
+			{
+				// Test importing resource into state
+				ResourceName:            tfResourcePath,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{},
+			},
+		},
+	})
+}
+
+func TestAccFusionauthKey_SetID(t *testing.T) {
+	resourceName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	tfResourcePath := fmt.Sprintf("fusionauth_key.test_%s", resourceName)
+
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		t.Errorf("error generating uuid: %s", err)
+		return
+	}
+	startAlgorithm, endAlgorithm := fusionauth.Algorithm_RS256, fusionauth.Algorithm_RS512
+	startLength, endLength := 2048, 4096
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthKeyDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Test resource create
+				Config: testAccKeyResourceConfig(id, resourceName, startAlgorithm, startLength),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthKeyExists(tfResourcePath),
+					resource.TestCheckResourceAttrSet(tfResourcePath, "key_id"),
+					resource.TestCheckResourceAttr(tfResourcePath, "key_id", id),
+					resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
+					resource.TestCheckResourceAttr(tfResourcePath, "algorithm", string(startAlgorithm)),
+					resource.TestCheckResourceAttr(tfResourcePath, "length", fmt.Sprintf("%d", startLength)),
+				),
+			},
+			{
+				// Test resource update/state mutate
+				Config: testAccKeyResourceConfig(id, resourceName, endAlgorithm, endLength),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthKeyExists(tfResourcePath),
+					resource.TestCheckResourceAttrSet(tfResourcePath, "key_id"),
+					resource.TestCheckResourceAttr(tfResourcePath, "key_id", id),
 					resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
 					resource.TestCheckResourceAttr(tfResourcePath, "algorithm", string(endAlgorithm)),
 					resource.TestCheckResourceAttr(tfResourcePath, "length", fmt.Sprintf("%d", endLength)),
@@ -114,21 +167,27 @@ func testAccCheckFusionauthKeyDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccKeyResourceConfig(name string, algorithm fusionauth.Algorithm, length int) string {
+func testAccKeyResourceConfig(id string, name string, algorithm fusionauth.Algorithm, length int) string {
+	var keyId string
+	if id != "" {
+		keyId = fmt.Sprintf("\n  key_id    = \"%s\"\n", id)
+	}
+
 	return fmt.Sprintf(`
 # Key Setup
-resource "fusionauth_key" "test_%[1]s" {
-  name      = "test %[1]s"
-  algorithm = "%[2]s"
-  length    = %[3]d
+resource "fusionauth_key" "test_%[2]s" {%[1]s
+  name      = "test %[2]s"
+  algorithm = "%[3]s"
+  length    = %[4]d
 }
-`, name, algorithm, length)
+`, keyId, name, algorithm, length)
 }
 
 // testAccAccessTokenKeyResourceConfig returns terraform configuration to
 // generate a standalone test Access Token key.
 func testAccAccessTokenKeyResourceConfig() string {
 	return testAccKeyResourceConfig(
+		"",
 		"accesstoken",
 		fusionauth.Algorithm_RS256,
 		2048,
@@ -139,6 +198,7 @@ func testAccAccessTokenKeyResourceConfig() string {
 // standalone test ID Token key.
 func testAccIdTokenKeyResourceConfig() string {
 	return testAccKeyResourceConfig(
+		"",
 		"idtoken",
 		fusionauth.Algorithm_RS256,
 		2048,
