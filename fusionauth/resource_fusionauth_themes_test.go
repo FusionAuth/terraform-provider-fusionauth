@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -15,7 +14,7 @@ import (
 )
 
 func TestAccFusionauthTheme_basic(t *testing.T) {
-	resourceName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	resourceName := randString10()
 	tfResourcePath := fmt.Sprintf("fusionauth_theme.test_%s", resourceName)
 
 	startMessages, endMessages := testdata.MessageProperties(""), testdata.MessageProperties("Terraform")
@@ -194,46 +193,46 @@ func testAccCheckFusionauthThemeDestroy(s *terraform.State) error {
 // generateFusionAuthTemplate generates random template data to ensure each property is being set correctly.
 func generateFusionAuthTemplate() fusionauth.Templates {
 	return fusionauth.Templates{
-		AccountEdit:                       acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		AccountIndex:                      acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		AccountTwoFactorDisable:           acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		AccountTwoFactorEnable:            acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		AccountTwoFactorIndex:             acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		EmailComplete:                     acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		EmailSent:                         acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		EmailVerificationRequired:         acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		EmailVerify:                       acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Helpers:                           acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Index:                             acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2Authorize:                   acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2AuthorizedNotRegistered:     acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2ChildRegistrationNotAllowed: acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2ChildRegistrationNotAllowedComplete: acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2CompleteRegistration:                acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2Device:                              acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2DeviceComplete:                      acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2Error:                               acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2Logout:                              acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2Passwordless:                        acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2Register:                            acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2StartIdPLink:                        acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2TwoFactor:                           acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2TwoFactorMethods:                    acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Oauth2Wait:                                acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		PasswordChange:                            acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		PasswordComplete:                          acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		PasswordForgot:                            acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		PasswordSent:                              acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		RegistrationComplete:                      acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		RegistrationSent:                          acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		RegistrationVerificationRequired:          acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		RegistrationVerify:                        acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Samlv2Logout:                              acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		Unauthorized:                              acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
+		AccountEdit:                       randString20(),
+		AccountIndex:                      randString20(),
+		AccountTwoFactorDisable:           randString20(),
+		AccountTwoFactorEnable:            randString20(),
+		AccountTwoFactorIndex:             randString20(),
+		EmailComplete:                     randString20(),
+		EmailSent:                         randString20(),
+		EmailVerificationRequired:         randString20(),
+		EmailVerify:                       randString20(),
+		Helpers:                           randString20(),
+		Index:                             randString20(),
+		Oauth2Authorize:                   randString20(),
+		Oauth2AuthorizedNotRegistered:     randString20(),
+		Oauth2ChildRegistrationNotAllowed: randString20(),
+		Oauth2ChildRegistrationNotAllowedComplete: randString20(),
+		Oauth2CompleteRegistration:                randString20(),
+		Oauth2Device:                              randString20(),
+		Oauth2DeviceComplete:                      randString20(),
+		Oauth2Error:                               randString20(),
+		Oauth2Logout:                              randString20(),
+		Oauth2Passwordless:                        randString20(),
+		Oauth2Register:                            randString20(),
+		Oauth2StartIdPLink:                        randString20(),
+		Oauth2TwoFactor:                           randString20(),
+		Oauth2TwoFactorMethods:                    randString20(),
+		Oauth2Wait:                                randString20(),
+		PasswordChange:                            randString20(),
+		PasswordComplete:                          randString20(),
+		PasswordForgot:                            randString20(),
+		PasswordSent:                              randString20(),
+		RegistrationComplete:                      randString20(),
+		RegistrationSent:                          randString20(),
+		RegistrationVerificationRequired:          randString20(),
+		RegistrationVerify:                        randString20(),
+		Samlv2Logout:                              randString20(),
+		Unauthorized:                              randString20(),
 
 		// TODO(themes): test for deprecated properties
-		//EmailSend:                         acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
-		//RegistrationSend:                          acctest.RandStringFromCharSet(20, acctest.CharSetAlphaNum),
+		//EmailSend:        randString20(),
+		//RegistrationSend: randString20(),
 	}
 }
 
