@@ -8,13 +8,12 @@ import (
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	uuid "github.com/hashicorp/go-uuid"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccFusionauthKey_basic(t *testing.T) {
-	resourceName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	resourceName := randString10()
 	tfResourcePath := fmt.Sprintf("fusionauth_key.test_%s", resourceName)
 
 	startAlgorithm, endAlgorithm := fusionauth.Algorithm_RS256, fusionauth.Algorithm_RS512
@@ -59,7 +58,7 @@ func TestAccFusionauthKey_basic(t *testing.T) {
 }
 
 func TestAccFusionauthKey_SetID(t *testing.T) {
-	resourceName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	resourceName := randString10()
 	tfResourcePath := fmt.Sprintf("fusionauth_key.test_%s", resourceName)
 
 	id, err := uuid.GenerateUUID()
