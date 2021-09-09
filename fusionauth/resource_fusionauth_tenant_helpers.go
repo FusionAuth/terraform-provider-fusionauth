@@ -254,6 +254,10 @@ func buildEventConfiguration(key string, data *schema.ResourceData) fusionauth.E
 }
 
 func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData) diag.Diagnostics {
+	if err := data.Set("tenant_id", t.Id); err != nil {
+		return diag.Errorf("tenant.tenant_id: %s", err.Error())
+	}
+
 	if err := data.Set("data", t.Data); err != nil {
 		return diag.Errorf("tenant.data: %s", err.Error())
 	}
