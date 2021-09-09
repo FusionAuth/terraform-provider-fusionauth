@@ -327,16 +327,16 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"two_factor_id_time_to_live_in_seconds":       t.ExternalIdentifierConfiguration.TwoFactorIdTimeToLiveInSeconds,
 			"two_factor_trust_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.TwoFactorTrustIdTimeToLiveInSeconds,
 			"email_verification_one_time_code_generator": []map[string]interface{}{{
-				"length": t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length,
-				"type":   t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type,
+				"length": t.ExternalIdentifierConfiguration.EmailVerificationOneTimeCodeGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.EmailVerificationOneTimeCodeGenerator.Type,
 			}},
 			"registration_verification_one_time_code_generator": []map[string]interface{}{{
-				"length": t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length,
-				"type":   t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type,
+				"length": t.ExternalIdentifierConfiguration.RegistrationVerificationOneTimeCodeGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.RegistrationVerificationOneTimeCodeGenerator.Type,
 			}},
 			"two_factor_one_time_code_id_generator": []map[string]interface{}{{
-				"length": t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length,
-				"type":   t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type,
+				"length": t.ExternalIdentifierConfiguration.TwoFactorOneTimeCodeIdGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.TwoFactorOneTimeCodeIdGenerator.Type,
 			}},
 		},
 	})
