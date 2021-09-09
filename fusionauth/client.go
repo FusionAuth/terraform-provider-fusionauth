@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -17,25 +18,31 @@ type Client struct {
 	APIKey   string
 }
 
-func configureClient(_ context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	key := data.Get("api_key").(string)
+func configureClient(_ context.Context, data *schema.ResourceData) (client interface{}, diags diag.Diagnostics) {
+	host := data.Get("host").(string)
+	apiKey := data.Get("api_key").(string)
 
-	parsedURL, err := url.Parse(data.Get("host").(string))
+	hostURL, err := url.Parse(host)
 	if err != nil {
-		return nil, diag.FromErr(err)
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Unable to create Fusionauth client",
+			Detail:   fmt.Sprintf("Unable to parse the provided Fusionauth hostname to a URL: %s", err),
+		})
+		return nil, diags
 	}
 
-	auth := fusionauth.NewClient(
-		&http.Client{
-			Timeout: time.Second * 30,
-		},
-		parsedURL,
-		key,
-	)
+	client = Client{
+		Host:   host,
+		APIKey: apiKey,
+		FAClient: fusionauth.NewClient(
+			&http.Client{
+				Timeout: time.Second * 30,
+			},
+			hostURL,
+			apiKey,
+		),
+	}
 
-	return Client{
-		Host:     data.Get("host").(string),
-		APIKey:   key,
-		FAClient: auth,
-	}, nil
+	return
 }
