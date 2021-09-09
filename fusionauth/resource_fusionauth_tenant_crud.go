@@ -21,7 +21,6 @@ func createTenant(_ context.Context, data *schema.ResourceData, i interface{}) d
 		tid = t.(string)
 	}
 	resp, faErrs, err := client.FAClient.CreateTenant(tid, t)
-
 	if err != nil {
 		return diag.Errorf("CreateTenant err: %v", err)
 	}
@@ -31,7 +30,7 @@ func createTenant(_ context.Context, data *schema.ResourceData, i interface{}) d
 	}
 
 	data.SetId(resp.Tenant.Id)
-	return nil
+	return buildResourceDataFromTenant(resp.Tenant, data)
 }
 
 func readTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -54,7 +53,7 @@ func readTenant(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	return buildResourceDataFromTenant(resp.Tenant, data)
 }
 
-func updateTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateTenant(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	t := fusionauth.TenantRequest{
@@ -63,7 +62,6 @@ func updateTenant(_ context.Context, data *schema.ResourceData, i interface{}) d
 	}
 
 	resp, faErrs, err := client.FAClient.UpdateTenant(data.Id(), t)
-
 	if err != nil {
 		return diag.Errorf("UpdateTenant err: %v", err)
 	}
@@ -71,7 +69,7 @@ func updateTenant(_ context.Context, data *schema.ResourceData, i interface{}) d
 		return diag.FromErr(err)
 	}
 
-	return nil
+	return buildResourceDataFromTenant(resp.Tenant, data)
 }
 
 func deleteTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
