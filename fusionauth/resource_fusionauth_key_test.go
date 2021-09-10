@@ -27,23 +27,21 @@ func TestAccFusionauthKey_basic(t *testing.T) {
 			{
 				// Test resource create
 				Config: testAccKeyResourceConfig("", resourceName, startAlgorithm, startLength),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFusionauthKeyExists(tfResourcePath),
-					resource.TestCheckResourceAttrSet(tfResourcePath, "key_id"),
-					resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
-					resource.TestCheckResourceAttr(tfResourcePath, "algorithm", string(startAlgorithm)),
-					resource.TestCheckResourceAttr(tfResourcePath, "length", fmt.Sprintf("%d", startLength)),
+				Check: testKeyAccTestCheckFuncs(
+					tfResourcePath,
+					resourceName,
+					startAlgorithm,
+					startLength,
 				),
 			},
 			{
 				// Test resource update/state mutate
 				Config: testAccKeyResourceConfig("", resourceName, endAlgorithm, endLength),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFusionauthKeyExists(tfResourcePath),
-					resource.TestCheckResourceAttrSet(tfResourcePath, "key_id"),
-					resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
-					resource.TestCheckResourceAttr(tfResourcePath, "algorithm", string(endAlgorithm)),
-					resource.TestCheckResourceAttr(tfResourcePath, "length", fmt.Sprintf("%d", endLength)),
+				Check: testKeyAccTestCheckFuncs(
+					tfResourcePath,
+					resourceName,
+					endAlgorithm,
+					endLength,
 				),
 			},
 			{
@@ -77,25 +75,23 @@ func TestAccFusionauthKey_SetID(t *testing.T) {
 			{
 				// Test resource create
 				Config: testAccKeyResourceConfig(id, resourceName, startAlgorithm, startLength),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFusionauthKeyExists(tfResourcePath),
-					resource.TestCheckResourceAttrSet(tfResourcePath, "key_id"),
+				Check: testKeyAccTestCheckFuncs(
+					tfResourcePath,
+					resourceName,
+					startAlgorithm,
+					startLength,
 					resource.TestCheckResourceAttr(tfResourcePath, "key_id", id),
-					resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
-					resource.TestCheckResourceAttr(tfResourcePath, "algorithm", string(startAlgorithm)),
-					resource.TestCheckResourceAttr(tfResourcePath, "length", fmt.Sprintf("%d", startLength)),
 				),
 			},
 			{
 				// Test resource update/state mutate
 				Config: testAccKeyResourceConfig(id, resourceName, endAlgorithm, endLength),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFusionauthKeyExists(tfResourcePath),
-					resource.TestCheckResourceAttrSet(tfResourcePath, "key_id"),
+				Check: testKeyAccTestCheckFuncs(
+					tfResourcePath,
+					resourceName,
+					endAlgorithm,
+					endLength,
 					resource.TestCheckResourceAttr(tfResourcePath, "key_id", id),
-					resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
-					resource.TestCheckResourceAttr(tfResourcePath, "algorithm", string(endAlgorithm)),
-					resource.TestCheckResourceAttr(tfResourcePath, "length", fmt.Sprintf("%d", endLength)),
 				),
 			},
 			{
@@ -107,6 +103,30 @@ func TestAccFusionauthKey_SetID(t *testing.T) {
 			},
 		},
 	})
+}
+
+// testKeyAccTestCheckFuncs abstracts the test case setup required between
+// create and update testing.
+func testKeyAccTestCheckFuncs(
+	tfResourcePath string,
+	resourceName string,
+	algorithm fusionauth.Algorithm,
+	length int,
+	extraFuncs ...resource.TestCheckFunc,
+) resource.TestCheckFunc {
+	testFuncs := []resource.TestCheckFunc{
+		testAccCheckFusionauthKeyExists(tfResourcePath),
+		resource.TestCheckResourceAttrSet(tfResourcePath, "key_id"),
+		resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
+		resource.TestCheckResourceAttr(tfResourcePath, "algorithm", string(algorithm)),
+		resource.TestCheckResourceAttr(tfResourcePath, "length", fmt.Sprintf("%d", length)),
+	}
+
+	if len(extraFuncs) > 0 {
+		testFuncs = append(testFuncs, extraFuncs...)
+	}
+
+	return resource.ComposeTestCheckFunc(testFuncs...)
 }
 
 func testAccCheckFusionauthKeyExists(resourceName string) resource.TestCheckFunc {
