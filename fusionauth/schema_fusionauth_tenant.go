@@ -21,6 +21,7 @@ func newTenant() *schema.Resource {
 			"tenant_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				Description:  "The Id to use for the new Tenant. If not specified a secure random UUID will be generated.",
 				ValidateFunc: validation.IsUUID,
 			},
@@ -115,6 +116,7 @@ func newTenant() *schema.Resource {
 						"admin_user_form_id": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							ValidateFunc: validation.IsUUID,
 							Description:  "The unique Id of the form to use for the Add and Edit User form when used in the FusionAuth admin UI.",
 						},
@@ -333,6 +335,7 @@ func newTenant() *schema.Resource {
 						"encryption_scheme": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "salted-pbkdf2-hmac-sha256",
 							ValidateFunc: validation.StringInSlice([]string{
 								"salted-md5",
 								"salted-sha256",
@@ -384,6 +387,7 @@ func newTenant() *schema.Resource {
 						"unverified_number_of_days_to_retain": {
 							Type:         schema.TypeInt,
 							Optional:     true,
+							Default:      120,
 							Description:  "The number of days from creation users will be retained before being deleted for not completing email verification. This field is required when tenant.userDeletePolicy.unverified.enabled is set to true. Value must be greater than 0.",
 							ValidateFunc: validation.IntAtLeast(1),
 						},
@@ -520,7 +524,8 @@ func newFailedAuthenticationConfiguration() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"action_duration": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Default:      3,
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The duration of the User Action. This value along with the actionDurationUnit will be used to set the duration of the User Action. Value must be greater than 0.",
 			},
