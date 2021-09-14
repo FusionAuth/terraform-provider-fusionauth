@@ -97,7 +97,6 @@ func testTenantAccTestCheckFuncs(
 		// resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.set_password_email_template_id", "UUID"),
 		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.unverified.0.allow_email_change_when_gated", "true"),
 		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.unverified.0.behavior", "Gated"),
-		resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
 
 		// event_configuration
 		resource.TestCheckResourceAttr(tfResourcePath, "event_configuration.#", "2"),
@@ -196,7 +195,7 @@ func testTenantAccTestCheckFuncs(
 		// resource.TestCheckResourceAttr(tfResourcePath, "multi_factor_configuration.0.sms.0.messenger_id", "UUID"),
 		// resource.TestCheckResourceAttr(tfResourcePath, "multi_factor_configuration.0.sms.0.template_id", "UUID"),
 
-		resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
+		resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test-acc %s", resourceName)),
 
 		// password_encryption_configuration
 		resource.TestCheckResourceAttr(tfResourcePath, "password_encryption_configuration.0.encryption_scheme", "bcrypt"),
@@ -509,7 +508,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
       #template_id  = "UUID"
     }
   }
-  name = "test %[1]s"
+  name = "test-acc %[1]s"
   password_encryption_configuration {
     encryption_scheme                 = "bcrypt"
     encryption_scheme_factor          = 14

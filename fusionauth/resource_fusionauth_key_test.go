@@ -117,7 +117,7 @@ func testKeyAccTestCheckFuncs(
 	testFuncs := []resource.TestCheckFunc{
 		testAccCheckFusionauthKeyExists(tfResourcePath),
 		resource.TestCheckResourceAttrSet(tfResourcePath, "key_id"),
-		resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
+		resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test-acc %s", resourceName)),
 		resource.TestCheckResourceAttr(tfResourcePath, "algorithm", string(algorithm)),
 		resource.TestCheckResourceAttr(tfResourcePath, "length", fmt.Sprintf("%d", length)),
 	}
@@ -195,7 +195,7 @@ func testAccKeyResourceConfig(id string, name string, algorithm fusionauth.Algor
 	return fmt.Sprintf(`
 # Key Setup
 resource "fusionauth_key" "test_%[2]s" {%[1]s
-  name      = "test %[2]s"
+  name      = "test-acc %[2]s"
   algorithm = "%[3]s"
   length    = %[4]d
 }
