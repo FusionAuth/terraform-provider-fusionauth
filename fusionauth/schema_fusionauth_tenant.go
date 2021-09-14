@@ -231,7 +231,7 @@ func newTenant() *schema.Resource {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Default:     30,
-							Description: "e password minimum age in seconds. When enabled FusionAuth will not allow a password to be changed until it reaches this minimum age. Required when systemConfiguration.minimumPasswordAge.enabled is set to true.",
+							Description: "The password minimum age in seconds. When enabled FusionAuth will not allow a password to be changed until it reaches this minimum age. Required when systemConfiguration.minimumPasswordAge.enabled is set to true.",
 						},
 						"enabled": {
 							Type:        schema.TypeBool,
