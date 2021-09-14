@@ -155,7 +155,7 @@ func testAccCheckFusionauthThemeDestroy(s *terraform.State) error {
 			}
 
 			if theme != nil && theme.StatusCode == http.StatusNotFound {
-				// user destroyed!
+				// resource destroyed!
 				return nil
 			}
 

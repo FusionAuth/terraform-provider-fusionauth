@@ -170,7 +170,7 @@ func testAccCheckFusionauthKeyDestroy(s *terraform.State) error {
 			}
 
 			if key != nil && key.StatusCode == http.StatusNotFound {
-				// user destroyed!
+				// resource destroyed!
 				return nil
 			}
 
