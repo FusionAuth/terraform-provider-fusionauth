@@ -261,7 +261,7 @@ func testAccCheckFusionauthTenantExists(resourceName string) resource.TestCheckF
 
 		if tenant == nil || tenant.StatusCode != http.StatusOK {
 			// This is a weird edge case...
-			return fmt.Errorf("failed to get resource: %#+v\n", tenant)
+			return fmt.Errorf("failed to get resource: %#+v", tenant)
 		}
 
 		return nil

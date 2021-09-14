@@ -3,7 +3,6 @@ package fusionauth
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -35,7 +34,7 @@ func init() {
 
 			// Then pump the provider with the required Terraform configuration.
 			if diags := p.Configure(context.Background(), terraform.NewResourceConfigRaw(nil)); diags.HasError() {
-				return nil, errors.New(fmt.Sprintf("error configuring provider: %#+v\n", diags))
+				return nil, fmt.Errorf("error configuring provider: %#+v", diags)
 			}
 
 			return p, nil
@@ -74,7 +73,7 @@ func checkFusionauthErrors(faErrs *fusionauth.Errors, err error) error {
 
 	if faErrs != nil && faErrs.Present() {
 		// Fusionauth has errors to report
-		return fmt.Errorf("fusionauth errors: %#+v\n", faErrs)
+		return fmt.Errorf("fusionauth errors: %#+v", faErrs)
 	}
 
 	return nil

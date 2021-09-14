@@ -487,7 +487,6 @@ func dataToTwoFactorMethods(data *schema.ResourceData) (twoFactorMethods []fusio
 				Summary:  "Unable to convert a two factor method",
 				Detail:   fmt.Sprintf("two_factor_methods.%d: %#+v unable to be typecast to []interface{}", i, twoFactorMethodsDatum),
 			})
-
 		} else {
 			twoFactorMethods[i] = fusionauth.TwoFactorMethod{
 				Authenticator: fusionauth.AuthenticatorConfiguration{
@@ -503,7 +502,7 @@ func dataToTwoFactorMethods(data *schema.ResourceData) (twoFactorMethods []fusio
 		}
 	}
 
-	return twoFactorMethods, nil
+	return twoFactorMethods, diags
 }
 
 func dataToTwoFactorMethodMap(data *schema.ResourceData) (methodMap map[string]fusionauth.TwoFactorMethod) {
