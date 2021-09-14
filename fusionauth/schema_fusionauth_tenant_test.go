@@ -272,7 +272,7 @@ func testAccCheckFusionauthTenantDestroy(s *terraform.State) error {
 			}
 
 			if tenant != nil && tenant.StatusCode == http.StatusNotFound {
-				// user destroyed!
+				// resource destroyed!
 				return nil
 			}
 
