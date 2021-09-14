@@ -1,0 +1,499 @@
+package fusionauth
+
+import (
+	"context"
+	"encoding/base64"
+	"fmt"
+	"net/http"
+	"testing"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/gpsinsight/terraform-provider-fusionauth/fusionauth/testdata"
+)
+
+func TestAccFusionauthUser_basic(t *testing.T) {
+	resourceName := randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_user.test_%s", resourceName)
+
+	startSendSetPasswordEmail, endSendSetPasswordEmail := false, true
+	startSkipVerification, endSkipVerification := true, false
+	startBirthDate, endBirthDate := "2000-09-01", "2020-09-01"
+	startDataStr := `{
+    testString = "Hello world!"
+  }`
+	endDataStr := `{
+    testStr = "Bonjour le monde!"
+  }`
+	startData, endData := map[string]string{"testString": "Hello world!"}, map[string]string{"testStr": "Bonjour le monde!"}
+
+	startEmail, endEmail := "john.s@example.com", "jon.snow@example.com"
+	startEncryptionScheme, endEncryptionScheme := "salted-md5", "bcrypt"
+	startExpiry, endExpiry := "7955114522000", "43017447783000"
+	startFirstName, endFirstName := "John", "Jon"
+	startFullName, endFullName := "test-acc John Smith", "test-acc Jon Snow"
+	startImageUrl, endImageUrl := "https://gravatar.com/avatar/0dc5552bbda9ab3d62a9d7612f471dd9?s=400&d=mp&r=g", "https://gravatar.com/avatar/32efbfa435860a48dd5af9626ea326d3?s=400&d=mp&r=g"
+	startLastName, endLastName := "Smith", "Snow"
+	startMiddleName, endMiddleName := "A", "'King of the North'"
+	startMobilePhone, endMobilePhone := "+642598765432", "+642512345678"
+	startParentEmail, endParentEmail := "old.smith@example.com", "eddard.stark@example.com"
+	startPassword, endPassword := "P@ssw0rd", "Sup3r|Secr3t"
+	startPasswordChangeRequired, endPasswordChangeRequired := false, true
+	// preferredLanguages must be a 2 length slice.
+	startPreferredLanguages, endPreferredLanguages := []string{"en", "fr"}, []string{"en", "es"}
+	startTimezone, endTimezone := "Europe/Paris", "America/Mexico_City"
+	startTwoFactorMethodsEmail, endTwoFactorMethodsEmail := "john.smith@example.com", "jon.kingofthenorth.snow@example.com"
+	startTwoFactorMethodsMobilePhone, endTwoFactorMethodsMobilePhone := "+64987654321", "+64123456789"
+	startTwoFactorMethodsSecret, endTwoFactorMethodsSecret := "Sup3r\nSecr3t\nMFA\nSecr3t", "X7ra\nSup3r\nSecr3t\nMFA\nSecr3t"
+	startUsername, endUsername := "john.smith", "jon.snow"
+	startUsernameStatus, endUsernameStatus := "ACTIVE", "PENDING"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthUserDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Test resource create
+				Config: testAccUserResource(
+					resourceName,
+					startSendSetPasswordEmail,
+					startSkipVerification,
+					startBirthDate,
+					startDataStr,
+					startEmail,
+					startEncryptionScheme,
+					startExpiry,
+					startFirstName,
+					startFullName,
+					startImageUrl,
+					startLastName,
+					startMiddleName,
+					startMobilePhone,
+					startParentEmail,
+					startPassword,
+					startPasswordChangeRequired,
+					startPreferredLanguages,
+					startTimezone,
+					startTwoFactorMethodsEmail,
+					startTwoFactorMethodsMobilePhone,
+					startTwoFactorMethodsSecret,
+					startUsername,
+					startUsernameStatus,
+				),
+				Check: testUserBasicAccCheckFuncs(
+					tfResourcePath,
+					startSendSetPasswordEmail,
+					startSkipVerification,
+					startBirthDate,
+					startData,
+					startEmail,
+					startEncryptionScheme,
+					startExpiry,
+					startFirstName,
+					startFullName,
+					startImageUrl,
+					startLastName,
+					startMiddleName,
+					startMobilePhone,
+					startParentEmail,
+					startPassword,
+					startPasswordChangeRequired,
+					startPreferredLanguages,
+					startTimezone,
+					startTwoFactorMethodsEmail,
+					startTwoFactorMethodsMobilePhone,
+					startTwoFactorMethodsSecret,
+					startUsername,
+					startUsernameStatus,
+				),
+			},
+			{
+				// Test update/mutate resource state
+				Config: testAccUserResource(
+					resourceName,
+					endSendSetPasswordEmail,
+					endSkipVerification,
+					endBirthDate,
+					endDataStr,
+					endEmail,
+					endEncryptionScheme,
+					endExpiry,
+					endFirstName,
+					endFullName,
+					endImageUrl,
+					endLastName,
+					endMiddleName,
+					endMobilePhone,
+					endParentEmail,
+					endPassword,
+					endPasswordChangeRequired,
+					endPreferredLanguages,
+					endTimezone,
+					endTwoFactorMethodsEmail,
+					endTwoFactorMethodsMobilePhone,
+					endTwoFactorMethodsSecret,
+					endUsername,
+					endUsernameStatus,
+				),
+				Check: testUserBasicAccCheckFuncs(
+					tfResourcePath,
+					endSendSetPasswordEmail,
+					endSkipVerification,
+					endBirthDate,
+					endData,
+					endEmail,
+					endEncryptionScheme,
+					endExpiry,
+					endFirstName,
+					endFullName,
+					endImageUrl,
+					endLastName,
+					endMiddleName,
+					endMobilePhone,
+					endParentEmail,
+					endPassword,
+					endPasswordChangeRequired,
+					endPreferredLanguages,
+					endTimezone,
+					endTwoFactorMethodsEmail,
+					endTwoFactorMethodsMobilePhone,
+					endTwoFactorMethodsSecret,
+					endUsername,
+					endUsernameStatus,
+				),
+			},
+			{
+				ResourceName:      tfResourcePath,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					// The following fields are not returned via RetrieveUser
+					// and as such, can't be imported/pushed into the Terraform
+					// state.
+					"encryption_scheme",
+					"password",
+					"send_set_password_email",
+					"skip_verification",
+					"two_factor_delivery",
+					"two_factor_enabled",
+					"two_factor_methods.0.secret",
+				},
+			},
+		},
+	})
+}
+
+// testTenantAccTestCheckFuncs abstracts the test case setup required between
+// create and update testing.
+func testUserBasicAccCheckFuncs(
+	tfResourcePath string,
+	sendSetPasswordEmail bool,
+	skipVerification bool,
+	birthDate string,
+	data map[string]string,
+	email string,
+	encryptionScheme string,
+	expiry string,
+	firstName string,
+	fullName string,
+	imageUrl string,
+	lastName string,
+	middleName string,
+	mobilePhone string,
+	parentEmail string,
+	password string,
+	passwordChangeRequired bool,
+	// preferredLanguages must be a 2 length slice.
+	preferredLanguages []string,
+	timezone string,
+	twoFactorMethodsEmail string,
+	twoFactorMethodsMobilePhone string,
+	twoFactorMethodsSecret string,
+	username string,
+	usernameStatus string,
+) resource.TestCheckFunc {
+	testChecks := []resource.TestCheckFunc{
+		testAccCheckFusionauthUserExists(tfResourcePath),
+		resource.TestCheckResourceAttrSet(tfResourcePath, "tenant_id"),
+		resource.TestCheckResourceAttr(tfResourcePath, "send_set_password_email", fmt.Sprintf("%t", sendSetPasswordEmail)),
+		resource.TestCheckResourceAttr(tfResourcePath, "skip_verification", fmt.Sprintf("%t", skipVerification)),
+		// User Object Properties
+		resource.TestCheckResourceAttr(tfResourcePath, "birth_date", birthDate),
+		resource.TestCheckResourceAttr(tfResourcePath, "email", email),
+		resource.TestCheckResourceAttr(tfResourcePath, "encryption_scheme", encryptionScheme),
+		resource.TestCheckResourceAttr(tfResourcePath, "expiry", expiry),
+		resource.TestCheckResourceAttr(tfResourcePath, "first_name", firstName),
+		resource.TestCheckResourceAttr(tfResourcePath, "full_name", fullName),
+		resource.TestCheckResourceAttr(tfResourcePath, "image_url", imageUrl),
+		resource.TestCheckResourceAttr(tfResourcePath, "last_name", lastName),
+		resource.TestCheckResourceAttr(tfResourcePath, "middle_name", middleName),
+		resource.TestCheckResourceAttr(tfResourcePath, "mobile_phone", mobilePhone),
+		resource.TestCheckResourceAttr(tfResourcePath, "parent_email", parentEmail),
+		resource.TestCheckResourceAttr(tfResourcePath, "password", password),
+		resource.TestCheckResourceAttr(tfResourcePath, "password_change_required", fmt.Sprintf("%t", passwordChangeRequired)),
+		resource.TestCheckResourceAttr(tfResourcePath, "preferred_languages.0", preferredLanguages[0]),
+		resource.TestCheckResourceAttr(tfResourcePath, "preferred_languages.1", preferredLanguages[1]),
+		resource.TestCheckResourceAttr(tfResourcePath, "timezone", timezone),
+		resource.TestCheckResourceAttr(tfResourcePath, "username", username),
+		resource.TestCheckResourceAttr(tfResourcePath, "username_status", usernameStatus),
+	}
+
+	for k, v := range data {
+		// Check each data attribute
+		key := fmt.Sprintf("data.%s", k)
+		testChecks = append(
+			testChecks,
+			resource.TestCheckResourceAttr(tfResourcePath, key, v),
+		)
+	}
+
+	mfaTestCount := 0
+	if twoFactorMethodsSecret != "" {
+		keyPrefix := fmt.Sprintf("two_factor_methods.%d", mfaTestCount)
+		testChecks = append(
+			testChecks,
+			resource.TestCheckResourceAttr(tfResourcePath, fmt.Sprintf("%s.method", keyPrefix), "authenticator"),
+			resource.TestCheckResourceAttr(tfResourcePath, fmt.Sprintf("%s.authenticator_algorithm", keyPrefix), "HmacSHA1"),
+			resource.TestCheckResourceAttr(tfResourcePath, fmt.Sprintf("%s.authenticator_code_length", keyPrefix), "6"),
+			resource.TestCheckResourceAttr(tfResourcePath, fmt.Sprintf("%s.authenticator_time_step", keyPrefix), "30"),
+			resource.TestCheckResourceAttr(tfResourcePath, fmt.Sprintf("%s.secret", keyPrefix), base64.StdEncoding.EncodeToString([]byte(twoFactorMethodsSecret))),
+		)
+		mfaTestCount++
+	}
+
+	if twoFactorMethodsEmail != "" {
+		keyPrefix := fmt.Sprintf("two_factor_methods.%d", mfaTestCount)
+		testChecks = append(
+			testChecks,
+			resource.TestCheckResourceAttr(tfResourcePath, fmt.Sprintf("%s.method", keyPrefix), "email"),
+			resource.TestCheckResourceAttr(tfResourcePath, fmt.Sprintf("%s.email", keyPrefix), twoFactorMethodsEmail),
+		)
+		mfaTestCount++
+	}
+
+	if twoFactorMethodsMobilePhone != "" {
+		keyPrefix := fmt.Sprintf("two_factor_methods.%d", mfaTestCount)
+		testChecks = append(
+			testChecks,
+			resource.TestCheckResourceAttr(tfResourcePath, fmt.Sprintf("%s.method", keyPrefix), "sms"),
+			resource.TestCheckResourceAttr(tfResourcePath, fmt.Sprintf("%s.mobile_phone", keyPrefix), twoFactorMethodsMobilePhone),
+		)
+	}
+
+	return resource.ComposeTestCheckFunc(testChecks...)
+}
+
+func testAccCheckFusionauthUserExists(resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no resource id is set")
+		}
+
+		user, faErrs, err := fusionauthClient().RetrieveUser(rs.Primary.ID)
+		if err != nil {
+			// low-level error performing api request
+			return fmt.Errorf("RetrieveUser error: %#+v\n", err)
+		}
+
+		if faErrs != nil && faErrs.Present() {
+			// Fusionauth has errors to report
+			return fmt.Errorf("RetrieveUser fusionauth errors: %#+v\n", faErrs)
+		}
+
+		if user == nil || user.StatusCode != http.StatusOK {
+			// This is a weird edge case...
+			return fmt.Errorf("RetrieveUser failed to get user: %#+v\n", user)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckFusionauthUserDestroy(s *terraform.State) error {
+	faClient := fusionauthClient()
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "fusionauth_user" {
+			continue
+		}
+
+		// Retry for eventual consistency
+		err := resource.RetryContext(context.Background(), 10*time.Second, func() *resource.RetryError {
+			user, faErrs, err := faClient.RetrieveUser(rs.Primary.ID)
+			if err != nil {
+				// low-level error performing api request
+				return resource.NonRetryableError(err)
+			}
+
+			if faErrs != nil && faErrs.Present() {
+				// Fusionauth has errors to report
+				return resource.NonRetryableError(faErrs)
+			}
+
+			if user != nil && user.StatusCode == http.StatusNotFound {
+				// resource destroyed!
+				return nil
+			}
+
+			return resource.RetryableError(fmt.Errorf("fusionauth user still exists: %s", rs.Primary.ID))
+		})
+
+		if err != nil {
+			// We failed destroying the user...
+			return err
+		}
+	}
+
+	return nil
+}
+
+// testAccUserResource returns the required terraform configuration to test terraform user operations.
+func testAccUserResource(
+	resourceName string,
+	sendSetPasswordEmail bool,
+	skipVerification bool,
+	birthDate string,
+	data string,
+	email string,
+	encryptionScheme string,
+	expiry string,
+	firstName string,
+	fullName string,
+	imageUrl string,
+	lastName string,
+	middleName string,
+	mobilePhone string,
+	parentEmail string,
+	password string,
+	passwordChangeRequired bool,
+	preferredLanguages []string,
+	timezone string,
+	twoFactorMethodsEmail string,
+	twoFactorMethodsMobilePhone string,
+	twoFactorMethodsSecret string,
+	username string,
+	usernameStatus string,
+) string {
+	if data == "" {
+		data = "{}"
+	}
+
+	var mfaAuthenticator string
+	if twoFactorMethodsSecret != "" {
+		mfaAuthenticator = fmt.Sprintf(`
+  two_factor_methods {
+    method                    = "authenticator"
+    authenticator_algorithm   = "HmacSHA1"  # With the current implementation, this will always be HmacSHA1. 
+    authenticator_code_length = 6           # With the current implementation, this will always be 6.
+    authenticator_time_step   = 30          # With the current implementation, this will always be 30.
+    secret                    = "%s"
+  }
+`, base64.StdEncoding.EncodeToString([]byte(twoFactorMethodsSecret)))
+	}
+
+	var mfaEmail string
+	if twoFactorMethodsEmail != "" {
+		mfaEmail = fmt.Sprintf(`
+  two_factor_methods {
+    method                    = "email"
+    email                     = "%s"
+  }
+`, twoFactorMethodsEmail)
+	}
+
+	var mfaSms string
+	if twoFactorMethodsMobilePhone != "" {
+		mfaSms = fmt.Sprintf(`
+  two_factor_methods {
+    method                    = "sms"
+    mobile_phone              = "%s"
+  }
+`, twoFactorMethodsMobilePhone)
+	}
+
+	return testAccUserResourceConfigBase(resourceName) +
+		fmt.Sprintf(`
+resource "fusionauth_user" "test_%[1]s" {
+  tenant_id               = fusionauth_tenant.test_%[1]s.id
+  send_set_password_email = %[2]t
+  skip_verification       = %[3]t
+
+  birth_date               = "%[4]s"
+  data                     = %[5]s
+  email                    = "%[6]s"
+  encryption_scheme        = "%[7]s"
+  expiry                   = %[8]s
+  first_name               = "%[9]s" 
+  full_name                = "%[10]s" 
+  image_url                = "%[11]s" 
+  last_name                = "%[12]s" 
+  middle_name              = "%[13]s" 
+  mobile_phone             = "%[14]s" 
+  parent_email             = "%[15]s" 
+  password                 = "%[16]s" 
+  password_change_required = %[17]t 
+  preferred_languages      = %[18]s 
+  timezone                 = "%[19]s"
+
+  # Two Factor Methods%[20]s%[21]s%[22]s
+
+  username        = "%[23]s"
+  username_status = "%[24]s"
+}
+`,
+			resourceName,
+			sendSetPasswordEmail,
+			skipVerification,
+			birthDate,
+			data,
+			email,
+			encryptionScheme,
+			expiry,
+			firstName,
+			fullName,
+			imageUrl,
+			lastName,
+			middleName,
+			mobilePhone,
+			parentEmail,
+			password,
+			passwordChangeRequired,
+			stringSliceToHCL(preferredLanguages),
+			timezone,
+			mfaAuthenticator,
+			mfaEmail,
+			mfaSms,
+			username,
+			usernameStatus,
+		)
+}
+
+// testAccUserResourceConfigBase generates the prerequisite resources required
+// for creating a user.
+func testAccUserResourceConfigBase(resourceName string) string {
+	return testAccAccessTokenKeyResourceConfig(resourceName) +
+		testAccIdTokenKeyResourceConfig(resourceName) +
+		testAccThemeResourceConfig(
+			resourceName,
+			testdata.MessageProperties(""),
+			"/* stylez */",
+			generateFusionAuthTemplate(),
+		) +
+		testAccTenantResourceConfig(
+			resourceName,
+			resourceName,
+			testKeyName(testAccessTokenKey, resourceName),
+			testKeyName(testIdTokenKey, resourceName),
+			"no-reply@example.com",
+			30,
+			false,
+		)
+}
