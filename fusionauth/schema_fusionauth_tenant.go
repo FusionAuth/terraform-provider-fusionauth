@@ -1055,6 +1055,7 @@ func newPasswordValidationRules() *schema.Resource {
 						"count": {
 							Type:         schema.TypeInt,
 							Optional:     true,
+							Default:      1,
 							Description:  "The number of previous passwords to remember. Value must be greater than 0.",
 							ValidateFunc: validation.IntAtLeast(1),
 						},
