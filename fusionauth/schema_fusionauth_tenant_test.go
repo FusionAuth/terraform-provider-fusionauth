@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
@@ -22,6 +23,8 @@ func TestAccFusionauthTenant_basic(t *testing.T) {
 
 	// TODO(tenant_test): test property mutation across all fields
 	startFromEmail, endFromEmail := "noreply@example.com", "no-reply@example.com"
+	startMinimumPasswordAgeSeconds, endMinimumPasswordAgeSeconds := 10, 5
+	startMinimumPasswordAgeEnabled, endMinimumPasswordAgeEnabled := true, false
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -36,11 +39,15 @@ func TestAccFusionauthTenant_basic(t *testing.T) {
 					accessTokenKey,
 					idTokenKey,
 					startFromEmail,
+					startMinimumPasswordAgeSeconds,
+					startMinimumPasswordAgeEnabled,
 				),
 				Check: testTenantAccTestCheckFuncs(
 					tfResourcePath,
 					resourceName,
 					startFromEmail,
+					startMinimumPasswordAgeSeconds,
+					startMinimumPasswordAgeEnabled,
 				),
 			},
 			{
@@ -51,11 +58,15 @@ func TestAccFusionauthTenant_basic(t *testing.T) {
 					accessTokenKey,
 					idTokenKey,
 					endFromEmail,
+					endMinimumPasswordAgeSeconds,
+					endMinimumPasswordAgeEnabled,
 				),
 				Check: testTenantAccTestCheckFuncs(
 					tfResourcePath,
 					resourceName,
 					endFromEmail,
+					endMinimumPasswordAgeSeconds,
+					endMinimumPasswordAgeEnabled,
 				),
 			},
 			{
@@ -75,6 +86,8 @@ func testTenantAccTestCheckFuncs(
 	tfResourcePath string,
 	resourceName string,
 	fromEmail string,
+	minimumPasswordAgeSeconds int,
+	minimumPasswordAgeEnabled bool,
 ) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		testAccCheckFusionauthTenantExists(tfResourcePath),
@@ -181,8 +194,8 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "maximum_password_age.0.enabled", "true"),
 
 		// minimum_password_age
-		resource.TestCheckResourceAttr(tfResourcePath, "minimum_password_age.0.seconds", "10"),
-		resource.TestCheckResourceAttr(tfResourcePath, "minimum_password_age.0.enabled", "true"),
+		resource.TestCheckResourceAttr(tfResourcePath, "minimum_password_age.0.seconds", strconv.Itoa(minimumPasswordAgeSeconds)),
+		resource.TestCheckResourceAttr(tfResourcePath, "minimum_password_age.0.enabled", strconv.FormatBool(minimumPasswordAgeEnabled)),
 
 		// multi_factor_configuration
 		resource.TestCheckResourceAttr(tfResourcePath, "multi_factor_configuration.0.authenticator.0.enabled", "true"),
@@ -295,6 +308,8 @@ func testAccTenantResourceBasicConfig(
 	accessTokenKey string,
 	idTokenKey string,
 	fromEmail string,
+	minimumPasswordAgeSeconds int,
+	minimumPasswordAgeEnabled bool,
 ) string {
 	return testAccKeyResourceConfig(
 		"",
@@ -320,6 +335,8 @@ func testAccTenantResourceBasicConfig(
 			accessTokenKey,
 			idTokenKey,
 			fromEmail,
+			minimumPasswordAgeSeconds,
+			minimumPasswordAgeEnabled,
 		)
 }
 
@@ -348,6 +365,8 @@ func testAccTenantResourceConfig(
 	accessTokenKey string,
 	idTokenKey string,
 	fromEmail string,
+	minimumPasswordAgeSeconds int,
+	minimumPasswordAgeEnabled bool,
 ) string {
 	if themeKey != "" {
 		themeKey = fmt.Sprintf(
@@ -488,8 +507,8 @@ resource "fusionauth_tenant" "test_%[1]s" {
     enabled = true
   }
   minimum_password_age {
-    seconds = 10
-    enabled = true
+    seconds = %[6]d
+    enabled = %[7]t
   }
   multi_factor_configuration {
     authenticator {
@@ -548,5 +567,13 @@ resource "fusionauth_tenant" "test_%[1]s" {
     }
   }
 }
-`, resourceName, themeKey, accessTokenKey, idTokenKey, fromEmail)
+`,
+		resourceName,
+		themeKey,
+		accessTokenKey,
+		idTokenKey,
+		fromEmail,
+		minimumPasswordAgeSeconds,
+		minimumPasswordAgeEnabled,
+	)
 }
