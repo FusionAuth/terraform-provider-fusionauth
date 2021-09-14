@@ -246,42 +246,6 @@ func newUser() *schema.Resource {
 	}
 }
 
-func buildUser(data *schema.ResourceData) fusionauth.UserRequest {
-	u := fusionauth.UserRequest{
-		User: fusionauth.User{
-			TenantId:           data.Get("tenant_id").(string),
-			BirthDate:          data.Get("birth_date").(string),
-			Data:               data.Get("data").(map[string]interface{}),
-			Email:              data.Get("email").(string),
-			Expiry:             int64(data.Get("expiry").(int)),
-			FirstName:          data.Get("first_name").(string),
-			FullName:           data.Get("full_name").(string),
-			ImageUrl:           data.Get("image_url").(string),
-			LastName:           data.Get("last_name").(string),
-			MiddleName:         data.Get("middle_name").(string),
-			MobilePhone:        data.Get("mobile_phone").(string),
-			ParentEmail:        data.Get("parent_email").(string),
-			PreferredLanguages: handleStringSlice("preferred_languages", data),
-			Timezone:           data.Get("timezone").(string),
-			SecureIdentity: fusionauth.SecureIdentity{
-				EncryptionScheme:       data.Get("encryption_scheme").(string),
-				Password:               data.Get("password").(string),
-				PasswordChangeRequired: data.Get("password_change_required").(bool),
-				Username:               data.Get("username").(string),
-				UsernameStatus:         fusionauth.ContentStatus(data.Get("username_status").(string)),
-			},
-			TwoFactor: fusionauth.UserTwoFactorConfiguration{
-				Methods:       buildTwoFactorMethod("two_factor_methods", data),
-				RecoveryCodes: handleStringSlice("two_factor_recovery_codes", data),
-			},
-		},
-		SendSetPasswordEmail: data.Get("send_set_password_email").(bool),
-		SkipVerification:     data.Get("skip_verification").(bool),
-	}
-
-	return u
-}
-
 func createUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	u := buildUser(data)
@@ -433,6 +397,42 @@ func deleteUser(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	}
 
 	return nil
+}
+
+func buildUser(data *schema.ResourceData) fusionauth.UserRequest {
+	u := fusionauth.UserRequest{
+		User: fusionauth.User{
+			TenantId:           data.Get("tenant_id").(string),
+			BirthDate:          data.Get("birth_date").(string),
+			Data:               data.Get("data").(map[string]interface{}),
+			Email:              data.Get("email").(string),
+			Expiry:             int64(data.Get("expiry").(int)),
+			FirstName:          data.Get("first_name").(string),
+			FullName:           data.Get("full_name").(string),
+			ImageUrl:           data.Get("image_url").(string),
+			LastName:           data.Get("last_name").(string),
+			MiddleName:         data.Get("middle_name").(string),
+			MobilePhone:        data.Get("mobile_phone").(string),
+			ParentEmail:        data.Get("parent_email").(string),
+			PreferredLanguages: handleStringSlice("preferred_languages", data),
+			Timezone:           data.Get("timezone").(string),
+			SecureIdentity: fusionauth.SecureIdentity{
+				EncryptionScheme:       data.Get("encryption_scheme").(string),
+				Password:               data.Get("password").(string),
+				PasswordChangeRequired: data.Get("password_change_required").(bool),
+				Username:               data.Get("username").(string),
+				UsernameStatus:         fusionauth.ContentStatus(data.Get("username_status").(string)),
+			},
+			TwoFactor: fusionauth.UserTwoFactorConfiguration{
+				Methods:       buildTwoFactorMethod("two_factor_methods", data),
+				RecoveryCodes: handleStringSlice("two_factor_recovery_codes", data),
+			},
+		},
+		SendSetPasswordEmail: data.Get("send_set_password_email").(bool),
+		SkipVerification:     data.Get("skip_verification").(bool),
+	}
+
+	return u
 }
 
 func buildTwoFactorMethod(key string, data *schema.ResourceData) []fusionauth.TwoFactorMethod {
