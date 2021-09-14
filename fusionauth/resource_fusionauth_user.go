@@ -54,6 +54,7 @@ func newUser() *schema.Resource {
 			"encryption_scheme": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "salted-pbkdf2-hmac-sha256",
 				ValidateFunc: validation.StringInSlice([]string{
 					"salted-md5",
 					"salted-sha256",
