@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
@@ -399,7 +400,12 @@ func deleteUser(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	return nil
 }
 
-func buildUser(data *schema.ResourceData) fusionauth.UserRequest {
+func buildUser(data *schema.ResourceData) (userReq fusionauth.UserRequest) {
+	twoFactorMethods, diags := dataToTwoFactorMethods(data)
+	if diags != nil {
+		return
+	}
+
 	u := fusionauth.UserRequest{
 		User: fusionauth.User{
 			TenantId:           data.Get("tenant_id").(string),
@@ -424,7 +430,7 @@ func buildUser(data *schema.ResourceData) fusionauth.UserRequest {
 				UsernameStatus:         fusionauth.ContentStatus(data.Get("username_status").(string)),
 			},
 			TwoFactor: fusionauth.UserTwoFactorConfiguration{
-				Methods:       buildTwoFactorMethod("two_factor_methods", data),
+				Methods:       twoFactorMethods,
 				RecoveryCodes: handleStringSlice("two_factor_recovery_codes", data),
 			},
 		},
@@ -435,29 +441,44 @@ func buildUser(data *schema.ResourceData) fusionauth.UserRequest {
 	return u
 }
 
-func buildTwoFactorMethod(key string, data *schema.ResourceData) []fusionauth.TwoFactorMethod {
-	s := data.Get(key)
-	set, ok := s.(*schema.Set)
-	if !ok {
-		return []fusionauth.TwoFactorMethod{}
-	}
-	l := set.List()
+func dataToTwoFactorMethods(data *schema.ResourceData) (twoFactorMethods []fusionauth.TwoFactorMethod, diags diag.Diagnostics) {
+	twoFactorMethodsData, ok := data.Get("two_factor_methods").([]interface{})
+	if twoFactorMethodsData == nil || !ok {
+		if !ok {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Unable to convert two factor methods",
+				Detail:   "two_factor_methods unable to be typecast to []interface{}",
+			})
+		}
 
-	tfms := make([]fusionauth.TwoFactorMethod, 0, len(l))
-	for _, x := range l {
-		r := x.(map[string]interface{})
-		tfms = append(tfms, fusionauth.TwoFactorMethod{
-			Authenticator: fusionauth.AuthenticatorConfiguration{
-				Algorithm:  fusionauth.TOTPAlgorithm(r["authenticator_algorithm"].(string)),
-				CodeLength: r["authenticator_code_length"].(int),
-				TimeStep:   r["authenticator_time_step"].(int),
-			},
-			Email:       r["email"].(string),
-			Method:      r["method"].(string),
-			MobilePhone: r["mobile_phone"].(string),
-			Secret:      r["secret"].(string),
-		})
+		// Nothing to do here!
+		return
 	}
 
-	return tfms
+	twoFactorMethods = make([]fusionauth.TwoFactorMethod, len(twoFactorMethodsData))
+	for i, twoFactorMethodsDatum := range twoFactorMethodsData {
+		if twoFactorMethod, ok := twoFactorMethodsDatum.(map[string]interface{}); !ok {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Unable to convert a two factor method",
+				Detail:   fmt.Sprintf("two_factor_methods.%d: %#+v unable to be typecast to []interface{}", i, twoFactorMethodsDatum),
+			})
+
+		} else {
+			twoFactorMethods[i] = fusionauth.TwoFactorMethod{
+				Authenticator: fusionauth.AuthenticatorConfiguration{
+					Algorithm:  fusionauth.TOTPAlgorithm(twoFactorMethod["authenticator_algorithm"].(string)),
+					CodeLength: twoFactorMethod["authenticator_code_length"].(int),
+					TimeStep:   twoFactorMethod["authenticator_time_step"].(int),
+				},
+				Email:       twoFactorMethod["email"].(string),
+				Method:      twoFactorMethod["method"].(string),
+				MobilePhone: twoFactorMethod["mobile_phone"].(string),
+				Secret:      twoFactorMethod["secret"].(string),
+			}
+		}
+	}
+
+	return twoFactorMethods, nil
 }
