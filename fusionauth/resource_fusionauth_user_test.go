@@ -34,7 +34,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 	startExpiry, endExpiry := "7955114522000", "43017447783000"
 	startFirstName, endFirstName := "John", "Jon"
 	startFullName, endFullName := "test-acc John Smith", "test-acc Jon Snow"
-	startImageUrl, endImageUrl := "https://gravatar.com/avatar/0dc5552bbda9ab3d62a9d7612f471dd9?s=400&d=mp&r=g", "https://gravatar.com/avatar/32efbfa435860a48dd5af9626ea326d3?s=400&d=mp&r=g"
+	startImageURL, endImageURL := "https://gravatar.com/avatar/0dc5552bbda9ab3d62a9d7612f471dd9?s=400&d=mp&r=g", "https://gravatar.com/avatar/32efbfa435860a48dd5af9626ea326d3?s=400&d=mp&r=g"
 	startLastName, endLastName := "Smith", "Snow"
 	startMiddleName, endMiddleName := "A", "'King of the North'"
 	startMobilePhone, endMobilePhone := "+642598765432", "+642512345678"
@@ -68,7 +68,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					startExpiry,
 					startFirstName,
 					startFullName,
-					startImageUrl,
+					startImageURL,
 					startLastName,
 					startMiddleName,
 					startMobilePhone,
@@ -94,7 +94,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					startExpiry,
 					startFirstName,
 					startFullName,
-					startImageUrl,
+					startImageURL,
 					startLastName,
 					startMiddleName,
 					startMobilePhone,
@@ -123,7 +123,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					endExpiry,
 					endFirstName,
 					endFullName,
-					endImageUrl,
+					endImageURL,
 					endLastName,
 					endMiddleName,
 					endMobilePhone,
@@ -149,7 +149,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					endExpiry,
 					endFirstName,
 					endFullName,
-					endImageUrl,
+					endImageURL,
 					endLastName,
 					endMiddleName,
 					endMobilePhone,
@@ -199,7 +199,7 @@ func testUserBasicAccCheckFuncs(
 	expiry string,
 	firstName string,
 	fullName string,
-	imageUrl string,
+	imageURL string,
 	lastName string,
 	middleName string,
 	mobilePhone string,
@@ -227,7 +227,7 @@ func testUserBasicAccCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "expiry", expiry),
 		resource.TestCheckResourceAttr(tfResourcePath, "first_name", firstName),
 		resource.TestCheckResourceAttr(tfResourcePath, "full_name", fullName),
-		resource.TestCheckResourceAttr(tfResourcePath, "image_url", imageUrl),
+		resource.TestCheckResourceAttr(tfResourcePath, "image_url", imageURL),
 		resource.TestCheckResourceAttr(tfResourcePath, "last_name", lastName),
 		resource.TestCheckResourceAttr(tfResourcePath, "middle_name", middleName),
 		resource.TestCheckResourceAttr(tfResourcePath, "mobile_phone", mobilePhone),
@@ -300,17 +300,17 @@ func testAccCheckFusionauthUserExists(resourceName string) resource.TestCheckFun
 		user, faErrs, err := fusionauthClient().RetrieveUser(rs.Primary.ID)
 		if err != nil {
 			// low-level error performing api request
-			return fmt.Errorf("RetrieveUser error: %#+v\n", err)
+			return fmt.Errorf("retrieveuser error: %#+v", err)
 		}
 
 		if faErrs != nil && faErrs.Present() {
 			// Fusionauth has errors to report
-			return fmt.Errorf("RetrieveUser fusionauth errors: %#+v\n", faErrs)
+			return fmt.Errorf("retrieveuser fusionauth errors: %#+v", faErrs)
 		}
 
 		if user == nil || user.StatusCode != http.StatusOK {
 			// This is a weird edge case...
-			return fmt.Errorf("RetrieveUser failed to get user: %#+v\n", user)
+			return fmt.Errorf("retrieveuser failed to get user: %#+v", user)
 		}
 
 		return nil
@@ -367,7 +367,7 @@ func testAccUserResource(
 	expiry string,
 	firstName string,
 	fullName string,
-	imageUrl string,
+	imageURL string,
 	lastName string,
 	middleName string,
 	mobilePhone string,
@@ -459,7 +459,7 @@ resource "fusionauth_user" "test_%[1]s" {
 			expiry,
 			firstName,
 			fullName,
-			imageUrl,
+			imageURL,
 			lastName,
 			middleName,
 			mobilePhone,
@@ -480,7 +480,7 @@ resource "fusionauth_user" "test_%[1]s" {
 // for creating a user.
 func testAccUserResourceConfigBase(resourceName string) string {
 	return testAccAccessTokenKeyResourceConfig(resourceName) +
-		testAccIdTokenKeyResourceConfig(resourceName) +
+		testAccIDTokenKeyResourceConfig(resourceName) +
 		testAccThemeResourceConfig(
 			resourceName,
 			testdata.MessageProperties(""),
@@ -491,7 +491,7 @@ func testAccUserResourceConfigBase(resourceName string) string {
 			resourceName,
 			resourceName,
 			testKeyName(testAccessTokenKey, resourceName),
-			testKeyName(testIdTokenKey, resourceName),
+			testKeyName(testIDTokenKey, resourceName),
 			"no-reply@example.com",
 			30,
 			false,

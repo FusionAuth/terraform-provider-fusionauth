@@ -79,7 +79,7 @@ func testThemeAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "account_two_factor_enable", templates.AccountTwoFactorEnable),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_two_factor_index", templates.AccountTwoFactorIndex),
 		resource.TestCheckResourceAttr(tfResourcePath, "email_complete", templates.EmailComplete),
-		//resource.TestCheckResourceAttr(tfResourcePath, "email_send", startTemplates.EmailSend), // DEPRECATED
+		// resource.TestCheckResourceAttr(tfResourcePath, "email_send", startTemplates.EmailSend), // DEPRECATED
 		resource.TestCheckResourceAttr(tfResourcePath, "email_sent", templates.EmailSent),
 		resource.TestCheckResourceAttr(tfResourcePath, "email_verification_required", templates.EmailVerificationRequired),
 		resource.TestCheckResourceAttr(tfResourcePath, "email_verify", templates.EmailVerify),
@@ -105,7 +105,7 @@ func testThemeAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "password_forgot", templates.PasswordForgot),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_sent", templates.PasswordSent),
 		resource.TestCheckResourceAttr(tfResourcePath, "registration_complete", templates.RegistrationComplete),
-		//resource.TestCheckResourceAttr(tfResourcePath, "registration_send", templates.RegistrationSend), // DEPRECATED
+		// resource.TestCheckResourceAttr(tfResourcePath, "registration_send", templates.RegistrationSend), // DEPRECATED
 		resource.TestCheckResourceAttr(tfResourcePath, "registration_sent", templates.RegistrationSent),
 		resource.TestCheckResourceAttr(tfResourcePath, "registration_verification_required", templates.RegistrationVerificationRequired),
 		resource.TestCheckResourceAttr(tfResourcePath, "registration_verify", templates.RegistrationVerify),
@@ -132,7 +132,7 @@ func testAccCheckFusionauthThemeExists(resourceName string) resource.TestCheckFu
 
 		if theme == nil || theme.StatusCode != http.StatusOK {
 			// This is a weird edge case...
-			return fmt.Errorf("failed to get resource: %#+v\n", theme)
+			return fmt.Errorf("failed to get resource: %#+v", theme)
 		}
 
 		return nil

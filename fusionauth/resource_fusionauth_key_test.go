@@ -147,7 +147,7 @@ func testAccCheckFusionauthKeyExists(resourceName string) resource.TestCheckFunc
 
 		if key == nil || key.StatusCode != http.StatusOK {
 			// This is a weird edge case...
-			return fmt.Errorf("failed to get resource: %#+v\n", key)
+			return fmt.Errorf("failed to get resource: %#+v", key)
 		}
 
 		return nil
@@ -187,9 +187,9 @@ func testAccCheckFusionauthKeyDestroy(s *terraform.State) error {
 }
 
 func testAccKeyResourceConfig(id string, name string, algorithm fusionauth.Algorithm, length int) string {
-	var keyId string
+	var keyID string
 	if id != "" {
-		keyId = fmt.Sprintf("\n  key_id    = \"%s\"\n", id)
+		keyID = fmt.Sprintf("\n  key_id    = \"%s\"\n", id)
 	}
 
 	return fmt.Sprintf(`
@@ -199,12 +199,12 @@ resource "fusionauth_key" "test_%[2]s" {%[1]s
   algorithm = "%[3]s"
   length    = %[4]d
 }
-`, keyId, name, algorithm, length)
+`, keyID, name, algorithm, length)
 }
 
 const (
 	testAccessTokenKey = "accesstoken"
-	testIdTokenKey     = "idtoken"
+	testIDTokenKey     = "idtoken"
 )
 
 // testAccAccessTokenKeyResourceConfig returns terraform configuration to
@@ -213,10 +213,10 @@ func testAccAccessTokenKeyResourceConfig(suffix string) string {
 	return testKeyConfig(testAccessTokenKey, suffix)
 }
 
-// testAccIdTokenKeyResourceConfig returns terraform configuration to generate a
+// testAccIDTokenKeyResourceConfig returns terraform configuration to generate a
 // standalone test ID Token key.
-func testAccIdTokenKeyResourceConfig(suffix string) string {
-	return testKeyConfig(testIdTokenKey, suffix)
+func testAccIDTokenKeyResourceConfig(suffix string) string {
+	return testKeyConfig(testIDTokenKey, suffix)
 }
 
 func testKeyConfig(name, suffix string) string {
