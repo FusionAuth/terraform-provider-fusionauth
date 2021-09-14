@@ -202,24 +202,36 @@ resource "fusionauth_key" "test_%[2]s" {%[1]s
 `, keyId, name, algorithm, length)
 }
 
+const (
+	testAccessTokenKey = "accesstoken"
+	testIdTokenKey     = "idtoken"
+)
+
 // testAccAccessTokenKeyResourceConfig returns terraform configuration to
 // generate a standalone test Access Token key.
-func testAccAccessTokenKeyResourceConfig() string {
+func testAccAccessTokenKeyResourceConfig(suffix string) string {
+	return testKeyConfig(testAccessTokenKey, suffix)
+}
+
+// testAccIdTokenKeyResourceConfig returns terraform configuration to generate a
+// standalone test ID Token key.
+func testAccIdTokenKeyResourceConfig(suffix string) string {
+	return testKeyConfig(testIdTokenKey, suffix)
+}
+
+func testKeyConfig(name, suffix string) string {
 	return testAccKeyResourceConfig(
 		"",
-		"accesstoken",
+		testKeyName(name, suffix),
 		fusionauth.Algorithm_RS256,
 		2048,
 	)
 }
 
-// testAccIdTokenKeyResourceConfig returns terraform configuration to generate a
-// standalone test ID Token key.
-func testAccIdTokenKeyResourceConfig() string {
-	return testAccKeyResourceConfig(
-		"",
-		"idtoken",
-		fusionauth.Algorithm_RS256,
-		2048,
-	)
+func testKeyName(name, suffix string) string {
+	if suffix != "" {
+		name = fmt.Sprintf("%s_%s", name, suffix)
+	}
+
+	return name
 }
