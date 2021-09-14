@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -249,15 +250,18 @@ func newUser() *schema.Resource {
 
 func createUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
-	u := buildUser(data)
+	req, diags := dataToUserRequest(data)
+	if diags != nil {
+		return diags
+	}
 
 	oldTenantID := client.FAClient.TenantId
-	client.FAClient.TenantId = u.User.TenantId
+	client.FAClient.TenantId = req.User.TenantId
 	defer func() {
 		client.FAClient.TenantId = oldTenantID
 	}()
 
-	resp, faErrs, err := client.FAClient.CreateUser("", u)
+	resp, faErrs, err := client.FAClient.CreateUser("", req)
 	if err != nil {
 		return diag.Errorf("CreateUser err: %v", err)
 	}
@@ -265,11 +269,8 @@ func createUser(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
 		return diag.FromErr(err)
 	}
-	data.SetId(resp.User.Id)
-	if u.User.TenantId == "" {
-		_ = data.Set("tenant_id", resp.User.TenantId)
-	}
-	return nil
+
+	return userResponseToData(data, resp)
 }
 
 func readUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -288,6 +289,94 @@ func readUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
 		return diag.FromErr(err)
 	}
+
+	return userResponseToData(data, resp)
+}
+
+func updateUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+	client := i.(Client)
+	req, diags := dataToUserRequest(data)
+	if diags != nil {
+		return diags
+	}
+
+	resp, faErrs, err := client.FAClient.UpdateUser(data.Id(), req)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return diag.FromErr(err)
+	}
+
+	return userResponseToData(data, resp)
+}
+
+func deleteUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+	client := i.(Client)
+	id := data.Id()
+
+	resp, faErrs, err := client.FAClient.DeleteUser(id)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		// User successfully deleted
+		data.SetId("")
+		return nil
+	}
+
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return diag.FromErr(err)
+	}
+
+	return nil
+}
+
+func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, diags diag.Diagnostics) {
+	twoFactorMethods, diags := dataToTwoFactorMethods(data)
+	if diags != nil {
+		return
+	}
+
+	req = fusionauth.UserRequest{
+		User: fusionauth.User{
+			TenantId:           data.Get("tenant_id").(string),
+			BirthDate:          data.Get("birth_date").(string),
+			Data:               data.Get("data").(map[string]interface{}),
+			Email:              data.Get("email").(string),
+			Expiry:             int64(data.Get("expiry").(int)),
+			FirstName:          data.Get("first_name").(string),
+			FullName:           data.Get("full_name").(string),
+			ImageUrl:           data.Get("image_url").(string),
+			LastName:           data.Get("last_name").(string),
+			MiddleName:         data.Get("middle_name").(string),
+			MobilePhone:        data.Get("mobile_phone").(string),
+			ParentEmail:        data.Get("parent_email").(string),
+			PreferredLanguages: handleStringSlice("preferred_languages", data),
+			Timezone:           data.Get("timezone").(string),
+			SecureIdentity: fusionauth.SecureIdentity{
+				EncryptionScheme:       data.Get("encryption_scheme").(string),
+				Password:               data.Get("password").(string),
+				PasswordChangeRequired: data.Get("password_change_required").(bool),
+				Username:               data.Get("username").(string),
+				UsernameStatus:         fusionauth.ContentStatus(data.Get("username_status").(string)),
+			},
+			TwoFactor: fusionauth.UserTwoFactorConfiguration{
+				Methods:       twoFactorMethods,
+				RecoveryCodes: handleStringSlice("two_factor_recovery_codes", data),
+			},
+		},
+		SendSetPasswordEmail: data.Get("send_set_password_email").(bool),
+		SkipVerification:     data.Get("skip_verification").(bool),
+	}
+
+	return req, diags
+}
+
+func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse) diag.Diagnostics {
+	data.SetId(resp.User.Id)
 
 	if err := data.Set("tenant_id", resp.User.TenantId); err != nil {
 		return diag.Errorf("user.tenant_id: %s", err.Error())
@@ -345,100 +434,34 @@ func readUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.
 		return diag.Errorf("user.two_factor_recovery_codes: %s", err.Error())
 	}
 
-	tfms := make([]map[string]interface{}, 0, len(resp.User.TwoFactor.Methods))
-	for idx := range resp.User.TwoFactor.Methods {
-		m := resp.User.TwoFactor.Methods[idx]
-		tfms = append(tfms, map[string]interface{}{
-			"authenticator_algorithm":   m.Authenticator.Algorithm,
-			"authenticator_code_length": m.Authenticator.CodeLength,
-			"authenticator_time_step":   m.Authenticator.TimeStep,
-			"email":                     m.Email,
-			"method":                    m.Method,
-			"mobile_phone":              m.MobilePhone,
-			"secret":                    m.Secret,
-		})
+	currentTwoFactorMethods := dataToTwoFactorMethodMap(data)
+	twoFactorMethodsData := make([]map[string]interface{}, len(resp.User.TwoFactor.Methods))
+	for i, twoFactorMethod := range resp.User.TwoFactor.Methods {
+		var secret string
+		if strings.ToLower(twoFactorMethod.Method) == "authenticator" {
+			if currentMethod, ok := currentTwoFactorMethods[twoFactorMethod.Method]; ok {
+				// FusionAuth doesn't return the secret via the API, so we need
+				// to do some manual i/o to ensure terraform state lines up
+				// and changes can be detected properly.
+				secret = currentMethod.Secret
+			}
+		}
+
+		twoFactorMethodsData[i] = map[string]interface{}{
+			"authenticator_algorithm":   twoFactorMethod.Authenticator.Algorithm,
+			"authenticator_code_length": twoFactorMethod.Authenticator.CodeLength,
+			"authenticator_time_step":   twoFactorMethod.Authenticator.TimeStep,
+			"email":                     twoFactorMethod.Email,
+			"method":                    twoFactorMethod.Method,
+			"mobile_phone":              twoFactorMethod.MobilePhone,
+			"secret":                    secret,
+		}
 	}
-	if err = data.Set("two_factor_methods", tfms); err != nil {
+	if err := data.Set("two_factor_methods", twoFactorMethodsData); err != nil {
 		return diag.Errorf("user.two_factor_methods: %s", err.Error())
 	}
-	return nil
-}
-
-func updateUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-	client := i.(Client)
-	u := buildUser(data)
-
-	resp, faErrs, err := client.FAClient.UpdateUser(data.Id(), u)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return diag.FromErr(err)
-	}
 
 	return nil
-}
-
-func deleteUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-	client := i.(Client)
-	id := data.Id()
-
-	resp, faErrs, err := client.FAClient.DeleteUser(id)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if resp.StatusCode == http.StatusNotFound {
-		data.SetId("")
-		return nil
-	}
-	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
-		return diag.FromErr(err)
-	}
-
-	return nil
-}
-
-func buildUser(data *schema.ResourceData) (userReq fusionauth.UserRequest) {
-	twoFactorMethods, diags := dataToTwoFactorMethods(data)
-	if diags != nil {
-		return
-	}
-
-	u := fusionauth.UserRequest{
-		User: fusionauth.User{
-			TenantId:           data.Get("tenant_id").(string),
-			BirthDate:          data.Get("birth_date").(string),
-			Data:               data.Get("data").(map[string]interface{}),
-			Email:              data.Get("email").(string),
-			Expiry:             int64(data.Get("expiry").(int)),
-			FirstName:          data.Get("first_name").(string),
-			FullName:           data.Get("full_name").(string),
-			ImageUrl:           data.Get("image_url").(string),
-			LastName:           data.Get("last_name").(string),
-			MiddleName:         data.Get("middle_name").(string),
-			MobilePhone:        data.Get("mobile_phone").(string),
-			ParentEmail:        data.Get("parent_email").(string),
-			PreferredLanguages: handleStringSlice("preferred_languages", data),
-			Timezone:           data.Get("timezone").(string),
-			SecureIdentity: fusionauth.SecureIdentity{
-				EncryptionScheme:       data.Get("encryption_scheme").(string),
-				Password:               data.Get("password").(string),
-				PasswordChangeRequired: data.Get("password_change_required").(bool),
-				Username:               data.Get("username").(string),
-				UsernameStatus:         fusionauth.ContentStatus(data.Get("username_status").(string)),
-			},
-			TwoFactor: fusionauth.UserTwoFactorConfiguration{
-				Methods:       twoFactorMethods,
-				RecoveryCodes: handleStringSlice("two_factor_recovery_codes", data),
-			},
-		},
-		SendSetPasswordEmail: data.Get("send_set_password_email").(bool),
-		SkipVerification:     data.Get("skip_verification").(bool),
-	}
-
-	return u
 }
 
 func dataToTwoFactorMethods(data *schema.ResourceData) (twoFactorMethods []fusionauth.TwoFactorMethod, diags diag.Diagnostics) {
@@ -481,4 +504,19 @@ func dataToTwoFactorMethods(data *schema.ResourceData) (twoFactorMethods []fusio
 	}
 
 	return twoFactorMethods, nil
+}
+
+func dataToTwoFactorMethodMap(data *schema.ResourceData) (methodMap map[string]fusionauth.TwoFactorMethod) {
+	methodMap = map[string]fusionauth.TwoFactorMethod{}
+
+	methodList, errs := dataToTwoFactorMethods(data)
+	if errs != nil {
+		return
+	}
+
+	for _, method := range methodList {
+		methodMap[method.Method] = method
+	}
+
+	return
 }
