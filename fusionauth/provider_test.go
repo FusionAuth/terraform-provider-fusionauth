@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -87,6 +88,18 @@ func checkFusionauthRetryErrors(faErrs *fusionauth.Errors, err error) *resource.
 	}
 
 	return nil
+}
+
+// stringSliceToHCL takes a string slice and marshals it to JSON in order to
+// generate an HCL syntactically compatible array.
+func stringSliceToHCL(values []string) string {
+	output := "[]"
+	if len(values) > 0 {
+		bytes, _ := json.Marshal(values)
+		output = string(bytes)
+	}
+
+	return output
 }
 
 // randString10 returns a random alpha-numeric string of 10 characters.
