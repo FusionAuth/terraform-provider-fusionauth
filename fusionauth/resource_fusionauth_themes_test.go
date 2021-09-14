@@ -71,7 +71,7 @@ func testThemeAccTestCheckFuncs(
 	return resource.ComposeTestCheckFunc(
 		testAccCheckFusionauthThemeExists(tfResourcePath),
 		resource.TestCheckResourceAttr(tfResourcePath, "default_messages", defaultMessages),
-		resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test %s", resourceName)),
+		resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test-acc %s", resourceName)),
 		resource.TestCheckResourceAttr(tfResourcePath, "stylesheet", stylesheet),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_edit", templates.AccountEdit),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_index", templates.AccountIndex),
@@ -228,7 +228,7 @@ func testAccThemeResourceConfig(
 	return fmt.Sprintf(`
 # Theme Setup
 resource "fusionauth_theme" "test_%[1]s" {
-  name                                           = "test %[1]s"
+  name                                           = "test-acc %[1]s"
   default_messages                               = <<EOF
 %[2]sEOF
   stylesheet                                     = "%[3]s"
