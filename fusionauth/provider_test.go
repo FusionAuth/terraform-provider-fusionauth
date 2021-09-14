@@ -89,17 +89,12 @@ func checkFusionauthRetryErrors(faErrs *fusionauth.Errors, err error) *resource.
 	return nil
 }
 
-// randStringN returns a random alpha-numeric string of N characters.
-func randStringN(n int) string {
-	return acctest.RandStringFromCharSet(n, acctest.CharSetAlphaNum)
-}
-
 // randString10 returns a random alpha-numeric string of 10 characters.
 func randString10() string {
-	return randStringN(10)
+	return acctest.RandString(10)
 }
 
 // randString20 returns a random alpha-numeric string of 20 characters.
 func randString20() string {
-	return randStringN(20)
+	return acctest.RandString(20)
 }
