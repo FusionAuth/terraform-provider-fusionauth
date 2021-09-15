@@ -4,7 +4,7 @@ Lambdas are user defined JavaScript functions that may be executed at runtime to
 
 [Lambdas API](https://fusionauth.io/docs/v1/tech/apis/lambdas)
 
-## Example Useage
+## Example Usage
 
 ```hcl
 data "fusionauth_lambda" "default_google_reconcile" {
