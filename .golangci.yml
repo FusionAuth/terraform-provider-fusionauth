@@ -40,3 +40,5 @@ issues:
       linters:
         - lll
         - funlen
+        - gochecknoinits
+        - gochecknoglobals
