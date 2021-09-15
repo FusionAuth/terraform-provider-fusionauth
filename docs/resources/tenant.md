@@ -128,6 +128,10 @@ resource "fusionauth_tenant" "example" {
       type   = "randomBytes"
     }
     email_verification_id_time_to_live_in_seconds      = 86400
+    email_verification_one_time_code_generator {
+      length = 6
+      type   = "randomAlphaNumeric"
+    }
     external_authentication_id_time_to_live_in_seconds = 300
     one_time_password_time_to_live_in_seconds          = 60
     passwordless_login_generator {
@@ -140,6 +144,10 @@ resource "fusionauth_tenant" "example" {
       type   = "randomBytes"
     }
     registration_verification_id_time_to_live_in_seconds = 86400
+    registration_verification_one_time_code_generator {
+      length = 6
+      type   = "randomAlphaNumeric"
+    }
     saml_v2_authn_request_id_ttl_seconds = 300
     setup_password_id_generator {
       length = 32
@@ -147,6 +155,10 @@ resource "fusionauth_tenant" "example" {
     }
     setup_password_id_time_to_live_in_seconds   = 86400
     two_factor_id_time_to_live_in_seconds       = 300
+    two_factor_one_time_code_id_generator {
+      length = 6
+      type   = "randomDigits"
+    }
     two_factor_trust_id_time_to_live_in_seconds = 2592000
   }
   failed_authentication_configuration {

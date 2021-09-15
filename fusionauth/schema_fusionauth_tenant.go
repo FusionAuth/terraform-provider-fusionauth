@@ -1,6 +1,7 @@
 package fusionauth
 
 import (
+	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -588,15 +589,10 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"randomAlpha",
-								"randomAlphaNumeric",
-								"randomBytes",
-								"randomDigits.",
-							}, false),
-							Description: "The type of the secure generator used for generating the change password Id.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
 					},
 				},
@@ -625,15 +621,10 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"randomAlpha",
-								"randomAlphaNumeric",
-								"randomBytes",
-								"randomDigits.",
-							}, false),
-							Description: "The type of the secure generator used for generating the change password Id.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
 					},
 				},
@@ -650,15 +641,10 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"randomAlpha",
-								"randomAlphaNumeric",
-								"randomBytes",
-								"randomDigits.",
-							}, false),
-							Description: "The type of the secure generator used for generating the change password Id.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
 					},
 				},
@@ -675,16 +661,11 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 							Description: "The length of the secure generator used for generating the email verification one time code.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "randomAlphaNumeric",
-							ValidateFunc: validation.StringInSlice([]string{
-								"randomAlpha",
-								"randomAlphaNumeric",
-								"randomBytes",
-								"randomDigits.",
-							}, false),
-							Description: "The type of the secure generator used for generating the email verification one time code.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomAlphaNumeric),
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the email verification one time code.",
 						},
 					},
 				},
@@ -719,15 +700,10 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"randomAlpha",
-								"randomAlphaNumeric",
-								"randomBytes",
-								"randomDigits.",
-							}, false),
-							Description: "The type of the secure generator used for generating the change password Id.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
 					},
 				},
@@ -750,15 +726,10 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"randomAlpha",
-								"randomAlphaNumeric",
-								"randomBytes",
-								"randomDigits.",
-							}, false),
-							Description: "The type of the secure generator used for generating the change password Id.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
 					},
 				},
@@ -775,16 +746,11 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 							Description: "The length of the secure generator used for generating the registration verification one time code.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "randomAlphaNumeric",
-							ValidateFunc: validation.StringInSlice([]string{
-								"randomAlpha",
-								"randomAlphaNumeric",
-								"randomBytes",
-								"randomDigits.",
-							}, false),
-							Description: "The type of the secure generator used for generating the registration verification one time code.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomAlphaNumeric),
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the registration verification one time code.",
 						},
 					},
 				},
@@ -813,15 +779,10 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"randomAlpha",
-								"randomAlphaNumeric",
-								"randomBytes",
-								"randomDigits.",
-							}, false),
-							Description: "The type of the secure generator used for generating the change password Id.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
 					},
 				},
@@ -844,16 +805,11 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 							Description: "The length of the secure generator used for generating the the two factor code Id.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "randomAlphaNumeric",
-							ValidateFunc: validation.StringInSlice([]string{
-								"randomAlpha",
-								"randomAlphaNumeric",
-								"randomBytes",
-								"randomDigits.",
-							}, false),
-							Description: "The type of the secure generator used for generating the two factor one time code Id.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomAlphaNumeric),
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the two factor one time code Id.",
 						},
 					},
 				},
@@ -1089,5 +1045,15 @@ func newPasswordValidationRules() *schema.Resource {
 				Description: "When enabled the user’s password will be validated during login. If the password does not meet the currently configured validation rules the user will be required to change their password.",
 			},
 		},
+	}
+}
+
+// secureGeneratorTypes returns a list of the valid secure generator types.
+func secureGeneratorTypes() []string {
+	return []string{
+		string(fusionauth.SecureGeneratorType_RandomAlpha),
+		string(fusionauth.SecureGeneratorType_RandomAlphaNumeric),
+		string(fusionauth.SecureGeneratorType_RandomBytes),
+		string(fusionauth.SecureGeneratorType_RandomDigits),
 	}
 }
