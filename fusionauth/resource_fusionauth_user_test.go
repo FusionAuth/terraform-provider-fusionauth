@@ -46,7 +46,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 	startTimezone, endTimezone := "Europe/Paris", "America/Mexico_City"
 	startTwoFactorMethodsEmail, endTwoFactorMethodsEmail := "john.smith@example.com", "jon.kingofthenorth.snow@example.com"
 	startTwoFactorMethodsMobilePhone, endTwoFactorMethodsMobilePhone := "+64987654321", "+64123456789"
-	startTwoFactorMethodsSecret, endTwoFactorMethodsSecret := "Sup3r\nSecr3t\nMFA\nSecr3t", "X7ra\nSup3r\nSecr3t\nMFA\nSecr3t"
+	startTwoFactorMethodsSecret, endTwoFactorMethodsSecret := "Sup3r\nSecr3t\nMFA\nSecr3t", "X7ra\nSup3r\nSecr3t\nMFA\nSecr3t" //nolint:gosec
 	startUsername, endUsername := "john.smith", "jon.snow"
 	startUsernameStatus, endUsernameStatus := "ACTIVE", "PENDING"
 
