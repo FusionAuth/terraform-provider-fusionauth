@@ -8,6 +8,13 @@
 ```hcl
 resource "fusionauth_user" "example" {
   birth_date               = "1976-05-30"
+  data = jsonencode({
+    displayName = "Johnny Boy"
+    favoriteColors = [
+      "Red",
+      "Blue"
+    ]
+  })
   email                    = "example@fusionauth.io"
   encryption_scheme        = "salted-sha256"
   expiry                   = 1571786483322
@@ -33,7 +40,7 @@ resource "fusionauth_user" "example" {
 * `send_set_password_email` - (Optional) Indicates to FusionAuth to send the User an email asking them to set their password. The Email Template that is used is configured in the System Configuration setting for Set Password Email Template.
 * `skip_verification` - (Optional) Indicates to FusionAuth that it should skip email verification even if it is enabled. This is useful for creating admin or internal User accounts.
 * `birth_date` - (Optional) An ISO-8601 formatted date of the User’s birthdate such as YYYY-MM-DD.
-* `data` - (Optional) An object that can hold any information about a User that should be persisted.
+* `data` - (Optional) An object that can hold any information about a User that should be persisted. Must be a JSON serialised string.
 * `email` - (Optional) The User’s email address. An email address is a unique in FusionAuth and stored in lower case.
 * `encryption_scheme` - (Optional) The method for encrypting the User’s password.
 * `expiry` - (Optional) The expiration instant of the User’s account. An expired user is not permitted to login.
