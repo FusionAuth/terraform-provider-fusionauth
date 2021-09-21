@@ -32,7 +32,7 @@ func newEmail() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				Description:      "The default HTML Email Template.",
-				DiffSuppressFunc: templateCompare,
+				DiffSuppressFunc: diffSuppressTemplate,
 			},
 			"default_subject": {
 				Type:        schema.TypeString,
@@ -43,7 +43,7 @@ func newEmail() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				Description:      "The default Text Email Template.",
-				DiffSuppressFunc: templateCompare,
+				DiffSuppressFunc: diffSuppressTemplate,
 			},
 			"from_email": {
 				Type:        schema.TypeString,

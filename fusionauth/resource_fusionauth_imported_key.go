@@ -50,7 +50,7 @@ func resourceImportedKey() *schema.Resource {
 				Computed:         true,
 				ForceNew:         true,
 				Description:      "The certificate to import. The publicKey will be extracted from the certificate.",
-				DiffSuppressFunc: certKeyCompare,
+				DiffSuppressFunc: diffSuppressCertKey,
 			},
 			"kid": {
 				Type:        schema.TypeString,
@@ -70,7 +70,7 @@ func resourceImportedKey() *schema.Resource {
 				Computed:         true,
 				ForceNew:         true,
 				Description:      "The Key public key. Required if importing an RSA or EC key and a certificate is not provided.",
-				DiffSuppressFunc: certKeyCompare,
+				DiffSuppressFunc: diffSuppressCertKey,
 			},
 			"private_key": {
 				Type:             schema.TypeString,
@@ -78,7 +78,7 @@ func resourceImportedKey() *schema.Resource {
 				ForceNew:         true,
 				Sensitive:        true,
 				Description:      "The Key private key. Optional if importing an RSA or EC key. If the key is only to be used for token validation, only a public key is necessary and this field may be omitted.",
-				DiffSuppressFunc: certKeyCompare,
+				DiffSuppressFunc: diffSuppressCertKey,
 			},
 			"secret": {
 				Type:        schema.TypeString,
