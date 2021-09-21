@@ -1,9 +1,10 @@
 package fusionauth
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
+	"reflect"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -32,32 +33,27 @@ func checkResponse(statusCode int, faErrors *fusionauth.Errors) error {
 	}
 }
 
-func templateCompare(k, oldStr, newStr string, d *schema.ResourceData) bool {
-	clean := func(s string) string {
-		s = strings.ReplaceAll(s, " ", "")
-		s = strings.ReplaceAll(s, "\t", "")
-		s = strings.ReplaceAll(s, "\r\n", "\n")
-		s = strings.ReplaceAll(s, "\n", "")
-		return s
+// isEqualJSON checks to see if the two JSON encoded strings are equal.
+func isEqualJSON(a, b string) (equal bool, err error) {
+	var x interface{}
+	if err = json.Unmarshal([]byte(a), &x); err != nil {
+		return false, fmt.Errorf("error unmarshaling %s to JSON: %s", a, err)
 	}
-	oldStr = clean(oldStr)
-	newStr = clean(newStr)
-	return oldStr == newStr
+
+	var y interface{}
+	if err = json.Unmarshal([]byte(b), &y); err != nil {
+		return false, fmt.Errorf("error unmarshaling %s to JSON: %s", b, err)
+	}
+
+	return reflect.DeepEqual(x, y), nil
 }
 
-func certKeyCompare(k, oldStr, newStr string, d *schema.ResourceData) bool {
-	clean := func(s string) string {
-		s = strings.ReplaceAll(s, "\r\n", "\n")
-		s = strings.ReplaceAll(s, "\n", "")
-		s = strings.ReplaceAll(s, "-----BEGIN CERTIFICATE-----", "")
-		s = strings.ReplaceAll(s, "-----END CERTIFICATE-----", "")
-		s = strings.ReplaceAll(s, "-----BEGIN PUBLIC KEY-----", "")
-		s = strings.ReplaceAll(s, "-----END PUBLIC KEY-----", "")
-		s = strings.ReplaceAll(s, "-----BEGIN PRIVATE KEY-----", "")
-		s = strings.ReplaceAll(s, "-----END PRIVATE KEY-----", "")
-		return s
+// injectSchemaChanges pushes the provided schema edits into the provided schema.
+// Primarily for working with multiple schema versions.
+func injectSchemaChanges(schemaToEdit, schemaEdits *schema.Resource) *schema.Resource {
+	for attributeName, schemaEdit := range schemaEdits.Schema {
+		schemaToEdit.Schema[attributeName] = schemaEdit
 	}
-	oldStr = clean(oldStr)
-	newStr = clean(newStr)
-	return oldStr == newStr
+
+	return schemaToEdit
 }
