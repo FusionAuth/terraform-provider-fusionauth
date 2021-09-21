@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -43,9 +44,10 @@ func newUser() *schema.Resource {
 				Description: "An ISO-8601 formatted date of the User’s birthdate such as YYYY-MM-DD.",
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about a User that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about a User that should be persisted. Must be a JSON encoded string.",
+				DiffSuppressFunc: diffSuppressJSON,
 			},
 			"email": {
 				Type:         schema.TypeString,
@@ -340,11 +342,16 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 		return
 	}
 
+	userData, diags := jsonStringToMapStringInterface("data", data.Get("data").(string))
+	if diags != nil {
+		return
+	}
+
 	req = fusionauth.UserRequest{
 		User: fusionauth.User{
 			TenantId:           data.Get("tenant_id").(string),
 			BirthDate:          data.Get("birth_date").(string),
-			Data:               data.Get("data").(map[string]interface{}),
+			Data:               userData,
 			Email:              data.Get("email").(string),
 			Expiry:             int64(data.Get("expiry").(int)),
 			FirstName:          data.Get("first_name").(string),
@@ -384,7 +391,10 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 	if err := data.Set("birth_date", resp.User.BirthDate); err != nil {
 		return diag.Errorf("user.birth_date: %s", err.Error())
 	}
-	if err := data.Set("data", resp.User.Data); err != nil {
+
+	if userData, diags := mapStringInterfaceToJSONString("data", resp.User.Data); diags != nil {
+		return diags
+	} else if err := data.Set("data", userData); err != nil {
 		return diag.Errorf("user.data: %s", err.Error())
 	}
 	if err := data.Set("email", resp.User.Email); err != nil {
@@ -462,6 +472,54 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 	}
 
 	return nil
+}
+
+// jsonStringToMapStringInterface takes in a json encoded string and transforms
+// the data to a map[string]interface{} to comply to the expected type for the
+// fusionauth client.
+func jsonStringToMapStringInterface(fieldName string, in string) (out map[string]interface{}, diags diag.Diagnostics) {
+	out = map[string]interface{}{}
+	if strings.TrimSpace(in) == "" {
+		return out, nil
+	}
+
+	if err := json.Unmarshal([]byte(in), &out); err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("Unable to transform %s to expected type", fieldName),
+			Detail: fmt.Sprintf(
+				"Error unmarshalling %s from an expected JSON encoded string to map[string]interface{}.\n"+
+					"Please make sure you have wrapped your HCL with jsonencode."+
+					"For example, 'jsonencode({ hello = \"world\" })'.\n\n"+
+					"error: %s\n",
+				fieldName, err,
+			),
+		})
+	}
+
+	return
+}
+
+func mapStringInterfaceToJSONString(fieldName string, in map[string]interface{}) (out string, diags diag.Diagnostics) {
+	if len(in) == 0 {
+		return "", nil
+	}
+
+	outBytes, err := json.MarshalIndent(in, "", "  ")
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("Unable to transform %s to expected type", fieldName),
+			Detail: fmt.Sprintf(
+				"Error marshalling %s from a map[string]interface{} to a JSON string.\n"+
+					"error: %s\n",
+				fieldName, err,
+			),
+		})
+		return
+	}
+
+	return string(outBytes), nil
 }
 
 func dataToTwoFactorMethods(data *schema.ResourceData) (twoFactorMethods []fusionauth.TwoFactorMethod, diags diag.Diagnostics) {

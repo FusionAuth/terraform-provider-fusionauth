@@ -63,6 +63,35 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
+// testCheckResourceAttrJSON compares the specified resource's JSON serialized
+// attribute data against the expected data.
+func testCheckResourceAttrJSON(resourceName, attributeName, expectedData string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource %s not found", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("resource ID is not set")
+		}
+
+		data, ok := rs.Primary.Attributes[attributeName]
+		if !ok {
+			return fmt.Errorf("user data is not set")
+		}
+
+		equal, err := isEqualJSON(data, expectedData)
+		if err != nil {
+			return err
+		} else if !equal {
+			return fmt.Errorf("resource %s.%s expected %s, got %s", resourceName, attributeName, expectedData, data)
+		}
+
+		return nil
+	}
+}
+
 // checkFusionauthErrors checks for low-level client errors and then any
 // reported fusionauth errors.
 func checkFusionauthErrors(faErrs *fusionauth.Errors, err error) error {
