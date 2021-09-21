@@ -50,7 +50,7 @@ func userSchemaV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "salted-pbkdf2-hmac-sha256",
-				ValidateFunc: validation.StringInSlice([]string{
+				ValidateDiagFunc: WarnStringInSlice([]string{
 					"salted-md5",
 					"salted-sha256",
 					"salted-hmac-sha256",
