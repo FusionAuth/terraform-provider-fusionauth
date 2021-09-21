@@ -21,13 +21,63 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 	startSendSetPasswordEmail, endSendSetPasswordEmail := false, true
 	startSkipVerification, endSkipVerification := true, false
 	startBirthDate, endBirthDate := "2000-09-01", "2020-09-01"
-	startDataStr := `{
-    testString = "Hello world!"
-  }`
-	endDataStr := `{
-    testStr = "Bonjour le monde!"
-  }`
-	startData, endData := map[string]string{"testString": "Hello world!"}, map[string]string{"testStr": "Bonjour le monde!"}
+	startDataHCL := `{
+  testBool = true
+  testString = "Hello world!"
+  testInt    = 1
+  testFloat  = 1.23
+  testArray  = [ 
+    "test:urn:permission1",
+  ]
+  test = {
+    nested = [
+      "item",
+      "s",
+    ]
+  }
+}`
+	endDataHCL := `{
+  testBool = false
+  testStr = "Bonjour le monde!"
+  testInt    = 2
+  testFloat  = 3.21
+  testArray  = [ 
+    "test:urn:permission2",
+  ]
+  test = {
+    nested = "item"
+  }
+}`
+	startDataJSON := `
+{
+  "testBool":   true,
+  "testString": "Hello world!",
+  "testInt":    1,
+  "testFloat":  1.23,
+  "testArray":  [
+    "test:urn:permission1"
+  ],
+  "test": {
+    "nested": [
+      "item",
+      "s"
+    ]
+  }
+}
+`
+	endDataJSON := `{
+  "testBool":  false,
+  "testStr":   "Bonjour le monde!",
+  "testInt":   2,
+  "testFloat": 3.21,
+  "testArray": [
+    "test:urn:permission2"
+  ],
+  "test": {
+    "nested": "item"
+  }
+}
+`
 
 	startEmail, endEmail := "john.s@example.com", "jon.snow@example.com"
 	startEncryptionScheme, endEncryptionScheme := "salted-md5", "bcrypt"
@@ -62,7 +112,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					startSendSetPasswordEmail,
 					startSkipVerification,
 					startBirthDate,
-					startDataStr,
+					startDataHCL,
 					startEmail,
 					startEncryptionScheme,
 					startExpiry,
@@ -88,7 +138,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					startSendSetPasswordEmail,
 					startSkipVerification,
 					startBirthDate,
-					startData,
+					startDataJSON,
 					startEmail,
 					startEncryptionScheme,
 					startExpiry,
@@ -117,7 +167,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					endSendSetPasswordEmail,
 					endSkipVerification,
 					endBirthDate,
-					endDataStr,
+					endDataHCL,
 					endEmail,
 					endEncryptionScheme,
 					endExpiry,
@@ -143,7 +193,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					endSendSetPasswordEmail,
 					endSkipVerification,
 					endBirthDate,
-					endData,
+					endDataJSON,
 					endEmail,
 					endEncryptionScheme,
 					endExpiry,
@@ -193,7 +243,7 @@ func testUserBasicAccCheckFuncs(
 	sendSetPasswordEmail bool,
 	skipVerification bool,
 	birthDate string,
-	data map[string]string,
+	data string,
 	email string,
 	encryptionScheme string,
 	expiry string,
@@ -222,6 +272,7 @@ func testUserBasicAccCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "skip_verification", fmt.Sprintf("%t", skipVerification)),
 		// User Object Properties
 		resource.TestCheckResourceAttr(tfResourcePath, "birth_date", birthDate),
+		testCheckResourceAttrJSON(tfResourcePath, "data", data),
 		resource.TestCheckResourceAttr(tfResourcePath, "email", email),
 		resource.TestCheckResourceAttr(tfResourcePath, "encryption_scheme", encryptionScheme),
 		resource.TestCheckResourceAttr(tfResourcePath, "expiry", expiry),
@@ -239,15 +290,6 @@ func testUserBasicAccCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "timezone", timezone),
 		resource.TestCheckResourceAttr(tfResourcePath, "username", username),
 		resource.TestCheckResourceAttr(tfResourcePath, "username_status", usernameStatus),
-	}
-
-	for k, v := range data {
-		// Check each data attribute
-		key := fmt.Sprintf("data.%s", k)
-		testChecks = append(
-			testChecks,
-			resource.TestCheckResourceAttr(tfResourcePath, key, v),
-		)
 	}
 
 	mfaTestCount := 0
@@ -427,7 +469,7 @@ resource "fusionauth_user" "test_%[1]s" {
   skip_verification       = %[3]t
 
   birth_date               = "%[4]s"
-  data                     = %[5]s
+  data                     = jsonencode(%[5]s)
   email                    = "%[6]s"
   encryption_scheme        = "%[7]s"
   expiry                   = %[8]s
