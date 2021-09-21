@@ -27,8 +27,8 @@ func diffSuppressCertKey(_, oldStr, newStr string, _ *schema.ResourceData) bool 
 
 // diffSuppressJSON suppresses terraform reporting differences in schema if the
 // returned JSON is equivalent.
-func diffSuppressJSON(_, old, new string, _ *schema.ResourceData) bool {
-	equal, err := isEqualJSON(old, new)
+func diffSuppressJSON(_, oldJSON, newJSON string, _ *schema.ResourceData) bool {
+	equal, err := isEqualJSON(oldJSON, newJSON)
 	if err != nil {
 		return false
 	}
