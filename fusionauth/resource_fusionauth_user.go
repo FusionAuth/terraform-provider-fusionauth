@@ -201,31 +201,6 @@ func newUser() *schema.Resource {
 				Computed:    true,
 				Description: "A list of recovery codes. These may be used in place of a code provided by an MFA factor. They are single use. If a recovery code is used in a disable request, all MFA methods are removed. If, after that, a Multi-Factor method is added, a new set of recovery codes will be generated.",
 			},
-			"two_factor_delivery": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"None",
-					"TextMessage",
-				}, false),
-				Default:     "None",
-				Deprecated:  "Removed in Fusionauth version 1.26.0",
-				Description: "The User’s preferred delivery for verification codes during a two factor login request.",
-			},
-			"two_factor_enabled": {
-				Type:        schema.TypeBool,
-				Default:     false,
-				Optional:    true,
-				Deprecated:  "Removed in Fusionauth version 1.26.0",
-				Description: "Determines if the User has two factor authentication enabled for their account or not.",
-			},
-			"two_factor_secret": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Deprecated:  "Removed in Fusionauth version 1.26.0",
-				Description: "The Base64 encoded secret used to generate Two Factor verification codes.",
-			},
 			"username": {
 				Type:         schema.TypeString,
 				Optional:     true,
