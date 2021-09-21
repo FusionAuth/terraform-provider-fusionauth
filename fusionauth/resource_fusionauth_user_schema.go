@@ -213,7 +213,7 @@ func userSchemaV1() *schema.Resource {
 	}
 }
 
-func upgradeUserSchemaV0ToV1(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func upgradeUserSchemaV0ToV1(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	// Remove deprecated fields from state.
 	delete(rawState, "two_factor_delivery")
 	delete(rawState, "two_factor_enabled")
