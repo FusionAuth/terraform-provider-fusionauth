@@ -214,6 +214,11 @@ func userSchemaV1() *schema.Resource {
 }
 
 func upgradeUserSchemaV0ToV1(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+	if len(rawState) == 0 {
+		// if raw state is nil or empty, return.
+		return map[string]interface{}{}, nil
+	}
+
 	// Remove deprecated fields from state.
 	delete(rawState, "two_factor_delivery")
 	delete(rawState, "two_factor_enabled")
