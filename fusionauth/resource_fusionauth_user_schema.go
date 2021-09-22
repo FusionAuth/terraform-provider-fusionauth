@@ -225,20 +225,16 @@ func upgradeUserSchemaV0ToV1(_ context.Context, rawState map[string]interface{},
 	delete(rawState, "two_factor_secret")
 
 	// Migrate data types.
-	var conformed string
 	if currentValue, ok := rawState["data"]; ok && currentValue != nil {
-		if v, ok := currentValue.(map[string]interface{}); ok {
-			if len(v) > 0 {
-				bytes, err := json.Marshal(currentValue)
-				if err != nil {
-					return rawState, err
-				}
-
-				conformed = string(bytes)
+		if v, ok := currentValue.(map[string]interface{}); ok && len(v) > 0 {
+			bytes, err := json.Marshal(currentValue)
+			if err != nil {
+				return rawState, err
 			}
+
+			rawState["data"] = string(bytes)
 		}
 	}
-	rawState["data"] = conformed
 
 	return rawState, nil
 }
