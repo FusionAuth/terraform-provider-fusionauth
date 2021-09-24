@@ -11,7 +11,7 @@ The FusionAuth APIs are primarily secured using API keys. This API can only be a
 resource "fusionauth_api_key" "example" {
   tenant_id   = "94f751c5-4883-4684-a817-6b106778edec"
   description = "my super secret key"
-  key         = "super-secret-key
+  key         = "super-secret-key"
   permissions_endpoints {
     endpoint = "/api/application"
     get      = true
