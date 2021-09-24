@@ -32,12 +32,11 @@ func resourceAPIKey() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"key": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				Description:  "The Id to use for the new Form. If not specified a secure random UUID will be generated.",
-				ValidateFunc: validation.IsUUID,
-				Sensitive:    true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "API key string. When you create an API key the key is defaulted to a secure random value but the API key is simply a string, so you may call it super-secret-key if you’d like. However a long and random value makes a good API key in that it is unique and difficult to guess.",
+				Sensitive:   true,
 			},
 			"description": {
 				Type:        schema.TypeString,
