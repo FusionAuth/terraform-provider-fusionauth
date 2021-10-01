@@ -43,6 +43,7 @@ func Provider() *schema.Provider {
 			"fusionauth_idp_saml_v2":              resourceIDPSAMLv2(),
 			"fusionauth_api_key":                  resourceAPIKey(),
 			"fusionauth_idp_saml_v2_idp_initated": resourceIDPSAMLv2IdPInitiated(),
+			"fusionauth_idp_xbox":                 resourceIDPXbox(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"fusionauth_lambda":           dataSourceLambda(),
