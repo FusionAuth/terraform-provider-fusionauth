@@ -3,9 +3,10 @@ module github.com/gpsinsight/terraform-provider-fusionauth
 go 1.17
 
 require (
-	github.com/FusionAuth/go-client v0.0.0-20210812175106-fd7ba312f825
-	github.com/hashicorp/go-uuid v1.0.1
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.1
+	github.com/FusionAuth/go-client v0.0.0-20210916203320-cd2ec997031b
+	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
+	github.com/hashicorp/go-uuid v1.0.2
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.8.0
 )
 
 require (
@@ -25,7 +26,6 @@ require (
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320 // indirect
 	github.com/hashicorp/go-getter v1.5.3 // indirect
 	github.com/hashicorp/go-hclog v0.15.0 // indirect
 	github.com/hashicorp/go-multierror v1.0.0 // indirect
@@ -36,7 +36,7 @@ require (
 	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/hashicorp/terraform-exec v0.14.0 // indirect
 	github.com/hashicorp/terraform-json v0.12.0 // indirect
-	github.com/hashicorp/terraform-plugin-go v0.3.0 // indirect
+	github.com/hashicorp/terraform-plugin-go v0.4.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
