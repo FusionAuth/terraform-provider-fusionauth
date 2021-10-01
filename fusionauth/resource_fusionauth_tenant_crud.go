@@ -15,6 +15,7 @@ func createTenant(_ context.Context, data *schema.ResourceData, i interface{}) d
 		Tenant:         buildTenant(data),
 		SourceTenantId: data.Get("source_tenant_id").(string),
 	}
+	client.FAClient.TenantId = ""
 
 	var tid string
 	if t, ok := data.GetOk("tenant_id"); ok {
