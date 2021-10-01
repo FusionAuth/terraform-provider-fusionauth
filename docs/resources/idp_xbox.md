@@ -13,8 +13,9 @@ FusionAuth will also store the Xbox refresh_token returned from the Xbox API in 
 ## Example Usage
 
 ```hcl
+resource "fusionauth_idp_xbox" "xbox" {
   application_configuration {
-    application_id      = fusionauth_application.my_app.id
+    application_id      = fusionauth_application.GPS_Insight.id
     create_registration = true
     enabled             = true
   }
@@ -22,6 +23,7 @@ FusionAuth will also store the Xbox refresh_token returned from the Xbox API in 
   client_id     = "0eb1ce3c-2fb1-4ae9-b361-d49fc6e764cc"
   client_secret = "693s000cbn66k0mxtqzr_c_NfLy3~6_SEA"
   scope         = "Xboxlive.signin Xboxlive.offline_access"
+}
 ```
 
 ## Argument Reference
