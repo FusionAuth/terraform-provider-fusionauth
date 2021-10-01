@@ -26,6 +26,7 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
     - External JWT
     - SAML v2
     - Sony PSN
+    - Steam
     - Xbox
 * themes
 * user
