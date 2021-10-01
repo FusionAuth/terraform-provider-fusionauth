@@ -25,6 +25,7 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
     - Apple
     - External JWT
     - SAML v2
+    - Xbox
 * themes
 * user
 * user action
