@@ -27,6 +27,7 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
     - SAML v2
     - Sony PSN
     - Steam
+    - Twitch
     - Xbox
 * themes
 * user
