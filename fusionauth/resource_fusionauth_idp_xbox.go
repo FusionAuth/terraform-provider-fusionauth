@@ -50,7 +50,7 @@ func resourceIDPXbox() *schema.Resource {
 						},
 						"button_text": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: "This is an optional Application specific override for the top level button text.",
 						},
 						"client_id": {
