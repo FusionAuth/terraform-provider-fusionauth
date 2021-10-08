@@ -14,6 +14,7 @@ func userSchemaV1() *schema.Resource {
 			"tenant_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				ForceNew:     true,
 				Description:  "The unique Id of the tenant used to scope this API request.",
 				ValidateFunc: validation.IsUUID,
 			},
