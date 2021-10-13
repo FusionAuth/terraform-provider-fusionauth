@@ -18,7 +18,7 @@ type FacebookAppConfig struct {
 	AppID              string `json:"appId,omitempty"`
 	ButtonText         string `json:"buttonText,omitempty"`
 	ClientSecret       string `json:"client_secret,omitempty"`
-	CreateRegistration bool   `json:"createRegistration,omitempty"`
+	CreateRegistration bool   `json:"createRegistration"`
 	Enabled            bool   `json:"enabled"`
 	Fields             string `json:"fields,omitempty"`
 	Permissions        string `json:"permissions,omitempty"`

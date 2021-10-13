@@ -24,6 +24,7 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
     - Google
     - Apple
     - External JWT
+    - Facebook
     - SAML v2
     - Sony PSN
     - Steam
