@@ -17,7 +17,7 @@ type IDPExternalJWTProviderBody struct {
 
 type IDPExternalJWTAppConfig struct {
 	CreateRegistration bool `json:"createRegistration"`
-	Enabled            bool `json:"enabled,omitempty"`
+	Enabled            bool `json:"enabled"`
 }
 
 func resourceIDPExternalJWT() *schema.Resource {

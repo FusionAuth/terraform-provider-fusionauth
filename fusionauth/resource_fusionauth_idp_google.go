@@ -20,7 +20,7 @@ type GoogleAppConfig struct {
 	ClientSecret       string `json:"client_secret,omitempty"`
 	Scope              string `json:"scope,omitempty"`
 	CreateRegistration bool   `json:"createRegistration"`
-	Enabled            bool   `json:"enabled,omitempty"`
+	Enabled            bool   `json:"enabled"`
 }
 
 func newIDPGoogle() *schema.Resource {
