@@ -19,7 +19,7 @@ type SteamAppConfig struct {
 	ClientID   string `json:"client_id,omitempty"`
 	// ClientSecret       string `json:"client_secret,omitempty"`
 	CreateRegistration bool   `json:"createRegistration"`
-	Enabled            bool   `json:"enabled,omitempty"`
+	Enabled            bool   `json:"enabled"`
 	Scope              string `json:"scope,omitempty"`
 	WebAPIKey          string `json:"webAPIKey,omitempty"`
 }

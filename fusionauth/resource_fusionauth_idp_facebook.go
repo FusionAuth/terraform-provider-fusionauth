@@ -19,7 +19,7 @@ type FacebookAppConfig struct {
 	ButtonText         string `json:"buttonText,omitempty"`
 	ClientSecret       string `json:"client_secret,omitempty"`
 	CreateRegistration bool   `json:"createRegistration,omitempty"`
-	Enabled            bool   `json:"enabled,omitempty"`
+	Enabled            bool   `json:"enabled"`
 	Fields             string `json:"fields,omitempty"`
 	Permissions        string `json:"permissions,omitempty"`
 }

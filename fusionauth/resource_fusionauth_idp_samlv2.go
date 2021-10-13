@@ -18,7 +18,7 @@ type SAMLAppConfig struct {
 	ButtonImageURL     string `json:"buttonImageURL,omitempty"`
 	ButtonText         string `json:"buttonText,omitempty"`
 	CreateRegistration bool   `json:"createRegistration"`
-	Enabled            bool   `json:"enabled,omitempty"`
+	Enabled            bool   `json:"enabled"`
 }
 
 func resourceIDPSAMLv2() *schema.Resource {

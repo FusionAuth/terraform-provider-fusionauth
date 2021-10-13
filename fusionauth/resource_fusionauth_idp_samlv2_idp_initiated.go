@@ -16,7 +16,7 @@ type SAMLIDPInitiatedIdentityProviderBody struct {
 
 type SAMLIDPInitiatedAppConfig struct {
 	CreateRegistration bool `json:"createRegistration"`
-	Enabled            bool `json:"enabled,omitempty"`
+	Enabled            bool `json:"enabled"`
 }
 
 func resourceIDPSAMLv2IdPInitiated() *schema.Resource {

@@ -19,7 +19,7 @@ type OpenIDAppConfig struct {
 	ButtonText         string          `json:"buttonText,omitempty"`
 	OAuth2             OAuth2AppConfig `json:"oauth2,omitempty"`
 	CreateRegistration bool            `json:"createRegistration"`
-	Enabled            bool            `json:"enabled,omitempty"`
+	Enabled            bool            `json:"enabled"`
 }
 
 type OAuth2AppConfig struct {

@@ -17,7 +17,7 @@ type AppleIdentityProviderBody struct {
 type AppleAppConfig struct {
 	ButtonText         string `json:"buttonText,omitempty"`
 	CreateRegistration bool   `json:"createRegistration"`
-	Enabled            bool   `json:"enabled,omitempty"`
+	Enabled            bool   `json:"enabled"`
 	KeyID              string `json:"keyId,omitempty"`
 	Scope              string `json:"scope,omitempty"`
 	ServicesID         string `json:"servicesId,omitempty"`
