@@ -39,6 +39,7 @@ func newEntityType() *schema.Resource {
 			// 				Type:         schema.TypeString,
 			// 				Optional:     true,
 			// 				Computed:     true,
+			// 				ForceNew:     true,
 			// 				ValidateFunc: validation.IsUUID,
 			// 				Description:  "The permissions id",
 			// 			},
@@ -54,8 +55,8 @@ func newEntityType() *schema.Resource {
 			// 			},
 			// 			"is_default": {
 			// 				Type:        schema.TypeBool,
-			// 				Default:     false,
 			// 				Optional:    true,
+			// 				Computed:    true,
 			// 				Description: "Should the permission be applied by default",
 			// 			},
 			// 		},
@@ -88,14 +89,7 @@ func readEntityType(_ context.Context, data *schema.ResourceData, i interface{})
 		return diag.FromErr(err)
 	}
 
-	t := resp.EntityType
-	if err := data.Set("name", t.Name); err != nil {
-		return diag.Errorf("entity.name: %s", err.Error())
-	}
-	if err := data.Set("data", t.Data); err != nil {
-		return diag.Errorf("entity.data: %s", err.Error())
-	}
-	return nil
+	return entityTypeToData(&resp.EntityType, data)
 }
 
 func createEntityType(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -117,15 +111,7 @@ func createEntityType(_ context.Context, data *schema.ResourceData, i interface{
 		return diag.FromErr(err)
 	}
 
-	data.SetId(resp.EntityType.Id)
-	if err := data.Set("name", resp.EntityType.Name); err != nil {
-		return diag.FromErr(err)
-	}
-	if err := data.Set("data", resp.EntityType.Data); err != nil {
-		return diag.FromErr(err)
-	}
-
-	return nil
+	return entityTypeToData(&resp.EntityType, data)
 }
 
 func updateEntityType(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -175,12 +161,48 @@ func entityTypeToData(entityType *fusionauth.EntityType, data *schema.ResourceDa
 	if err := data.Set("data", entityType.Data); err != nil {
 		return diag.FromErr(err)
 	}
+	// if err := data.Set("permission", buildPermissionSlice(entityType)); err != nil {
+	// 	return diag.FromErr(err)
+	// }
 	return nil
 }
+
+// func buildPermissionSlice(entityType *fusionauth.EntityType) []map[string]interface{} {
+// 	perms := make([]map[string]interface{}, len(entityType.Permissions))
+// 	for i, value := range entityType.Permissions {
+// 		perms[i] = map[string]interface{}{
+// 			"permissions_id": value.Id,
+// 			"name":           value.Name,
+// 			"description":    value.Description,
+// 			"is_default":     value.IsDefault,
+// 		}
+// 	}
+// 	return perms
+// }
 
 func createEntityTypeFromData(data *schema.ResourceData) fusionauth.EntityType {
 	return fusionauth.EntityType{
 		Name: data.Get("name").(string),
 		Data: data.Get("data").(map[string]interface{}),
+		// Permissions: createPermissionsFromData(data),
 	}
 }
+
+// func createPermissionsFromData(data *schema.ResourceData) []fusionauth.EntityTypePermission {
+// 	permissionsDataRaw := data.Get("permission").([]interface{})
+// 	permissions := make([]fusionauth.EntityTypePermission, len(permissionsDataRaw))
+// 	for i, permRaw := range permissionsDataRaw {
+// 		perm := permRaw.(map[string]interface{})
+
+// 		// var id string
+// 		// if perm["permission_id"] != nil {
+// 		// 	id = perm["permission_id"].(string)
+// 		// }
+
+// 		permissions[i] = fusionauth.EntityTypePermission{
+// 			Name:        perm["name"].(string),
+// 			Description: perm["description"].(string),
+// 		}
+// 	}
+// 	return permissions
+// }
