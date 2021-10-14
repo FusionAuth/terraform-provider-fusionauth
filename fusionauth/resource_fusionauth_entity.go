@@ -21,6 +21,7 @@ func newEntity() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
+				ForceNew:     true,
 				Description:  "The id of the entity",
 				ValidateFunc: validation.IsUUID,
 			},
@@ -99,6 +100,13 @@ func createEntity(_ context.Context, data *schema.ResourceData, i interface{}) d
 func readEntity(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
+
+	oldTenantId := client.FAClient.TenantId
+	client.FAClient.TenantId = data.Get("tenant_id").(string)
+
+	defer func() {
+		client.FAClient.TenantId = oldTenantId
+	}()
 
 	resp, faErrs, err := client.FAClient.RetrieveEntity(id)
 	if err != nil {

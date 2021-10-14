@@ -21,6 +21,7 @@ func newEntityType() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
+				ForceNew:     true,
 				Description:  "The id of the entity type",
 				ValidateFunc: validation.IsUUID,
 			},
@@ -106,7 +107,7 @@ func createEntityType(_ context.Context, data *schema.ResourceData, i interface{
 	}
 
 	resp, faErrs, err := client.FAClient.CreateEntityType(id, fusionauth.EntityTypeRequest{
-		EntityType: buildEntityType(data),
+		EntityType: createEntityTypeFromData(data),
 	})
 
 	if err != nil {
@@ -130,12 +131,9 @@ func createEntityType(_ context.Context, data *schema.ResourceData, i interface{
 func updateEntityType(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
-	name := data.Get("name").(string)
 
 	resp, faErrs, err := client.FAClient.UpdateEntityType(id, fusionauth.EntityTypeRequest{
-		EntityType: fusionauth.EntityType{
-			Name: name,
-		},
+		EntityType: createEntityTypeFromData(data),
 	})
 
 	if err != nil {
@@ -166,14 +164,23 @@ func deleteEntityType(_ context.Context, data *schema.ResourceData, i interface{
 	return nil
 }
 
-func buildEntityType(data *schema.ResourceData) fusionauth.EntityType {
-	perms := make([]fusionauth.EntityTypePermission, 0)
-
-	e := fusionauth.EntityType{
-		Name:        data.Get("name").(string),
-		Data:        data.Get("data").(map[string]interface{}),
-		Permissions: perms,
+func entityTypeToData(entityType *fusionauth.EntityType, data *schema.ResourceData) diag.Diagnostics {
+	data.SetId(entityType.Id)
+	if err := data.Set("entity_type_id", entityType.Id); err != nil {
+		return diag.FromErr(err)
 	}
+	if err := data.Set("name", entityType.Name); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := data.Set("data", entityType.Data); err != nil {
+		return diag.FromErr(err)
+	}
+	return nil
+}
 
-	return e
+func createEntityTypeFromData(data *schema.ResourceData) fusionauth.EntityType {
+	return fusionauth.EntityType{
+		Name: data.Get("name").(string),
+		Data: data.Get("data").(map[string]interface{}),
+	}
 }
