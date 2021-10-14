@@ -234,6 +234,8 @@ func upgradeUserSchemaV0ToV1(_ context.Context, rawState map[string]interface{},
 			}
 
 			rawState["data"] = string(bytes)
+		} else {
+			rawState["data"] = ""
 		}
 	}
 
