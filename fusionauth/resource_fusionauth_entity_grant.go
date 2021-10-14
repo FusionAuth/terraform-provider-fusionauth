@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -115,8 +116,11 @@ func entityGrantToData(entityGrant *fusionauth.EntityGrant, data *schema.Resourc
 func deleteEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
-	grantEntityId := data.Get("entity_grant_id").(string)
-	recipientEntityId := data.Get("recipient_entity_id").(string)
+	id := data.Id()
+	parts := strings.SplitN(id, "::", 2)
+
+	grantEntityId := parts[0]
+	recipientEntityId := parts[1]
 
 	resp, faErrs, err := client.FAClient.DeleteEntityGrant(grantEntityId, recipientEntityId, "")
 	if err != nil {
