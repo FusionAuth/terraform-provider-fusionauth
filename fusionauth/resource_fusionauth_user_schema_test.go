@@ -101,6 +101,18 @@ func Test_upgradeUserSchemaV0ToV1(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "Should handle empty user.data from TypeMap to TypeString",
+			args: args{
+				rawState: map[string]interface{}{
+					"data": map[string]interface{}{},
+				},
+			},
+			want: map[string]interface{}{
+				"data": "",
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
