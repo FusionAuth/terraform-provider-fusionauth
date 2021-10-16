@@ -124,7 +124,7 @@ func updateEntityGrant(_ context.Context, data *schema.ResourceData, i interface
 }
 
 func synthesizeEntityGrantId(entityId string, recipientEntityId string) string {
-	return fmt.Sprintf("%s::%s", entityId, recipientEntityId)
+	return fmt.Sprintf("%s::entity::%s", entityId, recipientEntityId)
 }
 
 func entityGrantToData(entityGrant *fusionauth.EntityGrant, data *schema.ResourceData) diag.Diagnostics {
@@ -144,12 +144,21 @@ func deleteEntityGrant(_ context.Context, data *schema.ResourceData, i interface
 	client := i.(Client)
 
 	id := data.Id()
-	parts := strings.SplitN(id, "::", 2)
+	parts := strings.SplitN(id, "::", 3)
 
 	grantEntityId := parts[0]
 	recipientEntityId := parts[1]
 
-	resp, faErrs, err := client.FAClient.DeleteEntityGrant(grantEntityId, recipientEntityId, "")
+	var resp *fusionauth.BaseHTTPResponse
+	var faErrs *fusionauth.Errors
+	var err error
+
+	if parts[1] == "entity" {
+		resp, faErrs, err = client.FAClient.DeleteEntityGrant(grantEntityId, recipientEntityId, "")
+	} else {
+		return diag.Errorf("Entity grant id is malformed, unrecognized switch type %s", parts[1])
+	}
+
 	if err != nil {
 		return diag.FromErr(err)
 	}
