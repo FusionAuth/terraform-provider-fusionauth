@@ -16,7 +16,7 @@ func newEntityGrant() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: createEntityGrant,
 		ReadContext:   readEntityGrant,
-		// UpdateContext: updateEntityGrant,
+		UpdateContext: updateEntityGrant,
 		DeleteContext: deleteEntityGrant,
 		Schema: map[string]*schema.Schema{
 			"grant_entity_id": {
@@ -38,6 +38,12 @@ func newEntityGrant() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: "Data associated with the grant",
+			},
+			"permissions": {
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+				Description: "The permissions provided by the grant",
 			},
 		},
 	}
@@ -63,20 +69,28 @@ func createEntityGrant(_ context.Context, data *schema.ResourceData, i interface
 }
 
 func createEntityGrantFromData(data *schema.ResourceData) fusionauth.EntityGrant {
+	var perms []string
+	if setPermsRaw, ok := data.GetOk("permissions"); ok {
+		setPerms := setPermsRaw.([]interface{})
+		for _, p := range setPerms {
+			perms = append(perms, p.(string))
+		}
+	}
 	return fusionauth.EntityGrant{
 		// TODO: The API supports granting users this way as well.
 		// Probably should select 1 or the other rather than assuming recipient_
 		RecipientEntityId: data.Get("recipient_entity_id").(string),
+		Permissions:       perms,
 	}
 }
 
 func readEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
-	grant_entity_id := data.Get("grant_entity_id").(string)
-	recipient_entity_id := data.Get("recipient_entity_id").(string)
+	grantEntityId := data.Get("grant_entity_id").(string)
+	recipientEntityId := data.Get("recipient_entity_id").(string)
 
-	resp, faErrs, err := client.FAClient.RetrieveEntityGrant(grant_entity_id, recipient_entity_id, "")
+	resp, faErrs, err := client.FAClient.RetrieveEntityGrant(grantEntityId, recipientEntityId, "")
 
 	if err != nil {
 		return diag.Errorf("SearchEntityGrants", err)
@@ -90,6 +104,23 @@ func readEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}
 	}
 
 	return entityGrantToData(&resp.Grant, data)
+}
+
+func updateEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+	client := i.(Client)
+	grantEntityId := data.Get("grant_entity_id").(string)
+	entityGrant := createEntityGrantFromData(data)
+
+	resp, faErrs, err := client.FAClient.UpsertEntityGrant(grantEntityId, fusionauth.EntityGrantRequest{Grant: entityGrant})
+
+	if err != nil {
+		return diag.Errorf("UpsertEntityGrant err: %v", err)
+	}
+	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+		return diag.FromErr(err)
+	}
+
+	return nil
 }
 
 func synthesizeEntityGrantId(entityId string, recipientEntityId string) string {
