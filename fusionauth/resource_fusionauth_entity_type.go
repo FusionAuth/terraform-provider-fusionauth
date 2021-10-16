@@ -30,38 +30,6 @@ func newEntityType() *schema.Resource {
 				Required:    true,
 				Description: "The name of the entity type",
 			},
-			// "permission": {
-			// 	Type:     schema.TypeList,
-			// 	Optional: true,
-			// 	Elem: &schema.Resource{
-			// 		Schema: map[string]*schema.Schema{
-			// 			"permissions_id": {
-			// 				Type:         schema.TypeString,
-			// 				Optional:     true,
-			// 				Computed:     true,
-			// 				ForceNew:     true,
-			// 				ValidateFunc: validation.IsUUID,
-			// 				Description:  "The permissions id",
-			// 			},
-			// 			"name": {
-			// 				Type:        schema.TypeString,
-			// 				Required:    true,
-			// 				Description: "The permission name",
-			// 			},
-			// 			"description": {
-			// 				Type:        schema.TypeString,
-			// 				Optional:    true,
-			// 				Description: "The permission description",
-			// 			},
-			// 			"is_default": {
-			// 				Type:        schema.TypeBool,
-			// 				Optional:    true,
-			// 				Computed:    true,
-			// 				Description: "Should the permission be applied by default",
-			// 			},
-			// 		},
-			// 	},
-			// },
 			"data": {
 				Type:        schema.TypeMap,
 				Optional:    true,
