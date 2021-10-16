@@ -28,9 +28,15 @@ func newEntityGrant() *schema.Resource {
 			},
 			"recipient_entity_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				ForceNew:     true,
 				Description:  "The id of the entity receiving the permission",
+				ValidateFunc: validation.IsUUID,
+			},
+			"user_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The id of the user receiving the permission",
 				ValidateFunc: validation.IsUUID,
 			},
 			"data": {
@@ -52,9 +58,12 @@ func newEntityGrant() *schema.Resource {
 func createEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	grantEntityId := data.Get("grant_entity_id").(string)
-	entityGrant := createEntityGrantFromData(data)
+	dg, resourceIdSuffix, entityGrant := createEntityGrantFromData(data)
+	if dg != nil {
+		return dg
+	}
 
-	resp, faErrs, err := client.FAClient.UpsertEntityGrant(grantEntityId, fusionauth.EntityGrantRequest{Grant: entityGrant})
+	resp, faErrs, err := client.FAClient.UpsertEntityGrant(grantEntityId, fusionauth.EntityGrantRequest{Grant: *entityGrant})
 
 	if err != nil {
 		return diag.Errorf("UpsertEntityGrant err: %v", err)
@@ -63,12 +72,12 @@ func createEntityGrant(_ context.Context, data *schema.ResourceData, i interface
 		return diag.FromErr(err)
 	}
 
-	data.SetId(synthesizeEntityGrantId(grantEntityId, entityGrant.RecipientEntityId))
+	data.SetId(fmt.Sprintf("%s::%s", grantEntityId, resourceIdSuffix))
 
 	return nil
 }
 
-func createEntityGrantFromData(data *schema.ResourceData) fusionauth.EntityGrant {
+func createEntityGrantFromData(data *schema.ResourceData) (d diag.Diagnostics, resourceIdSuffix string, entity *fusionauth.EntityGrant) {
 	var perms []string
 	if setPermsRaw, ok := data.GetOk("permissions"); ok {
 		setPerms := setPermsRaw.([]interface{})
@@ -76,10 +85,24 @@ func createEntityGrantFromData(data *schema.ResourceData) fusionauth.EntityGrant
 			perms = append(perms, p.(string))
 		}
 	}
-	return fusionauth.EntityGrant{
+
+	var recipientId string
+	var userId string
+	if id, ok := data.GetOk("recipient_entity_id"); ok {
+		recipientId = id.(string)
+		resourceIdSuffix = fmt.Sprintf("entity::%s", recipientId)
+	} else if id, ok := data.GetOk("user_id"); ok {
+		userId = id.(string)
+		resourceIdSuffix = fmt.Sprintf("user::%s", userId)
+	} else {
+		return diag.Errorf("Either recipient_entity_id or user_id must be set"), "", nil
+	}
+
+	return nil, resourceIdSuffix, &fusionauth.EntityGrant{
 		// TODO: The API supports granting users this way as well.
 		// Probably should select 1 or the other rather than assuming recipient_
-		RecipientEntityId: data.Get("recipient_entity_id").(string),
+		RecipientEntityId: recipientId,
+		UserId:            userId,
 		Permissions:       perms,
 	}
 }
@@ -109,9 +132,13 @@ func readEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}
 func updateEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	grantEntityId := data.Get("grant_entity_id").(string)
-	entityGrant := createEntityGrantFromData(data)
+	dg, _, entityGrant := createEntityGrantFromData(data)
 
-	resp, faErrs, err := client.FAClient.UpsertEntityGrant(grantEntityId, fusionauth.EntityGrantRequest{Grant: entityGrant})
+	if dg != nil {
+		return dg
+	}
+
+	resp, faErrs, err := client.FAClient.UpsertEntityGrant(grantEntityId, fusionauth.EntityGrantRequest{Grant: *entityGrant})
 
 	if err != nil {
 		return diag.Errorf("UpsertEntityGrant err: %v", err)
@@ -123,14 +150,15 @@ func updateEntityGrant(_ context.Context, data *schema.ResourceData, i interface
 	return nil
 }
 
-func synthesizeEntityGrantId(entityId string, recipientEntityId string) string {
-	return fmt.Sprintf("%s::entity::%s", entityId, recipientEntityId)
-}
-
 func entityGrantToData(entityGrant *fusionauth.EntityGrant, data *schema.ResourceData) diag.Diagnostics {
 	// The EntityGrant has an id, but there doesn't appear to be a way to find it later by that id
 	// So, we generate a synthetic id containing the grant entity and the recipient identity to use for lookup later
-	data.SetId(synthesizeEntityGrantId(entityGrant.Id, entityGrant.RecipientEntityId))
+	if entityGrant.RecipientEntityId != "" {
+		data.SetId(fmt.Sprintf("%s::entity::%s", entityGrant.Entity.Id, entityGrant.RecipientEntityId))
+	} else {
+		data.SetId(fmt.Sprintf("%s::user::%s", entityGrant.Entity.Id, entityGrant.UserId))
+	}
+
 	if err := data.Set("grant_entity_id", entityGrant.Entity.Id); err != nil {
 		return diag.FromErr(err)
 	}
@@ -146,8 +174,12 @@ func deleteEntityGrant(_ context.Context, data *schema.ResourceData, i interface
 	id := data.Id()
 	parts := strings.SplitN(id, "::", 3)
 
+	if len(parts) < 3 {
+		return diag.Errorf("Inexplicable fusionauth_entity_grant id of %s does not match expected pattern", id)
+	}
+
 	grantEntityId := parts[0]
-	recipientEntityId := parts[1]
+	recipientEntityId := parts[2]
 
 	var resp *fusionauth.BaseHTTPResponse
 	var faErrs *fusionauth.Errors
