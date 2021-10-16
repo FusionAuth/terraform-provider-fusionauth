@@ -49,6 +49,7 @@ func Provider() *schema.Provider {
 			"fusionauth_idp_twitch":               resourceIDPTwitch(),
 			"fusionauth_idp_facebook":             resourceIDPFacebook(),
 			"fusionauth_entity_type":              newEntityType(),
+			"fusionauth_entity_type_permission":   newEntityTypePermission(),
 			"fusionauth_entity":                   newEntity(),
 			"fusionauth_entity_grant":             newEntityGrant(),
 		},
