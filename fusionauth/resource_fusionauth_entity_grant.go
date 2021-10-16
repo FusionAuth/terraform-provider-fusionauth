@@ -97,8 +97,10 @@ func synthesizeEntityGrantId(entityId string, recipientEntityId string) string {
 }
 
 func entityGrantToData(entityGrant *fusionauth.EntityGrant, data *schema.ResourceData) diag.Diagnostics {
+	// The EntityGrant has an id, but there doesn't appear to be a way to find it later by that id
+	// So, we generate a synthetic id containing the grant entity and the recipient identity to use for lookup later
 	data.SetId(synthesizeEntityGrantId(entityGrant.Id, entityGrant.RecipientEntityId))
-	if err := data.Set("grant_entity_id", entityGrant.Id); err != nil {
+	if err := data.Set("grant_entity_id", entityGrant.Entity.Id); err != nil {
 		return diag.FromErr(err)
 	}
 	if err := data.Set("recipient_entity_id", entityGrant.RecipientEntityId); err != nil {
@@ -106,12 +108,6 @@ func entityGrantToData(entityGrant *fusionauth.EntityGrant, data *schema.Resourc
 	}
 	return nil
 }
-
-// func updateEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-// 	client := i.(Client)
-
-// 	return nil
-// }
 
 func deleteEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
