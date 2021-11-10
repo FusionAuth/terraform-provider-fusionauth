@@ -122,7 +122,7 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 		diags = append(diags, subDiags...)
 	}
 
-	resourceData, subDiags := jsonStringToMapStringInterface("data", data)
+	resourceData, subDiags := jsonStringToMapStringInterface(data.Get("data").(string))
 	if subDiags != nil {
 		diags = append(diags, subDiags...)
 	}
@@ -172,7 +172,7 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 		return diag.Errorf("user.birth_date: %s", err.Error())
 	}
 
-	if userData, diags := mapStringInterfaceToJSONString("data", resp.User.Data); diags != nil {
+	if userData, diags := mapStringInterfaceToJSONString(resp.User.Data); diags != nil {
 		return diags
 	} else if err := data.Set("data", userData); err != nil {
 		return diag.Errorf("user.data: %s", err.Error())
