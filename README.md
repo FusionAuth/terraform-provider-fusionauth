@@ -1,6 +1,8 @@
 # FusionAuth Provider
 
-This provider is used for setting up [FusionAuth](https://fusionauth.io)
+This provider is used for setting up [FusionAuth](https://fusionauth.io).
+
+For the rendered provider usage documentation, visit the [Terraform Registry](https://registry.terraform.io/providers/gpsinsight/fusionauth/latest/docs).
 
 ## Argument Reference
 
@@ -13,6 +15,10 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io)
 * application
 * application/{application_id}/role
 * email
+* entity
+* entity grant
+* entity type
+* entity type permission
 * form
 * form field
 * group

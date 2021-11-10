@@ -110,3 +110,36 @@ func mapStringInterfaceToJSONString(in map[string]interface{}) (out string, diag
 
 	return string(outBytes), nil
 }
+
+// setResourceData given a data mapping, will load the provided data into the
+// terraform state.
+//
+// Note:
+// - This performs simple top level loading and returning a build up of errors.
+// - Any sub-objects/maps/lists requiring specific ordering will need to be
+//   handled manually.
+func setResourceData(resource string, data *schema.ResourceData, dataMapping map[string]interface{}) (diags diag.Diagnostics) {
+	for k, v := range dataMapping {
+		switch k {
+		case "data":
+			if resourceData, dataDiags := mapStringInterfaceToJSONString(v.(map[string]interface{})); dataDiags != nil {
+				diags = append(diags, dataDiags...)
+			} else if err := data.Set("data", resourceData); err != nil {
+				diags = append(diags, diag.Diagnostic{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("entity.%s: %s", k, err),
+				})
+			}
+
+		default:
+			if err := data.Set(k, v); err != nil {
+				diags = append(diags, diag.Diagnostic{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("%s.%s: %s", resource, k, err),
+				})
+			}
+		}
+	}
+
+	return diags
+}
