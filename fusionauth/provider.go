@@ -48,6 +48,10 @@ func Provider() *schema.Provider {
 			"fusionauth_idp_steam":                resourceIDPSteam(),
 			"fusionauth_idp_twitch":               resourceIDPTwitch(),
 			"fusionauth_idp_facebook":             resourceIDPFacebook(),
+			"fusionauth_entity":                   resourceEntity(),
+			"fusionauth_entity_type":              resourceEntityType(),
+			"fusionauth_entity_type_permission":   resourceEntityTypePermission(),
+			"fusionauth_entity_grant":             resourceEntityGrant(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"fusionauth_lambda":           dataSourceLambda(),
