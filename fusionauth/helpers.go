@@ -60,11 +60,10 @@ func injectSchemaChanges(schemaToEdit, schemaEdits *schema.Resource) *schema.Res
 	return schemaToEdit
 }
 
-// jsonStringToMapStringInterface takes in a json encoded string and transforms
-// the data to a map[string]interface{} to comply to the expected type for the
-// fusionauth client.
-func jsonStringToMapStringInterface(fieldName string, data *schema.ResourceData) (out map[string]interface{}, diags diag.Diagnostics) {
-	in := data.Get(fieldName).(string)
+// jsonStringToMapStringInterface reads data for a "data" key, which it expects
+// to be a json encoded string and transforms the json data to a map[string]interface{}
+// to comply to the expected type for the fusionauth client.
+func jsonStringToMapStringInterface(in string) (out map[string]interface{}, diags diag.Diagnostics) {
 	out = map[string]interface{}{}
 	if strings.TrimSpace(in) == "" {
 		return out, nil
@@ -74,13 +73,13 @@ func jsonStringToMapStringInterface(fieldName string, data *schema.ResourceData)
 		fmt.Printf("jsonStringToMapStringInterface: %s", err)
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("Unable to transform %s to expected type", fieldName),
+			Summary:  "Unable to transform data to expected type",
 			Detail: fmt.Sprintf(
-				"Error unmarshalling %s from an expected JSON encoded string to map[string]interface{}.\n"+
+				"Error unmarshalling data from an expected JSON encoded string to map[string]interface{}.\n"+
 					"Please make sure you have wrapped your HCL with jsonencode."+
 					"For example, 'jsonencode({ hello = \"world\" })'.\n\n"+
 					"error: %s\n",
-				fieldName, err,
+				err,
 			),
 		})
 	}
@@ -90,7 +89,7 @@ func jsonStringToMapStringInterface(fieldName string, data *schema.ResourceData)
 
 // mapStringInterfaceToJSONString transforms a map[string]interface{} to a JSON
 // string.
-func mapStringInterfaceToJSONString(fieldName string, in map[string]interface{}) (out string, diags diag.Diagnostics) {
+func mapStringInterfaceToJSONString(in map[string]interface{}) (out string, diags diag.Diagnostics) {
 	if len(in) == 0 {
 		return "", nil
 	}
@@ -99,11 +98,11 @@ func mapStringInterfaceToJSONString(fieldName string, in map[string]interface{})
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("Unable to transform %s to expected type", fieldName),
+			Summary:  "Unable to transform data to expected type",
 			Detail: fmt.Sprintf(
-				"Error marshalling %s from a map[string]interface{} to a JSON string.\n"+
+				"Error marshalling data from a map[string]interface{} to a JSON string.\n"+
 					"error: %s\n",
-				fieldName, err,
+				err,
 			),
 		})
 		return
