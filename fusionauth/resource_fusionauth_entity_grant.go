@@ -87,13 +87,13 @@ func createEntityGrantFromData(data *schema.ResourceData) (d diag.Diagnostics, r
 	}
 
 	var recipientID string
-	var userId string
+	var userID string
 	if id, ok := data.GetOk("recipient_entity_id"); ok {
 		recipientID = id.(string)
 		resourceIDSuffix = fmt.Sprintf("entity::%s", recipientID)
 	} else if id, ok := data.GetOk("user_id"); ok {
-		userId = id.(string)
-		resourceIDSuffix = fmt.Sprintf("user::%s", userId)
+		userID = id.(string)
+		resourceIDSuffix = fmt.Sprintf("user::%s", userID)
 	} else {
 		return diag.Errorf("Either recipient_entity_id or user_id must be set"), "", nil
 	}
@@ -102,7 +102,7 @@ func createEntityGrantFromData(data *schema.ResourceData) (d diag.Diagnostics, r
 		// TODO: The API supports granting users this way as well.
 		// Probably should select 1 or the other rather than assuming recipient_
 		RecipientEntityId: recipientID,
-		UserId:            userId,
+		UserId:            userID,
 		Permissions:       perms,
 	}
 }
@@ -110,10 +110,10 @@ func createEntityGrantFromData(data *schema.ResourceData) (d diag.Diagnostics, r
 func readEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
-	grantEntityId := data.Get("grant_entity_id").(string)
-	recipientEntityId := data.Get("recipient_entity_id").(string)
+	grantEntityID := data.Get("grant_entity_id").(string)
+	recipientEntityID := data.Get("recipient_entity_id").(string)
 
-	resp, faErrs, err := client.FAClient.RetrieveEntityGrant(grantEntityId, recipientEntityId, "")
+	resp, faErrs, err := client.FAClient.RetrieveEntityGrant(grantEntityID, recipientEntityID, "")
 
 	if err != nil {
 		return diag.Errorf("SearchEntityGrants '%v'", err)
@@ -131,14 +131,14 @@ func readEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}
 
 func updateEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
-	grantEntityId := data.Get("grant_entity_id").(string)
+	grantEntityID := data.Get("grant_entity_id").(string)
 	dg, _, entityGrant := createEntityGrantFromData(data)
 
 	if dg != nil {
 		return dg
 	}
 
-	resp, faErrs, err := client.FAClient.UpsertEntityGrant(grantEntityId, fusionauth.EntityGrantRequest{Grant: *entityGrant})
+	resp, faErrs, err := client.FAClient.UpsertEntityGrant(grantEntityID, fusionauth.EntityGrantRequest{Grant: *entityGrant})
 
 	if err != nil {
 		return diag.Errorf("UpsertEntityGrant err: %v", err)
@@ -178,15 +178,15 @@ func deleteEntityGrant(_ context.Context, data *schema.ResourceData, i interface
 		return diag.Errorf("Inexplicable fusionauth_entity_grant id of %s does not match expected pattern", id)
 	}
 
-	grantEntityId := parts[0]
-	recipientEntityId := parts[2]
+	grantEntityID := parts[0]
+	recipientEntityID := parts[2]
 
 	var resp *fusionauth.BaseHTTPResponse
 	var faErrs *fusionauth.Errors
 	var err error
 
 	if parts[1] == "entity" {
-		resp, faErrs, err = client.FAClient.DeleteEntityGrant(grantEntityId, recipientEntityId, "")
+		resp, faErrs, err = client.FAClient.DeleteEntityGrant(grantEntityID, recipientEntityID, "")
 	} else {
 		return diag.Errorf("Entity grant id is malformed, unrecognized switch type %s", parts[1])
 	}

@@ -133,9 +133,9 @@ func updateEntityTypePermission(_ context.Context, data *schema.ResourceData, i 
 func deleteEntityTypePermission(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
-	entityTypeId := data.Get("entity_type_id").(string)
+	entityTypeID := data.Get("entity_type_id").(string)
 
-	resp, faErrs, err := client.FAClient.DeleteEntityTypePermission(entityTypeId, id)
+	resp, faErrs, err := client.FAClient.DeleteEntityTypePermission(entityTypeID, id)
 	if err != nil {
 		return diag.Errorf("DeleteEntityTypePermission err: %v", err)
 	}

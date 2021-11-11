@@ -149,11 +149,11 @@ func deleteEntity(_ context.Context, data *schema.ResourceData, i interface{}) d
 	client := i.(Client)
 	id := data.Id()
 
-	oldTenantId := client.FAClient.TenantId
+	oldTenantID := client.FAClient.TenantId
 	client.FAClient.TenantId = data.Get("tenant_id").(string)
 
 	defer func() {
-		client.FAClient.TenantId = oldTenantId
+		client.FAClient.TenantId = oldTenantID
 	}()
 
 	resp, faErrs, err := client.FAClient.DeleteEntity(id)
