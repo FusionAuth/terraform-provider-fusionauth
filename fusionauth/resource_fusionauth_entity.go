@@ -78,11 +78,11 @@ func createEntity(_ context.Context, data *schema.ResourceData, i interface{}) d
 	}
 	entity := createEntityFromData(data)
 
-	oldTenantId := client.FAClient.TenantId
+	oldTenantID := client.FAClient.TenantId
 	client.FAClient.TenantId = entity.TenantId
 
 	defer func() {
-		client.FAClient.TenantId = oldTenantId
+		client.FAClient.TenantId = oldTenantID
 	}()
 
 	resp, faErrs, err := client.FAClient.CreateEntity(id, fusionauth.EntityRequest{Entity: entity})
@@ -101,11 +101,11 @@ func readEntity(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	client := i.(Client)
 	id := data.Id()
 
-	oldTenantId := client.FAClient.TenantId
+	oldTenantID := client.FAClient.TenantId
 	client.FAClient.TenantId = data.Get("tenant_id").(string)
 
 	defer func() {
-		client.FAClient.TenantId = oldTenantId
+		client.FAClient.TenantId = oldTenantID
 	}()
 
 	resp, faErrs, err := client.FAClient.RetrieveEntity(id)
@@ -128,11 +128,11 @@ func updateEntity(_ context.Context, data *schema.ResourceData, i interface{}) d
 
 	entity := createEntityFromData(data)
 
-	oldTenantId := client.FAClient.TenantId
+	oldTenantID := client.FAClient.TenantId
 	client.FAClient.TenantId = entity.TenantId
 
 	defer func() {
-		client.FAClient.TenantId = oldTenantId
+		client.FAClient.TenantId = oldTenantID
 	}()
 
 	resp, faErrs, err := client.FAClient.UpdateEntity(id, fusionauth.EntityRequest{Entity: entity})

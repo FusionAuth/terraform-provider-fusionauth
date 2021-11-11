@@ -50,9 +50,9 @@ func createEntityTypePermission(_ context.Context, data *schema.ResourceData, i 
 
 	entityTypePerm := createEntityTypePermissionFromData(data)
 
-	entityTypeId := data.Get("entity_type_id").(string)
+	entityTypeID := data.Get("entity_type_id").(string)
 
-	resp, faErrs, err := client.FAClient.CreateEntityTypePermission(entityTypeId, "", fusionauth.EntityTypeRequest{
+	resp, faErrs, err := client.FAClient.CreateEntityTypePermission(entityTypeID, "", fusionauth.EntityTypeRequest{
 		Permission: entityTypePerm,
 	})
 
@@ -95,8 +95,8 @@ func entityTypePermissionToData(perm *fusionauth.EntityTypePermission, data *sch
 func readEntityTypePermission(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	// We need to find the permission on the main element
-	entityTypeId := data.Get("entity_type_id").(string)
-	resp, faErrs, err := client.FAClient.RetrieveEntityType(entityTypeId)
+	entityTypeID := data.Get("entity_type_id").(string)
+	resp, faErrs, err := client.FAClient.RetrieveEntityType(entityTypeID)
 	if err != nil {
 		return diag.Errorf("RetrieveEntityType err: %v", err)
 	}
@@ -104,9 +104,9 @@ func readEntityTypePermission(_ context.Context, data *schema.ResourceData, i in
 		return diag.FromErr(err)
 	}
 
-	for _, perm := range resp.EntityType.Permissions {
+	for idx, perm := range resp.EntityType.Permissions {
 		if perm.Id == data.Id() {
-			entityTypePermissionToData(&perm, data)
+			entityTypePermissionToData(&resp.EntityType.Permissions[idx], data)
 			return nil
 		}
 	}
@@ -117,8 +117,8 @@ func readEntityTypePermission(_ context.Context, data *schema.ResourceData, i in
 func updateEntityTypePermission(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
-	entityTypeId := data.Get("entity_type_id").(string)
-	resp, faErrs, err := client.FAClient.UpdateEntityTypePermission(entityTypeId, id, fusionauth.EntityTypeRequest{
+	entityTypeID := data.Get("entity_type_id").(string)
+	resp, faErrs, err := client.FAClient.UpdateEntityTypePermission(entityTypeID, id, fusionauth.EntityTypeRequest{
 		Permission: createEntityTypePermissionFromData(data),
 	})
 	if err != nil {

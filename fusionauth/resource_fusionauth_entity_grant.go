@@ -57,13 +57,13 @@ func newEntityGrant() *schema.Resource {
 
 func createEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
-	grantEntityId := data.Get("grant_entity_id").(string)
-	dg, resourceIdSuffix, entityGrant := createEntityGrantFromData(data)
+	grantEntityID := data.Get("grant_entity_id").(string)
+	dg, resourceIDSuffix, entityGrant := createEntityGrantFromData(data)
 	if dg != nil {
 		return dg
 	}
 
-	resp, faErrs, err := client.FAClient.UpsertEntityGrant(grantEntityId, fusionauth.EntityGrantRequest{Grant: *entityGrant})
+	resp, faErrs, err := client.FAClient.UpsertEntityGrant(grantEntityID, fusionauth.EntityGrantRequest{Grant: *entityGrant})
 
 	if err != nil {
 		return diag.Errorf("UpsertEntityGrant err: %v", err)
@@ -72,12 +72,12 @@ func createEntityGrant(_ context.Context, data *schema.ResourceData, i interface
 		return diag.FromErr(err)
 	}
 
-	data.SetId(fmt.Sprintf("%s::%s", grantEntityId, resourceIdSuffix))
+	data.SetId(fmt.Sprintf("%s::%s", grantEntityID, resourceIDSuffix))
 
 	return nil
 }
 
-func createEntityGrantFromData(data *schema.ResourceData) (d diag.Diagnostics, resourceIdSuffix string, entity *fusionauth.EntityGrant) {
+func createEntityGrantFromData(data *schema.ResourceData) (d diag.Diagnostics, resourceIDSuffix string, entity *fusionauth.EntityGrant) {
 	var perms []string
 	if setPermsRaw, ok := data.GetOk("permissions"); ok {
 		setPerms := setPermsRaw.([]interface{})
@@ -86,22 +86,22 @@ func createEntityGrantFromData(data *schema.ResourceData) (d diag.Diagnostics, r
 		}
 	}
 
-	var recipientId string
+	var recipientID string
 	var userId string
 	if id, ok := data.GetOk("recipient_entity_id"); ok {
-		recipientId = id.(string)
-		resourceIdSuffix = fmt.Sprintf("entity::%s", recipientId)
+		recipientID = id.(string)
+		resourceIDSuffix = fmt.Sprintf("entity::%s", recipientID)
 	} else if id, ok := data.GetOk("user_id"); ok {
 		userId = id.(string)
-		resourceIdSuffix = fmt.Sprintf("user::%s", userId)
+		resourceIDSuffix = fmt.Sprintf("user::%s", userId)
 	} else {
 		return diag.Errorf("Either recipient_entity_id or user_id must be set"), "", nil
 	}
 
-	return nil, resourceIdSuffix, &fusionauth.EntityGrant{
+	return nil, resourceIDSuffix, &fusionauth.EntityGrant{
 		// TODO: The API supports granting users this way as well.
 		// Probably should select 1 or the other rather than assuming recipient_
-		RecipientEntityId: recipientId,
+		RecipientEntityId: recipientID,
 		UserId:            userId,
 		Permissions:       perms,
 	}
@@ -116,7 +116,7 @@ func readEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}
 	resp, faErrs, err := client.FAClient.RetrieveEntityGrant(grantEntityId, recipientEntityId, "")
 
 	if err != nil {
-		return diag.Errorf("SearchEntityGrants", err)
+		return diag.Errorf("SearchEntityGrants '%v'", err)
 	}
 	if resp.StatusCode == http.StatusNotFound {
 		data.SetId("")
