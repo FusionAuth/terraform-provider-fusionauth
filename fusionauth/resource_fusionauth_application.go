@@ -97,6 +97,7 @@ func newApplication() *schema.Resource {
 				MaxItems: 1,
 				Elem:     newJWTConfiguration(),
 				Optional: true,
+				Computed: true,
 			},
 			"lambda_configuration": {
 				Type:       schema.TypeList,
@@ -128,6 +129,7 @@ func newApplication() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"allow_token_refresh": {
@@ -184,12 +186,14 @@ func newApplication() *schema.Resource {
 				MaxItems: 1,
 				Elem:     newOAuthConfiguration(),
 				Optional: true,
+				Computed: true,
 			},
 			"registration_configuration": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Elem:     newRegistrationConfiguration(),
 				Optional: true,
+				Computed: true,
 			},
 			"passwordless_configuration_enabled": {
 				Type:        schema.TypeBool,
@@ -201,6 +205,7 @@ func newApplication() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"unverified_enabled": {

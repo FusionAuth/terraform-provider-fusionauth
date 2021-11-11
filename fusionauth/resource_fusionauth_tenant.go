@@ -98,12 +98,14 @@ func newTenant() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem:     newFailedAuthenticationConfiguration(),
 			},
 			"family_configuration": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem:     newFamilyConfiguration(),
 			},
 			"form_configuration": {
@@ -203,6 +205,7 @@ func newTenant() *schema.Resource {
 			},
 			"maximum_password_age": {
 				Optional: true,
+				Computed: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -224,6 +227,7 @@ func newTenant() *schema.Resource {
 			},
 			"minimum_password_age": {
 				Optional: true,
+				Computed: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -330,6 +334,7 @@ func newTenant() *schema.Resource {
 			},
 			"password_encryption_configuration": {
 				Optional: true,
+				Computed: true,
 				Type:     schema.TypeList,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -365,6 +370,7 @@ func newTenant() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem:     newPasswordValidationRules(),
 			},
 			"theme_id": {
@@ -375,6 +381,7 @@ func newTenant() *schema.Resource {
 			},
 			"user_delete_policy": {
 				Optional: true,
+				Computed: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Elem: &schema.Resource{
