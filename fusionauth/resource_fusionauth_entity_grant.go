@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
@@ -25,6 +26,7 @@ func resourceEntityGrant() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
+				ForceNew:     true,
 				Description:  "The unique Id of the tenant used to scope this API request.",
 				ValidateFunc: validation.IsUUID,
 			},
@@ -51,6 +53,7 @@ func resourceEntityGrant() *schema.Resource {
 			"recipient_entity_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				ForceNew:     true,
 				Description:  "The Id of the Entity to which access is granted. If `recipientEntityId` is not provided, then the `userId` will be required.",
 				ValidateFunc: validation.IsUUID,
 				ExactlyOneOf: []string{
@@ -61,6 +64,7 @@ func resourceEntityGrant() *schema.Resource {
 			"user_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				ForceNew:     true,
 				Description:  "The User Id for which access is granted. If `userId` is not provided, then the `recipientEntityId` will be required.",
 				ValidateFunc: validation.IsUUID,
 				ExactlyOneOf: []string{
@@ -98,9 +102,19 @@ func createEntityGrant(ctx context.Context, data *schema.ResourceData, i interfa
 		return diag.FromErr(err)
 	}
 
+	data.SetId(syntheticGrantID(data))
 	// The entity grant api doesn't return a payload on POST/PUT, so we have to
 	// search for the newly created/updated grant with a read op.
 	return readEntityGrant(ctx, data, i)
+}
+
+func syntheticGrantID(data *schema.ResourceData) string {
+	entityID := data.Get("entity_id").(string)
+	if recipientID, ok := data.GetOk("recipient_entity_id"); ok {
+		return fmt.Sprintf("%s_%s", entityID, recipientID.(string))
+	}
+	userID := data.Get("user_id").(string)
+	return fmt.Sprintf("%s_%s", entityID, userID)
 }
 
 func readEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
