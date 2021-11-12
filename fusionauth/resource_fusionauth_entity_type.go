@@ -39,6 +39,7 @@ func resourceEntityType() *schema.Resource {
 			"jwt_configuration": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				MaxItems:    1,
 				Description: "A block to configure JSON Web Token (JWT) options.",
 				Elem: &schema.Resource{
