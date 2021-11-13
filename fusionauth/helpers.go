@@ -143,3 +143,14 @@ func setResourceData(resource string, data *schema.ResourceData, dataMapping map
 
 	return diags
 }
+
+func intMapToStringMap(intMap map[string]interface{}) map[string]string {
+	m := map[string]string{}
+	for k, v := range intMap {
+		if s, ok := v.(string); ok {
+			m[k] = s
+		}
+	}
+
+	return m
+}
