@@ -121,13 +121,8 @@ func buildUserAction(data *schema.ResourceData) fusionauth.UserAction {
 	if d, ok := data.GetOk("include_email_in_event_json"); ok {
 		ua.IncludeEmailInEventJSON = d.(bool)
 	}
-	if d, ok := data.GetOk("localized_names"); ok {
-		names := d.(map[string]interface{})
-		ua.LocalizedNames = make(map[string]string)
-
-		for k, v := range names {
-			ua.LocalizedNames[k] = v.(string)
-		}
+	if i, ok := data.GetOk("localized_names"); ok {
+		ua.LocalizedNames = intMapToStringMap(i.(map[string]interface{}))
 	}
 	if d, ok := data.GetOk("modify_email_template_id"); ok {
 		ua.ModifyEmailTemplateId = d.(string)
@@ -278,13 +273,8 @@ func buildUserActionOptions(d interface{}) []fusionauth.UserActionOption {
 			Name: v.Get("name").(string),
 		}
 
-		if lns, ok := v.GetOk("localized_names"); ok {
-			names := lns.(map[string]interface{})
-			uao.LocalizedNames = make(map[string]string)
-
-			for k, v := range names {
-				uao.LocalizedNames[k] = v.(string)
-			}
+		if i, ok := v.GetOk("localized_names"); ok {
+			uao.LocalizedNames = intMapToStringMap(i.(map[string]interface{}))
 		}
 
 		opts = append(opts, uao)

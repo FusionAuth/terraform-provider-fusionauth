@@ -191,13 +191,8 @@ func buildWebhook(data *schema.ResourceData) fusionauth.Webhook {
 		Url:                        data.Get("url").(string),
 	}
 
-	if hi, ok := data.GetOk("headers"); ok {
-		h := hi.(map[string]interface{})
-		m := make(map[string]string)
-		for k, v := range h {
-			m[k] = v.(string)
-		}
-		wh.Headers = m
+	if i, ok := data.GetOk("headers"); ok {
+		wh.Headers = intMapToStringMap(i.(map[string]interface{}))
 	}
 
 	return wh

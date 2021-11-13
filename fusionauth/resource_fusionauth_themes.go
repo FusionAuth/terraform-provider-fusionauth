@@ -373,11 +373,8 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 		},
 	}
 
-	m := data.Get("localized_messages").(map[string]interface{})
-	t.LocalizedMessages = make(map[string]string)
-
-	for k, v := range m {
-		t.LocalizedMessages[k] = v.(string)
+	if i, ok := data.GetOk("localized_messages"); ok {
+		t.LocalizedMessages = intMapToStringMap(i.(map[string]interface{}))
 	}
 
 	return t

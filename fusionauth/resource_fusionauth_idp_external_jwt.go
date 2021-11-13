@@ -225,13 +225,8 @@ func buildIDPExternalJWT(data *schema.ResourceData) IDPExternalJWTProviderBody {
 		UniqueIdentityClaim: data.Get("unique_identity_claim").(string),
 	}
 
-	if x, ok := data.GetOk("claim_map"); ok {
-		m := make(map[string]string)
-		cm := x.(map[string]interface{})
-		for k, v := range cm {
-			m[k] = v.(string)
-		}
-		idp.ClaimMap = m
+	if i, ok := data.GetOk("claim_map"); ok {
+		idp.ClaimMap = intMapToStringMap(i.(map[string]interface{}))
 	}
 
 	ac := buildIDPExternalJWTAppConfig("application_configuration", data)

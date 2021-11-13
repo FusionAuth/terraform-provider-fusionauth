@@ -93,19 +93,19 @@ func buildEmail(data *schema.ResourceData) fusionauth.EmailTemplate {
 	}
 
 	if i, ok := data.GetOk("localized_from_names"); ok {
-		e.LocalizedFromNames = i.(map[string]string)
+		e.LocalizedFromNames = intMapToStringMap(i.(map[string]interface{}))
 	}
 
 	if i, ok := data.GetOk("localized_html_templates"); ok {
-		e.LocalizedHtmlTemplates = i.(map[string]string)
+		e.LocalizedHtmlTemplates = intMapToStringMap(i.(map[string]interface{}))
 	}
 
 	if i, ok := data.GetOk("localized_subjects"); ok {
-		e.LocalizedSubjects = i.(map[string]string)
+		e.LocalizedSubjects = intMapToStringMap(i.(map[string]interface{}))
 	}
 
 	if i, ok := data.GetOk("localized_text_templates"); ok {
-		e.LocalizedTextTemplates = i.(map[string]string)
+		e.LocalizedTextTemplates = intMapToStringMap(i.(map[string]interface{}))
 	}
 	return e
 }
