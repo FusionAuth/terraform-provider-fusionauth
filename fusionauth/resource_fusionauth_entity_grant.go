@@ -40,7 +40,7 @@ func resourceEntityGrant() *schema.Resource {
 			"data": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				Description:      "An object that can hold any information about the Entity that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema.  Must be a JSON string.",
+				Description:      "An object that can hold any information about the Grant that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema.  Must be a JSON string.",
 				DiffSuppressFunc: diffSuppressJSON,
 				ValidateFunc:     validation.StringIsJSON,
 			},
