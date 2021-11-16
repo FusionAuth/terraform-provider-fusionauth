@@ -54,7 +54,7 @@ func resourceEntityGrant() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Description:  "The Id of the Entity to which access is granted. If `recipientEntityId` is not provided, then the `userId` will be required.",
+				Description:  "The Entity Id for which access is granted. If `recipientEntityId` is not provided, then the `userId` will be required.",
 				ValidateFunc: validation.IsUUID,
 				ExactlyOneOf: []string{
 					"recipient_entity_id",
