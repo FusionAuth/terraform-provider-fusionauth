@@ -53,6 +53,7 @@ func resourceEntity() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
+				Sensitive:   true,
 				Description: "The OAuth 2.0 client Id. If you leave this blank during a POST, the value of the Entity Id will be used.",
 			},
 			"name": {
