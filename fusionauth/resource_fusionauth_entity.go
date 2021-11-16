@@ -39,7 +39,7 @@ func resourceEntity() *schema.Resource {
 			"data": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				Description:      "An object that can hold any information about the Grant that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema.  Must be a JSON string.",
+				Description:      "An object that can hold any information about the Entity that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema.  Must be a JSON string.",
 				DiffSuppressFunc: diffSuppressJSON,
 				ValidateFunc:     validation.StringIsJSON,
 			},
@@ -54,12 +54,12 @@ func resourceEntity() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Sensitive:   true,
-				Description: "The OAuth 2.0 client Id. If you leave this blank during a POST, the value of the Entity Id will be used.",
+				Description: "The OAuth 2.0 client secret. If you leave this blank during a POST, a secure secret will be generated for you. If you leave this blank during an update, the previous value will be maintained. For both Create and Update you can provide a value and it will be stored.",
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The Id of the Entity Type. Types are consulted for permission checks.",
+				Description: "A descriptive name for the Entity (i.e. 'Raviga' or 'Email Service').",
 			},
 			"entity_type_id": {
 				Type:         schema.TypeString,
