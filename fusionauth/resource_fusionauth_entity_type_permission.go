@@ -24,6 +24,7 @@ func resourceEntityTypePermission() *schema.Resource {
 			"entity_type_id": {
 				Type:         schema.TypeString,
 				Required:     true,
+				ForceNew:     true,
 				Description:  "The Id of the Entity Type.",
 				ValidateFunc: validation.IsUUID,
 			},
@@ -56,6 +57,7 @@ func resourceEntityTypePermission() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "The name of the Permission.",
 			},
 		},
