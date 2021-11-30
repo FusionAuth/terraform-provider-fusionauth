@@ -22,6 +22,7 @@ For the rendered provider usage documentation, visit the [Terraform Registry](ht
 * form
 * form field
 * group
+* generic connector
 * key
 * imported key
 * lambda
