@@ -113,7 +113,7 @@ func createGenericConnector(_ context.Context, data *schema.ResourceData, i inte
 	connector := buildGenericConnector(data)
 	resp, faErrs, err := CreateConnector(*client.FAClient, connector.Id, GenericConnectorRequest{Connector: connector})
 	if err != nil {
-		return diag.Errorf("CreateWebhook err: %v", err)
+		return diag.Errorf("CreateGenericConnector err: %v", err)
 	}
 
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
@@ -221,25 +221,25 @@ func (b *GenericConnectorResponse) SetStatus(status int) {
 	b.StatusCode = status
 }
 
-func CreateConnector(client fusionauth.FusionAuthClient, connectorId string, request GenericConnectorRequest) (*GenericConnectorResponse, *fusionauth.Errors, error) {
-	return makeConnectorRequest(client, connectorId, request, http.MethodPost)
+func CreateConnector(client fusionauth.FusionAuthClient, connectorID string, request GenericConnectorRequest) (*GenericConnectorResponse, *fusionauth.Errors, error) {
+	return makeConnectorRequest(client, connectorID, request, http.MethodPost)
 }
 
-func RetrieveConnector(client fusionauth.FusionAuthClient, connectorId string) (*GenericConnectorResponse, *fusionauth.Errors, error) {
-	return makeConnectorRequest(client, connectorId, GenericConnectorRequest{}, http.MethodGet)
+func RetrieveConnector(client fusionauth.FusionAuthClient, connectorID string) (*GenericConnectorResponse, *fusionauth.Errors, error) {
+	return makeConnectorRequest(client, connectorID, GenericConnectorRequest{}, http.MethodGet)
 }
 
-func UpdateConnector(client fusionauth.FusionAuthClient, connectorId string, request GenericConnectorRequest) (*GenericConnectorResponse, *fusionauth.Errors, error) {
-	return makeConnectorRequest(client, connectorId, request, http.MethodPut)
+func UpdateConnector(client fusionauth.FusionAuthClient, connectorID string, request GenericConnectorRequest) (*GenericConnectorResponse, *fusionauth.Errors, error) {
+	return makeConnectorRequest(client, connectorID, request, http.MethodPut)
 }
 
-func makeConnectorRequest(client fusionauth.FusionAuthClient, connectorId string, request GenericConnectorRequest, method string) (*GenericConnectorResponse, *fusionauth.Errors, error) {
+func makeConnectorRequest(client fusionauth.FusionAuthClient, connectorID string, request GenericConnectorRequest, method string) (*GenericConnectorResponse, *fusionauth.Errors, error) {
 	var resp GenericConnectorResponse
 	var errors fusionauth.Errors
 
 	restClient := client.Start(&resp, &errors)
 	err := restClient.WithUri("/api/connector").
-		WithUriSegment(connectorId).
+		WithUriSegment(connectorID).
 		WithJSONBody(request).
 		WithMethod(method).
 		Do()

@@ -14,7 +14,7 @@ func TestAccGenericConnector(t *testing.T) {
 	resourceName := randString10()
 	tfResourcePath := fmt.Sprintf("fusionauth_generic_connector.test_%s", resourceName)
 
-	startAuthenticationUrl, endAuthenticationUrl := "http://example-start.com", "http://example-end.com"
+	startAuthenticationURL, endAuthenticationURL := "http://example-start.com", "http://example-end.com"
 	startConnectTimeout, endConnectTimeout := "2048", "4096"
 	startAuthenticationPassword, endAuthenticationPassword := "super-secret-start", "super-secret-end"
 	startAuthenicationUsername, endAuthenticationUsername := "me", "me-too"
@@ -28,7 +28,7 @@ func TestAccGenericConnector(t *testing.T) {
 			{
 				Config: testAccGenericConnectorBasicConfig(
 					resourceName,
-					startAuthenticationUrl,
+					startAuthenticationURL,
 					startConnectTimeout,
 					startAuthenticationPassword,
 					startAuthenicationUsername,
@@ -37,7 +37,7 @@ func TestAccGenericConnector(t *testing.T) {
 				),
 				Check: testGenericConnectorAccTestCheckFuncs(
 					tfResourcePath,
-					startAuthenticationUrl,
+					startAuthenticationURL,
 					startConnectTimeout,
 					startAuthenticationPassword,
 					startAuthenicationUsername,
@@ -48,7 +48,7 @@ func TestAccGenericConnector(t *testing.T) {
 			{
 				Config: testAccGenericConnectorBasicConfig(
 					resourceName,
-					endAuthenticationUrl,
+					endAuthenticationURL,
 					endConnectTimeout,
 					endAuthenticationPassword,
 					endAuthenticationUsername,
@@ -57,7 +57,7 @@ func TestAccGenericConnector(t *testing.T) {
 				),
 				Check: testGenericConnectorAccTestCheckFuncs(
 					tfResourcePath,
-					endAuthenticationUrl,
+					endAuthenticationURL,
 					endConnectTimeout,
 					endAuthenticationPassword,
 					endAuthenticationUsername,
@@ -69,7 +69,7 @@ func TestAccGenericConnector(t *testing.T) {
 	})
 }
 
-func testAccGenericConnectorBasicConfig(resourceName, authenticationUrl, connectTimeout, authenticationPassword, authenticationUsername, name, readTimeout string) string {
+func testAccGenericConnectorBasicConfig(resourceName, authenticationURL, connectTimeout, authenticationPassword, authenticationUsername, name, readTimeout string) string {
 	return fmt.Sprintf(`
 	# Generic connector setup
 	resource "fusionauth_generic_connector" "test_%[1]s" {
@@ -83,13 +83,13 @@ func testAccGenericConnectorBasicConfig(resourceName, authenticationUrl, connect
 		name                         = "%[6]s"
 		read_timeout                 = %[7]s
 		}
-	`, resourceName, authenticationUrl, connectTimeout, authenticationPassword, authenticationUsername, name, readTimeout)
+	`, resourceName, authenticationURL, connectTimeout, authenticationPassword, authenticationUsername, name, readTimeout)
 }
 
-func testGenericConnectorAccTestCheckFuncs(tfResourcePath, authenticationUrl, connectTimeout, authenticationPassword, authenticationUsername, name, readTimeout string) resource.TestCheckFunc {
+func testGenericConnectorAccTestCheckFuncs(tfResourcePath, authenticationURL, connectTimeout, authenticationPassword, authenticationUsername, name, readTimeout string) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		testAccCheckGenericConnectorExists(tfResourcePath),
-		resource.TestCheckResourceAttr(tfResourcePath, "authentication_url", authenticationUrl),
+		resource.TestCheckResourceAttr(tfResourcePath, "authentication_url", authenticationURL),
 		resource.TestCheckResourceAttr(tfResourcePath, "connect_timeout", connectTimeout),
 		resource.TestCheckResourceAttr(tfResourcePath, "data.important-key", "important-value"),
 		resource.TestCheckResourceAttr(tfResourcePath, "debug", "false"),
@@ -104,7 +104,6 @@ func testGenericConnectorAccTestCheckFuncs(tfResourcePath, authenticationUrl, co
 
 func testAccCheckGenericConnectorExists(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-
 		rs, ok := s.RootModule().Resources[resourceName]
 
 		if !ok {
