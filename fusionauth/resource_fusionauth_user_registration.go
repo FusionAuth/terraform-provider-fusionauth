@@ -98,6 +98,7 @@ func buildRegistration(data *schema.ResourceData) fusionauth.RegistrationRequest
 			Data:               data.Get("data").(map[string]interface{}),
 			PreferredLanguages: handleStringSlice("preferred_languages", data),
 			Roles:              handleStringSlice("roles", data),
+			Timezone:           data.Get("timezone").(string),
 			Username:           data.Get("username").(string),
 		},
 		GenerateAuthenticationToken:  data.Get("generate_authentication_token").(bool),
