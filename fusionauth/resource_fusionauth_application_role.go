@@ -78,13 +78,50 @@ func createApplicationRole(_ context.Context, data *schema.ResourceData, i inter
 		return diag.FromErr(err)
 	}
 
-	data.SetId(resp.Role.Id)
-
-	return nil
+	return applicationRoleToData(data, aid, resp)
 }
 
-func readApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-	return nil
+func readApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+	client := i.(Client)
+
+	// application roles are only returned via an application, so we need
+	// to grab the application and drill down into the linked roles.
+	appID := data.Get("application_id").(string)
+	resp, err := client.FAClient.RetrieveApplication(appID)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if resp.StatusCode == http.StatusNotFound {
+		data.SetId("")
+		return nil
+	}
+	if err = checkResponse(resp.StatusCode, nil); err != nil {
+		return diag.FromErr(err)
+	}
+
+	// Attempt to find the linked entity type permission...
+	var isFound bool
+	resourceID := data.Id()
+	for _, role := range resp.Application.Roles {
+		if role.Id == resourceID {
+			// Manually create a single permission response in order to update
+			// terraform state.
+			localRes := &fusionauth.ApplicationResponse{
+				Role: role,
+			}
+			diags = applicationRoleToData(data, appID, localRes)
+			isFound = true
+			break
+		}
+	}
+
+	if !isFound {
+		// Couldn't find the permission given the entity type permission :(
+		data.SetId("")
+		return nil
+	}
+
+	return diags
 }
 
 func updateApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -98,7 +135,7 @@ func updateApplicationRole(_ context.Context, data *schema.ResourceData, i inter
 	)
 
 	if err != nil {
-		return diag.Errorf("CreateApplicationRole errors: %v", err)
+		return diag.Errorf("UpdateApplicationRole errors: %v", err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -109,7 +146,7 @@ func updateApplicationRole(_ context.Context, data *schema.ResourceData, i inter
 		return diag.FromErr(err)
 	}
 
-	return nil
+	return applicationRoleToData(data, aid, resp)
 }
 
 func deleteApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -122,9 +159,23 @@ func deleteApplicationRole(_ context.Context, data *schema.ResourceData, i inter
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+	if err = checkResponse(resp.StatusCode, faErrs); err != nil {
 		return diag.FromErr(err)
 	}
 
 	return nil
+}
+
+func applicationRoleToData(data *schema.ResourceData, applicationID string, res *fusionauth.ApplicationResponse) (diags diag.Diagnostics) {
+	data.SetId(res.Role.Id)
+
+	dataMapping := map[string]interface{}{
+		"application_id": applicationID,
+		"description":    res.Role.Description,
+		"is_default":     res.Role.IsDefault,
+		"is_super_role":  res.Role.IsSuperRole,
+		"name":           res.Role.Name,
+	}
+
+	return setResourceData("application_role", data, dataMapping)
 }
