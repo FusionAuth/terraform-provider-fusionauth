@@ -1,13 +1,15 @@
 package fusionauth
 
 import (
+	"fmt"
+
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func buildTenant(data *schema.ResourceData) fusionauth.Tenant {
-	return fusionauth.Tenant{
+func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics) {
+	tenant := fusionauth.Tenant{
 		Data: data.Get("data").(map[string]interface{}),
 		EmailConfiguration: fusionauth.EmailConfiguration{
 			ForgotPasswordEmailTemplateId: data.Get("email_configuration.0.forgot_password_email_template_id").(string),
@@ -228,6 +230,49 @@ func buildTenant(data *schema.ResourceData) fusionauth.Tenant {
 			},
 		},
 	}
+
+	connectorPolicies, diags := buildConnectorPolicies(data)
+	if diags == nil {
+		tenant.ConnectorPolicies = connectorPolicies
+	}
+
+	return tenant, diags
+}
+
+func buildConnectorPolicies(data *schema.ResourceData) (connectorPolicies []fusionauth.ConnectorPolicy, diags diag.Diagnostics) {
+	policiesData, ok := data.Get("connector_policy").([]interface{})
+	if policiesData == nil || !ok {
+		if !ok {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Unable to convert connector policy data",
+				Detail:   "connector_policy unable to be typecast to []interface{}",
+			})
+		}
+
+		// Nothing to do here!
+		return
+	}
+
+	connectorPolicies = make([]fusionauth.ConnectorPolicy, len(policiesData))
+
+	for i, policiesDatum := range policiesData {
+		if connectorPolicy, ok := policiesDatum.(map[string]interface{}); !ok {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Unable to convert a connector policy",
+				Detail:   fmt.Sprintf("connector_policy.%d: %#+v unable to be typecast to []interface{}", i, policiesDatum),
+			})
+		} else {
+			connectorPolicies[i] = fusionauth.ConnectorPolicy{
+				ConnectorId: connectorPolicy["connector_id"].(string),
+				Domains:     handleStringSliceFromSet(connectorPolicy["domains"].(*schema.Set)),
+				Migrate:     connectorPolicy["migrate"].(bool),
+			}
+		}
+	}
+
+	return connectorPolicies, diags
 }
 
 func buildEventConfiguration(key string, data *schema.ResourceData) fusionauth.EventConfiguration {
@@ -260,6 +305,23 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	if err := data.Set("data", t.Data); err != nil {
 		return diag.Errorf("tenant.data: %s", err.Error())
+	}
+
+	connectorPolicies := []map[string]interface{}{}
+	// fusion auth always creates a default connector and connector policy. If you are not
+	// creating additional connectors, then reading in the default connector messes with
+	// the terraform state.
+	if len(t.ConnectorPolicies) > 1 {
+		for _, policy := range t.ConnectorPolicies {
+			connectorPolicies = append(connectorPolicies, map[string]interface{}{
+				"connector_id": policy.ConnectorId,
+				"domains":      policy.Domains,
+				"migrate":      policy.Migrate,
+			})
+		}
+	}
+	if err := data.Set("connector_policy", connectorPolicies); err != nil {
+		return diag.Errorf("tenant.connectory_policy: %s", err.Error())
 	}
 
 	err := data.Set("email_configuration", []map[string]interface{}{

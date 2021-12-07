@@ -26,6 +26,30 @@ func newTenant() *schema.Resource {
 				Description:  "The Id to use for the new Tenant. If not specified a secure random UUID will be generated.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"connector_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"connector_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The identifier of the Connector to which this policy refers.",
+						},
+						"domains": {
+							Type:        schema.TypeSet,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Optional:    true,
+							Description: "A list of email domains to which this connector should apply. A value of [\"*\"] indicates this connector applies to all users.",
+						},
+						"migrate": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "If true, the user’s data will be migrated to FusionAuth at first successful authentication",
+						},
+					},
+				},
+			},
 			"data": {
 				Type:        schema.TypeMap,
 				Optional:    true,

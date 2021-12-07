@@ -14,6 +14,11 @@ Tenants may also be useful in a test or staging environment to allow multiple us
 
 resource "fusionauth_tenant" "example" {
   name = "Playtronics Co."
+  connector_policy {
+    connector_id = "b57b3d0f-f7a4-4831-a838-549717362ea8"
+    domains      = ["*"]
+    migrate      = false
+  }
   email_configuration {
     forgot_password_email_template_id = fusionauth_email.ForgotPassword_Example.id
     host                              = "smtp.sendgrid.net"
@@ -223,6 +228,10 @@ resource "fusionauth_tenant" "example" {
 ## Argument Reference
 * `source_tenant_id` - (Optional) The optional Id of an existing Tenant to make a copy of. If present, the tenant.id and tenant.name values of the request body will be applied to the new Tenant, all other values will be copied from the source Tenant to the new Tenant.
 * `tenant_id` - (Optional) The Id to use for the new Tenant. If not specified a secure random UUID will be generated.
+* `connector_policy` - (Optional) A list of Connector policies. Users will be authenticated against Connectors in order. Each Connector can be included in this list at most once and must exist.
+    - `connector_id` - (Optional) The identifier of the Connector to which this policy refers.
+    - `domains` - (Optional) A list of email domains to which this connector should apply. A value of ["*"] indicates this connector applies to all users.
+    - `migrate` - (Optional) If true, the user’s data will be migrated to FusionAuth at first successful authentication; subsequent authentications will occur against the FusionAuth datastore. If false, the Connector’s source will be treated as authoritative.
 * `data` - (Optional) An object that can hold any information about the Tenant that should be persisted.
 * `email_configuration` - (Required)
     - `default_from_name` - (Optional) The default From Name used in sending emails when a from name is not provided on an individual email template. This is the display name part of the email address ( i.e. Jared Dunn <jared@piedpiper.com>).
@@ -287,7 +296,7 @@ resource "fusionauth_tenant" "example" {
         - `length` - (Required) TThe length of the secure generator used for generating the the two factor code Id.
         - `type` - (Optional) The type of the secure generator used for generating the two factor one time code Id.
 * `failed_authentication_configuration` - (Optional)
-    - `action_duration` - (Required) The duration of the User Action. This value along with the actionDurationUnit will be used to set the duration of the User Action. Value must be greater than 0. 
+    - `action_duration` - (Required) The duration of the User Action. This value along with the actionDurationUnit will be used to set the duration of the User Action. Value must be greater than 0.
     - `action_duration_unit` - (Optional) The unit of time associated with a duration.
     - `reset_count_in_seconds` - (Optional) The length of time in seconds before the failed authentication count will be reset. Value must be greater than 0.
     - `too_many_attempts` - (Optional) The number of failed attempts considered to be too many. Once this threshold is reached the specified User Action will be applied to the user for the duration specified. Value must be greater than 0.
