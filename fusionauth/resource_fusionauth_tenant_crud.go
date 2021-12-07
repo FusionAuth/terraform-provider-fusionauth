@@ -11,8 +11,13 @@ import (
 
 func createTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
+	tenant, diags := buildTenant(data)
+	if diags != nil {
+		return diags
+	}
+
 	t := fusionauth.TenantRequest{
-		Tenant:         buildTenant(data),
+		Tenant:         tenant,
 		SourceTenantId: data.Get("source_tenant_id").(string),
 	}
 	client.FAClient.TenantId = ""
@@ -56,9 +61,13 @@ func readTenant(_ context.Context, data *schema.ResourceData, i interface{}) dia
 
 func updateTenant(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
+	tenant, diags := buildTenant(data)
+	if diags != nil {
+		return diags
+	}
 
 	t := fusionauth.TenantRequest{
-		Tenant:         buildTenant(data),
+		Tenant:         tenant,
 		SourceTenantId: data.Get("source_tenant_id").(string),
 	}
 

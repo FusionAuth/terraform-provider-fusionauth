@@ -13,7 +13,10 @@ import (
 )
 
 func handleStringSlice(key string, data *schema.ResourceData) []string {
-	set := data.Get(key).(*schema.Set)
+	return handleStringSliceFromSet(data.Get(key).(*schema.Set))
+}
+
+func handleStringSliceFromSet(set *schema.Set) []string {
 	l := set.List()
 	s := make([]string, 0, len(l))
 
