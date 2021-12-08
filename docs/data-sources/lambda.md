@@ -29,6 +29,14 @@ data "fusionauth_lambda" "default_google_reconcile" {
     - `HYPRReconcile`
     - `TwitterReconcile`
     - `LDAPConnectorReconcile`
+    - `LinkedInReconcile`
+    - `EpicGamesReconcile`
+    - `NintendoReconcile`
+    - `SonyPSNReconcile`
+    - `SteamReconcile`
+    - `TwitchReconcile`
+    - `XboxReconcile`
+    - `ClientCredentialsJWTPopulate`
 
 ## Attributes Reference
 
