@@ -38,3 +38,11 @@ function populate(jwt, user, registration) {
     - `HYPRReconcile`
     - `TwitterReconcile`
     - `LDAPConnectorReconcile`
+    - `LinkedInReconcile`
+    - `EpicGamesReconcile`
+    - `NintendoReconcile`
+    - `SonyPSNReconcile`
+    - `SteamReconcile`
+    - `TwitchReconcile`
+    - `XboxReconcile`
+    - `ClientCredentialsJWTPopulate`
