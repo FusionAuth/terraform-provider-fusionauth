@@ -105,6 +105,7 @@ func resourceIDPApple() *schema.Resource {
 				Required:     true,
 				Description:  "The unique Id of the private key downloaded from Apple and imported into Key Master that will be used to sign the client secret.",
 				ValidateFunc: validation.IsUUID,
+				ForceNew:     true,
 			},
 			"lambda_reconcile_id": {
 				Type:         schema.TypeString,
