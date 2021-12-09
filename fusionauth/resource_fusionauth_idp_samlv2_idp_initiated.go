@@ -86,6 +86,7 @@ func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.IsUUID,
 				Description:  "The id of the key stored in Key Master that is used to verify the SAML response sent back to FusionAuth from the identity provider. This key must be a verification only key or certificate (meaning that it only has a public key component).",
+				ForceNew:     true,
 			},
 			"lambda_reconcile_id": {
 				Type:         schema.TypeString,
