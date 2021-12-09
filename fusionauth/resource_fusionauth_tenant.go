@@ -354,6 +354,20 @@ func newTenant() *schema.Resource {
 				Required:    true,
 				Description: "The unique name of the Tenant.",
 			},
+			"oauth_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"client_credentials_access_token_populate_lambda_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+							Description:  "The Id of a lambda that will be called to populate the JWT during a client credentials grant.",
+						},
+					},
+				},
+			},
 			"password_encryption_configuration": {
 				Optional: true,
 				Computed: true,
@@ -956,7 +970,7 @@ func newEmailConfiguration() *schema.Resource {
 			"verification_email_template_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The If of the Email Template that is used to send the verification emails to users. These emails are used to verify that a user’s email address is valid. If either the verifyEmail or verifyEmailWhenChanged fields are true this field is required.",
+				Description: "The Id of the Email Template that is used to send the verification emails to users. These emails are used to verify that a user’s email address is valid. If either the verifyEmail or verifyEmailWhenChanged fields are true this field is required.",
 			},
 			"verify_email": {
 				Type:        schema.TypeBool,
