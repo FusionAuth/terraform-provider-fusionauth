@@ -195,6 +195,9 @@ resource "fusionauth_tenant" "example" {
     enabled = false
     seconds = 30
   }
+  oauth_configuration {
+    client_credentials_access_token_populate_lambda_id = fusionauth_lambda.client_jwt_populate.id
+  }
   password_encryption_configuration {
     encryption_scheme                 = "salted-pbkdf2-hmac-sha256"
     encryption_scheme_factor          = 24000
@@ -334,6 +337,8 @@ resource "fusionauth_tenant" "example" {
         * `messenger_id` - (Optional) The messenger that is used to deliver a SMS multi-factor authentication request.
         * `template_id` - (Optional) The Id of the SMS template that is used when notifying a user to complete a multi-factor authentication request.
 * `name` - (Required) The unique name of the Tenant.
+* `oauth_configuration` - (Optional)
+    - `client_credentials_access_token_populate_lambda_id` - (Optional) The Id of a lambda that will be called to populate the JWT during a client credentials grant. **Note:** A paid edition of FusionAuth is required to utilize client credentials grant.
 * `password_encryption_configuration` - (Optional)
     - `encryption_scheme` - (Optional) The default method for encrypting the User’s password.
     - `encryption_scheme_factor` - (Optional) The factor used by the password encryption scheme. If not provided, the PasswordEncryptor provides a default value. Generally this will be used as an iteration count to generate the hash. The actual use of this value is up to the PasswordEncryptor implementation.
