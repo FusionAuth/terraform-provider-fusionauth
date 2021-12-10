@@ -84,8 +84,6 @@ func newTenant() *schema.Resource {
 								"user.two-factor-method.remove",
 								"user.update",
 								"user.update.complete",
-
-								"user.two-factor.method.remove",
 							}, false),
 							Description: "the event type",
 						},
