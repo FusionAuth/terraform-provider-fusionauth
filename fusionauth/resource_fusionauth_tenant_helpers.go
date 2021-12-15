@@ -261,7 +261,7 @@ func buildConnectorPolicies(data *schema.ResourceData) (connectorPolicies []fusi
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Warning,
 				Summary:  "Unable to convert a connector policy",
-				Detail:   fmt.Sprintf("connector_policy.%d: %#+v unable to be typecast to []interface{}", i, policiesDatum),
+				Detail:   fmt.Sprintf("connector_policy.%d: %#+v unable to be typecast to map[string]interface{}", i, policiesDatum),
 			})
 		} else {
 			connectorPolicies[i] = fusionauth.ConnectorPolicy{
@@ -308,20 +308,15 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	}
 
 	connectorPolicies := []map[string]interface{}{}
-	// fusion auth always creates a default connector and connector policy. If you are not
-	// creating additional connectors, then reading in the default connector messes with
-	// the terraform state.
-	if len(t.ConnectorPolicies) > 1 {
-		for _, policy := range t.ConnectorPolicies {
-			connectorPolicies = append(connectorPolicies, map[string]interface{}{
-				"connector_id": policy.ConnectorId,
-				"domains":      policy.Domains,
-				"migrate":      policy.Migrate,
-			})
-		}
+	for _, policy := range t.ConnectorPolicies {
+		connectorPolicies = append(connectorPolicies, map[string]interface{}{
+			"connector_id": policy.ConnectorId,
+			"domains":      policy.Domains,
+			"migrate":      policy.Migrate,
+		})
 	}
 	if err := data.Set("connector_policy", connectorPolicies); err != nil {
-		return diag.Errorf("tenant.connectory_policy: %s", err.Error())
+		return diag.Errorf("tenant.connector_policy: %s", err.Error())
 	}
 
 	err := data.Set("email_configuration", []map[string]interface{}{

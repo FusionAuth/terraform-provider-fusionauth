@@ -27,8 +27,10 @@ func newTenant() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"connector_policy": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: "A list of Connector policies. Users will be authenticated against Connectors in order. Each Connector can be included in this list at most once and must exist. If not specified a policy for the default connector will be created",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"connector_id": {
