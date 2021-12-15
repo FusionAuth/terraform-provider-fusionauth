@@ -25,6 +25,7 @@ For the rendered provider usage documentation, visit the [Terraform Registry](ht
 * generic connector
 * key
 * imported key
+* IP Access Control List
 * lambda
 * identity provider
     - OpenID Connect

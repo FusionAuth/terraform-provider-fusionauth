@@ -170,6 +170,12 @@ func resourceAPIKey() *schema.Resource {
 					},
 				},
 			},
+			"ip_access_control_list_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.IsUUID,
+				Description:  "The Id of the IP Access Control List limiting access to this API key.",
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -265,6 +271,7 @@ func buildAPIKey(data *schema.ResourceData) fusionauth.APIKey {
 				"description": data.Get("description").(string),
 			},
 		},
+		IpAccessControlListId: data.Get("ip_access_control_list_id").(string),
 	}
 
 	m := make(map[string][]string)
@@ -341,6 +348,10 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 
 	if err := data.Set("permissions_endpoints", pe); err != nil {
 		return diag.Errorf("apiKey.permissions_endpoints: %s", err.Error())
+	}
+
+	if err := data.Set("ip_access_control_list_id", res.IpAccessControlListId); err != nil {
+		return diag.Errorf("apiKey.ip_access_control_list_id: %s", err.Error())
 	}
 	return nil
 }

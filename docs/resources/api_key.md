@@ -37,3 +37,4 @@ resource "fusionauth_api_key" "example" {
     - `patch` - (Optional) HTTP PATCH Verb
     - `post` - (Optional) HTTP POST Verb
     - `put` - (Optional) HTTP PUT Verb
+* `ip_access_control_list_id` - (Optional) The Id of the IP Access Control List limiting access to this API key.
