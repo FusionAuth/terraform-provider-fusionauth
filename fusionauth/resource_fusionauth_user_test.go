@@ -535,5 +535,6 @@ func testAccUserResourceConfigBase(resourceName string) string {
 			"no-reply@example.com",
 			30,
 			false,
+			false,
 		)
 }
