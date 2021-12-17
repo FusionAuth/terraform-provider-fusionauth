@@ -41,6 +41,7 @@ func TestAccFusionauthTenant_basic(t *testing.T) {
 					startFromEmail,
 					startMinimumPasswordAgeSeconds,
 					startMinimumPasswordAgeEnabled,
+					false,
 				),
 				Check: testTenantAccTestCheckFuncs(
 					tfResourcePath,
@@ -48,6 +49,7 @@ func TestAccFusionauthTenant_basic(t *testing.T) {
 					startFromEmail,
 					startMinimumPasswordAgeSeconds,
 					startMinimumPasswordAgeEnabled,
+					false,
 				),
 			},
 			{
@@ -60,6 +62,7 @@ func TestAccFusionauthTenant_basic(t *testing.T) {
 					endFromEmail,
 					endMinimumPasswordAgeSeconds,
 					endMinimumPasswordAgeEnabled,
+					true,
 				),
 				Check: testTenantAccTestCheckFuncs(
 					tfResourcePath,
@@ -67,6 +70,7 @@ func TestAccFusionauthTenant_basic(t *testing.T) {
 					endFromEmail,
 					endMinimumPasswordAgeSeconds,
 					endMinimumPasswordAgeEnabled,
+					true,
 				),
 			},
 			{
@@ -88,10 +92,14 @@ func testTenantAccTestCheckFuncs(
 	fromEmail string,
 	minimumPasswordAgeSeconds int,
 	minimumPasswordAgeEnabled bool,
+	genericConnectorIncluded bool,
 ) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		testAccCheckFusionauthTenantExists(tfResourcePath),
 		resource.TestCheckResourceAttrSet(tfResourcePath, "tenant_id"),
+
+		// connector policies
+		testAccCheckConnectorPolicies(tfResourcePath, genericConnectorIncluded),
 
 		// user data
 		resource.TestCheckResourceAttr(tfResourcePath, "data.user", "data"),
@@ -243,6 +251,19 @@ func testTenantAccTestCheckFuncs(
 	)
 }
 
+func testAccCheckConnectorPolicies(tfResourcePath string, genericConnectorIncluded bool) resource.TestCheckFunc {
+	if genericConnectorIncluded {
+		return resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr(tfResourcePath, "connector_policy.#", "2"),
+			resource.TestCheckResourceAttr(tfResourcePath, "connector_policy.1.connector_id", "e3306678-a53a-4964-9040-1c96f36dda72"),
+		)
+	}
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr(tfResourcePath, "connector_policy.#", "1"),
+		resource.TestCheckResourceAttr(tfResourcePath, "connector_policy.0.connector_id", "e3306678-a53a-4964-9040-1c96f36dda72"),
+	)
+}
+
 func testAccCheckFusionauthTenantExists(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
@@ -310,6 +331,7 @@ func testAccTenantResourceBasicConfig(
 	fromEmail string,
 	minimumPasswordAgeSeconds int,
 	minimumPasswordAgeEnabled bool,
+	genericConnectorIncluded bool,
 ) string {
 	return testAccKeyResourceConfig(
 		"",
@@ -329,6 +351,15 @@ func testAccTenantResourceBasicConfig(
 			"/* stylez */",
 			generateFusionAuthTemplate(),
 		) +
+		testAccGenericConnectorBasicConfig(
+			resourceName,
+			"http://example.com/connector",
+			"1000",
+			"password1",
+			"username",
+			"test-generic-connector"+resourceName,
+			"1000",
+		) +
 		testAccTenantResourceConfig(
 			resourceName,
 			themeKey,
@@ -337,6 +368,7 @@ func testAccTenantResourceBasicConfig(
 			fromEmail,
 			minimumPasswordAgeSeconds,
 			minimumPasswordAgeEnabled,
+			genericConnectorIncluded,
 		)
 }
 
@@ -367,6 +399,7 @@ func testAccTenantResourceConfig(
 	fromEmail string,
 	minimumPasswordAgeSeconds int,
 	minimumPasswordAgeEnabled bool,
+	genericConnectorIncluded bool,
 ) string {
 	if themeKey != "" {
 		themeKey = fmt.Sprintf(
@@ -386,12 +419,28 @@ func testAccTenantResourceConfig(
 			idTokenKey,
 		)
 	}
+	connectorPolicies := ""
+	if genericConnectorIncluded {
+		connectorPolicies = fmt.Sprintf(`
+		  connector_policy {
+				connector_id = fusionauth_generic_connector.test_%s.id
+				domains      = ["*"]
+				migrate      = true
+			}
+		  connector_policy {
+				connector_id = "e3306678-a53a-4964-9040-1c96f36dda72"
+				domains      = ["*"]
+				migrate      = false
+			}
+		`, resourceName)
+	}
 
 	return fmt.Sprintf(`
 # Tenant Setup
 resource "fusionauth_tenant" "test_%[1]s" {
   #source_tenant_id = "UUID"
   #tenant_id        = "UUID"
+  # connector policies %[8]s
   data = {
     user  = "data"
     lives = "here"
@@ -477,7 +526,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
     action_duration_unit   = "DAYS"
     reset_count_in_seconds = 600
     too_many_attempts      = 3
-    #user_action_id         = "UUID" 
+    #user_action_id         = "UUID"
   }
   family_configuration {
     allow_child_registrations             = false
@@ -538,7 +587,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
       # requires paid edition of FusionAuth
       enabled                       = false
       match_mode                    = "Medium"
-      #notify_user_email_template_id = "UUID" 
+      #notify_user_email_template_id = "UUID"
       on_login                      = "NotifyUser"
     }
     max_length = 100
@@ -575,5 +624,6 @@ resource "fusionauth_tenant" "test_%[1]s" {
 		fromEmail,
 		minimumPasswordAgeSeconds,
 		minimumPasswordAgeEnabled,
+		connectorPolicies,
 	)
 }
