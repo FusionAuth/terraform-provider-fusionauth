@@ -515,13 +515,15 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.name: %s", err.Error())
 	}
 
-	err = data.Set("oauth_configuration", []map[string]interface{}{
-		{
-			"client_credentials_access_token_populate_lambda_id": t.OauthConfiguration.ClientCredentialsAccessTokenPopulateLambdaId,
-		},
-	})
-	if err != nil {
-		return diag.Errorf("tenant.oauth_configuration: %s", err.Error())
+	if lambdaID := t.OauthConfiguration.ClientCredentialsAccessTokenPopulateLambdaId; lambdaID != "" {
+		err = data.Set("oauth_configuration", []map[string]interface{}{
+			{
+				"client_credentials_access_token_populate_lambda_id": lambdaID,
+			},
+		})
+		if err != nil {
+			return diag.Errorf("tenant.oauth_configuration: %s", err.Error())
+		}
 	}
 
 	err = data.Set("password_encryption_configuration", []map[string]interface{}{
@@ -548,8 +550,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"remember_previous_passwords": []map[string]interface{}{{
 				"enabled": t.PasswordValidationRules.RememberPreviousPasswords.Enabled,
 				"count":   t.PasswordValidationRules.RememberPreviousPasswords.Count,
-			},
-			},
+			}},
 			"required_mixed_case": t.PasswordValidationRules.RequireMixedCase,
 			"require_non_alpha":   t.PasswordValidationRules.RequireNonAlpha,
 			"require_number":      t.PasswordValidationRules.RequireNumber,
