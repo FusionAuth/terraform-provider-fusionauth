@@ -7,8 +7,9 @@
 
 ```hcl
 resource "fusionauth_user" "example" {
-  birth_date               = "1976-05-30"
-  data = jsonencode({
+  user_id    = "4c4511df-0d0d-4029-8c2b-f6c01b9e138d"
+  birth_date = "1976-05-30"
+  data       = jsonencode({
     displayName = "Johnny Boy"
     favoriteColors = [
       "Red",
@@ -36,6 +37,7 @@ resource "fusionauth_user" "example" {
 ```
 
 ## Argument Reference
+* `user_id` - (Optional) The Id to use for the new User. If not specified a secure random UUID will be generated..
 * `tenant_id` - (Optional) The unique Id of the tenant used to scope this API request.
 * `send_set_password_email` - (Optional) Indicates to FusionAuth to send the User an email asking them to set their password. The Email Template that is used is configured in the System Configuration setting for Set Password Email Template.
 * `skip_verification` - (Optional) Indicates to FusionAuth that it should skip email verification even if it is enabled. This is useful for creating admin or internal User accounts.

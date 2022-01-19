@@ -11,6 +11,14 @@ import (
 func userSchemaV1() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"user_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				Description:  "The Id to use for the new User. If not specified a secure random UUID will be generated.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"tenant_id": {
 				Type:         schema.TypeString,
 				Optional:     true,

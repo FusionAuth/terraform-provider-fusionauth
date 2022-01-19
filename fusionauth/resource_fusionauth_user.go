@@ -43,7 +43,7 @@ func createUser(_ context.Context, data *schema.ResourceData, i interface{}) dia
 		client.FAClient.TenantId = oldTenantID
 	}()
 
-	resp, faErrs, err := client.FAClient.CreateUser("", req)
+	resp, faErrs, err := client.FAClient.CreateUser(req.User.Id, req)
 	if err != nil {
 		return diag.Errorf("CreateUser err: %v", err)
 	}
@@ -117,6 +117,11 @@ func deleteUser(_ context.Context, data *schema.ResourceData, i interface{}) dia
 }
 
 func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, diags diag.Diagnostics) {
+	var userID string
+	if datum, ok := data.GetOk("user_id"); ok {
+		userID = datum.(string)
+	}
+
 	twoFactorMethods, subDiags := dataToTwoFactorMethods(data)
 	if subDiags != nil {
 		diags = append(diags, subDiags...)
@@ -144,6 +149,7 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 			PreferredLanguages: handleStringSlice("preferred_languages", data),
 			Timezone:           data.Get("timezone").(string),
 			SecureIdentity: fusionauth.SecureIdentity{
+				Id:                     userID,
 				EncryptionScheme:       data.Get("encryption_scheme").(string),
 				Password:               data.Get("password").(string),
 				PasswordChangeRequired: data.Get("password_change_required").(bool),
@@ -165,6 +171,9 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse) diag.Diagnostics {
 	data.SetId(resp.User.Id)
 
+	if err := data.Set("user_id", resp.User.Id); err != nil {
+		return diag.Errorf("user.user_id: %s", err.Error())
+	}
 	if err := data.Set("tenant_id", resp.User.TenantId); err != nil {
 		return diag.Errorf("user.tenant_id: %s", err.Error())
 	}
