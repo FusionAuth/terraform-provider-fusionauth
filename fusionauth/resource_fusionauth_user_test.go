@@ -265,6 +265,7 @@ func testUserBasicAccCheckFuncs(
 ) resource.TestCheckFunc {
 	testChecks := []resource.TestCheckFunc{
 		testAccCheckFusionauthUserExists(tfResourcePath),
+		resource.TestCheckResourceAttrSet(tfResourcePath, "user_id"),
 		resource.TestCheckResourceAttrSet(tfResourcePath, "tenant_id"),
 		resource.TestCheckResourceAttr(tfResourcePath, "send_set_password_email", fmt.Sprintf("%t", sendSetPasswordEmail)),
 		resource.TestCheckResourceAttr(tfResourcePath, "skip_verification", fmt.Sprintf("%t", skipVerification)),
