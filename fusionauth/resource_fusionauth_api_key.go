@@ -37,6 +37,7 @@ func resourceAPIKey() *schema.Resource {
 				Computed:    true,
 				Description: "API key string. When you create an API key the key is defaulted to a secure random value but the API key is simply a string, so you may call it super-secret-key if you’d like. However a long and random value makes a good API key in that it is unique and difficult to guess.",
 				Sensitive:   true,
+				ForceNew:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
