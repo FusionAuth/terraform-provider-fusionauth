@@ -142,6 +142,16 @@ func resourceIDPSAMLv2() *schema.Resource {
 				Required:    true,
 				Description: "The name of this SAML v2 identity provider. This is only used for display purposes.",
 			},
+			"name_id_format": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "When using FusionAuth as a SAML IdP, FusionAuth will now accept urn:oasis:names:tc:SAML:2.0:nameid-format:persistent in addition to urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress. This should allow FusionAuth to work with SAML v2 service providers that only support the persistent NameID format.",
+				ValidateFunc: validation.StringInSlice([]string{
+					"urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+					"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+				}, false),
+			},
 			"post_request": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -261,6 +271,7 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 		EmailClaim:          data.Get("email_claim").(string),
 		IdpEndpoint:         data.Get("idp_endpoint").(string),
 		KeyId:               data.Get("key_id").(string),
+		NameIdFormat:        data.Get("name_id_format").(string),
 		PostRequest:         data.Get("post_request").(bool),
 		RequestSigningKeyId: data.Get("request_signing_key").(string),
 		SignRequest:         data.Get("sign_request").(bool),
@@ -302,6 +313,9 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	}
 	if err := data.Set("name", res.Name); err != nil {
 		return diag.Errorf("idpSAMLv2.name: %s", err.Error())
+	}
+	if err := data.Set("name_id_format", res.NameIdFormat); err != nil {
+		return diag.Errorf("idpSAMLv2.nameIdFormat: %s", err.Error())
 	}
 	if err := data.Set("post_request", res.PostRequest); err != nil {
 		return diag.Errorf("idpSAMLv2.post_request: %s", err.Error())
