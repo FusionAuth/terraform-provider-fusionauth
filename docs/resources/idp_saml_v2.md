@@ -50,10 +50,11 @@ resource "fusionauth_idp_saml_v2" "Saml" {
 * `key_id` - (Required) The id of the key stored in Key Master that is used to verify the SAML response sent back to FusionAuth from the identity provider. This key must be a verification only key or certificate (meaning that it only has a public key component).
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
 * `name` - (Required) The name of this OpenID Connect identity provider. This is only used for display purposes.
+* `name_id_format` - (Optional) Either urn:oasis:names:tc:SAML:2.0:nameid-format:persistent or urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress depending on which NameId format you wish to use.
 * `post_request` - (Optional) When true the authentication request will use the HTTP POST binding with the identity provider instead of the default Redirect binding which uses the HTTP GET method.
 * `request_signing_key` - (Optional) TThe key pair Id to use to sign the SAML request. Required when `sign_request` is true.
 * `sign_request` - (Optional) When true authentication requests sent to the identity provider will be signed.
-* `use_name_for_email` - (Optional) Whether or not FusionAuth will use the NameID element value as the email address of the user for reconciliation processing. If this is false, then the `email_claim` property must be set. 
+* `use_name_for_email` - (Optional) Whether or not FusionAuth will use the NameID element value as the email address of the user for reconciliation processing. If this is false, then the `email_claim` property must be set.
 * `xml_signature_canonicalization_method` - (Optional) The XML signature canonicalization method used when digesting and signing the SAML request.
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.
 * `post_request` - (Optional) Set this value equal to true if you wish to use POST bindings with this OpenID Connect identity provider. The default value of false means that a redirect binding which uses a GET request will be used.
