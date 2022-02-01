@@ -107,7 +107,7 @@ func newTenant() *schema.Resource {
 								"user.registration.update.complete",
 								"user.registration.verified",
 								"user.two-factor.method.add",
-								"user.two-factor-method.remove",
+								"user.two-factor.method.remove",
 								"user.update",
 								"user.update.complete",
 							}, false),
