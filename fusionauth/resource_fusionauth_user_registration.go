@@ -31,12 +31,11 @@ func newRegistration() *schema.Resource {
 				ForceNew:     true,
 			},
 			"authentication_token": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Description:  "The authentication token that may be used in place of the User’s password when authenticating against this application represented by this registration. This parameter is ignored if generateAuthenticationToken is set to true and instead the value will be generated.",
-				ValidateFunc: validation.IsUUID,
-				Computed:     true,
-				Sensitive:    true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The authentication token that may be used in place of the User’s password when authenticating against this application represented by this registration. This parameter is ignored if generateAuthenticationToken is set to true and instead the value will be generated.",
+				Computed:    true,
+				Sensitive:   true,
 			},
 			"generate_authentication_token": {
 				Type:        schema.TypeBool,
