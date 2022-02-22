@@ -1,6 +1,6 @@
 # Key Resource
 
-Cryptographic keys are used in signing and verifying JWTs and verifying responses for third party identity providers. It is more likely you will interact with keys using the FusionAuth UI in the Key Master menu. 
+Cryptographic keys are used in signing and verifying JWTs and verifying responses for third party identity providers. It is more likely you will interact with keys using the FusionAuth UI in the Key Master menu.
 
 [Keys API](https://fusionauth.io/docs/v1/tech/apis/keys)
 
@@ -28,4 +28,10 @@ resource "fusionauth_key" "admin_id" {
     - `HS384` - HMAC using SHA-384 hash algorithm
     - `HS512` - HMAC using SHA-512 hash algorithm
 * `name` - (Required) The name of the Key.
-* `length` - (Optional) 
+* `length` - (Optional)
+
+## Attribute Reference
+
+In addition to all arguments above, the following attribute is exported:
+
+* `kid` - The id used in the JWT header to identify the key used to generate the signature
