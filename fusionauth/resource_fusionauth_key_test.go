@@ -120,6 +120,7 @@ func testKeyAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test-acc %s", resourceName)),
 		resource.TestCheckResourceAttr(tfResourcePath, "algorithm", string(algorithm)),
 		resource.TestCheckResourceAttr(tfResourcePath, "length", fmt.Sprintf("%d", length)),
+		resource.TestCheckResourceAttrSet(tfResourcePath, "kid"),
 	}
 
 	if len(extraFuncs) > 0 {

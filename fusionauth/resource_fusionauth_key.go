@@ -55,6 +55,11 @@ func newKey() *schema.Resource {
 				ForceNew:    true,
 				Description: "The length of the RSA or EC certificate. This field is required when generating RSA key types.",
 			},
+			"kid": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id used in the JWT header to identify the key used to generate the signature",
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -91,11 +96,7 @@ func createKey(_ context.Context, data *schema.ResourceData, i interface{}) diag
 	}
 
 	data.SetId(resp.Key.Id)
-	if err := data.Set("key_id", resp.Key.Id); err != nil {
-		return diag.Errorf("key.key_id: %s", err.Error())
-	}
-
-	return nil
+	return buildResourceDataFromKey(data, resp.Key)
 }
 
 func buildResourceDataFromKey(data *schema.ResourceData, res fusionauth.Key) diag.Diagnostics {
@@ -110,6 +111,9 @@ func buildResourceDataFromKey(data *schema.ResourceData, res fusionauth.Key) dia
 	}
 	if err := data.Set("length", res.Length); err != nil {
 		return diag.Errorf("key.length: %s", err.Error())
+	}
+	if err := data.Set("kid", res.Kid); err != nil {
+		return diag.Errorf("key.kid: %s", err.Error())
 	}
 
 	return nil
