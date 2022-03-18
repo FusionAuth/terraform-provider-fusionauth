@@ -32,7 +32,6 @@ func newGroup() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 				Description: "The Application Roles to assign to this group.",
-				ForceNew:    true,
 			},
 			"tenant_id": {
 				Type:         schema.TypeString,
