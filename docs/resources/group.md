@@ -20,6 +20,7 @@ resource "fusionauth_group" "my_group" {
 
 ## Argument Reference
 
+* `group_id` - (Optional) The Id to use for the new Group. If not specified a secure random UUID will be generated.
 * `data` - (Optional) An object that can hold any information about the Group that should be persisted.
 * `name` - (Required) The name of the Group.
 * `role_ids` - (Optional) The Application Roles to assign to this group.
