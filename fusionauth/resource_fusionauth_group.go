@@ -17,6 +17,14 @@ func newGroup() *schema.Resource {
 		UpdateContext: updateGroup,
 		DeleteContext: deleteGroup,
 		Schema: map[string]*schema.Schema{
+			"group_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				Description:  "The Id to use for the new Group. If not specified a secure random UUID will be generated.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"data": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -47,8 +55,14 @@ func newGroup() *schema.Resource {
 }
 
 func buildGroup(data *schema.ResourceData) fusionauth.GroupRequest {
+	var gid string
+	if gi, ok := data.Get("group_id").(string); ok {
+		gid = gi
+	}
+
 	g := fusionauth.GroupRequest{
 		Group: fusionauth.Group{
+			Id:       gid,
 			Data:     nil,
 			Name:     data.Get("name").(string),
 			TenantId: data.Get("tenant_id").(string),
@@ -67,7 +81,7 @@ func createGroup(_ context.Context, data *schema.ResourceData, i interface{}) di
 	defer func() {
 		client.FAClient.TenantId = oldTenantID
 	}()
-	resp, faErrs, err := client.FAClient.CreateGroup("", g)
+	resp, faErrs, err := client.FAClient.CreateGroup(g.Group.Id, g)
 	if err != nil {
 		return diag.Errorf("CreateGroup err: %v", err)
 	}
