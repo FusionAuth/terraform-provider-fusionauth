@@ -61,6 +61,7 @@ func Provider() *schema.Provider {
 			"fusionauth_tenant":           dataSourceTenant(),
 			"fusionauth_application_role": dataSourceApplicationRole(),
 			"fusionauth_idp":              dataSourceIDP(),
+			"fusionauth_user":             dataSourceUser(),
 		},
 		ConfigureContextFunc: configureClient,
 	}
