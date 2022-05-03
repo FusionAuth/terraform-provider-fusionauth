@@ -136,6 +136,32 @@ func resourceIDPExternalJWT() *schema.Resource {
 				Required:    true,
 				Description: "The name of the claim that represents the unique identify of the User. This will generally be email or the name of the claim that provides the email address.",
 			},
+			"tenant_configuration": {
+				Optional:    true,
+				Type:        schema.TypeSet,
+				Description: "The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"tenant_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+						},
+						"limit_user_link_count_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When enabled, the number of identity provider links a user may create is enforced by maximumLinks",
+						},
+						"limit_user_link_count_maximum_links": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     42,
+							Description: "Determines if this provider is enabled. If it is false then it will be disabled globally.",
+						},
+					},
+				},
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -229,8 +255,8 @@ func buildIDPExternalJWT(data *schema.ResourceData) IDPExternalJWTProviderBody {
 		idp.ClaimMap = intMapToStringMap(i.(map[string]interface{}))
 	}
 
-	ac := buildIDPExternalJWTAppConfig("application_configuration", data)
-	idp.ApplicationConfiguration = ac
+	idp.ApplicationConfiguration = buildIDPExternalJWTAppConfig("application_configuration", data)
+	idp.TenantConfiguration = buildTenantConfiguration(data)
 	return IDPExternalJWTProviderBody{IdentityProvider: idp}
 }
 
@@ -311,6 +337,12 @@ func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionau
 	if err := data.Set("application_configuration", ac); err != nil {
 		return diag.Errorf("idpExternalJwt.application_configuration: %s", err.Error())
 	}
+
+	tc := buildTenantConfigurationResource(res.TenantConfiguration)
+	if err := data.Set("tenant_configuration", tc); err != nil {
+		return diag.Errorf("idpExternalJwt.tenant_configuration: %s", err.Error())
+	}
+
 	return nil
 }
 

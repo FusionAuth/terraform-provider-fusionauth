@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -136,4 +137,40 @@ func updateIdentityProvider(b []byte, id string, client Client) ([]byte, error) 
 		return nil, fmt.Errorf("status: %d, response: \n\t%s\nreq body:\n\t%s", resp.StatusCode, string(bb), string(b))
 	}
 	return bb, nil
+}
+
+func buildTenantConfigurationResource(tcm map[string]fusionauth.IdentityProviderTenantConfiguration) []map[string]interface{} {
+	t := make([]map[string]interface{}, 0, len(tcm))
+	for k, v := range tcm {
+		t = append(t, map[string]interface{}{
+			"tenant_id":                           k,
+			"limit_user_link_count_enabled":       v.LimitUserLinkCount.Enabled,
+			"limit_user_link_count_maximum_links": v.LimitUserLinkCount.MaximumLinks,
+		})
+	}
+	return t
+}
+
+func buildTenantConfiguration(data *schema.ResourceData) map[string]fusionauth.IdentityProviderTenantConfiguration {
+	m := make(map[string]fusionauth.IdentityProviderTenantConfiguration)
+	s := data.Get("tenant_configuration")
+	set, ok := s.(*schema.Set)
+	if !ok {
+		return nil
+	}
+
+	l := set.List()
+	for _, x := range l {
+		ac := x.(map[string]interface{})
+		aid := ac["tenant_id"].(string)
+		oc := fusionauth.IdentityProviderTenantConfiguration{
+			LimitUserLinkCount: fusionauth.IdentityProviderLimitUserLinkingPolicy{
+				MaximumLinks: ac["limit_user_link_count_maximum_links"].(int),
+			},
+		}
+		oc.LimitUserLinkCount.Enabled = ac["limit_user_link_count_enabled"].(bool)
+		m[aid] = oc
+	}
+
+	return m
 }

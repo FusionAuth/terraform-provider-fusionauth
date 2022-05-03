@@ -12,6 +12,9 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		AuthenticationTokenConfiguration: fusionauth.AuthenticationTokenConfiguration{
 			Enableable: buildEnableable("authentication_token_configuration_enabled", data),
 		},
+		AccessControlConfiguration: fusionauth.ApplicationAccessControlConfiguration{
+			UiIPAccessControlListId: data.Get("access_control_configuration.0.ui_ip_access_control_list_id").(string),
+		},
 		CleanSpeakConfiguration: fusionauth.CleanSpeakConfiguration{
 			ApplicationIds: handleStringSlice("clean_speak_configuration.0.application_ids", data),
 			UsernameModeration: fusionauth.UsernameModeration{
@@ -125,10 +128,20 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		VerificationEmailTemplateId: data.Get("verification_email_template_id").(string),
 		VerifyRegistration:          data.Get("verify_registration").(bool),
 		EmailConfiguration: fusionauth.ApplicationEmailConfiguration{
-			EmailVerificationEmailTemplateId: data.Get("email_configuration.0.email_verification_template_id").(string),
-			ForgotPasswordEmailTemplateId:    data.Get("email_configuration.0.forgot_password_template_id").(string),
-			PasswordlessEmailTemplateId:      data.Get("email_configuration.0.passwordless_email_template_id").(string),
-			SetPasswordEmailTemplateId:       data.Get("email_configuration.0.set_password_email_template_id").(string),
+			EmailVerificationEmailTemplateId:     data.Get("email_configuration.0.email_verification_template_id").(string),
+			EmailUpdateEmailTemplateId:           data.Get("email_configuration.0.email_update_template_id").(string),
+			EmailVerifiedEmailTemplateId:         data.Get("email_configuration.0.email_verified_template_id").(string),
+			ForgotPasswordEmailTemplateId:        data.Get("email_configuration.0.forgot_password_template_id").(string),
+			LoginIdInUseOnCreateEmailTemplateId:  data.Get("email_configuration.0.login_id_in_use_on_create_template_id").(string),
+			LoginIdInUseOnUpdateEmailTemplateId:  data.Get("email_configuration.0.login_id_in_use_on_update_template_id").(string),
+			LoginNewDeviceEmailTemplateId:        data.Get("email_configuration.0.login_new_device_template_id").(string),
+			LoginSuspiciousEmailTemplateId:       data.Get("email_configuration.0.login_suspicious_template_id").(string),
+			PasswordlessEmailTemplateId:          data.Get("email_configuration.0.passwordless_email_template_id").(string),
+			PasswordResetSuccessEmailTemplateId:  data.Get("email_configuration.0.password_reset_success_template_id").(string),
+			PasswordUpdateEmailTemplateId:        data.Get("email_configuration.0.password_update_template_id").(string),
+			SetPasswordEmailTemplateId:           data.Get("email_configuration.0.set_password_email_template_id").(string),
+			TwoFactorMethodAddEmailTemplateId:    data.Get("email_configuration.0.two_factor_method_add_template_id").(string),
+			TwoFactorMethodRemoveEmailTemplateId: data.Get("email_configuration.0.two_factor_method_remove_template_id").(string),
 		},
 	}
 
@@ -165,7 +178,16 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.authentication_token_configuration_enabled: %s", err.Error())
 	}
 
-	err := data.Set("clean_speak_configuration", []map[string]interface{}{
+	err := data.Set("access_control_configuration", []map[string]interface{}{
+		{
+			"ui_ip_access_control_list_id": a.AccessControlConfiguration.UiIPAccessControlListId,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("application.access_control_configuration: %s", err.Error())
+	}
+
+	err = data.Set("clean_speak_configuration", []map[string]interface{}{
 		{
 			"application_ids": a.CleanSpeakConfiguration.ApplicationIds,
 			"username_moderation": []map[string]interface{}{
@@ -376,10 +398,20 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	err = data.Set("email_configuration", []map[string]interface{}{
 		{
-			"email_verification_template_id": a.EmailConfiguration.EmailVerificationEmailTemplateId,
-			"forgot_password_template_id":    a.EmailConfiguration.ForgotPasswordEmailTemplateId,
-			"passwordless_email_template_id": a.EmailConfiguration.PasswordlessEmailTemplateId,
-			"set_password_email_template_id": a.EmailConfiguration.SetPasswordEmailTemplateId,
+			"email_configuration.0.email_verification_template_id":        a.EmailConfiguration.EmailVerificationEmailTemplateId,
+			"email_configuration.0.email_update_template_id":              a.EmailConfiguration.EmailUpdateEmailTemplateId,
+			"email_configuration.0.email_verified_template_id":            a.EmailConfiguration.EmailVerifiedEmailTemplateId,
+			"email_configuration.0.forgot_password_template_id":           a.EmailConfiguration.ForgotPasswordEmailTemplateId,
+			"email_configuration.0.login_id_in_use_on_create_template_id": a.EmailConfiguration.LoginIdInUseOnCreateEmailTemplateId,
+			"email_configuration.0.login_id_in_use_on_update_template_id": a.EmailConfiguration.LoginIdInUseOnUpdateEmailTemplateId,
+			"email_configuration.0.login_new_device_template_id":          a.EmailConfiguration.LoginNewDeviceEmailTemplateId,
+			"email_configuration.0.login_suspicious_template_id":          a.EmailConfiguration.LoginSuspiciousEmailTemplateId,
+			"email_configuration.0.passwordless_email_template_id":        a.EmailConfiguration.PasswordlessEmailTemplateId,
+			"email_configuration.0.password_reset_success_template_id":    a.EmailConfiguration.PasswordResetSuccessEmailTemplateId,
+			"email_configuration.0.password_update_template_id":           a.EmailConfiguration.PasswordUpdateEmailTemplateId,
+			"email_configuration.0.set_password_email_template_id":        a.EmailConfiguration.SetPasswordEmailTemplateId,
+			"email_configuration.0.two_factor_method_add_template_id":     a.EmailConfiguration.TwoFactorMethodAddEmailTemplateId,
+			"email_configuration.0.two_factor_method_remove_template_id":  a.EmailConfiguration.TwoFactorMethodRemoveEmailTemplateId,
 		},
 	})
 	if err != nil {

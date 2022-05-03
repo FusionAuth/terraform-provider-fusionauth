@@ -188,6 +188,32 @@ func resourceIDPSAMLv2() *schema.Resource {
 					"inclusive_with_comments",
 				}, false),
 			},
+			"tenant_configuration": {
+				Optional:    true,
+				Type:        schema.TypeSet,
+				Description: "The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"tenant_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+						},
+						"limit_user_link_count_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When enabled, the number of identity provider links a user may create is enforced by maximumLinks",
+						},
+						"limit_user_link_count_maximum_links": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     42,
+							Description: "Determines if this provider is enabled. If it is false then it will be disabled globally.",
+						},
+					},
+				},
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -281,6 +307,8 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 		),
 	}
 	s.ApplicationConfiguration = buildSAMLv2AppConfig("application_configuration", data)
+	s.TenantConfiguration = buildTenantConfiguration(data)
+
 	return SAMLIdentityProviderBody{IdentityProvider: s}
 }
 func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SAMLv2IdentityProvider) diag.Diagnostics {
@@ -354,6 +382,11 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	}
 	if err := data.Set("application_configuration", ac); err != nil {
 		return diag.Errorf("idpSAMLv2.application_configuration: %s", err.Error())
+	}
+
+	tc := buildTenantConfigurationResource(res.TenantConfiguration)
+	if err := data.Set("tenant_configuration", tc); err != nil {
+		return diag.Errorf("idpSAMLv2.tenant_configuration: %s", err.Error())
 	}
 
 	return nil

@@ -83,6 +83,8 @@ resource "fusionauth_application" "Forum"{
 * `application_id` - (Optional) The Id to use for the new Application. If not specified a secure random UUID will be generated.
 * `tenant_id` - (Required)
 * `authentication_token_configuration_enabled` - (Optional) Determines if Users can have Authentication Tokens associated with this Application. This feature may not be enabled for the FusionAuth application.
+* `access_control_configuration` - (Optional)
+    - `ui_ip_access_control_list_id` - (Optional) The Id of the IP Access Control List limiting access to this application.
 * `clean_speak_configuration` - (Optional)
     - `application_ids` - (Optional) An array of UUIDs that map to the CleanSpeak applications for this Application. It is possible that a single Application in FusionAuth might have multiple Applications in CleanSpeak. For example, a FusionAuth Application for a game might have one CleanSpeak Application for usernames and another Application for chat.
     - `username_moderation` - (Optional)
@@ -180,7 +182,17 @@ resource "fusionauth_application" "Forum"{
 * `verify_registration` - (Optional) Whether or not registrations to this Application may be verified. When this is set to true the verificationEmailTemplateId parameter is also required.
 * `webhook_ids` - (Optional) An array of Webhook Ids. For Webhooks that are not already configured for All Applications, specifying an Id on this request will indicate the associated Webhook should handle events for this application.
 * `email_configuration` - (Optional)
-    - `email_verification_template_id` - (Optional) New configuration per application to specify a more specific template.
-    - `forgot_password_template_id` - (Optional) New configuration per application to specify a more specific template.
-    - `passwordless_email_template_id` - (Optional) New configuration per application to specify a more specific template.
-    - `set_password_email_template_id` - (Optional) New configuration per application to specify a more specific template.
+    - `email_verification_template_id` - (Optional) The Id of the Email Template used to send emails to users to verify that their email address is valid. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `email_update_template_id` - (Optional) The Id of the Email Template used to send emails to users when their email address is updated. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `email_verified_template_id` - (Optional) The Id of the Email Template used to verify user emails. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `forgot_password_template_id` - (Optional) The Id of the Email Template that is used when a user is sent a forgot password email. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `login_id_in_use_on_create_template_id` - (Optional) The Id of the Email Template used to send emails to users when another user attempts to create an account with their login Id. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `login_id_in_use_on_update_template_id` - (Optional) The Id of the Email Template used to send emails to users when another user attempts to update an existing account to use their login Id. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `login_new_device_template_id` - (Optional) The Id of the Email Template used to send emails to users when they log in on a new device. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `login_suspicious_template_id` - (Optional) The Id of the Email Template used to send emails to users when a suspicious login occurs. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `passwordless_email_template_id` - (Optional) The Id of the Passwordless Email Template, sent to users when they start a passwordless login. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `password_reset_success_template_id` - (Optional) The Id of the Email Template used to send emails to users when they have completed a 'forgot password' workflow and their password has been reset. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `password_update_template_id` - (Optional) The Id of the Email Template used to send emails to users when their password has been updated. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `set_password_email_template_id` - (Optional) The Id of the Email Template that is used when a user had their account created for them and they must set their password manually and they are sent an email to set their password. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `two_factor_method_add_template_id` - (Optional) The Id of the Email Template used to send emails to users when a MFA method has been added to their account. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
+    - `two_factor_method_remove_template_id` - (Optional) The Id of the Email Template used to send emails to users when a MFA method has been removed from their account. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.

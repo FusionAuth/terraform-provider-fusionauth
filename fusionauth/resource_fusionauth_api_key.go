@@ -39,6 +39,12 @@ func resourceAPIKey() *schema.Resource {
 				Sensitive:   true,
 				ForceNew:    true,
 			},
+			"ip_access_control_list_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the IP Access Control List limiting access to this API key.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -259,8 +265,9 @@ func deleteAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) d
 
 func buildAPIKey(data *schema.ResourceData) fusionauth.APIKey {
 	ak := fusionauth.APIKey{
-		Key:      data.Get("key").(string),
-		TenantId: data.Get("tenant_id").(string),
+		Key:                   data.Get("key").(string),
+		TenantId:              data.Get("tenant_id").(string),
+		IpAccessControlListId: data.Get("ip_access_control_list_id").(string),
 		MetaData: fusionauth.APIKeyMetaData{
 			Attributes: map[string]string{
 				"description": data.Get("description").(string),
@@ -317,6 +324,10 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 	}
 	if err := data.Set("tenant_id", res.TenantId); err != nil {
 		return diag.Errorf("apiKey.tenant_id: %s", err.Error())
+	}
+
+	if err := data.Set("ip_access_control_list_id", res.IpAccessControlListId); err != nil {
+		return diag.Errorf("apiKey.ip_access_control_list_id: %s", err.Error())
 	}
 
 	pe := make([]map[string]interface{}, 0, len(res.Permissions.Endpoints))

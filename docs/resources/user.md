@@ -39,6 +39,8 @@ resource "fusionauth_user" "example" {
 ## Argument Reference
 * `user_id` - (Optional) The Id to use for the new User. If not specified a secure random UUID will be generated..
 * `tenant_id` - (Optional) The unique Id of the tenant used to scope this API request.
+* `application_id` (Optional )-An optional Application Id. When this value is provided, it will be used to resolve an application specific email template if you have configured transactional emails such as setup password, email verification and others.
+* `disable_domain_block` - (Optional) An optional Application Id. When this value is provided, it will be used to resolve an application specific email template if you have configured transactional emails such as setup password, email verification and others.
 * `send_set_password_email` - (Optional) Indicates to FusionAuth to send the User an email asking them to set their password. The Email Template that is used is configured in the System Configuration setting for Set Password Email Template.
 * `skip_verification` - (Optional) Indicates to FusionAuth that it should skip email verification even if it is enabled. This is useful for creating admin or internal User accounts.
 * `birth_date` - (Optional) An ISO-8601 formatted date of the User’s birthdate such as YYYY-MM-DD.

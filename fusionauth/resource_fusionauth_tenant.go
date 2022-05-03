@@ -26,6 +26,56 @@ func newTenant() *schema.Resource {
 				Description:  "The Id to use for the new Tenant. If not specified a secure random UUID will be generated.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"access_control_configuration": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ui_ip_access_control_list_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+							Description:  "The Id of the IP Access Control List limiting access to all applications in this tenant.",
+						},
+					},
+				},
+			},
+			"captcha_configuration": {
+				Optional: true,
+				Computed: true,
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether captcha configuration is enabled.",
+						},
+						"secret_key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The secret key for this captcha method. This field is required when tenant.captchaConfiguration.enabled is set to true.",
+						},
+						"site_key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The site key for this captcha method. This field is required when tenant.captchaConfiguration.enabled is set to true.",
+						},
+						"threshold": {
+							Type:         schema.TypeFloat,
+							Optional:     true,
+							Default:      0.5,
+							Description:  "The numeric threshold which separates a passing score from a failing one. This value only applies if using either the Google v3 or HCaptcha Enterprise method, otherwise this value is ignored.",
+							ValidateFunc: validation.FloatBetween(0.0, 1.0),
+						},
+					},
+				},
+			},
 			"connector_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -407,6 +457,7 @@ func newTenant() *schema.Resource {
 								"salted-sha256",
 								"salted-hmac-sha256",
 								"salted-pbkdf2-hmac-sha256",
+								"salted-pbkdf2-hmac-sha256-512",
 								"bcrypt",
 							}, false),
 							Description: "The default method for encrypting the User’s password.",
@@ -860,6 +911,20 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The time in seconds until a setup password Id is no longer valid and cannot be used by the Change Password API. Value must be greater than 0.",
 			},
+			"trust_token_time_to_live_in_seconds": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      180,
+				ValidateFunc: validation.IntAtLeast(1),
+				Description:  "The number of seconds before the Trust Token is no longer valid to complete a request that requires trust. Value must be greater than 0.",
+			},
+			"pending_account_link_time_to_live_in_seconds": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      3600,
+				ValidateFunc: validation.IntAtLeast(1),
+				Description:  "The number of seconds before the pending account link identifier is no longer valid to complete an account link request. Value must be greater than 0.",
+			},
 			"two_factor_one_time_code_id_generator": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -900,6 +965,11 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 func newEmailConfiguration() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"additional_headers": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "The additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.",
+			},
 			"default_from_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -911,15 +981,63 @@ func newEmailConfiguration() *schema.Resource {
 				Computed:    true, // Fusionauth defaults to `change-me@example.com` if not configured.
 				Description: "The default email address that emails will be sent from when a from address is not provided on an individual email template. This is the address part email address (i.e. Jared Dunn <jared@piedpiper.com>).",
 			},
+			// "email_verification_email_template_id": {
+			// 	Type:         schema.TypeString,
+			// 	Optional:     true,
+			// 	Description:  "The Id of the Email Template used to send emails to users to verify that their email address is valid.",
+			// 	ValidateFunc: validation.IsUUID,
+			// },
+			"email_update_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template that is used when a user is sent a forgot password email.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"email_verified_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template used to verify user emails.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"forgot_password_email_template_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The Id of the Email Template that is used when a user is sent a forgot password email.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template that is used when a user is sent a forgot password email.",
+				ValidateFunc: validation.IsUUID,
 			},
 			"host": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The host name of the SMTP server that FusionAuth will use.",
+			},
+			"implicit_email_verification_allowed": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "When set to true, this allows email to be verified as a result of completing a similar email based workflow such as change password. When set to false, the user must explicitly complete the email verification workflow even if the user has already completed a similar email workflow such as change password.",
+			},
+			"login_id_in_use_on_create_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template used to send emails to users when another user attempts to create an account with their login Id.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"login_id_in_use_on_update_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template used to send emails to users when another user attempts to create an account with their login Id.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"login_new_device_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template used to send emails to users when they log in on a new device.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"login_suspicious_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template used to send emails to users when a suspicious login occurs.",
+				ValidateFunc: validation.IsUUID,
 			},
 			"password": {
 				Type:        schema.TypeString,
@@ -928,9 +1046,22 @@ func newEmailConfiguration() *schema.Resource {
 				Description: "An optional password FusionAuth will use to authenticate with the SMTP server.",
 			},
 			"passwordless_email_template_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The Id of the Passwordless Email Template.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Passwordless Email Template.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"password_reset_success_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template used to send emails to users when they have completed a 'forgot password' workflow and their password has been reset.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"password_update_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template used to send emails to users when they have completed a 'forgot password' workflow and their password has been reset.",
+				ValidateFunc: validation.IsUUID,
 			},
 			"port": {
 				Type:        schema.TypeInt,
@@ -955,9 +1086,22 @@ func newEmailConfiguration() *schema.Resource {
 				Description: "The type of security protocol FusionAuth will use when connecting to the SMTP server.",
 			},
 			"set_password_email_template_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The Id of the Email Template that is used when a user had their account created for them and they must set their password manually and they are sent an email to set their password.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template that is used when a user had their account created for them and they must set their password manually and they are sent an email to set their password.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"two_factor_method_add_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template used to send emails to users when a MFA method has been added to their account.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"two_factor_method_remove_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template used to send emails to users when a MFA method has been removed from their account.",
+				ValidateFunc: validation.IsUUID,
 			},
 			"unverified": {
 				Optional:   true,
@@ -992,9 +1136,10 @@ func newEmailConfiguration() *schema.Resource {
 				Description: "An optional username FusionAuth will to authenticate with the SMTP server.",
 			},
 			"verification_email_template_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The Id of the Email Template that is used to send the verification emails to users. These emails are used to verify that a user’s email address is valid. If either the verifyEmail or verifyEmailWhenChanged fields are true this field is required.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template that is used to send the verification emails to users. These emails are used to verify that a user’s email address is valid. If either the verifyEmail or verifyEmailWhenChanged fields are true this field is required.",
+				ValidateFunc: validation.IsUUID,
 			},
 			"verify_email": {
 				Type:        schema.TypeBool,

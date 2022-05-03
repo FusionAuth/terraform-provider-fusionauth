@@ -120,6 +120,32 @@ func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 				Default:     false,
 				Description: "Whether or not FusionAuth will use the NameID element value as the email address of the user for reconciliation processing. If this is false, then the `email_claim` property must be set.",
 			},
+			"tenant_configuration": {
+				Optional:    true,
+				Type:        schema.TypeSet,
+				Description: "The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"tenant_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+						},
+						"limit_user_link_count_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When enabled, the number of identity provider links a user may create is enforced by maximumLinks",
+						},
+						"limit_user_link_count_maximum_links": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     42,
+							Description: "Determines if this provider is enabled. If it is false then it will be disabled globally.",
+						},
+					},
+				},
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -204,6 +230,8 @@ func buildIDPSAMLv2IdPInitiated(data *schema.ResourceData) SAMLIDPInitiatedIdent
 		UseNameIdForEmail: data.Get("use_name_for_email").(bool),
 	}
 	s.ApplicationConfiguration = buildIDPSAMLv2IdPInitiatedAppConfig("application_configuration", data)
+	s.TenantConfiguration = buildTenantConfiguration(data)
+
 	return SAMLIDPInitiatedIdentityProviderBody{IdentityProvider: s}
 }
 
@@ -252,6 +280,11 @@ func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res f
 	}
 	if err := data.Set("application_configuration", ac); err != nil {
 		return diag.Errorf("idpSAMLv2IdpInitiated.application_configuration: %s", err.Error())
+	}
+
+	tc := buildTenantConfigurationResource(res.TenantConfiguration)
+	if err := data.Set("tenant_configuration", tc); err != nil {
+		return diag.Errorf("idpSAMLv2IdpInitiated.tenant_configuration: %s", err.Error())
 	}
 
 	return nil
