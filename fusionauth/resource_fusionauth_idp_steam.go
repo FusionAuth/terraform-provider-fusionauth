@@ -147,6 +147,32 @@ func resourceIDPSteam() *schema.Resource {
 				Required:    true,
 				Description: "The top-level web API key to use with the Steam Identity Provider when retrieving the player summary info. This value is retrieved from the Steam developer website when you setup your Steam developer account.",
 			},
+			"tenant_configuration": {
+				Optional:    true,
+				Type:        schema.TypeSet,
+				Description: "The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"tenant_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+						},
+						"limit_user_link_count_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When enabled, the number of identity provider links a user may create is enforced by maximumLinks",
+						},
+						"limit_user_link_count_maximum_links": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     42,
+							Description: "Determines if this provider is enabled. If it is false then it will be disabled globally.",
+						},
+					},
+				},
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -231,8 +257,9 @@ func buildIDPSteam(data *schema.ResourceData) SteamConnectIdentityProviderBody {
 		WebAPIKey: data.Get("web_api_key").(string),
 	}
 
-	ac := buildSteamAppConfig("application_configuration", data)
-	o.ApplicationConfiguration = ac
+	o.ApplicationConfiguration = buildSteamAppConfig("application_configuration", data)
+	o.TenantConfiguration = buildTenantConfiguration(data)
+
 	return SteamConnectIdentityProviderBody{IdentityProvider: o}
 }
 
@@ -283,6 +310,11 @@ func buildResourceDataFromIDPSteam(data *schema.ResourceData, res fusionauth.Ste
 	}
 	if err := data.Set("application_configuration", ac); err != nil {
 		return diag.Errorf("idpSteam.application_configuration: %s", err.Error())
+	}
+
+	tc := buildTenantConfigurationResource(res.TenantConfiguration)
+	if err := data.Set("tenant_configuration", tc); err != nil {
+		return diag.Errorf("idpSteam.tenant_configuration: %s", err.Error())
 	}
 
 	return nil

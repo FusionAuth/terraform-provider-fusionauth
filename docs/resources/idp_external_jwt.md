@@ -44,3 +44,7 @@ resource "fusionauth_idp_external_jwt" "jwt" {
 * `oauth2_token_endpoint` - (Optional) TThe token endpoint for this Identity Provider. This value is not utilized by FusionAuth is only provided to be returned by the Lookup Identity Provider API response. During integration you may then utilize this value to complete the OAuth2 grant workflow.
 * `unique_identity_claim` - (Required) The name of the claim that represents the unique identify of the User. This will generally be email or the name of the claim that provides the email address.
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.
+* `tenant_configuration` - (Optional) The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.
+    - `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
+    - `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
+    - `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.

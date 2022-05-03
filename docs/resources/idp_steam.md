@@ -43,3 +43,7 @@ resource "fusionauth_idp_steam" "steam" {
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.
 * `scope` - (Optional) The top-level scope that you are requesting from Steam.
 * `web_api_key` - (Required) The top-level web API key to use with the Steam Identity Provider when retrieving the player summary info. This value is retrieved from the Steam developer website when you setup your Steam developer account.
+* `tenant_configuration` - (Optional) The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.
+    - `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
+    - `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
+    - `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.

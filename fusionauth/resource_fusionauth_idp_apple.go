@@ -143,6 +143,32 @@ func resourceIDPApple() *schema.Resource {
 				Required:    true,
 				Description: "The Apple App ID Prefix, or Team ID found in your Apple Developer Account which has been configured for Sign in with Apple.",
 			},
+			"tenant_configuration": {
+				Optional:    true,
+				Type:        schema.TypeSet,
+				Description: "The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"tenant_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+						},
+						"limit_user_link_count_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When enabled, the number of identity provider links a user may create is enforced by maximumLinks",
+						},
+						"limit_user_link_count_maximum_links": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     42,
+							Description: "Determines if this provider is enabled. If it is false then it will be disabled globally.",
+						},
+					},
+				},
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -227,8 +253,10 @@ func buildIDPApple(data *schema.ResourceData) AppleIdentityProviderBody {
 		ServicesId: data.Get("services_id").(string),
 		TeamId:     data.Get("team_id").(string),
 	}
-	ac := buildAppleAppConfig("application_configuration", data)
-	a.ApplicationConfiguration = ac
+
+	a.ApplicationConfiguration = buildAppleAppConfig("application_configuration", data)
+	a.TenantConfiguration = buildTenantConfiguration(data)
+
 	return AppleIdentityProviderBody{IdentityProvider: a}
 }
 
@@ -308,5 +336,11 @@ func buildResourceFromIDPApple(o fusionauth.AppleIdentityProvider, data *schema.
 	if err := data.Set("application_configuration", ac); err != nil {
 		return diag.Errorf("idpApple.application_configuration: %s", err.Error())
 	}
+
+	tc := buildTenantConfigurationResource(o.TenantConfiguration)
+	if err := data.Set("tenant_configuration", tc); err != nil {
+		return diag.Errorf("idpApple.tenant_configuration: %s", err.Error())
+	}
+
 	return nil
 }

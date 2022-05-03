@@ -33,6 +33,14 @@ func newLambda() *schema.Resource {
 				Optional:    true,
 				Default:     true,
 				Description: "Whether or not this Lambda is enabled.",
+				Deprecated:  "Not currently used and may be removed in a future version.",
+			},
+			"engine_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      string(fusionauth.LambdaEngineType_GraalJS),
+				Description:  "The JavaScript execution engine for the lambda.",
+				ValidateFunc: validation.StringInSlice([]string{string(fusionauth.LambdaEngineType_GraalJS), string(fusionauth.LambdaEngineType_Nashorn)}, false),
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -78,7 +86,7 @@ func buildLambda(data *schema.ResourceData) fusionauth.Lambda {
 		Debug:      data.Get("debug").(bool),
 		Name:       data.Get("name").(string),
 		Type:       fusionauth.LambdaType(data.Get("type").(string)),
-		Enableable: buildEnableable("enabled", data),
+		EngineType: fusionauth.LambdaEngineType(data.Get("engine_type").(string)),
 	}
 	return l
 }
@@ -124,8 +132,8 @@ func readLambda(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	if err := data.Set("debug", l.Debug); err != nil {
 		return diag.Errorf("lambda.debug: %s", err.Error())
 	}
-	if err := data.Set("enabled", l.Enabled); err != nil {
-		return diag.Errorf("lambda.enabled: %s", err.Error())
+	if err := data.Set("engine_type", l.EngineType); err != nil {
+		return diag.Errorf("lambda.engine_type: %s", err.Error())
 	}
 	if err := data.Set("name", l.Name); err != nil {
 		return diag.Errorf("lambda.name: %s", err.Error())

@@ -24,7 +24,7 @@ function populate(jwt, user, registration) {
 
 * `body` - (Required) The lambda function body, a JavaScript function.
 * `debug` - (Optional) Whether or not debug event logging is enabled for this Lambda.
-* `enabled` -(Optional)  Whether or not this Lambda is enabled.
+* `engine_type` - (Optional) The JavaScript execution engine for the lambda.
 * `name` - (Required) The name of the lambda.
 * `type` - (Required) The lambda type. The possible values are:
     - `JWTPopulate`

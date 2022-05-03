@@ -142,6 +142,32 @@ func newIDPGoogle() *schema.Resource {
 				Optional:    true,
 				Description: "The top-level scope that you are requesting from Google.",
 			},
+			"tenant_configuration": {
+				Optional:    true,
+				Type:        schema.TypeSet,
+				Description: "The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"tenant_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+						},
+						"limit_user_link_count_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When enabled, the number of identity provider links a user may create is enforced by maximumLinks",
+						},
+						"limit_user_link_count_maximum_links": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     42,
+							Description: "Determines if this provider is enabled. If it is false then it will be disabled globally.",
+						},
+					},
+				},
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -167,8 +193,8 @@ func buildIDPGoogle(data *schema.ResourceData) GoogleIdentityProviderBody {
 		LoginMethod:  fusionauth.IdentityProviderLoginMethod(data.Get("login_method").(string)),
 	}
 
-	ac := buildGoogleAppConfig("application_configuration", data)
-	o.ApplicationConfiguration = ac
+	o.ApplicationConfiguration = buildGoogleAppConfig("application_configuration", data)
+	o.TenantConfiguration = buildTenantConfiguration(data)
 	return GoogleIdentityProviderBody{IdentityProvider: o}
 }
 
@@ -282,6 +308,12 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	if err := data.Set("application_configuration", ac); err != nil {
 		return diag.Errorf("idpGoogle.application_configuration: %s", err.Error())
 	}
+
+	tc := buildTenantConfigurationResource(o.TenantConfiguration)
+	if err := data.Set("tenant_configuration", tc); err != nil {
+		return diag.Errorf("idpGoogle.tenant_configuration: %s", err.Error())
+	}
+
 	return nil
 }
 

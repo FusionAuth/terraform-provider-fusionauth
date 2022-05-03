@@ -29,6 +29,7 @@ resource "fusionauth_api_key" "example" {
 * `key_id` - (Optional) The Id to use for the new Form. If not specified a secure random UUID will be generated.
 * `key` - (Optional) API key string. When you create an API key the key is defaulted to a secure random value but the API key is simply a string, so you may call it super-secret-key if you’d like. However a long and random value makes a good API key in that it is unique and difficult to guess.
 * `description` - (Optional) Description of the key.
+* `ip_access_control_list_id` - (Optional) The Id of the IP Access Control List limiting access to this API key.
 * `permissions_endpoints` - (Required) The unique Id of the private key downloaded from Apple and imported into Key Master that will be used to sign the client secret.
 * `lambda_reconcile_id` - (Optional) Endpoint permissions for this key. Each key of the object is an endpoint, with the value being an array of the HTTP methods which can be used against the endpoint. An Empty permissions_endpoints object mean that this is a super key that authorizes this key for all the endpoints.
     - `endpoint` - (Optional)

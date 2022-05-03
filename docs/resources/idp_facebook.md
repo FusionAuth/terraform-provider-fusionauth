@@ -64,3 +64,7 @@ resource "fusionauth_idp_facebook" "facebook" {
     - `UseRedirect` - When logging in use the Facebook OAuth redirect login flow.
 * `permissions` - (Optional) The top-level permissions that your application is asking of the user’s Facebook account.
   Permission values are documented at [Facebook Login API](https://developers.facebook.com/docs/permissions/reference)
+* `tenant_configuration` - (Optional) The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.
+    - `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
+    - `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
+    - `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.

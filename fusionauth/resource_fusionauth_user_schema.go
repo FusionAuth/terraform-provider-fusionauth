@@ -26,6 +26,19 @@ func userSchemaV1() *schema.Resource {
 				Description:  "The unique Id of the tenant used to scope this API request.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"application_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  "An optional Application Id. When this value is provided, it will be used to resolve an application specific email template if you have configured transactional emails such as setup password, email verification and others.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"disable_domain_block": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "A tenant has the option to configure one or more email domains to be blocked in order to restrict email domains during user create or update.",
+			},
 			"send_set_password_email": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -64,6 +77,7 @@ func userSchemaV1() *schema.Resource {
 					"salted-sha256",
 					"salted-hmac-sha256",
 					"salted-pbkdf2-hmac-sha256",
+					"salted-pbkdf2-hmac-sha256-512",
 					"bcrypt",
 				}, false),
 				Description: "The method for encrypting the User’s password.",

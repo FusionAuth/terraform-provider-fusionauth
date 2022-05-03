@@ -133,6 +133,8 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 	}
 
 	req = fusionauth.UserRequest{
+		ApplicationId:      data.Get("application_id").(string),
+		DisableDomainBlock: data.Get("disable_domain_block").(bool),
 		User: fusionauth.User{
 			TenantId:           data.Get("tenant_id").(string),
 			BirthDate:          data.Get("birth_date").(string),
