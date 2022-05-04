@@ -97,12 +97,8 @@ func createEntity(_ context.Context, data *schema.ResourceData, i interface{}) (
 
 func readEntity(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
 	client := i.(Client)
-
-	oldTenantID := client.FAClient.TenantId
-	client.FAClient.TenantId = data.Get("tenant_id").(string)
-	defer func() {
-		client.FAClient.TenantId = oldTenantID
-	}()
+	revertTid := clientTenantIDOverride(&client, data)
+	defer revertTid()
 
 	res, faErrs, err := client.FAClient.RetrieveEntity(data.Id())
 	if err != nil {
@@ -122,6 +118,9 @@ func readEntity(_ context.Context, data *schema.ResourceData, i interface{}) (di
 
 func updateEntity(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
 	client := i.(Client)
+	revertTid := clientTenantIDOverride(&client, data)
+	defer revertTid()
+
 	req, diags := dataToEntityRequest(data)
 	if diags != nil {
 		return diags
@@ -140,6 +139,9 @@ func updateEntity(_ context.Context, data *schema.ResourceData, i interface{}) (
 
 func deleteEntity(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
 	client := i.(Client)
+	revertTid := clientTenantIDOverride(&client, data)
+	defer revertTid()
+
 	res, faErrs, err := client.FAClient.DeleteEntity(data.Id())
 	if err != nil {
 		return diag.FromErr(err)
