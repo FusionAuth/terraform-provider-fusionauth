@@ -157,3 +157,21 @@ func intMapToStringMap(intMap map[string]interface{}) map[string]string {
 
 	return m
 }
+
+// clientTenantIDOverride takes in the client and the data. As long as the
+// resource has a tenant_id attribute set, it will override the client's tenant
+// id until the revert function is called.
+func clientTenantIDOverride(client *Client, data *schema.ResourceData) (revert func()) {
+	if tid := data.Get("tenant_id").(string); tid != "" {
+		oldTenantID := client.FAClient.TenantId
+
+		client.FAClient.TenantId = tid
+		return func() {
+			client.FAClient.TenantId = oldTenantID
+		}
+	}
+
+	return func() {
+		// nothing to revert here...
+	}
+}
