@@ -343,6 +343,7 @@ go-back-to-send=Go back to send
 [notEmail]=Invalid email
 [tooLong]=Too long
 [tooShort]=Too short
+[type]=Invalid type
 
 #
 # Tooltips. You can change the key names and values to anything you like.
@@ -542,5 +543,8 @@ go-back-to-send=Go back to send
 
 # General messages
 [UserWillBeLoggedIn]=You will be logged in after you complete this request.
+
+[TrustTokenRequired]=Please complete this step-up authentication request to complete this request.
+[TrustTokenExpired]=Your trust expired, please retry.
 `, name)
 }
