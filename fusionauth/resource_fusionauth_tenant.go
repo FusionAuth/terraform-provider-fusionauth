@@ -293,6 +293,21 @@ func newTenant() *schema.Resource {
 					},
 				},
 			},
+			"login_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"require_authentication": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Optional:    true,
+							Description: "Indicates whether to require an API key for the Login API when an applicationId is not provided. When an applicationId is provided to the Login API call, the application configuration will take precedence. In almost all cases, you will want to this to be true.",
+						},
+					},
+				},
+			},
 			"logout_url": {
 				Optional:    true,
 				Type:        schema.TypeString,

@@ -192,6 +192,9 @@ resource "fusionauth_tenant" "example" {
     refresh_token_time_to_live_in_minutes = 43200
     time_to_live_in_seconds               = 3600
   }
+  login_configuration {
+    require_authentication = true
+  }
   maximum_password_age {
     days    = 180
     enabled = false
@@ -245,16 +248,16 @@ resource "fusionauth_tenant" "example" {
 * `data` - (Optional) An object that can hold any information about the Tenant that should be persisted.
 * `email_configuration` - (Required)
     - `additional_headers` - (Optional) The additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.
-	- `email_update_email_template_id` - (Optional) The Id of the Email Template that is used when a user is sent a forgot password email.
-	- `email_verified_email_template_id` - (Optional) The Id of the Email Template used to verify user emails.
+    - `email_update_email_template_id` - (Optional) The Id of the Email Template that is used when a user is sent a forgot password email.
+    - `email_verified_email_template_id` - (Optional) The Id of the Email Template used to verify user emails.
     - `host` - (Required) The host name of the SMTP server that FusionAuth will use.
-	- `implicit_email_verification_allowed` - (Optional) When set to true, this allows email to be verified as a result of completing a similar email based workflow such as change password. When seto false, the user must explicitly complete the email verification workflow even if the user has already completed a similar email workflow such as change password.
-	- `login_id_in_use_on_create_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when another user attempts to create an account with their login Id.
-	- `login_id_in_use_on_update_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when another user attempts to create an account with their login Id.
-	- `login_new_device_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when they log in on a new device.
-	- `login_suspicious_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when a suspicious login occurs.
-	- `password_reset_success_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when they have completed a 'forgot password' workflow and their password habeen reset.
-	- `password_update_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when they have completed a 'forgot password' workflow and their password has been rese
+    - `implicit_email_verification_allowed` - (Optional) When set to true, this allows email to be verified as a result of completing a similar email based workflow such as change password. When seto false, the user must explicitly complete the email verification workflow even if the user has already completed a similar email workflow such as change password.
+    - `login_id_in_use_on_create_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when another user attempts to create an account with their login Id.
+    - `login_id_in_use_on_update_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when another user attempts to create an account with their login Id.
+    - `login_new_device_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when they log in on a new device.
+    - `login_suspicious_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when a suspicious login occurs.
+    - `password_reset_success_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when they have completed a 'forgot password' workflow and their password habeen reset.
+    - `password_update_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when they have completed a 'forgot password' workflow and their password has been rese
     - `default_from_name` - (Optional) The default From Name used in sending emails when a from name is not provided on an individual email template. This is the display name part of the email address ( i.e. Jared Dunn <jared@piedpiper.com>).
     - `default_from_email` - (Optional) The default email address that emails will be sent from when a from address is not provided on an individual email template. This is the address part email address (i.e. Jared Dunn <jared@piedpiper.com>).
     - `forgot_password_email_template_id` - (Optional) The Id of the Email Template that is used when a user is sent a forgot password email.
@@ -265,11 +268,11 @@ resource "fusionauth_tenant" "example" {
     - `security` - (Optional) The type of security protocol FusionAuth will use when connecting to the SMTP server.
     - `set_password_email_template_id` - (Optional) The Id of the Email Template that is used when a user had their account created for them and they must set their password manually and they are sent an email to set their password.
     - `username` - (Optional) An optional username FusionAuth will to authenticate with the SMTP server.
-	- `verification_email_template_id` - (Optional) The Id of the Email Template that is used to send the verification emails to users. These emails are used to verify that a user’s email address ivalid. If either the verifyEmail or verifyEmailWhenChanged fields are true this field is required.
+    - `verification_email_template_id` - (Optional) The Id of the Email Template that is used to send the verification emails to users. These emails are used to verify that a user’s email address ivalid. If either the verifyEmail or verifyEmailWhenChanged fields are true this field is required.
     - `verify_email` - (Optional) Whether the user’s email addresses are verified when the registers with your application.
     - `verify_email_when_changed` - (Optional) Whether the user’s email addresses are verified when the user changes them.
-	- `two_factor_method_add_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when a MFA method has been added to their account.
-	- `two_factor_method_remove_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when a MFA method has been removed from their account.
+    - `two_factor_method_add_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when a MFA method has been added to their account.
+    - `two_factor_method_remove_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when a MFA method has been removed from their account.
     - `unverified` - (Optional)
         - `allow_email_change_when_gated` - (Optional) When this value is set to true, the user is allowed to change their email address when they are gated because they haven’t verified their email address.
         - `behavior` = (Optional) The behavior when detecting breaches at time of user login
@@ -349,6 +352,8 @@ resource "fusionauth_tenant" "example" {
     - `refresh_token_time_to_live_in_minutes` - (Required) The length of time in minutes a Refresh Token is valid from the time it was issued. Value must be greater than 0.
     - `refresh_token_usage_policy` - (Optional) The refresh token usage policy.
     - `time_to_live_in_seconds` - (Required) The length of time in seconds this JWT is valid from the time it was issued. Value must be greater than 0.
+* `login_configuration`
+    - `require_authentication` - (Optional) Indicates whether to require an API key for the Login API when an `applicationId` is not provided. When an `applicationId` is provided to the Login API call, the application configuration will take precedence. In almost all cases, you will want to this to be `true`.
 * `logout_url` - (Optional) The logout redirect URL when sending the user’s browser to the /oauth2/logout URI of the FusionAuth Front End. This value is only used when a logout URL is not defined in your Application.
 * `maximum_password_age` - (Optional)
     - `days` - (Optional) The password maximum age in days. The number of days after which FusionAuth will require a user to change their password. Required when systemConfiguration.maximumPasswordAge.enabled is set to true.

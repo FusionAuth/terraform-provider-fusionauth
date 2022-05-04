@@ -180,7 +180,7 @@ func testTenantAccTestCheckFuncs(
 		// resource.TestCheckResourceAttr(tfResourcePath, "family_configuration.0.#family_request_email_template_id", "UUID"),
 		resource.TestCheckResourceAttr(tfResourcePath, "family_configuration.0.maximum_child_age", "14"),
 		resource.TestCheckResourceAttr(tfResourcePath, "family_configuration.0.minimum_owner_age", "18"),
-		resource.TestCheckResourceAttr(tfResourcePath, "family_configuration.0.parent_email_required", "true"),
+		resource.TestCheckResourceAttr(tfResourcePath, "family_configuration.0.parent_email_required", "false"),
 		// resource.TestCheckResourceAttr(tfResourcePath, "family_configuration.0.#parent_registration_email_template_id", "UUID"),
 
 		// form_configuration
@@ -194,6 +194,9 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttrSet(tfResourcePath, "jwt_configuration.0.id_token_key_id"),
 		resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.refresh_token_time_to_live_in_minutes", "43200"),
 		resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.time_to_live_in_seconds", "3600"),
+
+		// login_configuration
+		resource.TestCheckResourceAttr(tfResourcePath, "login_configuration.0.require_authentication", "true"),
 
 		resource.TestCheckResourceAttr(tfResourcePath, "logout_url", "https://example.com/signed-out"),
 
@@ -537,7 +540,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
     #family_request_email_template_id      = "UUID"
     maximum_child_age                     = 14
     minimum_owner_age                     = 18
-    parent_email_required                 = true
+    parent_email_required                 = false
     #parent_registration_email_template_id = "UUID"
   }
   form_configuration {
@@ -549,6 +552,9 @@ resource "fusionauth_tenant" "test_%[1]s" {
   jwt_configuration {%[3]s%[4]s
     refresh_token_time_to_live_in_minutes = 43200
     time_to_live_in_seconds               = 3600
+  }
+  login_configuration {
+    require_authentication = true
   }
   logout_url = "https://example.com/signed-out"
   maximum_password_age {
