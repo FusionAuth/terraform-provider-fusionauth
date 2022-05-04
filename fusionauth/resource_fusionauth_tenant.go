@@ -27,11 +27,10 @@ func newTenant() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"access_control_configuration": {
-				Type:       schema.TypeList,
-				MaxItems:   1,
-				Optional:   true,
-				Computed:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ui_ip_access_control_list_id": {
