@@ -111,7 +111,7 @@ func buildGenericConnector(data *schema.ResourceData) fusionauth.GenericConnecto
 func createGenericConnector(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	connector := buildGenericConnector(data)
-	resp, faErrs, err := CreateConnector(*client.FAClient, connector.Id, GenericConnectorRequest{Connector: connector})
+	resp, faErrs, err := CreateConnector(client.FAClient, connector.Id, GenericConnectorRequest{Connector: connector})
 	if err != nil {
 		return diag.Errorf("CreateGenericConnector err: %v", err)
 	}
@@ -127,7 +127,7 @@ func readGenericConnector(_ context.Context, data *schema.ResourceData, i interf
 	client := i.(Client)
 	id := data.Id()
 
-	resp, faErrs, err := RetrieveConnector(*client.FAClient, id)
+	resp, faErrs, err := RetrieveConnector(client.FAClient, id)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -179,7 +179,7 @@ func updateGenericConnector(_ context.Context, data *schema.ResourceData, i inte
 	client := i.(Client)
 	connector := buildGenericConnector(data)
 
-	resp, faErrs, err := UpdateConnector(*client.FAClient, data.Id(), GenericConnectorRequest{Connector: connector})
+	resp, faErrs, err := UpdateConnector(client.FAClient, data.Id(), GenericConnectorRequest{Connector: connector})
 	if err != nil {
 		return diag.FromErr(err)
 	}

@@ -13,7 +13,7 @@ import (
 )
 
 type Client struct {
-	FAClient *fusionauth.FusionAuthClient
+	FAClient fusionauth.FusionAuthClient
 	Host     string
 	APIKey   string
 }
@@ -35,7 +35,7 @@ func configureClient(_ context.Context, data *schema.ResourceData) (client inter
 	client = Client{
 		Host:   host,
 		APIKey: apiKey,
-		FAClient: fusionauth.NewClient(
+		FAClient: *fusionauth.NewClient(
 			&http.Client{
 				Timeout: time.Second * 30,
 			},
