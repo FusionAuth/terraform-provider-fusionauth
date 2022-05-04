@@ -141,7 +141,8 @@ func testAccCheckFusionauthKeyExists(resourceName string) resource.TestCheckFunc
 			return fmt.Errorf("no resource id is set")
 		}
 
-		key, faErrs, err := fusionauthClient().RetrieveKey(rs.Primary.ID)
+		faClient := fusionauthClient()
+		key, faErrs, err := faClient.RetrieveKey(rs.Primary.ID)
 		if errs := checkFusionauthErrors(faErrs, err); errs != nil {
 			return err
 		}

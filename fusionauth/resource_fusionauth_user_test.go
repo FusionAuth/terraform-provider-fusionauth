@@ -338,7 +338,8 @@ func testAccCheckFusionauthUserExists(resourceName string) resource.TestCheckFun
 			return fmt.Errorf("no resource id is set")
 		}
 
-		user, faErrs, err := fusionauthClient().RetrieveUser(rs.Primary.ID)
+		faClient := fusionauthClient()
+		user, faErrs, err := faClient.RetrieveUser(rs.Primary.ID)
 		if err != nil {
 			// low-level error performing api request
 			return fmt.Errorf("retrieveuser error: %#+v", err)

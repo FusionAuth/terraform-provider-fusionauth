@@ -43,7 +43,7 @@ func init() {
 }
 
 // fusionauthClient extracts the underlying client from a configured provider
-func fusionauthClient() *fusionauth.FusionAuthClient {
+func fusionauthClient() fusionauth.FusionAuthClient {
 	provider, err := testAccProviderFactories[providerFusionauth]()
 	if err != nil {
 		log.Println("[ERROR] error getting Fusionauth Provider")
