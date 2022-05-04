@@ -125,7 +125,8 @@ func testAccCheckFusionauthThemeExists(resourceName string) resource.TestCheckFu
 			return fmt.Errorf("no resource id is set")
 		}
 
-		theme, faErrs, err := fusionauthClient().RetrieveTheme(rs.Primary.ID)
+		faClient := fusionauthClient()
+		theme, faErrs, err := faClient.RetrieveTheme(rs.Primary.ID)
 		if errs := checkFusionauthErrors(faErrs, err); errs != nil {
 			return err
 		}
@@ -212,8 +213,8 @@ func generateFusionAuthTemplate() fusionauth.Templates {
 		Unauthorized:                              randString20(),
 
 		// TODO(themes): test for deprecated properties
-		//EmailSend:        randString20(),
-		//RegistrationSend: randString20(),
+		// EmailSend:        randString20(),
+		// RegistrationSend: randString20(),
 	}
 }
 

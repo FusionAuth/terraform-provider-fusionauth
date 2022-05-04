@@ -114,7 +114,7 @@ func testAccCheckGenericConnectorExists(resourceName string) resource.TestCheckF
 			return fmt.Errorf("no resource id is set")
 		}
 
-		connector, faErrs, err := RetrieveConnector(*fusionauthClient(), rs.Primary.ID)
+		connector, faErrs, err := RetrieveConnector(fusionauthClient(), rs.Primary.ID)
 		if errs := checkFusionauthErrors(faErrs, err); errs != nil {
 			return err
 		}
@@ -136,7 +136,7 @@ func testAccCheckGenericConnectorDestroy(s *terraform.State) error {
 
 		// Ensure we retry for eventual consistency in HA setups.
 		err := resource.RetryContext(context.Background(), retryTimeout, func() *resource.RetryError {
-			connector, faErrs, err := RetrieveConnector(*fusionauthClient(), rs.Primary.ID)
+			connector, faErrs, err := RetrieveConnector(fusionauthClient(), rs.Primary.ID)
 			if errs := checkFusionauthRetryErrors(faErrs, err); errs != nil {
 				return errs
 			}

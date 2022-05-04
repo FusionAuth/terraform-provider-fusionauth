@@ -278,7 +278,8 @@ func testAccCheckFusionauthTenantExists(resourceName string) resource.TestCheckF
 			return fmt.Errorf("no resource id is set")
 		}
 
-		tenant, faErrs, err := fusionauthClient().RetrieveTenant(rs.Primary.ID)
+		faClient := fusionauthClient()
+		tenant, faErrs, err := faClient.RetrieveTenant(rs.Primary.ID)
 		if errs := checkFusionauthErrors(faErrs, err); errs != nil {
 			return err
 		}
