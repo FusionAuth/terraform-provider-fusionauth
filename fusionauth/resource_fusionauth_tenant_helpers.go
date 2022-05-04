@@ -175,6 +175,9 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			RefreshTokenUsagePolicy:         fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
 			TimeToLiveInSeconds:             data.Get("jwt_configuration.0.time_to_live_in_seconds").(int),
 		},
+		LoginConfiguration: fusionauth.TenantLoginConfiguration{
+			RequireAuthentication: data.Get("login_configuration.0.require_authentication").(bool),
+		},
 		LogoutURL: data.Get("logout_url").(string),
 		MaximumPasswordAge: fusionauth.MaximumPasswordAge{
 			Enableable: buildEnableable("maximum_password_age.0.enabled", data),
@@ -496,6 +499,15 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	})
 	if err != nil {
 		return diag.Errorf("tenant.jwt_configuration: %s", err.Error())
+	}
+
+	err = data.Set("login_configuration", []map[string]interface{}{
+		{
+			"require_authentication": t.LoginConfiguration.RequireAuthentication,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("tenant.login_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("logout_url", t.LogoutURL); err != nil {
