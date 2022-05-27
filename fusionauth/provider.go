@@ -58,6 +58,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"fusionauth_lambda":           dataSourceLambda(),
 			"fusionauth_application":      dataSourceApplication(),
+			"fusionauth_form":             dataSourceForm(),
 			"fusionauth_tenant":           dataSourceTenant(),
 			"fusionauth_application_role": dataSourceApplicationRole(),
 			"fusionauth_idp":              dataSourceIDP(),
