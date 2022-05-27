@@ -25,6 +25,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		Data: data.Get("data").(map[string]interface{}),
 		FormConfiguration: fusionauth.ApplicationFormConfiguration{
 			AdminRegistrationFormId: data.Get("form_configuration.0.admin_registration_form_id").(string),
+			SelfServiceFormId:       data.Get("form_configuration.0.self_service_form_id").(string),
 		},
 		JwtConfiguration: fusionauth.JWTConfiguration{
 			Enableable:                      buildEnableable("jwt_configuration.0.enabled", data),
@@ -209,6 +210,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 	err = data.Set("form_configuration", []map[string]interface{}{
 		{
 			"admin_registration_form_id": a.FormConfiguration.AdminRegistrationFormId,
+			"self_service_form_id":       a.FormConfiguration.SelfServiceFormId,
 		},
 	})
 	if err != nil {

@@ -106,6 +106,12 @@ func newApplication() *schema.Resource {
 							ValidateFunc: validation.IsUUID,
 							Description:  "The unique Id of the form to use for the Add and Edit User Registration form when used in the FusionAuth admin UI.",
 						},
+						"self_service_form_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+							Description:  "The unique Id of the form to to enable authenticated users to manage their profile on the account page.",
+						},
 					},
 				},
 			},

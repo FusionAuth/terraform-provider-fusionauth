@@ -5,76 +5,77 @@
 ## Example Usage
 
 ```hcl
-resource "fusionauth_application" "Forum"{
-    tenant_id = fusionauth_tenant.portal.id
-    authentication_token_configuration_enabled = false
-    form_configuration {
-        admin_registration_form_id = "e37dff97-9a94-48af-a0a6-c0bdfdd62c48"
+resource "fusionauth_application" "Forum" {
+  tenant_id                                  = fusionauth_tenant.portal.id
+  authentication_token_configuration_enabled = false
+  form_configuration {
+    admin_registration_form_id = fusionauth_form.admin_registration.id
+    self_service_form_id       = fusionauth_form.self_service.id
+  }
+  jwt_configuration {
+    access_token_id           = fusionauth_key.access_token.id
+    enabled                   = true
+    id_token_key_id           = fusionauth_key.id_token.id
+    refresh_token_ttl_minutes = 43200
+    ttl_seconds               = 3600
+  }
+  lambda_configuration {
+    access_token_populate_id = fusionauth_lambda.token_populate.id
+    id_token_populate_id     = fusionauth_lambda.id_token_populate.id
+  }
+  login_configuration {
+    allow_token_refresh     = false
+    generate_refresh_tokens = false
+    require_authentication  = true
+  }
+  name = "Forum"
+  oauth_configuration {
+    authorized_origin_urls = [
+      "http://www.example.com/oauth-callback"
+    ]
+    enabled_grants = [
+      "authorization_code", "implicit"
+    ]
+    generate_refresh_tokens       = false
+    logout_behavior               = "AllApplications"
+    logout_url                    = "http://www.example.com/logout"
+    require_client_authentication = false
+  }
+  registration_configuration {
+    birth_date {
+      enabled  = false
+      required = false
     }
-    jwt_configuration {
-        access_token_id = 
-        enabled=  true
-        id_token_key_id = fusionauth_key.gpsiidtoken.id
-        refresh_token_ttl_minutes= 43200
-        ttl_seconds=3600
+    confirm_password = false
+    enabled          = false
+    first_name {
+      enabled  = false
+      required = false
     }
-    lambda_configuration {
-        access_token_populate_id= 
-        id_token_populate_id= 
+    full_name {
+      enabled  = false
+      required = false
     }
-    login_configuration{
-        allow_token_refresh = false
-        generate_refresh_tokens = false
-        require_authentication = true
+    last_name {
+      enabled  = false
+      required = false
     }
-    name = "Forum"
-    oauth_configuration  {
-        authorized_origin_urls =[
-            "http://www.example.com/oauth-callback"
-            ]
-        enabled_grants = [
-            "authorization_code","implicit"
-            ]
-        generate_refresh_tokens = false
-        logout_behavior = "AllApplications"
-        logout_url= "http://www.example.com/logout"
-        require_client_authentication = false
+    login_id_type = ""
+    middle_name {
+      enabled  = false
+      required = false
     }
-    registration_configuration {
-        birth_date {
-            enabled = false
-            required = false
-        }
-        confirm_password = false
-        enabled = false
-        first_name {
-            enabled = false
-            required = false
-        }
-        full_name {
-            enabled = false
-            required = false
-        }
-        last_name {
-            enabled = false
-            required = false
-        }
-        login_id_type = ""
-        middle_name {
-            enabled = false
-            required = false
-        }
-        mobile_phone {
-            enabled = false
-            required = false
-        }
-        type = ""
+    mobile_phone {
+      enabled  = false
+      required = false
     }
-    passwordless_configuration_enabled = false
-    registration_delete_policy {
-        unverified_enabled = true
-        unverified_number_of_days_to_retain = 30
-    }
+    type = ""
+  }
+  passwordless_configuration_enabled = false
+  registration_delete_policy {
+    unverified_enabled                  = true
+    unverified_number_of_days_to_retain = 30
+  }
 }
 ```
 
@@ -92,7 +93,8 @@ resource "fusionauth_application" "Forum"{
         * `application_id` - (Optional) The Id of the CleanSpeak application that usernames are sent to for moderation.
 * `data` - (Optional) An object that can hold any information about the Application that should be persisted.
 * `form_configuration` - (Optional)
-    - `admin_registration_form_id` - (Optional) The unique Id of the form to use for the Add and Edit User Registration form when used in the FusionAuth admin UI."
+    - `admin_registration_form_id` - (Optional) The unique Id of the form to use for the Add and Edit User Registration form when used in the FusionAuth admin UI.
+    - `self_service_form_id` - (Optional) The unique Id of the form to to enable authenticated users to manage their profile on the account page.
 * `jwt_configuration` - (Optional)
     - `access_token_id` - (Optional) The Id of the signing key used to sign the access token.
     - `enabled` - (Optional) Indicates if this application is using the JWT configuration defined here or the global JWT configuration defined by the System Configuration. If this is false the signing algorithm configured in the System Configuration will be used. If true the signing algorithm defined in this application will be used.
