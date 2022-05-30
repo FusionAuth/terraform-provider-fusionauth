@@ -155,6 +155,7 @@ func userSchemaV1() *schema.Resource {
 			"two_factor_methods": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"authenticator_algorithm": {
