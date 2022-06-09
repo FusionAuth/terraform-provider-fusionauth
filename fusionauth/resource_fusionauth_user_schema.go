@@ -157,6 +157,11 @@ func userSchemaV1() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"two_factor_method_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique Id of the method.",
+						},
 						"authenticator_algorithm": {
 							Type:     schema.TypeString,
 							Optional: true,
