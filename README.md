@@ -42,3 +42,7 @@ For the rendered provider usage documentation, visit the [Terraform Registry](ht
 * user action
 * webhook
 * tenants
+
+## Known issues
+
+If you do not specify permissions when adding an API key, you will get a key created that has no permissions. See https://github.com/gpsinsight/terraform-provider-fusionauth/issues/126 and https://github.com/FusionAuth/fusionauth-issues/issues/1675 for more details.
