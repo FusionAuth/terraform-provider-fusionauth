@@ -59,7 +59,7 @@ resource "fusionauth_user" "example" {
 * `password_change_required` - (Optional) Indicates that the User’s password needs to be changed during their next login attempt.
 * `preferred_languages` - (Optional) An array of locale strings that give, in order, the User’s preferred languages. These are important for email templates and other localizable text.
 * `timezone` - (Optional) The User’s preferred timezone. The string must be in an IANA time zone format.
-* `username` - Optional The username of the User. The username is stored and returned as a case sensitive value, however a username is considered unique regardless of the case. bob is considered equal to BoB so either version of this username can be used whenever providing it as input to an API.
+* `username` - (Optional) The username of the User. The username is stored and returned as a case sensitive value, however a username is considered unique regardless of the case. bob is considered equal to BoB so either version of this username can be used whenever providing it as input to an API.
 * `username_status` - (Optional) The current status of the username. This is used if you are moderating usernames via CleanSpeak.
 * `two_factor_methods`
     - `authenticator_algorithm` - (Optional) The algorithm used by the TOTP authenticator. With the current implementation, this will always be HmacSHA1.
