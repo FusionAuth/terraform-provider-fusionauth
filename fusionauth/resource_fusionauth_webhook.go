@@ -16,12 +16,6 @@ func newWebhook() *schema.Resource {
 		UpdateContext: updateWebhook,
 		DeleteContext: deleteWebhook,
 		Schema: map[string]*schema.Schema{
-			"application_ids": {
-				Type:        schema.TypeSet,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Description: "The Ids of the Applications that this Webhook should be associated with. If no Ids are specified and the global field is false, this Webhook will not be used.",
-			},
 			"connect_timeout": {
 				Type:        schema.TypeInt,
 				Required:    true,
@@ -278,7 +272,6 @@ func newWebhook() *schema.Resource {
 
 func buildWebhook(data *schema.ResourceData) fusionauth.Webhook {
 	wh := fusionauth.Webhook{
-		ApplicationIds: handleStringSlice("application_ids", data),
 		ConnectTimeout: data.Get("connect_timeout").(int),
 		Description:    data.Get("description").(string),
 		EventsEnabled:  buildEventsEnabled("events_enabled", data),
@@ -377,9 +370,6 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 	}
 
 	l := resp.Webhook
-	if err := data.Set("application_ids", l.ApplicationIds); err != nil {
-		return diag.Errorf("webhook.application_ids: %s", err.Error())
-	}
 	if err := data.Set("connect_timeout", l.ConnectTimeout); err != nil {
 		return diag.Errorf("webhook.connect_timeout: %s", err.Error())
 	}

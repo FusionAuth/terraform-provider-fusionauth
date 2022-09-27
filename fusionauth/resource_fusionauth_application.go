@@ -270,12 +270,6 @@ func newApplication() *schema.Resource {
 				Default:     false,
 				Description: "Whether or not registrations to this Application may be verified. When this is set to true the verificationEmailTemplateId parameter is also required.",
 			},
-			"webhook_ids": {
-				Type:        schema.TypeSet,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Description: "An array of Webhook Ids. For Webhooks that are not already configured for All Applications, specifying an Id on this request will indicate the associated Webhook should handle events for this application.",
-			},
 			"email_configuration": {
 				Type:       schema.TypeList,
 				MaxItems:   1,
