@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -56,7 +56,7 @@ func readIdentityProvider(id string, client Client) ([]byte, error) {
 		return nil, err
 	}
 
-	b, _ := ioutil.ReadAll(resp.Body)
+	b, _ := io.ReadAll(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("status: %d, response: \n\t%s", resp.StatusCode, string(b))
@@ -97,7 +97,7 @@ func createIdentityProvider(b []byte, client Client, idpID string) ([]byte, erro
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
 		return nil, err
 	}
-	bb, _ := ioutil.ReadAll(resp.Body)
+	bb, _ := io.ReadAll(resp.Body)
 
 	if resp.StatusCode > 299 {
 		return nil, fmt.Errorf("status: %d, response: \n\t%s\nreq body:\n\t%s", resp.StatusCode, string(bb), string(b))
@@ -131,7 +131,7 @@ func updateIdentityProvider(b []byte, id string, client Client) ([]byte, error) 
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
 		return nil, err
 	}
-	bb, _ := ioutil.ReadAll(resp.Body)
+	bb, _ := io.ReadAll(resp.Body)
 
 	if resp.StatusCode > 299 {
 		return nil, fmt.Errorf("status: %d, response: \n\t%s\nreq body:\n\t%s", resp.StatusCode, string(bb), string(b))
