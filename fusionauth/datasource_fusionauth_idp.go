@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -106,7 +106,7 @@ func readIdentityProviders(client Client) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	b, _ := ioutil.ReadAll(resp.Body)
+	b, _ := io.ReadAll(resp.Body)
 
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
 		return b, err
