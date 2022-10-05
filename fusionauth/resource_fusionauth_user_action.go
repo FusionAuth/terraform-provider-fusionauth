@@ -22,6 +22,13 @@ func resourceUserAction() *schema.Resource {
 				Required:    true,
 				Description: "The name of this User Action.",
 			},
+			"user_action_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				Description:  "The id of this User Action.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"cancel_email_template_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -112,6 +119,9 @@ func buildUserAction(data *schema.ResourceData) fusionauth.UserAction {
 		Name: data.Get("name").(string),
 	}
 
+	if d, ok := data.GetOk("user_action_id"); ok {
+		ua.Id = d.(string)
+	}
 	if d, ok := data.GetOk("cancel_email_template_id"); ok {
 		ua.CancelEmailTemplateId = d.(string)
 	}
@@ -187,6 +197,9 @@ func readUserAction(_ context.Context, data *schema.ResourceData, i interface{})
 
 	if err := data.Set("name", resp.UserAction.Name); err != nil {
 		return diag.Errorf("user_action.name: %s", err.Error())
+	}
+	if err := data.Set("user_action_id", resp.UserAction.Id); err != nil {
+		return diag.Errorf("user_action.id: %s", err.Error())
 	}
 	if err := data.Set("cancel_email_template_id", resp.UserAction.CancelEmailTemplateId); err != nil {
 		return diag.Errorf("user_action.cancel_email_template_id: %s", err.Error())

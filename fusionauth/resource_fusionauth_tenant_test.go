@@ -380,21 +380,21 @@ func testAccTenantResourceBasicConfig(
 // tenant.
 //
 // Note:
-// - A bug in the terraform SDK means defaults configured for TypeList/TypeSet
-//   schemas aren't applied unless the top level object is defined in the
-//   config, for example, you have to explicitly add `minimum_password_age {}`
-//   to get the defaults to propagate down into the object's properties.
-//   Refer: https://github.com/hashicorp/terraform-plugin-sdk/issues/142
-// - `form_configuration.admin_user_form_id` is commented out as it requires a
-//   paid edition of fusionauth.
-// - `multi_factor_configuration.email.enabled` is set to false, as it requires
-//   a paid edition of fusionauth.
-// - `multi_factor_configuration.sms.enabled` is set to false, as it requires
-//   a paid edition of fusionauth.
-// - `password_validation_rules.breach_detection.enabled` is set to false, as
-//   it requires a paid edition of fusionauth.
-// - `username_configuration.unique.enabled` is set to false, as it requires a
-//   paid edition of fusionauth.
+//   - A bug in the terraform SDK means defaults configured for TypeList/TypeSet
+//     schemas aren't applied unless the top level object is defined in the
+//     config, for example, you have to explicitly add `minimum_password_age {}`
+//     to get the defaults to propagate down into the object's properties.
+//     Refer: https://github.com/hashicorp/terraform-plugin-sdk/issues/142
+//   - `form_configuration.admin_user_form_id` is commented out as it requires a
+//     paid edition of fusionauth.
+//   - `multi_factor_configuration.email.enabled` is set to false, as it requires
+//     a paid edition of fusionauth.
+//   - `multi_factor_configuration.sms.enabled` is set to false, as it requires
+//     a paid edition of fusionauth.
+//   - `password_validation_rules.breach_detection.enabled` is set to false, as
+//     it requires a paid edition of fusionauth.
+//   - `username_configuration.unique.enabled` is set to false, as it requires a
+//     paid edition of fusionauth.
 func testAccTenantResourceConfig(
 	resourceName string,
 	themeKey string,
