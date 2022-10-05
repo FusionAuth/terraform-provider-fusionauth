@@ -249,6 +249,7 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 		}
 
 		twoFactorMethodsData[i] = map[string]interface{}{
+			"two_factor_method_id":      twoFactorMethod.Id,
 			"authenticator_algorithm":   twoFactorMethod.Authenticator.Algorithm,
 			"authenticator_code_length": twoFactorMethod.Authenticator.CodeLength,
 			"authenticator_time_step":   twoFactorMethod.Authenticator.TimeStep,
@@ -290,6 +291,7 @@ func dataToTwoFactorMethods(data *schema.ResourceData) (twoFactorMethods []fusio
 			})
 		} else {
 			twoFactorMethods[i] = fusionauth.TwoFactorMethod{
+				Id: twoFactorMethod["two_factor_method_id"].(string),
 				Authenticator: fusionauth.AuthenticatorConfiguration{
 					Algorithm:  fusionauth.TOTPAlgorithm(twoFactorMethod["authenticator_algorithm"].(string)),
 					CodeLength: twoFactorMethod["authenticator_code_length"].(int),
