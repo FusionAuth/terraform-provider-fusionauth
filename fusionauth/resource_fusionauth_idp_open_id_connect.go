@@ -181,6 +181,18 @@ func newIDPOpenIDConnect() *schema.Resource {
 				Default:     "email",
 				Description: "An optional configuration to modify the expected name of the claim returned by the IdP that contains the email address.",
 			},
+			"oauth2_unique_id_claim": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "id",
+				Description: "An optional configuration to modify the expected name of the claim returned by the IdP that contains the user Id.",
+			},
+			"oauth2_username_claim": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "preferred_username",
+				Description: "An optional configuration to modify the expected name of the claim returned by the IdP that contains the username.",
+			},
 			"oauth2_issuer": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -268,7 +280,9 @@ func buildOpenIDConnect(data *schema.ResourceData) OpenIDConnectIdentityProvider
 			Issuer:           data.Get("oauth2_issuer").(string),
 			Scope:            data.Get("oauth2_scope").(string),
 			TokenEndpoint:    data.Get("oauth2_token_endpoint").(string),
+			UniqueIdClaim:    data.Get("oauth2_unique_id_claim").(string),
 			UserinfoEndpoint: data.Get("oauth2_user_info_endpoint").(string),
+			UsernameClaim:    data.Get("oauth2_username_claim").(string),
 		},
 	}
 
@@ -360,6 +374,9 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 	if err := data.Set("lambda_reconcile_id", o.LambdaConfiguration.ReconcileId); err != nil {
 		return diag.Errorf("idpOpenIDConnect.lambda_reconcile_id: %s", err.Error())
 	}
+	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
+		return diag.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
+	}
 	if err := data.Set("name", o.Name); err != nil {
 		return diag.Errorf("idpOpenIDConnect.name: %s", err.Error())
 	}
@@ -378,6 +395,12 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 	if err := data.Set("oauth2_email_claim", o.Oauth2.EmailClaim); err != nil {
 		return diag.Errorf("idpOpenIDConnect.oauth2_email_claim: %s", err.Error())
 	}
+	if err := data.Set("oauth2_unique_id_claim", o.Oauth2.UniqueIdClaim); err != nil {
+		return diag.Errorf("idpOpenIDConnect.oauth2_unique_id_claim: %s", err.Error())
+	}
+	if err := data.Set("oauth2_username_claim", o.Oauth2.UsernameClaim); err != nil {
+		return diag.Errorf("idpOpenIDConnect.oauth2_username_claim: %s", err.Error())
+	}
 	if err := data.Set("oauth2_issuer", o.Oauth2.Issuer); err != nil {
 		return diag.Errorf("idpOpenIDConnect.oauth2_issuer: %s", err.Error())
 	}
@@ -390,10 +413,6 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 	if err := data.Set("oauth2_user_info_endpoint", o.Oauth2.UserinfoEndpoint); err != nil {
 		return diag.Errorf("idpOpenIDConnect.oauth2_user_info_endpoint: %s", err.Error())
 	}
-	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
-		return diag.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
-	}
-
 	if err := data.Set("post_request", o.PostRequest); err != nil {
 		return diag.Errorf("idpOpenIDConnect.post_request: %s", err.Error())
 	}
