@@ -164,9 +164,10 @@ func buildUserAction(data *schema.ResourceData) fusionauth.UserAction {
 
 func createUserAction(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
+	userAction := buildUserAction(data)
 
-	resp, faErrs, err := client.FAClient.CreateUserAction("", fusionauth.UserActionRequest{
-		UserAction: buildUserAction(data),
+	resp, faErrs, err := client.FAClient.CreateUserAction(userAction.Id, fusionauth.UserActionRequest{
+		UserAction: userAction,
 	})
 
 	if err != nil {
