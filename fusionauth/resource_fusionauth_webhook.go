@@ -107,6 +107,16 @@ func newWebhook() *schema.Resource {
 							Optional:    true,
 							Description: "When a user verifies their email address",
 						},
+						"user_identity_provider_link": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "When a user is linked to an identity provider",
+						},
+						"user_identity_provider_unlink": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "When a link to an identity provider is removed",
+						},
 						"user_login_id_duplicate_create": {
 							Type:        schema.TypeBool,
 							Optional:    true,

@@ -45,6 +45,8 @@ resource "fusionauth_webhook" "example" {
     - `user_delete_complete` - (Optional) When a user delete transaction has completed
     - `user_email_update` - (Optional) When a user updates their email address
     - `user_email_verified` - (Optional) When a user verifies their email address
+    - `user_identity_provider_link` - (Optional) When a user is linked to an identity provider
+    - `user_identity_provider_unlink` - (Optional) When a link to an identity provider is removed
     - `user_login_id_duplicate_create` - (Optional) When a request to create a user with a login Id (email or username) which is already in use has been received
     - `user_login_id_duplicate_update` - (Optional) When a request to update a user and change their login Id (email or username) to one that is already in use has been received
     - `user_login_failed` - (Optional) When a user fails a login request

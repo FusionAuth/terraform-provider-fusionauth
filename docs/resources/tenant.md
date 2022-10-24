@@ -112,6 +112,16 @@ resource "fusionauth_tenant" "example" {
     transaction_type = "Any"
   }
   event_configuration {
+    event            = "user.identity-provider.link"
+    enabled          = true
+    transaction_type = "Any"
+  }
+  event_configuration {
+    event            = "user.identity-provider.unlink"
+    enabled          = true
+    transaction_type = "Any"
+  }
+  event_configuration {
     event            = "user.password.breach"
     enabled          = false
     transaction_type = "None"
