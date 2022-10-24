@@ -136,6 +136,8 @@ func newTenant() *schema.Resource {
 								"user.delete.complete",
 								"user.email.update",
 								"user.email.verified",
+								"user.identity-provider.link",
+								"user.identity-provider.unlink",
 								"user.loginId.duplicate.create",
 								"user.loginId.duplicate.update",
 								"user.login.failed",
