@@ -8,9 +8,9 @@ A FusionAuth Webhook is intended to consume JSON events emitted by FusionAuth. C
 
 ```hcl
 resource "fusionauth_webhook" "example" {
-  application_ids = [
+  tenant_ids = [
     "00000000-0000-0000-0000-000000000003",
-    fusionauth_application.example.id
+    fusionauth_tenant.example.id
   ]
   connect_timeout = 1000
   description     = "The standard game Webhook"
@@ -31,7 +31,7 @@ resource "fusionauth_webhook" "example" {
 ```
 
 ## Argument Reference
-* `application_ids` - (Optional) The Ids of the Applications that this Webhook should be associated with. If no Ids are specified and the global field is false, this Webhook will not be used.
+* `tenant_ids` - (Optional) The Ids of the tenants that this Webhook should be associated with. If no Ids are specified and the global field is false, this Webhook will not be used.
 * `connect_timeout` - (Required) The connection timeout in milliseconds used when FusionAuth sends events to the Webhook.
 * `description` - (Optional) A description of the Webhook. This is used for display purposes only.
 * `events_enabled` - (Optional) A mapping for the events that are enabled for this Webhook.

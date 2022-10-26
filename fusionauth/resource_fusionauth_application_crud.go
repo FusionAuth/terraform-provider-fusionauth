@@ -21,10 +21,6 @@ func createApplication(_ context.Context, data *schema.ResourceData, i interface
 		client.FAClient.TenantId = oldTenantID
 	}()
 
-	if hooks, ok := data.GetOk("webhooks"); ok {
-		ar.WebhookIds = hooks.([]string)
-	}
-
 	var aid string
 	if a, ok := data.GetOk("application_id"); ok {
 		aid = a.(string)
@@ -66,10 +62,6 @@ func updateApplication(_ context.Context, data *schema.ResourceData, i interface
 	client := i.(Client)
 	ar := fusionauth.ApplicationRequest{
 		Application: buildApplication(data),
-	}
-
-	if hooks, ok := data.GetOk("webhooks"); ok {
-		ar.WebhookIds = hooks.([]string)
 	}
 
 	resp, faErrs, err := client.FAClient.UpdateApplication(data.Id(), ar)
