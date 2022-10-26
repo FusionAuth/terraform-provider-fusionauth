@@ -165,7 +165,7 @@ resource "fusionauth_application" "Forum" {
     - `issuer` - (Required) The issuer that identifies the service provider and allows FusionAuth to load the correct Application and SAML configuration. If you don’t know the issuer, you can often times put in anything here and FusionAuth will display an error message with the issuer from the service provider when you test the SAML login.
     - `key_id` - (Optional) The id of the Key used to sign the SAML response. If you do not specify this property, FusionAuth will create a new key and associate it with this Application.
     - `logout` - (Optional)
-        * `behavior` - (Optional) This configuration is functionally equivalent to the Logout Behavior found in the OAuth2 configuration. 
+        * `behavior` - (Optional) This configuration is functionally equivalent to the Logout Behavior found in the OAuth2 configuration.
         * `default_verification_key_id` - (Optional) The unique Id of the Key used to verify the signature if the public key cannot be determined by the KeyInfo element when using POST bindings, or the key used to verify the signature when using HTTP Redirect bindings.
         * `key_id` - (Optional) The unique Id of the Key used to sign the SAML Logout response.
         * `require_signed_requests` - (Optional) Set this parameter equal to true to require the SAML v2 Service Provider to sign the Logout request. When this value is true all Logout requests missing a signature will be rejected.
@@ -182,7 +182,6 @@ resource "fusionauth_application" "Forum" {
 * `theme_id` - (Optional) The unique Id of the theme to be used to style the login page and other end user templates.
 * `verification_email_template_id` - (Optional) The Id of the Email Template that is used to send the Registration Verification emails to users. If the verifyRegistration field is true this field is required.
 * `verify_registration` - (Optional) Whether or not registrations to this Application may be verified. When this is set to true the verificationEmailTemplateId parameter is also required.
-* `webhook_ids` - (Optional) An array of Webhook Ids. For Webhooks that are not already configured for All Applications, specifying an Id on this request will indicate the associated Webhook should handle events for this application.
 * `email_configuration` - (Optional)
     - `email_verification_template_id` - (Optional) The Id of the Email Template used to send emails to users to verify that their email address is valid. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
     - `email_update_template_id` - (Optional) The Id of the Email Template used to send emails to users when their email address is updated. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
