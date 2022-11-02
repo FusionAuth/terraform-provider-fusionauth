@@ -44,7 +44,7 @@ resource "fusionauth_idp_facebook" "facebook" {
     - `permissions` - (Optional) This is an optional Application specific override for the top level `permissions`.
 * `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
 * `app_id` - (Required) The top-level Facebook `appId` for your Application. This value is retrieved from the Facebook developer website when you setup your Facebook developer account.
-* `client_secret` - (Optional) The top-level client secret, also known as 'App Secret', to use with the Facebook Identity Provider when retrieving the long-lived token. This value is retrieved from the Facebook developer website when you setup your Facebook developer account.
+* `client_secret` - (Required) The top-level client secret, also known as 'App Secret', to use with the Facebook Identity Provider when retrieving the long-lived token. This value is retrieved from the Facebook developer website when you setup your Facebook developer account.
 * `debug` - (Optional) Determines if debug is enabled for this provider. When enabled, an Event Log is created each time this provider is invoked to reconcile a login.
 * `enabled` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
 * `fields` - (Optional) The top-level fields that you are requesting from Facebook.
