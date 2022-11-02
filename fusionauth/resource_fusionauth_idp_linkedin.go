@@ -93,7 +93,7 @@ func resourceIDPLinkedIn() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Sensitive:   true,
-				Description: "The top-level client secret to use with the Facebook Identity Provider when retrieving the long-lived token. This value is retrieved from the Facebook developer website when you setup your Facebook developer account.",
+				Description: "The top-level client secret to use with the LinkedIn Identity Provider when retrieving the long-lived token. This value is retrieved from the LinkedIn developer website when you set up your LinkedIn app.",
 			},
 			"debug": {
 				Type:        schema.TypeBool,
@@ -280,7 +280,7 @@ func buildLinkedInAppConfig(key string, data *schema.ResourceData) map[string]in
 }
 
 // buildResourceFromIDPLinkedIn writes changes back to terraform data with the
-// provided facebook identity provider response.
+// provided LinkedIn identity provider response.
 func buildResourceFromIDPLinkedIn(res fusionauth.LinkedInIdentityProvider, data *schema.ResourceData) diag.Diagnostics {
 	if err := data.Set("button_text", res.ButtonText); err != nil {
 		return diag.Errorf("idpLinkedIn.button_text: %s", err.Error())
