@@ -16,7 +16,7 @@ type LinkedInIdentityProviderBody struct {
 
 type LinkedInAppConfig struct {
 	ButtonText         string `json:"buttonText,omitempty"`
-	ClientId           string `json:"client_id,omitempty"`
+	ClientID           string `json:"client_id,omitempty"`
 	ClientSecret       string `json:"client_secret,omitempty"`
 	CreateRegistration bool   `json:"createRegistration"`
 	Enabled            bool   `json:"enabled"`
@@ -268,7 +268,7 @@ func buildLinkedInAppConfig(key string, data *schema.ResourceData) map[string]in
 		aid := ac["application_id"].(string)
 		m[aid] = LinkedInAppConfig{
 			ButtonText:         ac["button_text"].(string),
-			ClientId:           ac["client_id"].(string),
+			ClientID:           ac["client_id"].(string),
 			ClientSecret:       ac["client_secret"].(string),
 			CreateRegistration: ac["create_registration"].(bool),
 			Enabled:            ac["enabled"].(bool),
@@ -318,7 +318,7 @@ func buildResourceFromIDPLinkedIn(res fusionauth.LinkedInIdentityProvider, data 
 		ac = append(ac, map[string]interface{}{
 			"application_id":      k,
 			"button_text":         v.ButtonText,
-			"client_id":           v.ClientId,
+			"client_id":           v.ClientID,
 			"client_secret":       v.ClientSecret,
 			"create_registration": v.CreateRegistration,
 			"enabled":             v.Enabled,
