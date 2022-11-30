@@ -180,6 +180,7 @@ resource "fusionauth_application" "Forum" {
     - `xml_signature_canonicalization_method` - (Optional) The XML signature canonicalization method used when digesting and signing the SAML response. Unfortunately, many service providers do not correctly implement the XML signature specifications and force a specific canonicalization method. This setting allows you to change the canonicalization method to match the service provider. Often, service providers don’t even document their required method. You might need to contact enterprise support at the service provider to figure out what method they use.
     - `xml_signature_location` - (Optional) The location to place the XML signature when signing a successful SAML response.
 * `theme_id` - (Optional) The unique Id of the theme to be used to style the login page and other end user templates.
+* `verification_strategy` - (Optional) The process by which the user will verify their email address. Possible values are `ClickableLink` or `FormField`
 * `verification_email_template_id` - (Optional) The Id of the Email Template that is used to send the Registration Verification emails to users. If the verifyRegistration field is true this field is required.
 * `verify_registration` - (Optional) Whether or not registrations to this Application may be verified. When this is set to true the verificationEmailTemplateId parameter is also required.
 * `email_configuration` - (Optional)

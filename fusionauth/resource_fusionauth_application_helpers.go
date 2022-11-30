@@ -127,6 +127,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		},
 		ThemeId:                     data.Get("theme_id").(string),
 		VerificationEmailTemplateId: data.Get("verification_email_template_id").(string),
+		VerificationStrategy:        fusionauth.VerificationStrategy(data.Get("verification_strategy").(string)),
 		VerifyRegistration:          data.Get("verify_registration").(bool),
 		EmailConfiguration: fusionauth.ApplicationEmailConfiguration{
 			EmailVerificationEmailTemplateId:     data.Get("email_configuration.0.email_verification_template_id").(string),
@@ -389,6 +390,9 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	if err := data.Set("verification_email_template_id", a.VerificationEmailTemplateId); err != nil {
 		return diag.Errorf("application.verification_email_template_id: %s", err.Error())
+	}
+	if err := data.Set("verification_strategy", a.VerificationStrategy); err != nil {
+		return diag.Errorf("application.verification_strategy: %s", err.Error())
 	}
 	if err := data.Set("theme_id", a.ThemeId); err != nil {
 		return diag.Errorf("application.theme_id: %s", err.Error())

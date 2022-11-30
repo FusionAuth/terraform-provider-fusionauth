@@ -264,6 +264,13 @@ func newApplication() *schema.Resource {
 				Optional:    true,
 				Description: "The Id of the Email Template that is used to send the Registration Verification emails to users. If the verifyRegistration field is true this field is required.",
 			},
+			"verification_strategy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "ClickableLink",
+				Description:  "The process by which the user will verify their email address.",
+				ValidateFunc: validation.StringInSlice([]string{"ClickableLink", "FormField"}, false),
+			},
 			"verify_registration": {
 				Type:        schema.TypeBool,
 				Optional:    true,
