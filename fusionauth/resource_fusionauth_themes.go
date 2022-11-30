@@ -83,6 +83,27 @@ func newTheme() *schema.Resource {
 				Description:      "A FreeMarker template that is rendered when the user requests the /account/two-factor path. This page displays an authenticated user’s configured multi-factor authentication methods. Additionally, it provides links to enable and disable a method.",
 				DiffSuppressFunc: diffSuppressTemplate,
 			},
+			"account_webauthn_add": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that is rendered when the user requests the /account/webauthn/add path. This page contains a form that allows a user to register a new WebAuthn passkey.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
+			"account_webauthn_delete": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that is rendered when the user requests the /account/webauthn/delete path. This page contains a form that allows a user to delete a WebAuthn passkey.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
+			"account_webauthn_index": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that is rendered when the user requests the /account/webauthn/ path. This page displays an authenticated user’s registered WebAuthn passkeys. Additionally, it provides links to delete an existing passkey and register a new passkey.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
 			"email_complete": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -230,6 +251,27 @@ func newTheme() *schema.Resource {
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/wait path. This page is rendered when FusionAuth is waiting for an external provider to complete an out of band authentication request. For example, during a HYPR login this page will be displayed until the user completes authentication.",
 				DiffSuppressFunc: diffSuppressTemplate,
 			},
+			"oauth2_webauthn": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/webauthn path. This page contains a form where a user can enter their loginId (username or email address) to authenticate with one of their registered WebAuthn passkeys. This page uses the WebAuthn bootstrap workflow.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
+			"oauth2_webauthn_reauth": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/webauthn-reauth path. This page contains a form that lists the WebAuthn passkeys currently available for re-authentication. A user can select one of the listed passkeys to authenticate using the corresponding passkey and user account.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
+			"oauth2_webauthn_reauth_enable": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/webauthn-reauth-enable path. This page contains two forms. One allows the user to select one of their existing WebAuthn passkeys to use for re-authentication. The other allows the user to register a new WebAuthn passkey for re-authentication.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
 			"password_change": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -337,6 +379,9 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 			AccountTwoFactorDisable:           data.Get("account_two_factor_disable").(string),
 			AccountTwoFactorEnable:            data.Get("account_two_factor_enable").(string),
 			AccountTwoFactorIndex:             data.Get("account_two_factor_index").(string),
+			AccountWebAuthnAdd:                data.Get("account_webauthn_add").(string),
+			AccountWebAuthnDelete:             data.Get("account_webauthn_delete").(string),
+			AccountWebAuthnIndex:              data.Get("account_webauthn_index").(string),
 			EmailComplete:                     data.Get("email_complete").(string),
 			EmailSend:                         data.Get("email_send").(string),
 			EmailSent:                         data.Get("email_sent").(string),
@@ -359,6 +404,9 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 			Oauth2TwoFactor:                           data.Get("oauth2_two_factor").(string),
 			Oauth2TwoFactorMethods:                    data.Get("oauth2_two_factor_methods").(string),
 			Oauth2Wait:                                data.Get("oauth2_wait").(string),
+			Oauth2WebAuthn:                            data.Get("oauth2_webauthn").(string),
+			Oauth2WebAuthnReauth:                      data.Get("oauth2_webauthn_reauth").(string),
+			Oauth2WebAuthnReauthEnable:                data.Get("oauth2_webauthn_reauth_enable").(string),
 			PasswordChange:                            data.Get("password_change").(string),
 			PasswordComplete:                          data.Get("password_complete").(string),
 			PasswordForgot:                            data.Get("password_forgot").(string),
@@ -494,6 +542,15 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) d
 	if err := data.Set("account_two_factor_index", t.Templates.AccountTwoFactorIndex); err != nil {
 		return diag.Errorf("theme.account_two_factor_index: %s", err.Error())
 	}
+	if err := data.Set("account_webauthn_add", t.Templates.AccountWebAuthnAdd); err != nil {
+		return diag.Errorf("theme.account_webauthn_add: %s", err.Error())
+	}
+	if err := data.Set("account_webauthn_delete", t.Templates.AccountWebAuthnDelete); err != nil {
+		return diag.Errorf("theme.account_webauthn_delete: %s", err.Error())
+	}
+	if err := data.Set("account_webauthn_index", t.Templates.AccountWebAuthnIndex); err != nil {
+		return diag.Errorf("theme.account_webauthn_index: %s", err.Error())
+	}
 	if err := data.Set("email_complete", t.Templates.EmailComplete); err != nil {
 		return diag.Errorf("theme.email_complete: %s", err.Error())
 	}
@@ -547,6 +604,15 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) d
 	}
 	if err := data.Set("oauth2_wait", t.Templates.Oauth2Wait); err != nil {
 		return diag.Errorf("theme.oauth2_wait: %s", err.Error())
+	}
+	if err := data.Set("oauth2_webauthn", t.Templates.Oauth2WebAuthn); err != nil {
+		return diag.Errorf("theme.oauth2_webauthn: %s", err.Error())
+	}
+	if err := data.Set("oauth2_webauthn_reauth", t.Templates.Oauth2WebAuthnReauth); err != nil {
+		return diag.Errorf("theme.oauth2_webauthn_reauth: %s", err.Error())
+	}
+	if err := data.Set("oauth2_webauthn_reauth_enable", t.Templates.Oauth2WebAuthnReauthEnable); err != nil {
+		return diag.Errorf("theme.oauth2_webauthn_reauth_enable: %s", err.Error())
 	}
 	if err := data.Set("password_change", t.Templates.PasswordChange); err != nil {
 		return diag.Errorf("theme.password_change: %s", err.Error())

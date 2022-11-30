@@ -78,6 +78,9 @@ func testThemeAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "account_two_factor_disable", templates.AccountTwoFactorDisable),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_two_factor_enable", templates.AccountTwoFactorEnable),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_two_factor_index", templates.AccountTwoFactorIndex),
+		resource.TestCheckResourceAttr(tfResourcePath, "account_webauthn_add", templates.AccountWebAuthnAdd),
+		resource.TestCheckResourceAttr(tfResourcePath, "account_webauthn_delete", templates.AccountWebAuthnDelete),
+		resource.TestCheckResourceAttr(tfResourcePath, "account_webauthn_index", templates.AccountWebAuthnIndex),
 		resource.TestCheckResourceAttr(tfResourcePath, "email_complete", templates.EmailComplete),
 		// resource.TestCheckResourceAttr(tfResourcePath, "email_send", startTemplates.EmailSend), // DEPRECATED
 		resource.TestCheckResourceAttr(tfResourcePath, "email_sent", templates.EmailSent),
@@ -100,6 +103,9 @@ func testThemeAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_two_factor", templates.Oauth2TwoFactor),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_two_factor_methods", templates.Oauth2TwoFactorMethods),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_wait", templates.Oauth2Wait),
+		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_webauthn", templates.Oauth2WebAuthn),
+		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_webauthn_reauth", templates.Oauth2WebAuthnReauth),
+		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_webauthn_reauth_enable", templates.Oauth2WebAuthnReauthEnable),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_change", templates.PasswordChange),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_complete", templates.PasswordComplete),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_forgot", templates.PasswordForgot),
@@ -180,6 +186,9 @@ func generateFusionAuthTemplate() fusionauth.Templates {
 		AccountTwoFactorDisable:           randString20(),
 		AccountTwoFactorEnable:            randString20(),
 		AccountTwoFactorIndex:             randString20(),
+		AccountWebAuthnAdd:                randString20(),
+		AccountWebAuthnDelete:             randString20(),
+		AccountWebAuthnIndex:              randString20(),
 		EmailComplete:                     randString20(),
 		EmailSent:                         randString20(),
 		EmailVerificationRequired:         randString20(),
@@ -201,6 +210,9 @@ func generateFusionAuthTemplate() fusionauth.Templates {
 		Oauth2TwoFactor:                           randString20(),
 		Oauth2TwoFactorMethods:                    randString20(),
 		Oauth2Wait:                                randString20(),
+		Oauth2WebAuthn:                            randString20(),
+		Oauth2WebAuthnReauth:                      randString20(),
+		Oauth2WebAuthnReauthEnable:                randString20(),
 		PasswordChange:                            randString20(),
 		PasswordComplete:                          randString20(),
 		PasswordForgot:                            randString20(),
@@ -238,41 +250,47 @@ resource "fusionauth_theme" "test_%[1]s" {
   account_two_factor_disable                     = "%[6]s"
   account_two_factor_enable                      = "%[7]s"
   account_two_factor_index                       = "%[8]s"
-  email_complete                                 = "%[9]s"
-  email_sent                                     = "%[10]s"
-  email_verification_required                    = "%[11]s"
-  email_verify                                   = "%[12]s"
-  helpers                                        = "%[13]s"
-  index                                          = "%[14]s"
-  oauth2_authorize                               = "%[15]s"
-  oauth2_authorized_not_registered               = "%[16]s"
-  oauth2_child_registration_not_allowed          = "%[17]s"
-  oauth2_child_registration_not_allowed_complete = "%[18]s"
-  oauth2_complete_registration                   = "%[19]s"
-  oauth2_device                                  = "%[20]s"
-  oauth2_device_complete                         = "%[21]s"
-  oauth2_error                                   = "%[22]s"
-  oauth2_logout                                  = "%[23]s"
-  oauth2_passwordless                            = "%[24]s"
-  oauth2_register                                = "%[25]s"
-  oauth2_start_idp_link                          = "%[26]s"
-  oauth2_two_factor                              = "%[27]s"
-  oauth2_two_factor_methods                      = "%[28]s"
-  oauth2_wait                                    = "%[29]s"
-  password_change                                = "%[30]s"
-  password_complete                              = "%[31]s"
-  password_forgot                                = "%[32]s"
-  password_sent                                  = "%[33]s"
-  registration_complete                          = "%[34]s"
-  registration_sent                              = "%[35]s"
-  registration_verification_required             = "%[36]s"
-  registration_verify                            = "%[37]s"
-  samlv2_logout                                  = "%[38]s"
-  unauthorized                                   = "%[39]s"
+  account_webauthn_add                           = "%[9]s"
+  account_webauthn_delete                        = "%[10]s"
+  account_webauthn_index                         = "%[11]s"
+  email_complete                                 = "%[12]s"
+  email_sent                                     = "%[13]s"
+  email_verification_required                    = "%[14]s"
+  email_verify                                   = "%[15]s"
+  helpers                                        = "%[16]s"
+  index                                          = "%[17]s"
+  oauth2_authorize                               = "%[18]s"
+  oauth2_authorized_not_registered               = "%[19]s"
+  oauth2_child_registration_not_allowed          = "%[20]s"
+  oauth2_child_registration_not_allowed_complete = "%[21]s"
+  oauth2_complete_registration                   = "%[22]s"
+  oauth2_device                                  = "%[23]s"
+  oauth2_device_complete                         = "%[24]s"
+  oauth2_error                                   = "%[25]s"
+  oauth2_logout                                  = "%[26]s"
+  oauth2_passwordless                            = "%[27]s"
+  oauth2_register                                = "%[28]s"
+  oauth2_start_idp_link                          = "%[29]s"
+  oauth2_two_factor                              = "%[30]s"
+  oauth2_two_factor_methods                      = "%[31]s"
+  oauth2_wait                                    = "%[32]s"
+  oauth2_webauthn                                = "%[33]s"
+  oauth2_webauthn_reauth                         = "%[34]s"
+  oauth2_webauthn_reauth_enable                  = "%[35]s"
+  password_change                                = "%[36]s"
+  password_complete                              = "%[37]s"
+  password_forgot                                = "%[38]s"
+  password_sent                                  = "%[39]s"
+  registration_complete                          = "%[40]s"
+  registration_sent                              = "%[41]s"
+  registration_verification_required             = "%[42]s"
+  registration_verify                            = "%[43]s"
+  samlv2_logout                                  = "%[44]s"
+  unauthorized                                   = "%[45]s"
 
   # Deprecated Properties
-  email_send                                     = "%[40]s"
-  registration_send                              = "%[41]s"
+  email_send                                     = "%[46]s"
+  registration_send                              = "%[47]s"
 }
 `,
 		resourceName,
@@ -283,6 +301,9 @@ resource "fusionauth_theme" "test_%[1]s" {
 		templates.AccountTwoFactorDisable,
 		templates.AccountTwoFactorEnable,
 		templates.AccountTwoFactorIndex,
+		templates.AccountWebAuthnAdd,
+		templates.AccountWebAuthnDelete,
+		templates.AccountWebAuthnIndex,
 		templates.EmailComplete,
 		templates.EmailSent,
 		templates.EmailVerificationRequired,
@@ -304,6 +325,9 @@ resource "fusionauth_theme" "test_%[1]s" {
 		templates.Oauth2TwoFactor,
 		templates.Oauth2TwoFactorMethods,
 		templates.Oauth2Wait,
+		templates.Oauth2WebAuthn,
+		templates.Oauth2WebAuthnReauth,
+		templates.Oauth2WebAuthnReauthEnable,
 		templates.PasswordChange,
 		templates.PasswordComplete,
 		templates.PasswordForgot,
