@@ -1157,6 +1157,13 @@ func newEmailConfiguration() *schema.Resource {
 				Description:  "The Id of the Email Template that is used to send the verification emails to users. These emails are used to verify that a user’s email address is valid. If either the verifyEmail or verifyEmailWhenChanged fields are true this field is required.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"verification_strategy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "ClickableLink",
+				Description:  "The process by which the user will verify their email address.",
+				ValidateFunc: validation.StringInSlice([]string{"ClickableLink", "FormField"}, false),
+			},
 			"verify_email": {
 				Type:        schema.TypeBool,
 				Optional:    true,

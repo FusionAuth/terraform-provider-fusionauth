@@ -279,6 +279,7 @@ resource "fusionauth_tenant" "example" {
     - `set_password_email_template_id` - (Optional) The Id of the Email Template that is used when a user had their account created for them and they must set their password manually and they are sent an email to set their password.
     - `username` - (Optional) An optional username FusionAuth will to authenticate with the SMTP server.
     - `verification_email_template_id` - (Optional) The Id of the Email Template that is used to send the verification emails to users. These emails are used to verify that a user’s email address ivalid. If either the verifyEmail or verifyEmailWhenChanged fields are true this field is required.
+    - `verification_strategy` - (Optional) The process by which the user will verify their email address. Possible values are `ClickableLink` or `FormField`.
     - `verify_email` - (Optional) Whether the user’s email addresses are verified when the registers with your application.
     - `verify_email_when_changed` - (Optional) Whether the user’s email addresses are verified when the user changes them.
     - `two_factor_method_add_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when a MFA method has been added to their account.
