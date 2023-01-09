@@ -244,6 +244,20 @@ func newTheme() *schema.Resource {
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/two-factor-methods path. This page contains a form providing a user with their configured multi-factor authentication options that they may use to complete the authentication challenge.",
 				DiffSuppressFunc: diffSuppressTemplate,
 			},
+			"oauth2_two_factor_enable": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that contains the OAuth2 two-factor enable form.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
+			"oauth2_two_factor_enable_complete": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that contains the OAuth2 two-factor enable complete form.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
 			"oauth2_wait": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -403,6 +417,8 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 			Oauth2StartIdPLink:                        data.Get("oauth2_start_idp_link").(string),
 			Oauth2TwoFactor:                           data.Get("oauth2_two_factor").(string),
 			Oauth2TwoFactorMethods:                    data.Get("oauth2_two_factor_methods").(string),
+			Oauth2TwoFactorEnable:                     data.Get("oauth2_two_factor_enable").(string),
+			Oauth2TwoFactorEnableComplete:             data.Get("oauth2_two_factor_enable_complete").(string),
 			Oauth2Wait:                                data.Get("oauth2_wait").(string),
 			Oauth2WebAuthn:                            data.Get("oauth2_webauthn").(string),
 			Oauth2WebAuthnReauth:                      data.Get("oauth2_webauthn_reauth").(string),
@@ -589,6 +605,12 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) d
 	}
 	if err := data.Set("oauth2_two_factor_methods", t.Templates.Oauth2TwoFactorMethods); err != nil {
 		return diag.Errorf("theme.oauth2_two_factor_methods: %s", err.Error())
+	}
+	if err := data.Set("oauth2_two_factor_enable", t.Templates.Oauth2TwoFactorEnableComplete); err != nil {
+		return diag.Errorf("theme.oauth2_two_factor_enable: %s", err.Error())
+	}
+	if err := data.Set("oauth2_two_factor_enable_complete", t.Templates.Oauth2TwoFactorEnableComplete); err != nil {
+		return diag.Errorf("theme.oauth2_two_factor_enable_complete: %s", err.Error())
 	}
 	if err := data.Set("oauth2_register", t.Templates.Oauth2Register); err != nil {
 		return diag.Errorf("theme.oauth2_register: %s", err.Error())

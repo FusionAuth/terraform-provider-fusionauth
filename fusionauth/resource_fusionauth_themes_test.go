@@ -102,6 +102,8 @@ func testThemeAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_start_idp_link", templates.Oauth2StartIdPLink),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_two_factor", templates.Oauth2TwoFactor),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_two_factor_methods", templates.Oauth2TwoFactorMethods),
+		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_two_factor_enable", templates.Oauth2TwoFactorEnable),
+		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_two_factor_enable_complete", templates.Oauth2TwoFactorEnableComplete),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_wait", templates.Oauth2Wait),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_webauthn", templates.Oauth2WebAuthn),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_webauthn_reauth", templates.Oauth2WebAuthnReauth),
@@ -273,24 +275,26 @@ resource "fusionauth_theme" "test_%[1]s" {
   oauth2_start_idp_link                          = "%[29]s"
   oauth2_two_factor                              = "%[30]s"
   oauth2_two_factor_methods                      = "%[31]s"
-  oauth2_wait                                    = "%[32]s"
-  oauth2_webauthn                                = "%[33]s"
-  oauth2_webauthn_reauth                         = "%[34]s"
-  oauth2_webauthn_reauth_enable                  = "%[35]s"
-  password_change                                = "%[36]s"
-  password_complete                              = "%[37]s"
-  password_forgot                                = "%[38]s"
-  password_sent                                  = "%[39]s"
-  registration_complete                          = "%[40]s"
-  registration_sent                              = "%[41]s"
-  registration_verification_required             = "%[42]s"
-  registration_verify                            = "%[43]s"
-  samlv2_logout                                  = "%[44]s"
-  unauthorized                                   = "%[45]s"
+  oauth2_two_factor_enable                       = "%[32]s"
+  oauth2_two_factor_enable_complete              = "%[33]s"
+  oauth2_wait                                    = "%[34]s"
+  oauth2_webauthn                                = "%[35]s"
+  oauth2_webauthn_reauth                         = "%[36]s"
+  oauth2_webauthn_reauth_enable                  = "%[37]s"
+  password_change                                = "%[38]s"
+  password_complete                              = "%[39]s"
+  password_forgot                                = "%[40]s"
+  password_sent                                  = "%[41]s"
+  registration_complete                          = "%[42]s"
+  registration_sent                              = "%[43]s"
+  registration_verification_required             = "%[44]s"
+  registration_verify                            = "%[45]s"
+  samlv2_logout                                  = "%[46]s"
+  unauthorized                                   = "%[47]s"
 
   # Deprecated Properties
-  email_send                                     = "%[46]s"
-  registration_send                              = "%[47]s"
+  email_send                                     = "%[48]s"
+  registration_send                              = "%[49]s"
 }
 `,
 		resourceName,
@@ -324,6 +328,8 @@ resource "fusionauth_theme" "test_%[1]s" {
 		templates.Oauth2StartIdPLink,
 		templates.Oauth2TwoFactor,
 		templates.Oauth2TwoFactorMethods,
+		templates.Oauth2TwoFactorEnable,
+		templates.Oauth2TwoFactorEnableComplete,
 		templates.Oauth2Wait,
 		templates.Oauth2WebAuthn,
 		templates.Oauth2WebAuthnReauth,
