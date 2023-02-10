@@ -189,6 +189,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			Seconds:    data.Get("minimum_password_age.0.seconds").(int),
 		},
 		MultiFactorConfiguration: fusionauth.TenantMultiFactorConfiguration{
+			LoginPolicy: fusionauth.MultiFactorLoginPolicy(data.Get("multi_factor_configuration.0.login_policy").(string)),
 			Authenticator: fusionauth.MultiFactorAuthenticatorMethod{
 				Enableable: buildEnableable("multi_factor_configuration.0.authenticator.0.enabled", data),
 			},
@@ -537,6 +538,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	err = data.Set("multi_factor_configuration", []map[string]interface{}{
 		{
+			"login_policy": t.MultiFactorConfiguration.LoginPolicy,
 			"authenticator": []map[string]interface{}{{
 				"enabled": t.MultiFactorConfiguration.Authenticator.Enabled,
 			}},

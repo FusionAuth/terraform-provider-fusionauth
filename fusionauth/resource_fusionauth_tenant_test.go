@@ -209,6 +209,7 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "minimum_password_age.0.enabled", strconv.FormatBool(minimumPasswordAgeEnabled)),
 
 		// multi_factor_configuration
+		resource.TestCheckResourceAttr(tfResourcePath, "multi_factor_configuration.0.login_policy", "Enabled"),
 		resource.TestCheckResourceAttr(tfResourcePath, "multi_factor_configuration.0.authenticator.0.enabled", "true"),
 		// resource.TestCheckResourceAttr(tfResourcePath, "multi_factor_configuration.0.authenticator.0.template_id", "UUID"),
 		// requires paid edition of FusionAuth
@@ -567,6 +568,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
     enabled = %[7]t
   }
   multi_factor_configuration {
+    login_policy = "Enabled"
     authenticator {
       enabled     = true
       #template_id = "UUID"
