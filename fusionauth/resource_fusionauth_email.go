@@ -33,6 +33,7 @@ func newEmail() *schema.Resource {
 				Required:         true,
 				Description:      "The default HTML Email Template.",
 				DiffSuppressFunc: diffSuppressTemplate,
+				ValidateFunc:     validation.StringIsNotWhiteSpace,
 			},
 			"default_subject": {
 				Type:        schema.TypeString,
@@ -44,6 +45,7 @@ func newEmail() *schema.Resource {
 				Required:         true,
 				Description:      "The default Text Email Template.",
 				DiffSuppressFunc: diffSuppressTemplate,
+				ValidateFunc:     validation.StringIsNotWhiteSpace,
 			},
 			"from_email": {
 				Type:        schema.TypeString,
@@ -71,9 +73,10 @@ func newEmail() *schema.Resource {
 				Description: "The Text Email Template used when sending emails to users who speak other languages. This overrides the default Text Email Template based on the user’s list of preferred languages.",
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `A descriptive name for the email template (i.e. "April 2016 Coupon Email")`,
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  `A descriptive name for the email template (i.e. "April 2016 Coupon Email")`,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 		},
 		Importer: &schema.ResourceImporter{
