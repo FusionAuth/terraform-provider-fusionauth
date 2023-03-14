@@ -373,6 +373,7 @@ resource "fusionauth_tenant" "example" {
     - `seconds` - (Optional) The password minimum age in seconds. When enabled FusionAuth will not allow a password to be changed until it reaches this minimum age. Required when systemConfiguration.minimumPasswordAge.enabled is set to true.
     - `enabled` - (Optional) Indicates that the minimum password age is enabled and being enforced.
 * `multi_factor_configuration` - (Optional)
+    - `login_policy` - (Optional)  When set to `Enabled` and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to `Disabled`, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login.
     - `authenticator` - (Optional)
         * `enabled` - (Optional) When enabled, users may utilize an authenticator application to complete a multi-factor authentication request. This method uses TOTP (Time-Based One-Time Password) as defined in RFC 6238 and often uses an native mobile app such as Google Authenticator.
     - `email` - (Optional)

@@ -367,6 +367,12 @@ func newTenant() *schema.Resource {
 				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"login_policy": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{fusionauth.MultiFactorLoginPolicy_Enabled.String(), fusionauth.MultiFactorLoginPolicy_Disabled.String()}, false),
+							Description:  "When set to Enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to Disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login.",
+						},
 						"authenticator": {
 							Type:       schema.TypeList,
 							MaxItems:   1,
