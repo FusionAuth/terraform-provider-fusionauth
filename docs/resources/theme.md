@@ -39,6 +39,8 @@ resource "fusionauth_theme" "mytheme" {
   oauth2_start_idp_link                          = "[#ftl/]"
   oauth2_two_factor                              = "[#ftl/]"
   oauth2_two_factor_methods                      = "[#ftl/]"
+  oauth2_two_factor_enable                       = "[#ftl/]"
+  oauth2_two_factor_enable_complete              = "[#ftl/]"
   oauth2_wait                                    = "[#ftl/]"
   oauth2_webauthn                                = "[#ftl/]"
   oauth2_webauthn_reauth                         = "[#ftl/]"
@@ -95,6 +97,8 @@ resource "fusionauth_theme" "mytheme" {
 * `oauth2_start_idp_link` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/start-idp-link path. This page is used if the Identity Provider is configured to have a pending link. The user is presented with the option to link their account with an existing FusionAuth user account.
 * `oauth2_two_factor` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/two-factor path. This page is used if the user has two-factor authentication enabled and they need to type in their code again. FusionAuth will properly handle the processing on the back end. This page contains the form that the user will put their code into.
 * `oauth2_two_factor_methods` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/two-factor-methods path. This page contains a form providing a user with their configured multi-factor authentication options that they may use to complete the authentication challenge.
+* `oauth2_two_factor_enable` - (Optional) A FreeMarker template that contains the OAuth2 two-factor enable form.
+* `oauth2_two_factor_enable_complete` - (Optional) A FreeMarker template that contains the OAuth2 two-factor enable complete form.
 * `oauth2_wait` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/wait path. This page is rendered when FusionAuth is waiting for an external provider to complete an out of band authentication request. For example, during a HYPR login this page will be displayed until the user completes authentication.
 * `oauth2_webauthn` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/webauthn path. This page contains a form where a user can enter their loginId (username or email address) to authenticate with one of their registered WebAuthn passkeys. This page uses the WebAuthn bootstrap workflow.
 * `oauth2_webauthn_reauth` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/webauthn-reauth path. This page contains a form that lists the WebAuthn passkeys currently available for re-authentication. A user can select one of the listed passkeys to authenticate using the corresponding passkey and user account.
