@@ -4,6 +4,7 @@ Contributing Guide
 - Caleb @cdavisgpsi
 - Josiah @Jbcampbe
 - Drew @drewlesueur
+- Daniel @robotdan (FusionAuth)
 
 ## Guidline for Updating
 
