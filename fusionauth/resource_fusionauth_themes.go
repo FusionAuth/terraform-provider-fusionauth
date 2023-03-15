@@ -606,7 +606,7 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) d
 	if err := data.Set("oauth2_two_factor_methods", t.Templates.Oauth2TwoFactorMethods); err != nil {
 		return diag.Errorf("theme.oauth2_two_factor_methods: %s", err.Error())
 	}
-	if err := data.Set("oauth2_two_factor_enable", t.Templates.Oauth2TwoFactorEnableComplete); err != nil {
+	if err := data.Set("oauth2_two_factor_enable", t.Templates.Oauth2TwoFactorEnable); err != nil {
 		return diag.Errorf("theme.oauth2_two_factor_enable: %s", err.Error())
 	}
 	if err := data.Set("oauth2_two_factor_enable_complete", t.Templates.Oauth2TwoFactorEnableComplete); err != nil {
