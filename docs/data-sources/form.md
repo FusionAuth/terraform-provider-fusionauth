@@ -31,3 +31,4 @@ The following additional attributes are exported:
     * `registration` - This form will be used for self service registration.
     * `adminRegistration` - This form be used to customize the add and edit User Registration form in the FusionAuth UI.
     * `adminUser` - This form can be used to customize the add and edit User form in the FusionAuth UI.
+    * `selfServiceUser` - This form will be used to for self service user management.
