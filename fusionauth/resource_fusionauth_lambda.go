@@ -17,6 +17,13 @@ func newLambda() *schema.Resource {
 		UpdateContext: updateLambda,
 		DeleteContext: deleteLambda,
 		Schema: map[string]*schema.Schema{
+			"lambda_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				Description:  "The Id to use for the new lambda. If not specified a secure random UUID will be generated.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"body": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -82,6 +89,7 @@ func newLambda() *schema.Resource {
 
 func buildLambda(data *schema.ResourceData) fusionauth.Lambda {
 	l := fusionauth.Lambda{
+		Id:         data.Get("lambda_id").(string),
 		Body:       data.Get("body").(string),
 		Debug:      data.Get("debug").(bool),
 		Name:       data.Get("name").(string),
@@ -94,7 +102,7 @@ func buildLambda(data *schema.ResourceData) fusionauth.Lambda {
 func createLambda(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	l := buildLambda(data)
-	resp, faErrs, err := client.FAClient.CreateLambda("", fusionauth.LambdaRequest{
+	resp, faErrs, err := client.FAClient.CreateLambda(l.Id, fusionauth.LambdaRequest{
 		Lambda: l,
 	})
 	if err != nil {
