@@ -60,6 +60,7 @@ func dataSourceForm() *schema.Resource {
 					"registration",
 					"adminRegistration",
 					"adminUser",
+					"selfServiceUser",
 				}, false),
 			},
 		},
