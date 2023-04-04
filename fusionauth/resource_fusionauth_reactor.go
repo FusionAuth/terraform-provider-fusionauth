@@ -79,7 +79,7 @@ func updateReactor(_ context.Context, data *schema.ResourceData, i interface{}) 
 	return nil
 }
 
-func deleteReactor(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteReactor(_ context.Context, _ *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, err := client.FAClient.DeactivateReactor()
