@@ -220,7 +220,7 @@ func updateSystemConfiguration(_ context.Context, data *schema.ResourceData, i i
 	return updateSysCfg(buildSystemConfigurationRequest(data), client)
 }
 
-func deleteSystemConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteSystemConfiguration(_ context.Context, _ *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	return updateSysCfg(getDefaultSystemConfigurationRequest(), client)
 }

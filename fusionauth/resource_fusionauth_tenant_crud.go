@@ -59,7 +59,7 @@ func readTenant(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	return buildResourceDataFromTenant(resp.Tenant, data)
 }
 
-func updateTenant(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	tenant, diags := buildTenant(data)
 	if diags != nil {
