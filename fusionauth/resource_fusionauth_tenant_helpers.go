@@ -36,6 +36,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			VerificationEmailTemplateId:          data.Get("email_configuration.0.verification_email_template_id").(string),
 			VerifyEmail:                          data.Get("email_configuration.0.verify_email").(bool),
 			VerifyEmailWhenChanged:               data.Get("email_configuration.0.verify_email_when_changed").(bool),
+			VerificationStrategy:                 fusionauth.VerificationStrategy(data.Get("email_configuration.0.verification_strategy").(string)),
 			DefaultFromEmail:                     data.Get("email_configuration.0.default_from_email").(string),
 			DefaultFromName:                      data.Get("email_configuration.0.default_from_name").(string),
 			Unverified: fusionauth.EmailUnverifiedOptions{
@@ -188,6 +189,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			Seconds:    data.Get("minimum_password_age.0.seconds").(int),
 		},
 		MultiFactorConfiguration: fusionauth.TenantMultiFactorConfiguration{
+			LoginPolicy: fusionauth.MultiFactorLoginPolicy(data.Get("multi_factor_configuration.0.login_policy").(string)),
 			Authenticator: fusionauth.MultiFactorAuthenticatorMethod{
 				Enableable: buildEnableable("multi_factor_configuration.0.authenticator.0.enabled", data),
 			},
@@ -365,6 +367,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"two_factor_method_remove_email_template_id":  t.EmailConfiguration.TwoFactorMethodRemoveEmailTemplateId,
 			"username":                       t.EmailConfiguration.Username,
 			"verification_email_template_id": t.EmailConfiguration.VerificationEmailTemplateId,
+			"verification_strategy":          t.EmailConfiguration.VerificationStrategy,
 			"verify_email":                   t.EmailConfiguration.VerifyEmail,
 			"verify_email_when_changed":      t.EmailConfiguration.VerifyEmailWhenChanged,
 			"default_from_email":             t.EmailConfiguration.DefaultFromEmail,
@@ -535,6 +538,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	err = data.Set("multi_factor_configuration", []map[string]interface{}{
 		{
+			"login_policy": t.MultiFactorConfiguration.LoginPolicy,
 			"authenticator": []map[string]interface{}{{
 				"enabled": t.MultiFactorConfiguration.Authenticator.Enabled,
 			}},

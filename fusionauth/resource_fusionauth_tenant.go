@@ -136,6 +136,8 @@ func newTenant() *schema.Resource {
 								"user.delete.complete",
 								"user.email.update",
 								"user.email.verified",
+								"user.identity-provider.link",
+								"user.identity-provider.unlink",
 								"user.loginId.duplicate.create",
 								"user.loginId.duplicate.update",
 								"user.login.failed",
@@ -365,6 +367,13 @@ func newTenant() *schema.Resource {
 				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"login_policy": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "Enabled",
+							ValidateFunc: validation.StringInSlice([]string{fusionauth.MultiFactorLoginPolicy_Enabled.String(), fusionauth.MultiFactorLoginPolicy_Disabled.String()}, false),
+							Description:  "When set to Enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to Disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login.",
+						},
 						"authenticator": {
 							Type:       schema.TypeList,
 							MaxItems:   1,
@@ -1154,6 +1163,13 @@ func newEmailConfiguration() *schema.Resource {
 				Optional:     true,
 				Description:  "The Id of the Email Template that is used to send the verification emails to users. These emails are used to verify that a user’s email address is valid. If either the verifyEmail or verifyEmailWhenChanged fields are true this field is required.",
 				ValidateFunc: validation.IsUUID,
+			},
+			"verification_strategy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "ClickableLink",
+				Description:  "The process by which the user will verify their email address.",
+				ValidateFunc: validation.StringInSlice([]string{"ClickableLink", "FormField"}, false),
 			},
 			"verify_email": {
 				Type:        schema.TypeBool,

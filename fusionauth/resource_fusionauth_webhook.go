@@ -16,11 +16,11 @@ func newWebhook() *schema.Resource {
 		UpdateContext: updateWebhook,
 		DeleteContext: deleteWebhook,
 		Schema: map[string]*schema.Schema{
-			"application_ids": {
+			"tenant_ids": {
 				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
-				Description: "The Ids of the Applications that this Webhook should be associated with. If no Ids are specified and the global field is false, this Webhook will not be used.",
+				Description: "The Ids of the Tenants that this Webhook should be associated with. If no Ids are specified and the global field is false, this Webhook will not be used.",
 			},
 			"connect_timeout": {
 				Type:        schema.TypeInt,
@@ -112,6 +112,16 @@ func newWebhook() *schema.Resource {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Description: "When a user verifies their email address",
+						},
+						"user_identity_provider_link": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "When a user is linked to an identity provider",
+						},
+						"user_identity_provider_unlink": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "When a link to an identity provider is removed",
 						},
 						"user_login_id_duplicate_create": {
 							Type:        schema.TypeBool,
@@ -278,7 +288,7 @@ func newWebhook() *schema.Resource {
 
 func buildWebhook(data *schema.ResourceData) fusionauth.Webhook {
 	wh := fusionauth.Webhook{
-		ApplicationIds: handleStringSlice("application_ids", data),
+		TenantIds:      handleStringSlice("tenant_ids", data),
 		ConnectTimeout: data.Get("connect_timeout").(int),
 		Description:    data.Get("description").(string),
 		EventsEnabled:  buildEventsEnabled("events_enabled", data),
@@ -316,6 +326,8 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 		fusionauth.EventType_UserDeleteComplete:             data.Get(prefix + "user_delete_complete").(bool),
 		fusionauth.EventType_UserEmailUpdate:                data.Get(prefix + "user_email_update").(bool),
 		fusionauth.EventType_UserEmailVerified:              data.Get(prefix + "user_email_verified").(bool),
+		fusionauth.EventType_UserIdentityProviderLink:       data.Get(prefix + "user_identity_provider_link").(bool),
+		fusionauth.EventType_UserIdentityProviderUnlink:     data.Get(prefix + "user_identity_provider_unlink").(bool),
 		fusionauth.EventType_UserLoginIdDuplicateOnCreate:   data.Get(prefix + "user_login_id_duplicate_create").(bool),
 		fusionauth.EventType_UserLoginIdDuplicateOnUpdate:   data.Get(prefix + "user_login_id_duplicate_update").(bool),
 		fusionauth.EventType_UserLoginFailed:                data.Get(prefix + "user_login_failed").(bool),
@@ -377,8 +389,8 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 	}
 
 	l := resp.Webhook
-	if err := data.Set("application_ids", l.ApplicationIds); err != nil {
-		return diag.Errorf("webhook.application_ids: %s", err.Error())
+	if err := data.Set("tenant_ids", l.TenantIds); err != nil {
+		return diag.Errorf("webhook.tenant_ids: %s", err.Error())
 	}
 	if err := data.Set("connect_timeout", l.ConnectTimeout); err != nil {
 		return diag.Errorf("webhook.connect_timeout: %s", err.Error())
@@ -404,6 +416,8 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 			"user_delete_complete":              l.EventsEnabled[fusionauth.EventType_UserDeleteComplete],
 			"user_email_update":                 l.EventsEnabled[fusionauth.EventType_UserEmailUpdate],
 			"user_email_verified":               l.EventsEnabled[fusionauth.EventType_UserEmailVerified],
+			"user_identity_provider_link":       l.EventsEnabled[fusionauth.EventType_UserIdentityProviderLink],
+			"user_identity_provider_unlink":     l.EventsEnabled[fusionauth.EventType_UserIdentityProviderUnlink],
 			"user_login_id_duplicate_create":    l.EventsEnabled[fusionauth.EventType_UserLoginIdDuplicateOnCreate],
 			"user_login_id_duplicate_update":    l.EventsEnabled[fusionauth.EventType_UserLoginIdDuplicateOnUpdate],
 			"user_login_failed":                 l.EventsEnabled[fusionauth.EventType_UserLoginFailed],

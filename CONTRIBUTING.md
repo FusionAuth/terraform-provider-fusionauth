@@ -4,6 +4,7 @@ Contributing Guide
 - Caleb @cdavisgpsi
 - Josiah @Jbcampbe
 - Drew @drewlesueur
+- Daniel @robotdan (FusionAuth)
 
 ## Guidline for Updating
 
@@ -16,4 +17,12 @@ Contributing Guide
 ```
 git tag v0.1.71
 git push origin --tag
+```
+
+## To uppdate the FusionAuth go-client
+
+In this example, we are pulling the go-client at version `1.42.1`
+
+```
+go get -u github.com/FusionAuth/go-client@1.42.1
 ```

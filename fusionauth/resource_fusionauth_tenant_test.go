@@ -209,6 +209,7 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "minimum_password_age.0.enabled", strconv.FormatBool(minimumPasswordAgeEnabled)),
 
 		// multi_factor_configuration
+		resource.TestCheckResourceAttr(tfResourcePath, "multi_factor_configuration.0.login_policy", "Enabled"),
 		resource.TestCheckResourceAttr(tfResourcePath, "multi_factor_configuration.0.authenticator.0.enabled", "true"),
 		// resource.TestCheckResourceAttr(tfResourcePath, "multi_factor_configuration.0.authenticator.0.template_id", "UUID"),
 		// requires paid edition of FusionAuth
@@ -380,21 +381,21 @@ func testAccTenantResourceBasicConfig(
 // tenant.
 //
 // Note:
-// - A bug in the terraform SDK means defaults configured for TypeList/TypeSet
-//   schemas aren't applied unless the top level object is defined in the
-//   config, for example, you have to explicitly add `minimum_password_age {}`
-//   to get the defaults to propagate down into the object's properties.
-//   Refer: https://github.com/hashicorp/terraform-plugin-sdk/issues/142
-// - `form_configuration.admin_user_form_id` is commented out as it requires a
-//   paid edition of fusionauth.
-// - `multi_factor_configuration.email.enabled` is set to false, as it requires
-//   a paid edition of fusionauth.
-// - `multi_factor_configuration.sms.enabled` is set to false, as it requires
-//   a paid edition of fusionauth.
-// - `password_validation_rules.breach_detection.enabled` is set to false, as
-//   it requires a paid edition of fusionauth.
-// - `username_configuration.unique.enabled` is set to false, as it requires a
-//   paid edition of fusionauth.
+//   - A bug in the terraform SDK means defaults configured for TypeList/TypeSet
+//     schemas aren't applied unless the top level object is defined in the
+//     config, for example, you have to explicitly add `minimum_password_age {}`
+//     to get the defaults to propagate down into the object's properties.
+//     Refer: https://github.com/hashicorp/terraform-plugin-sdk/issues/142
+//   - `form_configuration.admin_user_form_id` is commented out as it requires a
+//     paid edition of fusionauth.
+//   - `multi_factor_configuration.email.enabled` is set to false, as it requires
+//     a paid edition of fusionauth.
+//   - `multi_factor_configuration.sms.enabled` is set to false, as it requires
+//     a paid edition of fusionauth.
+//   - `password_validation_rules.breach_detection.enabled` is set to false, as
+//     it requires a paid edition of fusionauth.
+//   - `username_configuration.unique.enabled` is set to false, as it requires a
+//     paid edition of fusionauth.
 func testAccTenantResourceConfig(
 	resourceName string,
 	themeKey string,
@@ -567,6 +568,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
     enabled = %[7]t
   }
   multi_factor_configuration {
+    login_policy = "Enabled"
     authenticator {
       enabled     = true
       #template_id = "UUID"

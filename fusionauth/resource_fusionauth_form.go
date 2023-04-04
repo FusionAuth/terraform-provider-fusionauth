@@ -162,9 +162,6 @@ func buildForm(data *schema.ResourceData) fusionauth.Form {
 }
 
 func buildResourceDataFromForm(data *schema.ResourceData, f fusionauth.Form) diag.Diagnostics {
-	if err := data.Set("form_id", f.Id); err != nil {
-		return diag.Errorf("form.form_id: %s", err.Error())
-	}
 	if err := data.Set("data", f.Data); err != nil {
 		return diag.Errorf("form.data: %s", err.Error())
 	}

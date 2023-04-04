@@ -264,17 +264,18 @@ func newApplication() *schema.Resource {
 				Optional:    true,
 				Description: "The Id of the Email Template that is used to send the Registration Verification emails to users. If the verifyRegistration field is true this field is required.",
 			},
+			"verification_strategy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "ClickableLink",
+				Description:  "The process by which the user will verify their email address.",
+				ValidateFunc: validation.StringInSlice([]string{"ClickableLink", "FormField"}, false),
+			},
 			"verify_registration": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
 				Description: "Whether or not registrations to this Application may be verified. When this is set to true the verificationEmailTemplateId parameter is also required.",
-			},
-			"webhook_ids": {
-				Type:        schema.TypeSet,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Description: "An array of Webhook Ids. For Webhooks that are not already configured for All Applications, specifying an Id on this request will indicate the associated Webhook should handle events for this application.",
 			},
 			"email_configuration": {
 				Type:       schema.TypeList,

@@ -118,9 +118,9 @@ func mapStringInterfaceToJSONString(in map[string]interface{}) (out string, diag
 // terraform state.
 //
 // Note:
-// - This performs simple top level loading and returning a build up of errors.
-// - Any sub-objects/maps/lists requiring specific ordering will need to be
-//   handled manually.
+//   - This performs simple top level loading and returning a build up of errors.
+//   - Any sub-objects/maps/lists requiring specific ordering will need to be
+//     handled manually.
 func setResourceData(resource string, data *schema.ResourceData, dataMapping map[string]interface{}) (diags diag.Diagnostics) {
 	for k, v := range dataMapping {
 		switch k {

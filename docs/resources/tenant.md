@@ -112,6 +112,16 @@ resource "fusionauth_tenant" "example" {
     transaction_type = "Any"
   }
   event_configuration {
+    event            = "user.identity-provider.link"
+    enabled          = true
+    transaction_type = "Any"
+  }
+  event_configuration {
+    event            = "user.identity-provider.unlink"
+    enabled          = true
+    transaction_type = "Any"
+  }
+  event_configuration {
     event            = "user.password.breach"
     enabled          = false
     transaction_type = "None"
@@ -269,6 +279,7 @@ resource "fusionauth_tenant" "example" {
     - `set_password_email_template_id` - (Optional) The Id of the Email Template that is used when a user had their account created for them and they must set their password manually and they are sent an email to set their password.
     - `username` - (Optional) An optional username FusionAuth will to authenticate with the SMTP server.
     - `verification_email_template_id` - (Optional) The Id of the Email Template that is used to send the verification emails to users. These emails are used to verify that a user’s email address ivalid. If either the verifyEmail or verifyEmailWhenChanged fields are true this field is required.
+    - `verification_strategy` - (Optional) The process by which the user will verify their email address. Possible values are `ClickableLink` or `FormField`.
     - `verify_email` - (Optional) Whether the user’s email addresses are verified when the registers with your application.
     - `verify_email_when_changed` - (Optional) Whether the user’s email addresses are verified when the user changes them.
     - `two_factor_method_add_email_template_id` - (Optional) The Id of the Email Template used to send emails to users when a MFA method has been added to their account.
@@ -362,6 +373,7 @@ resource "fusionauth_tenant" "example" {
     - `seconds` - (Optional) The password minimum age in seconds. When enabled FusionAuth will not allow a password to be changed until it reaches this minimum age. Required when systemConfiguration.minimumPasswordAge.enabled is set to true.
     - `enabled` - (Optional) Indicates that the minimum password age is enabled and being enforced.
 * `multi_factor_configuration` - (Optional)
+    - `login_policy` - (Optional)  When set to `Enabled` and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to `Disabled`, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login.
     - `authenticator` - (Optional)
         * `enabled` - (Optional) When enabled, users may utilize an authenticator application to complete a multi-factor authentication request. This method uses TOTP (Time-Based One-Time Password) as defined in RFC 6238 and often uses an native mobile app such as Google Authenticator.
     - `email` - (Optional)

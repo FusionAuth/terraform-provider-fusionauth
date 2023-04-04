@@ -25,7 +25,7 @@ func newEmail() *schema.Resource {
 			},
 			"default_from_name": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "The default From Name used when sending emails. If not provided, and a localized value cannot be determined, the default value for the tenant will be used. This is the display name part of the email address ( i.e. Jared Dunn <jared@piedpiper.com>).",
 			},
 			"default_html_template": {
@@ -33,6 +33,7 @@ func newEmail() *schema.Resource {
 				Required:         true,
 				Description:      "The default HTML Email Template.",
 				DiffSuppressFunc: diffSuppressTemplate,
+				ValidateFunc:     validation.StringIsNotWhiteSpace,
 			},
 			"default_subject": {
 				Type:        schema.TypeString,
@@ -44,10 +45,11 @@ func newEmail() *schema.Resource {
 				Required:         true,
 				Description:      "The default Text Email Template.",
 				DiffSuppressFunc: diffSuppressTemplate,
+				ValidateFunc:     validation.StringIsNotWhiteSpace,
 			},
 			"from_email": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "The email address that this email will be sent from. If not provided, the default value for the tenant will be used. This is the address part email address (i.e. Jared Dunn <jared@piedpiper.com>).",
 			},
 			"localized_from_names": {
@@ -71,9 +73,10 @@ func newEmail() *schema.Resource {
 				Description: "The Text Email Template used when sending emails to users who speak other languages. This overrides the default Text Email Template based on the user’s list of preferred languages.",
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `A descriptive name for the email template (i.e. "April 2016 Coupon Email")`,
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  `A descriptive name for the email template (i.e. "April 2016 Coupon Email")`,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 		},
 		Importer: &schema.ResourceImporter{

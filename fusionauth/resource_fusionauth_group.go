@@ -63,7 +63,7 @@ func buildGroup(data *schema.ResourceData) fusionauth.GroupRequest {
 	g := fusionauth.GroupRequest{
 		Group: fusionauth.Group{
 			Id:       gid,
-			Data:     nil,
+			Data:     data.Get("data").(map[string]interface{}),
 			Name:     data.Get("name").(string),
 			TenantId: data.Get("tenant_id").(string),
 		},
