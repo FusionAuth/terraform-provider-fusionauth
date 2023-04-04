@@ -565,6 +565,16 @@ func newOAuthConfiguration() *schema.Resource {
 				Optional:    true,
 				Description: "An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.",
 			},
+			"authorized_url_validation_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "ExactMatch",
+				ValidateFunc: validation.StringInSlice([]string{
+					"ExactMatch",
+					"AllowWildcards",
+				}, false),
+				Description: "Determines whether wildcard expressions will be allowed in the authorized_redirect_urls and authorized_origin_urls.",
+			},
 			"client_authentication_policy": {
 				Type:     schema.TypeString,
 				Optional: true,

@@ -271,6 +271,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		{
 			"authorized_origin_urls":             a.OauthConfiguration.AuthorizedOriginURLs,
 			"authorized_redirect_urls":           a.OauthConfiguration.AuthorizedRedirectURLs,
+			"authorized_url_validation_policy":   a.OauthConfiguration.AuthorizedURLValidationPolicy,
 			"client_authentication_policy":       a.OauthConfiguration.ClientAuthenticationPolicy,
 			"client_secret":                      a.OauthConfiguration.ClientSecret,
 			"debug":                              a.OauthConfiguration.Debug,
