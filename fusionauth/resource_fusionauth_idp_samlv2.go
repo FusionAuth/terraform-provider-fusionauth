@@ -283,25 +283,27 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 	s := fusionauth.SAMLv2IdentityProvider{
 		ButtonImageURL: data.Get("button_image_url").(string),
 		ButtonText:     data.Get("button_text").(string),
-		BaseIdentityProvider: fusionauth.BaseIdentityProvider{
-			Debug:      data.Get("debug").(bool),
-			Enableable: buildEnableable("enabled", data),
-			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
-				ReconcileId: data.Get("lambda_reconcile_id").(string),
+		BaseSAMLv2IdentityProvider: fusionauth.BaseSAMLv2IdentityProvider{
+			BaseIdentityProvider: fusionauth.BaseIdentityProvider{
+				Debug:      data.Get("debug").(bool),
+				Enableable: buildEnableable("enabled", data),
+				LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
+					ReconcileId: data.Get("lambda_reconcile_id").(string),
+				},
+				Name:            data.Get("name").(string),
+				Type:            fusionauth.IdentityProviderType_SAMLv2,
+				LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 			},
-			Name:            data.Get("name").(string),
-			Type:            fusionauth.IdentityProviderType_SAMLv2,
-			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
+			EmailClaim:        data.Get("email_claim").(string),
+			KeyId:             data.Get("key_id").(string),
+			UseNameIdForEmail: data.Get("use_name_for_email").(bool),
 		},
 		Domains:             handleStringSlice("domains", data),
-		EmailClaim:          data.Get("email_claim").(string),
 		IdpEndpoint:         data.Get("idp_endpoint").(string),
-		KeyId:               data.Get("key_id").(string),
 		NameIdFormat:        data.Get("name_id_format").(string),
 		PostRequest:         data.Get("post_request").(bool),
 		RequestSigningKeyId: data.Get("request_signing_key").(string),
 		SignRequest:         data.Get("sign_request").(bool),
-		UseNameIdForEmail:   data.Get("use_name_for_email").(bool),
 		XmlSignatureC14nMethod: fusionauth.CanonicalizationMethod(
 			data.Get("xml_signature_canonicalization_method").(string),
 		),
