@@ -275,6 +275,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"authorized_url_validation_policy":   a.OauthConfiguration.AuthorizedURLValidationPolicy,
 			"client_authentication_policy":       a.OauthConfiguration.ClientAuthenticationPolicy,
 			"client_secret":                      a.OauthConfiguration.ClientSecret,
+			"client_id":                          a.OauthConfiguration.ClientId,
 			"debug":                              a.OauthConfiguration.Debug,
 			"device_verification_url":            a.OauthConfiguration.DeviceVerificationURL,
 			"generate_refresh_tokens":            a.OauthConfiguration.GenerateRefreshTokens,
