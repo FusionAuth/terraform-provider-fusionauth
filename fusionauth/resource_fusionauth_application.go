@@ -592,6 +592,12 @@ func newOAuthConfiguration() *schema.Resource {
 				Description: "The OAuth 2.0 client secret. If you leave this blank during a POST, a secure secret will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored.",
 				Computed:    true,
 			},
+			"client_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The OAuth 2.0 client id. If you leave this blank during a POST, a client id will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored.",
+				Computed:    true,
+			},
 			"debug": {
 				Type:        schema.TypeBool,
 				Optional:    true,
