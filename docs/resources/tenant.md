@@ -355,8 +355,8 @@ resource "fusionauth_tenant" "example" {
 * `http_session_max_inactive_interval` - (Optional) Time in seconds until an inactive session will be invalidated. Used when creating a new session in the FusionAuth OAuth frontend.
 * `issuer` - (Required) The named issuer used to sign tokens, this is generally your public fully qualified domain.
 * `jwt_configuration` - (Required)
-    - `access_token_key_id` - (Required) The unique id of the signing key used to sign the access token.
-    - `id_token_key_id` - (Required) The unique id of the signing key used to sign the Id token.
+    - `access_token_key_id` - (Optional) The unique id of the signing key used to sign the access token. Required prior to `1.30.0`.
+    - `id_token_key_id` - (Optional) The unique id of the signing key used to sign the Id token. Required prior to `1.30.0`.
     - `refresh_token_expiration_policy` - (Optional) The refresh token expiration policy.
     - `refresh_token_revocation_policy_on_login_prevented` - (Optional) When enabled, the refresh token will be revoked when a user action, such as locking an account based on a number of failed login attempts, prevents user login.
     - `refresh_token_revocation_policy_on_password_change` - (Optional) When enabled, the refresh token will be revoked when a user changes their password."
