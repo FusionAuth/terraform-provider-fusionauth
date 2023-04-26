@@ -368,8 +368,6 @@ func testAccTenantResourceBasicConfig(
 		testAccTenantResourceConfig(
 			resourceName,
 			themeKey,
-			accessTokenKey,
-			idTokenKey,
 			fromEmail,
 			minimumPasswordAgeSeconds,
 			minimumPasswordAgeEnabled,
@@ -399,8 +397,6 @@ func testAccTenantResourceBasicConfig(
 func testAccTenantResourceConfig(
 	resourceName string,
 	themeKey string,
-	accessTokenKey string,
-	idTokenKey string,
 	fromEmail string,
 	minimumPasswordAgeSeconds int,
 	minimumPasswordAgeEnabled bool,

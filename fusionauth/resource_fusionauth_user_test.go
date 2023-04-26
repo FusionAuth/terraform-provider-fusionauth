@@ -532,8 +532,6 @@ func testAccUserResourceConfigBase(resourceName string) string {
 		testAccTenantResourceConfig(
 			resourceName,
 			resourceName,
-			testKeyName(testAccessTokenKey, resourceName),
-			testKeyName(testIDTokenKey, resourceName),
 			"no-reply@example.com",
 			30,
 			false,
