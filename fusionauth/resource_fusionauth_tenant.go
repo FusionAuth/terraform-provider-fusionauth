@@ -240,13 +240,13 @@ func newTenant() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"access_token_key_id": {
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
 							ValidateFunc: validation.IsUUID,
 							Description:  "The unique id of the signing key used to sign the access token.",
 						},
 						"id_token_key_id": {
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
 							ValidateFunc: validation.IsUUID,
 							Description:  "The unique id of the signing key used to sign the Id token.",
 						},

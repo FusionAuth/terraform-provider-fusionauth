@@ -412,18 +412,6 @@ func testAccTenantResourceConfig(
 			themeKey,
 		)
 	}
-	if accessTokenKey != "" {
-		accessTokenKey = fmt.Sprintf(
-			"\n    access_token_key_id                   = fusionauth_key.test_%s.id\n",
-			accessTokenKey,
-		)
-	}
-	if idTokenKey != "" {
-		idTokenKey = fmt.Sprintf(
-			"\n    id_token_key_id                       = fusionauth_key.test_%s.id\n",
-			idTokenKey,
-		)
-	}
 	connectorPolicies := ""
 	if genericConnectorIncluded {
 		connectorPolicies = fmt.Sprintf(`
@@ -445,14 +433,14 @@ func testAccTenantResourceConfig(
 resource "fusionauth_tenant" "test_%[1]s" {
   #source_tenant_id = "UUID"
   #tenant_id        = "UUID"
-  # connector policies %[8]s
+  # connector policies %[6]s
   data = {
     user  = "data"
     lives = "here"
   }
   email_configuration {
     default_from_name  = "noreply"
-    default_from_email = "%[5]s"
+    default_from_email = "%[3]s"
     #forgot_password_email_template_id = ""
     host               = "smtp.example.com"
     password           = "s3cureP@ssw0rd"
@@ -551,7 +539,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
   }
   http_session_max_inactive_interval = 3400
   issuer   = "https://example.com"
-  jwt_configuration {%[3]s%[4]s
+  jwt_configuration {
     refresh_token_time_to_live_in_minutes = 43200
     time_to_live_in_seconds               = 3600
   }
@@ -564,8 +552,8 @@ resource "fusionauth_tenant" "test_%[1]s" {
     enabled = true
   }
   minimum_password_age {
-    seconds = %[6]d
-    enabled = %[7]t
+    seconds = %[4]d
+    enabled = %[5]t
   }
   multi_factor_configuration {
     login_policy = "Enabled"
@@ -628,8 +616,6 @@ resource "fusionauth_tenant" "test_%[1]s" {
 `,
 		resourceName,
 		themeKey,
-		accessTokenKey,
-		idTokenKey,
 		fromEmail,
 		minimumPasswordAgeSeconds,
 		minimumPasswordAgeEnabled,
