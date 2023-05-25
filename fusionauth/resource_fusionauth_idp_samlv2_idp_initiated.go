@@ -214,20 +214,22 @@ func updateIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i
 
 func buildIDPSAMLv2IdPInitiated(data *schema.ResourceData) SAMLIDPInitiatedIdentityProviderBody {
 	s := fusionauth.SAMLv2IdPInitiatedIdentityProvider{
-		BaseIdentityProvider: fusionauth.BaseIdentityProvider{
-			Debug:      data.Get("debug").(bool),
-			Enableable: buildEnableable("enabled", data),
-			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
-				ReconcileId: data.Get("lambda_reconcile_id").(string),
+		BaseSAMLv2IdentityProvider: fusionauth.BaseSAMLv2IdentityProvider{
+			BaseIdentityProvider: fusionauth.BaseIdentityProvider{
+				Debug:      data.Get("debug").(bool),
+				Enableable: buildEnableable("enabled", data),
+				LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
+					ReconcileId: data.Get("lambda_reconcile_id").(string),
+				},
+				Name:            data.Get("name").(string),
+				Type:            fusionauth.IdentityProviderType_SAMLv2IdPInitiated,
+				LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 			},
-			Name:            data.Get("name").(string),
-			Type:            fusionauth.IdentityProviderType_SAMLv2IdPInitiated,
-			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
+			EmailClaim:        data.Get("email_claim").(string),
+			KeyId:             data.Get("key_id").(string),
+			UseNameIdForEmail: data.Get("use_name_for_email").(bool),
 		},
-		EmailClaim:        data.Get("email_claim").(string),
-		Issuer:            data.Get("issuer").(string),
-		KeyId:             data.Get("key_id").(string),
-		UseNameIdForEmail: data.Get("use_name_for_email").(bool),
+		Issuer: data.Get("issuer").(string),
 	}
 	s.ApplicationConfiguration = buildIDPSAMLv2IdPInitiatedAppConfig("application_configuration", data)
 	s.TenantConfiguration = buildTenantConfiguration(data)

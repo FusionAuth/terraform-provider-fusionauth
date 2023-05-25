@@ -33,9 +33,12 @@ resource "fusionauth_application" "Forum" {
     authorized_origin_urls = [
       "http://www.example.com/oauth-callback"
     ]
+    authorized_url_validation_policy = "ExactMatch"
+    
     enabled_grants = [
       "authorization_code", "implicit"
     ]
+    
     generate_refresh_tokens       = false
     logout_behavior               = "AllApplications"
     logout_url                    = "http://www.example.com/logout"
@@ -116,6 +119,7 @@ resource "fusionauth_application" "Forum" {
 * `oauth_configuration` - (Optional)
     - `authorized_origin_urls` (Optional) An array of URLs that are the authorized origins for FusionAuth OAuth.
     - `authorized_redirect_urls` - (Optional) An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.
+    - `authorized_url_validation_policy` - (Optional) Determines whether wildcard expressions will be allowed in the authorized_redirect_urls and authorized_origin_urls.
     - `client_secret` - (Optional) The OAuth 2.0 client secret. If you leave this blank during a POST, a secure secret will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored.
     - `client_authentication_policy` - (Optional) Determines the client authentication requirements for the OAuth 2.0 Token endpoint.
     - `debug` - (Optional) Whether or not FusionAuth will log a debug Event Log. This is particular useful for debugging the authorization code exchange with the Token endpoint during an Authorization Code grant."

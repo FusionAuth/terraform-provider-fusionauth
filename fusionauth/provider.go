@@ -60,6 +60,7 @@ func Provider() *schema.Provider {
 			"fusionauth_application":      dataSourceApplication(),
 			"fusionauth_application_role": dataSourceApplicationRole(),
 			"fusionauth_form":             dataSourceForm(),
+			"fusionauth_email":            dataSourceEmail(),
 			"fusionauth_idp":              dataSourceIDP(),
 			"fusionauth_lambda":           dataSourceLambda(),
 			"fusionauth_tenant":           dataSourceTenant(),

@@ -5,8 +5,12 @@ github.com/FusionAuth/go-client v0.0.0-20221122022225-f59b115f1ce4 h1:CbUKbP2hpU
 github.com/FusionAuth/go-client v0.0.0-20221122022225-f59b115f1ce4/go.mod h1:SyRrXMJAzMVQLiJjKfQUR59dRI3jPyZv+BXIZ//HwE4=
 github.com/FusionAuth/go-client v0.0.0-20230109034857-35e1b8c0fa82 h1:J5G0yXeCdftSggDSSLxJrL9iLSFVB/T2wLqdPWV+iJQ=
 github.com/FusionAuth/go-client v0.0.0-20230109034857-35e1b8c0fa82/go.mod h1:SyRrXMJAzMVQLiJjKfQUR59dRI3jPyZv+BXIZ//HwE4=
+github.com/FusionAuth/go-client v0.0.0-20230313183733-29fd62bc04f7 h1:NQgZJFG6wHSr+R5ni/orajx1eB/O1GUPcxvgi7kZhJs=
+github.com/FusionAuth/go-client v0.0.0-20230313183733-29fd62bc04f7/go.mod h1:SyRrXMJAzMVQLiJjKfQUR59dRI3jPyZv+BXIZ//HwE4=
 github.com/FusionAuth/go-client v0.0.0-20230313185644-4aefe6d7b4c8 h1:7D/Sn/pVYCzWORTFNu8POFO9zWLv+KUQ0ry/P/vqOXw=
 github.com/FusionAuth/go-client v0.0.0-20230313185644-4aefe6d7b4c8/go.mod h1:SyRrXMJAzMVQLiJjKfQUR59dRI3jPyZv+BXIZ//HwE4=
+github.com/FusionAuth/go-client v0.0.0-20230317231341-98fb8d7591f8 h1:CWByWQgXwB1w/O8cEC0X0rjCXTx7/0drQ7RFvB0fsic=
+github.com/FusionAuth/go-client v0.0.0-20230317231341-98fb8d7591f8/go.mod h1:SyRrXMJAzMVQLiJjKfQUR59dRI3jPyZv+BXIZ//HwE4=
 github.com/Microsoft/go-winio v0.4.14/go.mod h1:qXqCSQ3Xa7+6tgxaGTIe4Kpcdsi+P8jBhyzoq1bpyYA=
 github.com/Microsoft/go-winio v0.4.16 h1:FtSW/jqD+l4ba5iPBj9CODVtgfYAD8w2wS923g/cFDk=
 github.com/Microsoft/go-winio v0.4.16/go.mod h1:XB6nPKklQyQ7GC9LdcBEcBl8PF76WugXOPRXwdLnMv0=

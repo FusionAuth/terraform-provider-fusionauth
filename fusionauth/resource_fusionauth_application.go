@@ -565,6 +565,16 @@ func newOAuthConfiguration() *schema.Resource {
 				Optional:    true,
 				Description: "An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.",
 			},
+			"authorized_url_validation_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "ExactMatch",
+				ValidateFunc: validation.StringInSlice([]string{
+					"ExactMatch",
+					"AllowWildcards",
+				}, false),
+				Description: "Determines whether wildcard expressions will be allowed in the authorized_redirect_urls and authorized_origin_urls.",
+			},
 			"client_authentication_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -580,6 +590,12 @@ func newOAuthConfiguration() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The OAuth 2.0 client secret. If you leave this blank during a POST, a secure secret will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored.",
+				Computed:    true,
+			},
+			"client_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The OAuth 2.0 client id. If you leave this blank during a POST, a client id will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored.",
 				Computed:    true,
 			},
 			"debug": {
