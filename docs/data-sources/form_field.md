@@ -27,7 +27,7 @@ The following additional attributes are exported:
 - `confirm` - Determines if the user input should be confirmed by requiring the value to be entered twice.
 - consent_id
 - control
-- `data` - An object that can hold any information about the Form field that should be persisted.
+- `data` - An object that can hold any information about the Form Field that should be persisted.
 - description
 - key
 - `name` - The unique name of the Form Field.
