@@ -2,7 +2,7 @@
 
 A FusionAuth Form Field is an object that can be customized to receive input within a FusionAuth [Form](https://fusionauth.io/docs/v1/tech/apis/forms).
 
-[Forms API](https://fusionauth.io/docs/v1/tech/apis/form-fields)
+[Form Field API](https://fusionauth.io/docs/v1/tech/apis/form-fields)
 
 ## Example Usage
 
