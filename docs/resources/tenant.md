@@ -233,6 +233,13 @@ resource "fusionauth_tenant" "example" {
     require_number      = false
     validate_on_login   = false
   }
+  rate_limit_configuration {
+    failed_login {
+      enabled                = true
+      limit                  = 5
+      time_period_in_seconds = 60
+    }
+  }
   theme_id = fusionauth_theme.example_theme.id
   user_delete_policy {
     unverified_enabled                  = false
@@ -405,6 +412,11 @@ resource "fusionauth_tenant" "example" {
     - `require_non_alpha` - (Optional) Whether to force the user to use at least one non-alphanumeric character.
     - `require_number` - (Optional) Whether to force the user to use at least one number.
     - `validate_on_login` - (Optional) When enabled the user’s password will be validated during login. If the password does not meet the currently configured validation rules the user will be required to change their password.
+* `rate_limit_configuration` - (Optional)
+    - `failed_login` - (Optional)
+      - `enabled` -  (Optional) Whether rate limiting is enabled for failed login.
+      - `limit` -  (Optional) The number of times a user can fail to login within the configured timePeriodInSeconds duration. If a Failed authentication action has been configured then it will take precedence.
+      - `time_period_in_seconds` - (Optional) The duration for the number of times a user can fail login before being rate limited. 
 * `theme_id` - (Required) The unique Id of the theme to be used to style the login page and other end user templates.
 * `username_configuration` - (Optional)
     - `unique` - (Optional) Indicates that users without a verified email address will be permanently deleted after tenant.userDeletePolicy.unverified.numberOfDaysToRetain days.
