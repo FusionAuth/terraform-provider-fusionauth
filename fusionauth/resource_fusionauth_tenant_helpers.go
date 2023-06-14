@@ -238,6 +238,13 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			RequireNumber:    data.Get("password_validation_rules.0.require_number").(bool),
 			ValidateOnLogin:  data.Get("password_validation_rules.0.validate_on_login").(bool),
 		},
+		RateLimitConfiguration: fusionauth.TenantRateLimitConfiguration{
+			FailedLogin: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.failed_login.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.failed_login.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.failed_login.0.time_period_in_seconds").(int),
+			},
+		},
 		ThemeId: data.Get("theme_id").(string),
 		UserDeletePolicy: fusionauth.TenantUserDeletePolicy{
 			Unverified: fusionauth.TimeBasedDeletePolicy{

@@ -241,6 +241,12 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.require_number", "true"),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.validate_on_login", "true"),
 
+		// rate_limit_configuration
+		resource.TestCheckResourceAttrSet(tfResourcePath, "rate_limit_configuration"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.failed_login.0.enabled", "true"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.failed_login.0.limit", "5"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.failed_login.0.time_period_in_seconds", "60"),
+
 		resource.TestCheckResourceAttrSet(tfResourcePath, "theme_id"),
 
 		// user_delete_policy
@@ -593,6 +599,11 @@ resource "fusionauth_tenant" "test_%[1]s" {
     require_non_alpha   = true
     require_number      = true
     validate_on_login   = true
+  }
+  rate_limit_configuration {
+    failed_login = true
+    limit = 5
+    time_period_in_seconds = 60
   }
   # theme_id%[2]s
   user_delete_policy {
