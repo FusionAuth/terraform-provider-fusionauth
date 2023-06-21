@@ -282,7 +282,7 @@ func buildConnectorPolicies(data *schema.ResourceData) (connectorPolicies []fusi
 		}
 
 		// Nothing to do here!
-		return
+		return connectorPolicies, diags
 	}
 
 	connectorPolicies = make([]fusionauth.ConnectorPolicy, len(policiesData))
