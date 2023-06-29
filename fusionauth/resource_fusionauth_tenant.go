@@ -507,6 +507,46 @@ func newTenant() *schema.Resource {
 				Computed: true,
 				Elem:     newPasswordValidationRules(),
 			},
+			"rate_limit_configuration": {
+				Optional: true,
+				Computed: true,
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"failed_login": {
+							Optional: true,
+							Computed: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether rate limiting is enabled for failed login.",
+									},
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      5,
+										Description:  "The number of times a user can fail to login within the configured timePeriodInSeconds duration. If a Failed authentication action has been configured then it will take precedence. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"time_period_in_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      60,
+										Description:  "The duration for the number of times a user can fail login before being rate limited. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"theme_id": {
 				Type:         schema.TypeString,
 				Required:     true,

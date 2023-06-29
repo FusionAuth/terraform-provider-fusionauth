@@ -266,7 +266,7 @@ func validateKey(i interface{}, k string) (warnings []string, errors []error) {
 	v, ok := i.(string)
 	if !ok {
 		errors = append(errors, fmt.Errorf("expected type of %q to be string", k))
-		return
+		return warnings, errors
 	}
 
 	switch v {
@@ -287,7 +287,7 @@ func validateKey(i interface{}, k string) (warnings []string, errors []error) {
 		"user.timezone",
 		"user.twoFactorEnabled",
 		"user.username":
-		return
+		return warnings, errors
 	default:
 		if !strings.HasPrefix(v, "user.data.") && !strings.HasPrefix(v, "registration.data.") {
 			errors = append(
@@ -329,11 +329,11 @@ func validateRegex(i interface{}, k string) (warnings []string, errors []error) 
 	v, ok := i.(string)
 	if !ok {
 		errors = append(errors, fmt.Errorf("expected type of %q to be string", k))
-		return
+		return warnings, errors
 	}
 
 	if _, err := regexp.Compile(v); err != nil {
 		return warnings, append(errors, err)
 	}
-	return
+	return warnings, errors
 }

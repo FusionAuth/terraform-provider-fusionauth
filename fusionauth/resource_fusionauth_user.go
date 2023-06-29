@@ -278,7 +278,7 @@ func dataToTwoFactorMethods(data *schema.ResourceData) (twoFactorMethods []fusio
 		}
 
 		// Nothing to do here!
-		return
+		return twoFactorMethods, diags
 	}
 
 	twoFactorMethods = make([]fusionauth.TwoFactorMethod, len(twoFactorMethodsData))
