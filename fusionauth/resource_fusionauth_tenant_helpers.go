@@ -245,6 +245,13 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.failed_login.0.time_period_in_seconds").(int),
 			},
 		},
+		CaptchaConfiguration: fusionauth.TenantCaptchaConfiguration{
+			Enableable:		buildEnableable("captchaConfiguration.0.enabled", data),
+			CaptchaMethod: 	fusionauth.UnverifiedBehavior(data.Get("captchaConfiguration.0.captcha_method").(string)),
+			SecretKey:		data.Get("captchaConfiguration.0.secret_key").(string),
+			SiteKey:    	data.Get("captchaConfiguration.0.site_key").(string),
+			Threshold:  	data.Get("captchaConfiguration.0.Threshold").(float64),
+		},
 		ThemeId: data.Get("theme_id").(string),
 		UserDeletePolicy: fusionauth.TenantUserDeletePolicy{
 			Unverified: fusionauth.TimeBasedDeletePolicy{
