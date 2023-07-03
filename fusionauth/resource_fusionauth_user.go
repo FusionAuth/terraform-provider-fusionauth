@@ -212,9 +212,7 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 	if err := data.Set("mobile_phone", resp.User.MobilePhone); err != nil {
 		return diag.Errorf("user.mobile_phone: %s", err.Error())
 	}
-	if err := data.Set("parent_email", resp.User.ParentEmail); err != nil {
-		return diag.Errorf("user.parent_email: %s", err.Error())
-	}
+	// Do not set parent_email in TF state as the server never returns the data.
 	if err := data.Set("preferred_languages", resp.User.PreferredLanguages); err != nil {
 		return diag.Errorf("user.preferred_languages: %s", err.Error())
 	}
