@@ -223,8 +223,10 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					// The following fields are not returned via RetrieveUser
 					// and as such, can't be imported/pushed into the Terraform
 					// state.
+					"disable_domain_block",
 					"encryption_scheme",
 					"password",
+					"parent_email",
 					"send_set_password_email",
 					"skip_verification",
 					"two_factor_methods.0.secret",
