@@ -247,7 +247,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 		},
 		CaptchaConfiguration: fusionauth.TenantCaptchaConfiguration{
 			Enableable:		buildEnableable("captchaConfiguration.0.enabled", data),
-			CaptchaMethod: 	fusionauth.UnverifiedBehavior(data.Get("captchaConfiguration.0.captcha_method").(string)),
+			CaptchaMethod: 	fusionauth.CaptchaMethod(data.Get("captchaConfiguration.0.captcha_method").(string)),
 			SecretKey:		data.Get("captchaConfiguration.0.secret_key").(string),
 			SiteKey:    	data.Get("captchaConfiguration.0.site_key").(string),
 			Threshold:  	data.Get("captchaConfiguration.0.Threshold").(float64),
