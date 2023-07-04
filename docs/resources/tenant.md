@@ -241,11 +241,11 @@ resource "fusionauth_tenant" "example" {
     }
   }
   captcha_configuration {
-    enabled    		  = true
+    enabled         = true
     captcha_method  = "GoogleRecaptchaV3"
-    site_key   		  = "captcha_site_key"
-    secret_key 		  = "captcha_secret_key"
-    threshold  		  = 0.5
+    site_key        = "captcha_site_key"
+    secret_key      = "captcha_secret_key"
+    threshold       = 0.5
   }
   theme_id = fusionauth_theme.example_theme.id
   user_delete_policy {
@@ -256,7 +256,6 @@ resource "fusionauth_tenant" "example" {
 ```
 
 ## Argument Reference
-
 * `source_tenant_id` - (Optional) The optional Id of an existing Tenant to make a copy of. If present, the tenant.id and tenant.name values of the request body will be applied to the new Tenant, all other values will be copied from the source Tenant to the new Tenant.
 * `tenant_id` - (Optional) The Id to use for the new Tenant. If not specified a secure random UUID will be generated.
 * `access_control_configuration` - (Optiona)
