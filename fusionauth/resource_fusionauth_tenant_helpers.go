@@ -246,11 +246,11 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			},
 		},
 		CaptchaConfiguration: fusionauth.TenantCaptchaConfiguration{
-			Enableable:		buildEnableable("captchaConfiguration.0.enabled", data),
-			CaptchaMethod: 	fusionauth.CaptchaMethod(data.Get("captchaConfiguration.0.captcha_method").(string)),
-			SecretKey:		data.Get("captchaConfiguration.0.secret_key").(string),
-			SiteKey:    	data.Get("captchaConfiguration.0.site_key").(string),
-			Threshold:  	data.Get("captchaConfiguration.0.Threshold").(float64),
+			Enableable:		buildEnableable("captcha_configuration.0.enabled", data),
+			CaptchaMethod: 	fusionauth.CaptchaMethod(data.Get("captcha_configuration.0.captcha_method").(string)),
+			SecretKey:		data.Get("captcha_configuration.0.secret_key").(string),
+			SiteKey:    	data.Get("captcha_configuration.0.site_key").(string),
+			Threshold:  	data.Get("captcha_configuration.0.threshold").(float64),
 		},
 		ThemeId: data.Get("theme_id").(string),
 		UserDeletePolicy: fusionauth.TenantUserDeletePolicy{
@@ -597,6 +597,19 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.password_encryption_configuration: %s", err.Error())
 	}
 
+	err = data.Set("captcha_configuration", []map[string]interface{}{
+		{
+			"enabled":          t.CaptchaConfiguration.Enabled,
+			"captcha_method":   t.CaptchaConfiguration.CaptchaMethod,
+			"secret_key": 		t.CaptchaConfiguration.SecretKey,
+			"site_key": 		t.CaptchaConfiguration.SiteKey,
+			"threshold": 		t.CaptchaConfiguration.Threshold,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("tenant.captcha_configuration: %s", err.Error())
+	}
+
 	err = data.Set("password_validation_rules", []map[string]interface{}{
 		{
 			"breach_detection": []map[string]interface{}{{
@@ -619,6 +632,19 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	})
 	if err != nil {
 		return diag.Errorf("tenant.password_validation_rules: %s", err.Error())
+	}
+
+	err = data.Set("rate_limit_configuration", []map[string]interface{}{
+		{
+			"failed_login": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.FailedLogin.Enabled,
+				"limit":                  t.RateLimitConfiguration.FailedLogin.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.FailedLogin.TimePeriodInSeconds,
+			}},
+		},
+	})
+	if err != nil {
+		return diag.Errorf("tenant.rate_limit_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("theme_id", t.ThemeId); err != nil {

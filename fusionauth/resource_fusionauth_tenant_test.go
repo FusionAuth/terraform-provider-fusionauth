@@ -242,13 +242,13 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.validate_on_login", "true"),
 
 		// rate_limit_configuration
-		resource.TestCheckResourceAttrSet(tfResourcePath, "rate_limit_configuration"),
+		resource.TestCheckResourceAttrSet(tfResourcePath, "rate_limit_configuration.#"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.failed_login.0.enabled", "true"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.failed_login.0.limit", "5"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.failed_login.0.time_period_in_seconds", "60"),
 
 		// captcha_configuration
-		resource.TestCheckResourceAttrSet(tfResourcePath, "captcha_configuration"),
+		resource.TestCheckResourceAttrSet(tfResourcePath, "captcha_configuration.#"),
 		resource.TestCheckResourceAttr(tfResourcePath, "captcha_configuration.0.enabled", "true"),
 		resource.TestCheckResourceAttr(tfResourcePath, "captcha_configuration.0.captcha_method", "GoogleRecaptchaV3"),
 		resource.TestCheckResourceAttr(tfResourcePath, "captcha_configuration.0.secret_key", "captcha_secret_key"),
