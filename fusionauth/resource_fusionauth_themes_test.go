@@ -210,6 +210,8 @@ func generateFusionAuthTemplate() fusionauth.Templates {
 		Oauth2Register:                            randString20(),
 		Oauth2StartIdPLink:                        randString20(),
 		Oauth2TwoFactor:                           randString20(),
+		Oauth2TwoFactorEnable:                     randString20(),
+		Oauth2TwoFactorEnableComplete:             randString20(),
 		Oauth2TwoFactorMethods:                    randString20(),
 		Oauth2Wait:                                randString20(),
 		Oauth2WebAuthn:                            randString20(),
