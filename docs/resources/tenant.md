@@ -32,98 +32,248 @@ resource "fusionauth_tenant" "example" {
     verify_email_when_changed         = true
   }
   event_configuration {
-    event            = "user.delete"
-    enabled          = true
+    enabled          = false
+    event            = "jwt.public-key.update"
     transaction_type = "None"
   }
   event_configuration {
-    event            = "user.create"
-    enabled          = true
+    enabled          = false
+    event            = "jwt.refresh-token.revoke"
     transaction_type = "None"
   }
   event_configuration {
-    event            = "user.update"
-    enabled          = true
+    enabled          = false
+    event            = "jwt.refresh"
     transaction_type = "None"
   }
   event_configuration {
-    event            = "user.deactivate"
-    enabled          = true
-    transaction_type = "Any"
+    enabled          = false
+    event            = "group.create"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "group.create.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "group.delete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "group.delete.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "group.member.add"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "group.member.add.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "group.member.remove"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "group.member.remove.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "group.member.update"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "group.member.update.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "group.update"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "group.update.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.action"
+    transaction_type = "None"
   }
   event_configuration {
     event            = "user.bulk.create"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "user.reactivate"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "jwt.refresh-token.revoke"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "jwt.refresh"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "jwt.public-key.update"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "user.login.success"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "user.login.failed"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "user.registration.create"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "user.registration.update"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "user.registration.delete"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "user.registration.verified"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "user.email.verified"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "user.identity-provider.link"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "user.identity-provider.unlink"
-    enabled          = true
-    transaction_type = "Any"
-  }
-  event_configuration {
-    event            = "user.password.breach"
     enabled          = false
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.create"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.create.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.deactivate"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.delete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.delete.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.email.update"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.email.verified"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.identity-provider.link"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.identity-provider.unlink"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.loginId.duplicate.create"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.loginId.duplicate.update"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.login.failed"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.login.new-device"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.login.success"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.login.suspicious"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.password.breach"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.password.reset.send"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.password.reset.start"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.password.reset.success"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.password.update"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.reactivate"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.registration.create"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.registration.create.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.registration.delete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.registration.delete.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.registration.update"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.registration.update.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.registration.verified"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.two-factor.method.add"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.two-factor.method.remove"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.update"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.update.complete"
     transaction_type = "None"
   }
   external_identifier_configuration {
