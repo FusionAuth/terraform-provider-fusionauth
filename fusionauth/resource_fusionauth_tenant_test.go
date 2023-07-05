@@ -242,10 +242,25 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.validate_on_login", "true"),
 
 		// rate_limit_configuration
-		resource.TestCheckResourceAttrSet(tfResourcePath, "rate_limit_configuration"),
+		resource.TestCheckResourceAttrSet(tfResourcePath, "rate_limit_configuration.#"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.failed_login.0.enabled", "true"),
-		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.failed_login.0.limit", "5"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.failed_login.0.limit", "6"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.failed_login.0.time_period_in_seconds", "60"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.forgot_password.0.enabled", "false"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.forgot_password.0.limit", "5"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.forgot_password.0.time_period_in_seconds", "59"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_email_verification.0.enabled", "true"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_email_verification.0.limit", "4"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_email_verification.0.time_period_in_seconds", "58"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_passwordless.0.enabled", "false"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_passwordless.0.limit", "3"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_passwordless.0.time_period_in_seconds", "57"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_registration_verification.0.enabled", "true"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_registration_verification.0.limit", "2"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_registration_verification.0.time_period_in_seconds", "56"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_two_factor.0.enabled", "false"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_two_factor.0.limit", "1"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_two_factor.0.time_period_in_seconds", "55"),
 
 		resource.TestCheckResourceAttrSet(tfResourcePath, "theme_id"),
 
@@ -602,9 +617,34 @@ resource "fusionauth_tenant" "test_%[1]s" {
   }
   rate_limit_configuration {
     failed_login {
-        enabled                = true
-        limit                  = 5
-        time_period_in_seconds = 60
+      enabled                = true
+      limit                  = 6
+      time_period_in_seconds = 60
+    }
+    forgot_password {
+      enabled                = false
+      limit                  = 5
+      time_period_in_seconds = 59
+    }
+    send_email_verification {
+      enabled                = true
+      limit                  = 4
+      time_period_in_seconds = 58
+    }
+    send_passwordless {
+      enabled                = false
+      limit                  = 3
+      time_period_in_seconds = 57
+    }
+    send_registration_verification {
+      enabled                = true
+      limit                  = 2
+      time_period_in_seconds = 56
+    }
+    send_two_factor {
+      enabled                = false
+      limit                  = 1
+      time_period_in_seconds = 55
     }
   }
   # theme_id%[2]s

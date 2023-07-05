@@ -239,6 +239,31 @@ resource "fusionauth_tenant" "example" {
       limit                  = 5
       time_period_in_seconds = 60
     }
+    forgot_password {
+      enabled                = false
+      limit                  = 5
+      time_period_in_seconds = 60
+    }
+    send_email_verification {
+      enabled                = false
+      limit                  = 5
+      time_period_in_seconds = 60
+    }
+    send_passwordless {
+      enabled                = false
+      limit                  = 5
+      time_period_in_seconds = 60
+    }
+    send_registration_verification {
+      enabled                = false
+      limit                  = 5
+      time_period_in_seconds = 60
+    }
+    send_two_factor {
+      enabled                = false
+      limit                  = 5
+      time_period_in_seconds = 60
+    }
   }
   theme_id = fusionauth_theme.example_theme.id
   user_delete_policy {
@@ -415,8 +440,28 @@ resource "fusionauth_tenant" "example" {
 * `rate_limit_configuration` - (Optional)
     - `failed_login` - (Optional)
       - `enabled` -  (Optional) Whether rate limiting is enabled for failed login.
-      - `limit` -  (Optional) The number of times a user can fail to login within the configured timePeriodInSeconds duration. If a Failed authentication action has been configured then it will take precedence.
-      - `time_period_in_seconds` - (Optional) The duration for the number of times a user can fail login before being rate limited. 
+      - `limit` -  (Optional) The number of times a user can fail to login within the configured `time_period_in_seconds` duration. If a Failed authentication action has been configured then it will take precedence.
+      - `time_period_in_seconds` - (Optional) The duration for the number of times a user can fail login before being rate limited.
+    - `forgot_password` - (Optional)
+      - `enabled` - (Optional) Whether rate limiting is enabled for forgot password.
+      - `limit` - (Optional) The number of times a user can request a forgot password email within the configured `time_period_in_seconds` duration.            
+      - `time_period_in_seconds` - (Optional) The duration for the number of times a user can request a forgot password email before being rate limited.          
+    - `send_email_verification` - (Optional) 
+      - `enabled` - (Optional) Whether rate limiting is enabled for send email verification.
+      - `limit` - (Optional) The number of times a user can request a verification email within the configured `time_period_in_seconds` duration.                 
+      - `time_period_in_seconds` - (Optional) The duration for the number of times a user can request a verification email before being rate limited. 
+    - `send_passwordless` - (Optional)
+      - `enabled` - (Optional) Whether rate limiting is enabled for send passwordless.
+      - `limit` - (Optional) The number of times a user can request a passwordless login email within the configured `time_period_in_seconds` duration.                
+      - `time_period_in_seconds` - (Optional) The duration for the number of times a user can request a passwordless login email before being rate limited.
+    - `send_registration_verification` - (Optional)
+      - `enabled` - (Optional) Whether rate limiting is enabled for send registration verification.
+      - `limit` - (Optional) The number of times a user can request a registration verification email within the configured `time_period_in_seconds` duration.                 
+      - `time_period_in_seconds` - (Optional) The duration for the number of times a user can request a registration verification email before being rate limited.
+    - `send_two_factor` - (Optional)
+      - `enabled` - (Optional) Whether rate limiting is enabled for send two factor.
+      - `limit` - (Optional) The number of times a user can request a two-factor code by email or SMS within the configured `time_period_in_seconds` duration.   
+      - `time_period_in_seconds` - (Optional) The duration for the number of times a user can request a two-factor code by email or SMS before being rate limited.
 * `theme_id` - (Required) The unique Id of the theme to be used to style the login page and other end user templates.
 * `username_configuration` - (Optional)
     - `unique` - (Optional) Indicates that users without a verified email address will be permanently deleted after tenant.userDeletePolicy.unverified.numberOfDaysToRetain days.
