@@ -555,6 +555,156 @@ func newTenant() *schema.Resource {
 								},
 							},
 						},
+						"forgot_password": {
+							Optional: true,
+							Computed: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether rate limiting is enabled for forgot password.",
+									},
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      5,
+										Description:  "The number of times a user can request a forgot password email within the configured `time_period_in_seconds` duration. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"time_period_in_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      60,
+										Description:  "The duration for the number of times a user can request a forgot password email before being rate limited. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
+						"send_email_verification": {
+							Optional: true,
+							Computed: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether rate limiting is enabled for send email verification.",
+									},
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      5,
+										Description:  "The number of times a user can request a verification email within the configured `time_period_in_seconds` duration. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"time_period_in_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      60,
+										Description:  "The duration for the number of times a user can request a verification email before being rate limited. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
+						"send_passwordless": {
+							Optional: true,
+							Computed: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether rate limiting is enabled for send passwordless.",
+									},
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      5,
+										Description:  "The number of times a user can request a passwordless login email within the configured `time_period_in_seconds` duration. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"time_period_in_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      60,
+										Description:  "The duration for the number of times a user can request a passwordless login email before being rate limited. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
+						"send_registration_verification": {
+							Optional: true,
+							Computed: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether rate limiting is enabled for send registration verification.",
+									},
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      5,
+										Description:  "The number of times a user can request a registration verification email within the configured `time_period_in_seconds` duration. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"time_period_in_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      60,
+										Description:  "The duration for the number of times a user can request a registration verification email before being rate limited. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
+						"send_two_factor": {
+							Optional: true,
+							Computed: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether rate limiting is enabled for send two factor.",
+									},
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      5,
+										Description:  "The number of times a user can request a two-factor code by email or SMS within the configured `time_period_in_seconds` duration. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"time_period_in_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      60,
+										Description:  "The duration for the number of times a user can request a two-factor code by email or SMS before being rate limited. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
 					},
 				},
 			},

@@ -244,6 +244,31 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 				Limit:               data.Get("rate_limit_configuration.0.failed_login.0.limit").(int),
 				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.failed_login.0.time_period_in_seconds").(int),
 			},
+			ForgotPassword: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.forgot_password.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.forgot_password.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.forgot_password.0.time_period_in_seconds").(int),
+			},
+			SendEmailVerification: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.send_email_verification.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.send_email_verification.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.send_email_verification.0.time_period_in_seconds").(int),
+			},
+			SendPasswordless: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.send_passwordless.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.send_passwordless.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.send_passwordless.0.time_period_in_seconds").(int),
+			},
+			SendRegistrationVerification: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.send_registration_verification.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.send_registration_verification.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.send_registration_verification.0.time_period_in_seconds").(int),
+			},
+			SendTwoFactor: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.send_two_factor.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.send_two_factor.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.send_two_factor.0.time_period_in_seconds").(int),
+			},
 		},
 		CaptchaConfiguration: fusionauth.TenantCaptchaConfiguration{
 			Enableable:		buildEnableable("captcha_configuration.0.enabled", data),
@@ -640,6 +665,31 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"enabled":                t.RateLimitConfiguration.FailedLogin.Enabled,
 				"limit":                  t.RateLimitConfiguration.FailedLogin.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.FailedLogin.TimePeriodInSeconds,
+			}},
+			"forgot_password": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.ForgotPassword.Enabled,
+				"limit":                  t.RateLimitConfiguration.ForgotPassword.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.ForgotPassword.TimePeriodInSeconds,
+			}},
+			"send_email_verification": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.SendEmailVerification.Enabled,
+				"limit":                  t.RateLimitConfiguration.SendEmailVerification.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.SendEmailVerification.TimePeriodInSeconds,
+			}},
+			"send_passwordless": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.SendPasswordless.Enabled,
+				"limit":                  t.RateLimitConfiguration.SendPasswordless.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.SendPasswordless.TimePeriodInSeconds,
+			}},
+			"send_registration_verification": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.SendRegistrationVerification.Enabled,
+				"limit":                  t.RateLimitConfiguration.SendRegistrationVerification.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.SendRegistrationVerification.TimePeriodInSeconds,
+			}},
+			"send_two_factor": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.SendTwoFactor.Enabled,
+				"limit":                  t.RateLimitConfiguration.SendTwoFactor.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.SendTwoFactor.TimePeriodInSeconds,
 			}},
 		},
 	})
