@@ -28,6 +28,12 @@ resource "fusionauth_application" "Forum" {
     generate_refresh_tokens = false
     require_authentication  = true
   }
+  multi_factor_configuration {
+    email_template_id = "859f394b-22a6-4fa6-ba55-de700df9e950"
+    sms_template_id   = "17760f96-dca7-448b-9a8f-c49016aa7210"
+    login_policy      = "Required"
+    trust_policy      = "Any"
+  }
   name = "Forum"
   oauth_configuration {
     authorized_origin_urls = [
@@ -116,6 +122,8 @@ resource "fusionauth_application" "Forum" {
 * `multi_factor_configuration` - (Optional)
     - `email_template_id` - (Optional) The Id of the email template that is used when notifying a user to complete a multi-factor authentication request.
     - `sms_template_id` - (Optional) The Id of the SMS template that is used when notifying a user to complete a multi-factor authentication request.
+    - `login_policy` - (Optional) When enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When required, the user will be required to complete a two-factor challenge during login.
+    - `trust_policy` - (Optional) When `multi_factor_configuration.login_policy` is set to `Enabled`, this trust policy is utilized when determining if a user must complete a two-factor challenge during login.
 * `oauth_configuration` - (Optional)
     - `authorized_origin_urls` (Optional) An array of URLs that are the authorized origins for FusionAuth OAuth.
     - `authorized_redirect_urls` - (Optional) An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.

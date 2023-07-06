@@ -1,6 +1,7 @@
 package fusionauth
 
 import (
+	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -195,6 +196,27 @@ func newApplication() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: validation.IsUUID,
 							Description:  "The Id of the SMS template that is used when notifying a user to complete a multi-factor authentication request.",
+						},
+						"login_policy": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "When enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When required, the user will be required to complete a two-factor challenge during login.",
+							ValidateFunc: validation.StringInSlice([]string{
+								fusionauth.MultiFactorLoginPolicy_Enabled.String(),
+								fusionauth.MultiFactorLoginPolicy_Disabled.String(),
+								fusionauth.MultiFactorLoginPolicy_Required.String(),
+							}, false),
+						},
+						"trust_policy": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     fusionauth.ApplicationMultiFactorTrustPolicy_Any.String(),
+							Description: "When `multi_factor_configuration.login_policy` is set to `Enabled`, this trust policy is utilized when determining if a user must complete a two-factor challenge during login.",
+							ValidateFunc: validation.StringInSlice([]string{
+								fusionauth.ApplicationMultiFactorTrustPolicy_Any.String(),
+								fusionauth.ApplicationMultiFactorTrustPolicy_This.String(),
+								fusionauth.ApplicationMultiFactorTrustPolicy_None.String(),
+							}, false),
 						},
 					},
 				},
