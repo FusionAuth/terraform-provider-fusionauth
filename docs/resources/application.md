@@ -122,8 +122,8 @@ resource "fusionauth_application" "Forum" {
 * `multi_factor_configuration` - (Optional)
     - `email_template_id` - (Optional) The Id of the email template that is used when notifying a user to complete a multi-factor authentication request.
     - `sms_template_id` - (Optional) The Id of the SMS template that is used when notifying a user to complete a multi-factor authentication request.
-    - `login_policy` - (Optional) When enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When required, the user will be required to complete a two-factor challenge during login.
-    - `trust_policy` - (Optional) When `multi_factor_configuration.login_policy` is set to `Enabled`, this trust policy is utilized when determining if a user must complete a two-factor challenge during login.
+    - `login_policy` - (Optional) When enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When required, the user will be required to complete a two-factor challenge during login. Possible values are `Enabled`, `Disabled` or `Required`.
+    - `trust_policy` - (Optional) When `multi_factor_configuration.login_policy` is set to `Enabled`, this trust policy is utilized when determining if a user must complete a two-factor challenge during login. Possible values are `Any`, `This` or `None`.
 * `oauth_configuration` - (Optional)
     - `authorized_origin_urls` (Optional) An array of URLs that are the authorized origins for FusionAuth OAuth.
     - `authorized_redirect_urls` - (Optional) An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.
