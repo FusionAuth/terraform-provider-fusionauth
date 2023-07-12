@@ -270,6 +270,13 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.send_two_factor.0.time_period_in_seconds").(int),
 			},
 		},
+		CaptchaConfiguration: fusionauth.TenantCaptchaConfiguration{
+			Enableable:		buildEnableable("captcha_configuration.0.enabled", data),
+			CaptchaMethod: 	fusionauth.CaptchaMethod(data.Get("captcha_configuration.0.captcha_method").(string)),
+			SecretKey:		data.Get("captcha_configuration.0.secret_key").(string),
+			SiteKey:    	data.Get("captcha_configuration.0.site_key").(string),
+			Threshold:  	data.Get("captcha_configuration.0.threshold").(float64),
+		},
 		ThemeId: data.Get("theme_id").(string),
 		UserDeletePolicy: fusionauth.TenantUserDeletePolicy{
 			Unverified: fusionauth.TimeBasedDeletePolicy{
@@ -613,6 +620,19 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	})
 	if err != nil {
 		return diag.Errorf("tenant.password_encryption_configuration: %s", err.Error())
+	}
+
+	err = data.Set("captcha_configuration", []map[string]interface{}{
+		{
+			"enabled":          t.CaptchaConfiguration.Enabled,
+			"captcha_method":   t.CaptchaConfiguration.CaptchaMethod,
+			"secret_key": 		t.CaptchaConfiguration.SecretKey,
+			"site_key": 		t.CaptchaConfiguration.SiteKey,
+			"threshold": 		t.CaptchaConfiguration.Threshold,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("tenant.captcha_configuration: %s", err.Error())
 	}
 
 	err = data.Set("password_validation_rules", []map[string]interface{}{

@@ -265,6 +265,13 @@ resource "fusionauth_tenant" "example" {
       time_period_in_seconds = 60
     }
   }
+  captcha_configuration {
+    enabled         = true
+    captcha_method  = "GoogleRecaptchaV3"
+    site_key        = "captcha_site_key"
+    secret_key      = "captcha_secret_key"
+    threshold       = 0.5
+  }
   theme_id = fusionauth_theme.example_theme.id
   user_delete_policy {
     unverified_enabled                  = false
@@ -278,8 +285,9 @@ resource "fusionauth_tenant" "example" {
 * `tenant_id` - (Optional) The Id to use for the new Tenant. If not specified a secure random UUID will be generated.
 * `access_control_configuration` - (Optiona)
     - `ui_ip_access_control_list_id` - (Optional) The Id of the IP Access Control List limiting access to all applications in this tenant.
-* `captcha_configuration` - (Optiona)
+* `captcha_configuration` - (Optional)
     - `enabled` - (Optional) Whether captcha configuration is enabled.
+    - `captcha_method` - (Optional) The type of captcha method to use. This field is required when tenant.captchaConfiguration.enabled is set to true.
     - `secret_key` - (Optional) The secret key for this captcha method. This field is required when tenant.captchaConfiguration.enabled is set to true.
     - `site_key` - (Optional) The site key for this captcha method. This field is required when tenant.captchaConfiguration.enabled is set to true.
     - `threshold` - (Optional) The numeric threshold which separates a passing score from a failing one. This value only applies if using either the Google v3 or HCaptcha Enterprise method, otherwise this value is ignored.

@@ -55,6 +55,17 @@ func newTenant() *schema.Resource {
 							Default:     false,
 							Description: "Whether captcha configuration is enabled.",
 						},
+						"captcha_method": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								"GoogleRecaptchaV2",
+								"GoogleRecaptchaV3",
+								"HCaptcha",
+								"HCaptchaEnterprise",
+							}, false),
+							Description: "The type of captcha method to use. This field is required when tenant.captchaConfiguration.enabled is set to true.",
+						},
 						"secret_key": {
 							Type:        schema.TypeString,
 							Optional:    true,

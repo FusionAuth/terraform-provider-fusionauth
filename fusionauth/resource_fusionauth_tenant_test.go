@@ -262,6 +262,14 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_two_factor.0.limit", "1"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_two_factor.0.time_period_in_seconds", "55"),
 
+		// captcha_configuration
+		resource.TestCheckResourceAttrSet(tfResourcePath, "captcha_configuration.#"),
+		resource.TestCheckResourceAttr(tfResourcePath, "captcha_configuration.0.enabled", "true"),
+		resource.TestCheckResourceAttr(tfResourcePath, "captcha_configuration.0.captcha_method", "GoogleRecaptchaV3"),
+		resource.TestCheckResourceAttr(tfResourcePath, "captcha_configuration.0.secret_key", "captcha_secret_key"),
+		resource.TestCheckResourceAttr(tfResourcePath, "captcha_configuration.0.site_key", "captcha_site_key"),
+		resource.TestCheckResourceAttr(tfResourcePath, "captcha_configuration.0.threshold", "0.5"),
+
 		resource.TestCheckResourceAttrSet(tfResourcePath, "theme_id"),
 
 		// user_delete_policy
@@ -646,6 +654,13 @@ resource "fusionauth_tenant" "test_%[1]s" {
       limit                  = 1
       time_period_in_seconds = 55
     }
+  }
+  captcha_configuration {
+    enabled    		= true
+    captcha_method  = "GoogleRecaptchaV3"
+    site_key   		= "captcha_site_key"
+    secret_key 		= "captcha_secret_key"
+    threshold  		= 0.5
   }
   # theme_id%[2]s
   user_delete_policy {
