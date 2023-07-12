@@ -48,9 +48,11 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			Email: fusionauth.MultiFactorEmailTemplate{
 				TemplateId: data.Get("multi_factor_configuration.0.email_template_id").(string),
 			},
+			LoginPolicy: fusionauth.MultiFactorLoginPolicy(data.Get("multi_factor_configuration.0.login_policy").(string)),
 			Sms: fusionauth.MultiFactorSMSTemplate{
 				TemplateId: data.Get("multi_factor_configuration.0.sms_template_id").(string),
 			},
+			TrustPolicy: fusionauth.ApplicationMultiFactorTrustPolicy(data.Get("multi_factor_configuration.0.trust_policy").(string)),
 		},
 		Name: data.Get("name").(string),
 		OauthConfiguration: fusionauth.OAuth2Configuration{
@@ -258,6 +260,8 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		{
 			"email_template_id": a.MultiFactorConfiguration.Email.TemplateId,
 			"sms_template_id":   a.MultiFactorConfiguration.Sms.TemplateId,
+			"login_policy":      a.MultiFactorConfiguration.LoginPolicy,
+			"trust_policy":      a.MultiFactorConfiguration.TrustPolicy,
 		},
 	})
 	if err != nil {
