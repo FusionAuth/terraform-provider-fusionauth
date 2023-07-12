@@ -10,7 +10,7 @@ func MessageProperties(name string) string {
 
 	return fmt.Sprintf(`
 #
-# Copyright (c) 2019-2021, FusionAuth, All Rights Reserved
+# Copyright (c) 2019-2023, FusionAuth, All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,14 +26,24 @@ func MessageProperties(name string) string {
 #
 
 #
+# Date and Time formats
+#
+date-format=M/d/yyyy
+date-time-format=M/d/yyyy hh:mm a z
+date-time-seconds-format=M/d/yyyy hh:mm:ss a z
+
+#
 # Text used on the page (inside the HTML). You can create new key-value pairs here and use them in the templates.
 #
 access-denied=Access denied
 account=Account
+action=Action
 add-two-factor=Add two-factor
+add-webauthn-passkey=Add passkey
 back-to-login=Return to Login
 cancel=Cancel
 captcha-google-branding=This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+created=Created
 authorized-not-registered=Registration is required to access this application and your account has not been registered for this application. Please complete your registration and try again.
 authorized-not-registered-title=Registration Required
 cancel-link=Cancel link request
@@ -48,13 +58,17 @@ complete-external-login=Complete login on your external device\u2026
 completed-link=You have successfully linked your %s account.
 completed-links=You have successfully linked your %s and %s account.
 confirm=Confirm
+delete-webauthn-passkey=Delete passkey
 device-form-title=Device login
 device-login-complete=Successfully connected device
 device-title=Connect Your Device
 device-link-count-exceeded-next-step=To continue, click the button below. You will be logged out and then redirected here to continue the device login.
 device-link-count-exceeded-pending-logout=You are logged in as %s. No additional links may be made to %s.
+device-logged-in-as-not-you=You are logged in as %s. If you continue, the device login will be completed without an additional prompt. If this is not you, click logout before continuing.
 disable=Disable
+display-name=Display name
 done=Done
+dont-ask-again=Don't ask me again on this device
 dont-have-an-account=Don't have an account?
 edit=Edit
 email-verification-complete=Thank you. Your email has been verified.
@@ -66,6 +80,7 @@ email-verification-sent-title=Verification sent
 email-verification-required-title=Verification required
 email-verification-required-send-another=Send me another email
 enabled=Enabled
+enable=Enable
 forgot-password=Forgot your password? Type in your email address in the form below to reset your password.
 forgot-password-email-sent=We've sent you an email containing a link that will allow you to reset your password. Once you receive the email follow the instructions to change your password.
 forgot-password-email-sent-title=Email sent
@@ -73,27 +88,36 @@ forgot-password-title=Forgot password
 forgot-your-password=Forgot your password?
 help=Help
 instructions=Instructions
+id=Id
 ip-address=IP address
 link-to-existing-user=Link to an existing user
 link-to-new-user=Create a new user
-device-logged-in-as-not-you=You are logged in as %s. If you continue, the device login will be completed without an additional prompt. If this is not you, click logout before continuing.
+last-used=Last used
 link-count-exceeded-next-step=To continue, click the button below. You will be logged out and then redirected here to link to an existing user or create a new user.
 link-count-exceeded-next-step-no-registration=To continue, click the button below. You will be logged out and then redirect here to link to an existing user.
 link-count-exceeded-pending-logout=You have already linked to %s and no additional links are allowed.
 logged-in-as=You are logged in as %s.
 login=Login
 login-cancel-link=Or, cancel the link request.
+login-with-passkey=Login with passkey
 logout=Logout
 logout-and-continue=Logout and continue\u2026
 logging-out=Logging out\u2026
 logout-title=Logging out
-multi-factor-configuration=Multi-Factor configuration
+manage-webauthn-passkeys=Manage passkeys
+method=Method
+multi-factor-configuration=Two-Factor configuration
 next=Next
+no-password=No password
+no-webauthn-passkeys=No passkeys have been registered
+no-webauthn-support=This browser does not support WebAuthn passkeys. You may still manage existing passkeys.
 not-configured=Not configured
+not-now=Not now
 note=Note:
 or=Or
 parent-notified=We've sent an email to your parent. They can set up an account for you once they receive it.
 parent-notified-title=Parent notified
+passkeys=Passkeys
 password-alpha-constraint=Must contain at least one non-alphanumeric character
 password-case-constraint=Must contain both upper and lower case characters
 password-change-title=Update your password
@@ -125,25 +149,36 @@ registration-verification-sent=We have sent an email to %s with your verificatio
 registration-verification-sent-title=Verification sent
 registration-verification-required-title=Verification required
 registration-verification-required-send-another=Send me another email
+relying-party-id=Relying party Id
 return-to-login=Return to login
+return-to-normal-login=Return to the normal login
+return-to-webauthn-reauth=Return to passkey authentication
 send-another-code=Send another code
 send-code-to-phone=Send a code to your mobile phone
 set-up=Set up
+signature-count=Signature count
 sms=SMS
 sign-in-as-different-user=Sign in as a different user
 start-idp-link-title=Link your account
 two-factor-challenge=Authentication challenge
 two-factor-challenge-options=Authentication challenge
 two-factor-recovery-code=Recovery code
+two-factor-recovery-codes=Recovery codes
 two-factor-select-method=Didn't receive a code? Try another option
 two-factor-use-one-of-n-recover-codes=Use one of your %d recovery codes
 trust-computer=Trust this computer for %s days
 unauthorized=Unauthorized
 unauthorized-message=You are not authorized to make this request.
 unauthorized-message-blocked-ip=The owner of this website (%s) has blocked your IP address.
+undefined=Undefined
+unnamed=Unnamed
 value=Value
 wait-title=Complete login on your external device
 waiting=Waiting
+warning=Warning
+webauthn-button-text=Fingerprint, device or key
+webauthn-reauth-return-to-login=If you don't recognize the passkeys(s) above click "Return to normal login" below.
+webauthn-reauth-select-passkey=Welcome back, click on a passkey to continue.
 
 # Locale Specific separators, etc
 #  - list separator - comma and a space
@@ -203,10 +238,11 @@ user.timezone=Timezone
 user.username=Username
 
 #
-# Self service account management
+# Self-service account management
 #
 cancel-go-back=Cancel and go back
 change-password=Change password
+current-password=Current password
 disable-instructions=Disable two-factor
 disable-two-factor=Disable two-factor
 edit-profile=Edit profile
@@ -216,14 +252,20 @@ go-back=Go back
 send-one-time-code=Send a one-time code
 
 #
-# Self service two-factor configuration
+# Self-service two-factor configuration
 #
 no-two-factor-methods-configured=No methods have been configured
 select-two-factor-method=Select a method
 two-factor-authentication=Two-factor authentication
 two-factor-method=Method
+two-factor-method-authenticator=Authenticator
+two-factor-method-email=Email message
+two-factor-method-sms=Text message
+two-factor-get-code-at-authenticator=Get a code from your authenticator app
+two-factor-get-code-at-email=Get a code at %s\u2026
+two-factor-get-code-at-sms=Get a code at (***) ***-**%s
 
-# Form input place holders
+# Form input place-holders
 {placeholder}two-factor-code=Enter the one-time code
 
 #
@@ -235,14 +277,17 @@ authenticator=Authenticator app
 authenticator-disable-step-1=Enter the code from your authenticator app in the verification code field below to disable this two-factor method.
 authenticator-enable-step-1=Open your authentication app and add your account by scanning the QR code to the right or by manually entering the Base32 encoded secret <strong>%s</strong>.
 authenticator-enable-step-2=Once you have completed the first step, enter the code from your authenticator app in the verification code field below.
+oauth2-authenticator-enable-step-1=Open your authentication app and scan the QR code. Then enter the code from your authenticator app in the form below.
 
 # Email Enable / Disable
 email-disable-step-1=To disable two-factor using email, click the button to send a one-time use code to %s. Once you receive the code, enter it in the form below.
 email-enable-step-1=To enable two-factor using email, enter an email address and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
+oauth2-email-enable-step-1=To enable two-factor using email, enter an email address and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
 
 # SMS Enable / Disable
 sms-disable-step-1=To disable two-factor using SMS, click the button to send a one-time use code to %s. Once you receive the code, enter it in the form below.
 sms-enable-step-1=Two enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
+oauth2-sms-enable-step-1=Two enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
 
 authenticator-configuration=Authenticator configuration
 verification-code=Verification code
@@ -258,6 +303,8 @@ go-back-to-send=Go back to send
 {description}two-factor-recovery-code-note=If you no longer have access to the device or application to obtain a verification code, you may use a recovery code to disable this two-factor method. Warning, when you use a recovery code to disable any two-factor method, all two-factor methods will be removed and all of your recovery codes will be cleared.
 {description}recovery-codes-1=Because this is the first time you have enabled two-factor, we have generated you %d recovery codes. These codes will not be shown again, so record them right now and store them in a safe place. These codes can be used to complete a two-factor login if you lose your device, and they can be used to disable two-factor authentication as well.
 {description}recovery-codes-2=Once you have recorded the codes, click Done to return to two-factor management.
+{description}oauth2-recovery-codes-1=Record these recovery codes, they will not be shown again. Recovery codes can be used to complete a two-factor login or disable two-factor authentication if you lose your device.
+{description}oauth2-recovery-codes-2=Once you have recorded the codes, click Done to continue.
 
 {description}email-verification-required-change-email=Confirm your email address is correct and update it if you mis-typed it during registration. Updating your address will also send you a new email to the new address.
 {description}email-verification-required=You must verify your email address before you continue.
@@ -266,8 +313,17 @@ go-back-to-send=Go back to send
 {description}registration-verification-required=You must verify your registration before you continue.
 {description}registration-verification-required-non-interactive=Registration verification is configured to be completed outside of this request. Once you have verified your registration, retry this request.
 
+# WebAuthn
+{description}add-webauthn=Enter a name for this passkey. This name may be used to identify the passkey during a login attempt, or when multiple passkeys exist.
+{description}delete-webauthn-passkey=Click delete to remove the passkey. Once removed, you will no longer be able to use this passkey to complete authentication.
+{description}webauthn-bootstrap-retrieve-credential=Retrieve your previously configured passkeys by entering your email.
+{description}webauthn-passkeys=Passkeys allow you to securely authenticate without a password. Configure one or more passkeys in order to complete authentication.
+{description}webauthn-reauth=Do you want to skip the password next time?
+{description}webauthn-reauth-existing-credential=You can select an existing passkey from the list below and skip the password on your next login.
+{description}webauthn-reauth-add-credential=Register a new passkey. Enter a display name to uniquely identify this key. For example, "Chrome Touch ID".
+
 #
-# Custom Self Service User form sections.
+# Custom Self-service User form sections.
 #
 # - Names are optional, and if not provided they will be labeled 'Section 1', 'Section 2', etc.
 # - The first section label will be omitted unless you specify a named label below. For your convenience, these
@@ -289,7 +345,7 @@ go-back-to-send=Go back to send
 # Custom Admin User and Registration form sections.
 #
 # - Names are optional, and if not provided they will be labeled 'Section 1', 'Section 2', etc.
-# - The first section label on the User and and Registration form in the admin UI will be omitted unless
+# - The first section label on the User and Registration form in the admin UI will be omitted unless
 #   you specify a named label below. For your convenience, these sections are configured below and commented out as 'Optionally name me!'.
 #
 # - By default, all section labels will be used for all tenants, and all applications respectively.
@@ -324,6 +380,11 @@ go-back-to-send=Go back to send
 [confirm]user.password=Confirm password
 
 #
+# Self-service account validation errors
+#
+[invalid]currentPassword=Current password is incorrect
+
+#
 # Default validation errors. Add custom messages by adding field messages.
 # For example, to provide a custom message for a string field named user.data.companyName, add the
 # following message key: [blank]user.data.companyName=Company name is required
@@ -341,6 +402,8 @@ go-back-to-send=Go back to send
 [missing]=Required
 [mismatch]=Unexpected value
 [notEmail]=Invalid email
+[notConfigured]=Not configured
+[previouslyUsed]=Previously used
 [tooLong]=Too long
 [tooShort]=Too short
 [type]=Invalid type
@@ -356,10 +419,11 @@ go-back-to-send=Go back to send
 # Validation errors when forms are invalid. The format is [<error-code>]<field-name>. These are hard-coded in the FusionAuth code and the
 # keys cannot be changed. You can still change the values though.
 #
-[invalid]applicationId=The provided application id is invalid.
+[invalid]applicationId=The provided application Id is invalid.
 [blank]code=Required
 [invalid]code=Invalid code
 [blank]email=Required
+[duplicate]email=An account already exists for that email
 [blank]loginId=Required
 [blank]methodId=Select a two-factor method
 [blank]parentEmail=Required
@@ -397,9 +461,11 @@ go-back-to-send=Go back to send
 [doNotMatch]user.password=Passwords don't match
 [singleCase]user.password=Password must use upper and lowercase characters
 [onlyAlpha]user.password=Password must contain a punctuation character
+[previouslyUsed]user.password=Password has been recently used
 [requireNumber]user.password=Password must contain a number character
 [tooShort]user.password=Password does not meet the minimum length requirement
 [tooLong]user.password=Password exceeds the maximum length requirement
+[tooYoung]user.password=Password was changed too recently, try again later
 [blank]user.username=Required
 [duplicate]user.username=An account already exists for that username
 [inactive]user.username=An account already exists for that username but is locked. Contact the administrator for assistance
@@ -435,6 +501,7 @@ go-back-to-send=Go back to send
 [EmailVerificationSent]=A verification email is on the way.
 [EmailVerificationDisabled]=Email verification functionality is currently disabled. Contact your FusionAuth administrator for assistance.
 [ErrorException]=An unexpected error occurred.
+[ExternalAuthenticationExpired]=Your external authentication request has expired, please re-attempt authentication.
 [ForgotPasswordDisabled]=Forgot password handling is not enabled. Please contact your system administrator for assistance.
 [IdentityProviderDoesNotSupportRedirect]=This identity provider does not support this redirect workflow.
 [InvalidChangePasswordId]=Your password reset code has expired or is invalid. Please retry your request.
@@ -444,6 +511,9 @@ go-back-to-send=Go back to send
 [InvalidPasswordlessLoginId]=Your link has expired or is invalid. Please retry your request.
 [InvalidVerificationId]=Sorry. The request contains an invalid or expired verification Id. You may need to request another verification to be sent.
 [InvalidPendingIdPLinkId]=Your link has expired or is invalid. Please retry your login request.
+[InvalidWebAuthnAuthenticatorResponse]=The response from the WebAuthn authenticator could not be parsed or failed validation.
+[InvalidWebAuthnBrowserResponse]=The WebAuthn response from the browser could not be parsed or failed validation.
+[InvalidWebAuthnLoginId]=Your signature has expired or is invalid. Please retry your request.
 [LinkCountExceeded]=You have reached the configured link limit of %d for this identity provider.
 [LoginPreventedException]=Your account has been locked.
 [LoginPreventedExceptionTooManyTwoFactorAttempts]=You have exceeded the number of allowed attempts. Your account has been locked.
@@ -467,12 +537,16 @@ go-back-to-send=Go back to send
 [RegistrationVerificationSent]=A verification email is on the way.
 [SSOSessionDeletedOrExpired]=You have been logged out of FusionAuth.
 [TenantIdRequired]=FusionAuth is unable to determine which tenant to use for this request. Please add the tenantId to the URL as a request parameter.
+[TwoFactorEnableFailed]=Oops. Something didn't go as planned. Try to complete login again.
+[TwoFactorRequired]=You must configure two-factor in order to continue.
 [TwoFactorTimeout]=You did not complete the two-factor challenge in time. Please complete login again.
 [UserAuthorizedNotRegisteredException]=Your account has not been registered for this application.
 [UserExpiredException]=Your account has expired. Please contact your system administrator.
 [UserLockedException]=Your account has been locked. Please contact your system administrator.
 [UserUnauthenticated]=Oops. It looks like you've gotten here by accident. Please return to your application and log in to begin the authorization sequence.
-[ExternalAuthenticationExpired]=Your external authentication request has expired, please re-attempt authentication.
+[WebAuthnDisabled]=WebAuthn is not currently enabled.
+[WebAuthnCredentialSelectionCanceled]=Passkey selection canceled.
+[WebAuthnFailed]=Unable to complete the WebAuthn workflow.
 
 # External authentication errors
 # - Some of these errors are development time issues. But it is possible they could be shown to an end user depending upon your configuration.
@@ -513,6 +587,7 @@ go-back-to-send=Go back to send
 [ExternalAuthenticationException]SonyPSNToken=A request to the Sony PlayStation Network Token API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]SonyPSNUserInfo=A request to the Sony PlayStation Network User Info API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]SteamPlayerSummary=A request to the Steam Player summary API has failed. Unable to complete this login request.
+[ExternalAuthenticationException]SteamAuthenticateUserTicket=A request to the Steam Authenticate User Ticket API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]SteamToken=A request to the Steam Token API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]TwitchToken=A request to the Twitch Token API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]TwitchUserInfo=A request to the Twitch User Info API has failed. Unable to complete this login request.
@@ -533,7 +608,8 @@ go-back-to-send=Go back to send
 # Webhook transaction failure
 [WebhookTransactionException]=One or more webhooks returned an invalid response or were unreachable. Based on your transaction configuration, your action cannot be completed.
 
-# Self Service
+# Self-service
+[SelfServiceCustomValidationException]=Extended verification has failed. Self-service registration cannot be completed.
 [SelfServiceFormNotConfigured]=Configuration is incomplete. The FusionAuth administrator must configure a form for this application.
 [SelfServiceUserNotRegisteredException]=You are not registered for this application. Not all features will be available.
 [TwoFactorAuthenticationMethodDisabled]=Two-factor authentication has been disabled

@@ -94,8 +94,8 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 	// preferredLanguages must be a 2 length slice.
 	startPreferredLanguages, endPreferredLanguages := []string{"en", "fr"}, []string{"en", "es"}
 	startTimezone, endTimezone := "Europe/Paris", "America/Mexico_City"
-	startTwoFactorMethodsEmail, endTwoFactorMethodsEmail := "john.smith@example.com", "jon.kingofthenorth.snow@example.com"
-	startTwoFactorMethodsMobilePhone, endTwoFactorMethodsMobilePhone := "+64987654321", "+64123456789"
+	startTwoFactorMethodsEmail, endTwoFactorMethodsEmail := "john.smith@example.com", "john.smith@example.com"                 // two factor email address can't be altered once created.
+	startTwoFactorMethodsMobilePhone, endTwoFactorMethodsMobilePhone := "+64987654321", "+64987654321"                         // two factor mobile phone number can't be altered once created.
 	startTwoFactorMethodsSecret, endTwoFactorMethodsSecret := "Sup3r\nSecr3t\nMFA\nSecr3t", "X7ra\nSup3r\nSecr3t\nMFA\nSecr3t" //nolint:gosec
 	startUsername, endUsername := "john.smith", "jon.snow"
 	startUsernameStatus, endUsernameStatus := "ACTIVE", "PENDING"
@@ -223,8 +223,10 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					// The following fields are not returned via RetrieveUser
 					// and as such, can't be imported/pushed into the Terraform
 					// state.
+					"disable_domain_block",
 					"encryption_scheme",
 					"password",
+					"parent_email",
 					"send_set_password_email",
 					"skip_verification",
 					"two_factor_methods.0.secret",
