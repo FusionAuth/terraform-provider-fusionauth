@@ -901,9 +901,9 @@ func newFailedAuthenticationConfiguration() *schema.Resource {
 				Description: "The unit of time associated with a duration.",
 			},
 			"action_cancel_policy_on_password_reset": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				Description:  "Indicates whether you want the user to be able to self-service unlock their account prior to the action duration by completing a password reset workflow.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Indicates whether you want the user to be able to self-service unlock their account prior to the action duration by completing a password reset workflow.",
 			},
 			"reset_count_in_seconds": {
 				Type:         schema.TypeInt,
