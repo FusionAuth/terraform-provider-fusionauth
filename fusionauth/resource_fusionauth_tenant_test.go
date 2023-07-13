@@ -169,6 +169,7 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "failed_authentication_configuration.0.action_duration_unit", "DAYS"),
 		resource.TestCheckResourceAttr(tfResourcePath, "failed_authentication_configuration.0.reset_count_in_seconds", "600"),
 		resource.TestCheckResourceAttr(tfResourcePath, "failed_authentication_configuration.0.too_many_attempts", "3"),
+		resource.TestCheckResourceAttr(tfResourcePath, "failed_authentication_configuration.0.action_cancel_policy_on_password_reset", "true"),
 		// resource.TestCheckResourceAttr(tfResourcePath, "failed_authentication_configuration.0.user_action_id", "UUID"),
 
 		// family_configuration
@@ -544,6 +545,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
     action_duration_unit   = "DAYS"
     reset_count_in_seconds = 600
     too_many_attempts      = 3
+    action_cancel_policy_on_password_reset = true
     #user_action_id         = "UUID"
   }
   family_configuration {
