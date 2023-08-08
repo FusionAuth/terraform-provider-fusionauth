@@ -529,6 +529,7 @@ resource "fusionauth_tenant" "example" {
     - `reset_count_in_seconds` - (Optional) The length of time in seconds before the failed authentication count will be reset. Value must be greater than 0.
     - `too_many_attempts` - (Optional) The number of failed attempts considered to be too many. Once this threshold is reached the specified User Action will be applied to the user for the duration specified. Value must be greater than 0.
     - `action_cancel_policy_on_password_reset` - (Optional) Indicates whether you want the user to be able to self-service unlock their account prior to the action duration by completing a password reset workflow.
+    - `email_user` - (Optional) Indicates you would like to email the user when the user’s account is locked due to this action being taken. This requires the User Action specified by the tenant.failedAuthenticationConfiguration.userActionId to also be configured for email. If the User Action is not configured to be able to email the user, this configuration will be ignored.
     - `user_action_id` - (Optional) The Id of the User Action that is applied when the threshold is reached for too many failed authentication attempts.
 * `family_configuration` - (Optional)
     - `allow_child_registrations` - (Optional) Whether to allow child registrations.
