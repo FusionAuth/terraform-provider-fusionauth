@@ -547,7 +547,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
     reset_count_in_seconds = 600
     too_many_attempts      = 3
     action_cancel_policy_on_password_reset = true
-    email_user			   = true
+    email_user             = true
     #user_action_id         = "UUID"
   }
   family_configuration {
