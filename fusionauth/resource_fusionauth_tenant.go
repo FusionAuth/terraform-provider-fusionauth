@@ -905,6 +905,11 @@ func newFailedAuthenticationConfiguration() *schema.Resource {
 				Optional:    true,
 				Description: "Indicates whether you want the user to be able to self-service unlock their account prior to the action duration by completing a password reset workflow.",
 			},
+			"email_user": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Indicates you would like to email the user when the user’s account is locked due to this action being taken. This requires the User Action specified by the tenant.failedAuthenticationConfiguration.userActionId to also be configured for email. If the User Action is not configured to be able to email the user, this configuration will be ignored.",
+			},
 			"reset_count_in_seconds": {
 				Type:         schema.TypeInt,
 				Optional:     true,

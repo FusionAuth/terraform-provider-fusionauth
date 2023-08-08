@@ -146,6 +146,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			ActionCancelPolicy: fusionauth.FailedAuthenticationActionCancelPolicy{
 				OnPasswordReset: data.Get("failed_authentication_configuration.0.action_cancel_policy_on_password_reset").(bool),
 			},
+			EmailUser: data.Get("failed_authentication_configuration.0.email_user").(bool),
 			ResetCountInSeconds: data.Get("failed_authentication_configuration.0.reset_count_in_seconds").(int),
 			TooManyAttempts:     data.Get("failed_authentication_configuration.0.too_many_attempts").(int),
 			UserActionId:        data.Get("failed_authentication_configuration.0.user_action_id").(string),
@@ -487,6 +488,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"action_duration":                        t.FailedAuthenticationConfiguration.ActionDuration,
 			"action_duration_unit":                   t.FailedAuthenticationConfiguration.ActionDurationUnit,
 			"action_cancel_policy_on_password_reset": t.FailedAuthenticationConfiguration.ActionCancelPolicy.OnPasswordReset,
+			"email_user":							  t.FailedAuthenticationConfiguration.EmailUser,
 			"reset_count_in_seconds":                 t.FailedAuthenticationConfiguration.ResetCountInSeconds,
 			"too_many_attempts":                      t.FailedAuthenticationConfiguration.TooManyAttempts,
 			"user_action_id":                         t.FailedAuthenticationConfiguration.UserActionId,
