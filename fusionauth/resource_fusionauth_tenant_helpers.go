@@ -706,7 +706,16 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.rate_limit_configuration: %s", err.Error())
 	}
 
-	err = data.Set("registration_configuration", []map[string]interface{}{
+	regDiag := buildAdditionalResourceDataFromTenant(t, data)
+	if regDiag != nil {
+		return regDiag
+	}
+
+	return nil
+}
+
+func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData) diag.Diagnostics {
+	err := data.Set("registration_configuration", []map[string]interface{}{
 		{
 			"blocked_domains": t.RegistrationConfiguration.BlockedDomains,
 		},
