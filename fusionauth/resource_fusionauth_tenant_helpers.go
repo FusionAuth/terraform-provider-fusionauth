@@ -274,6 +274,9 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.send_two_factor.0.time_period_in_seconds").(int),
 			},
 		},
+		RegistrationConfiguration: fusionauth.TenantRegistrationConfiguration{
+			BlockedDomains: handleStringSlice("registration_configuration.0.blocked_domains", data),
+		},
 		CaptchaConfiguration: fusionauth.TenantCaptchaConfiguration{
 			Enableable:    buildEnableable("captcha_configuration.0.enabled", data),
 			CaptchaMethod: fusionauth.CaptchaMethod(data.Get("captcha_configuration.0.captcha_method").(string)),
@@ -701,6 +704,15 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	})
 	if err != nil {
 		return diag.Errorf("tenant.rate_limit_configuration: %s", err.Error())
+	}
+
+	err = data.Set("registration_configuration", []map[string]interface{}{
+		{
+			"blocked_domains": t.RegistrationConfiguration.BlockedDomains,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("tenant.registration_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("theme_id", t.ThemeId); err != nil {

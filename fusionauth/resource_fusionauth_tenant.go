@@ -722,6 +722,13 @@ func newTenant() *schema.Resource {
 					},
 				},
 			},
+			"registration_configuration": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem:     newTenantRegistrationConfiguration(),
+			},
 			"theme_id": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -871,6 +878,19 @@ func newFamilyConfiguration() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.IsUUID,
 				Description:  "The unique Id of the email template to use for parent registration.",
+			},
+		},
+	}
+}
+
+func newTenantRegistrationConfiguration() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"blocked_domains": {
+				Type:        schema.TypeSet,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+				Description: "A list of unique domains that are not allowed to register when self service is enabled.",
 			},
 		},
 	}
