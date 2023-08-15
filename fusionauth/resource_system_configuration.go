@@ -350,8 +350,8 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		{
 			"delete": []map[string]interface{}{
 				{
-					"enabled":                  sc.AuditLogConfiguration.Delete.Enabled,
-					"number_of_days_to_retain": sc.AuditLogConfiguration.Delete.NumberOfDaysToRetain,
+					"enabled":                  sc.LoginRecordConfiguration.Delete.Enabled,
+					"number_of_days_to_retain": sc.LoginRecordConfiguration.Delete.NumberOfDaysToRetain,
 				},
 			},
 		},
