@@ -415,6 +415,9 @@ resource "fusionauth_tenant" "example" {
       time_period_in_seconds = 60
     }
   }
+  registration_configuration {
+    blocked_domains = ["example.com"]
+  }
   captcha_configuration {
     enabled         = true
     captcha_method  = "GoogleRecaptchaV3"
@@ -622,6 +625,8 @@ resource "fusionauth_tenant" "example" {
       - `enabled` - (Optional) Whether rate limiting is enabled for send two factor.
       - `limit` - (Optional) The number of times a user can request a two-factor code by email or SMS within the configured `time_period_in_seconds` duration.   
       - `time_period_in_seconds` - (Optional) The duration for the number of times a user can request a two-factor code by email or SMS before being rate limited.
+* `registration_configuration` - (Optional)
+    - `blocked_domains` - (Optional) A list of unique domains that are not allowed to register when self service is enabled.
 * `theme_id` - (Required) The unique Id of the theme to be used to style the login page and other end user templates.
 * `username_configuration` - (Optional)
     - `unique` - (Optional) Indicates that users without a verified email address will be permanently deleted after tenant.userDeletePolicy.unverified.numberOfDaysToRetain days.

@@ -264,6 +264,10 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_two_factor.0.limit", "1"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_two_factor.0.time_period_in_seconds", "55"),
 
+		// registration_configuration
+		resource.TestCheckResourceAttrSet(tfResourcePath, "registration_configuration.#"),
+		resource.TestCheckResourceAttr(tfResourcePath, "registration_configuration.0.blocked_domains.0", "blocked-domain.com"),
+
 		// captcha_configuration
 		resource.TestCheckResourceAttrSet(tfResourcePath, "captcha_configuration.#"),
 		resource.TestCheckResourceAttr(tfResourcePath, "captcha_configuration.0.enabled", "true"),
@@ -665,6 +669,9 @@ resource "fusionauth_tenant" "test_%[1]s" {
     site_key   		= "captcha_site_key"
     secret_key 		= "captcha_secret_key"
     threshold  		= 0.5
+  }
+  registration_configuration {
+	blocked_domains = ["blocked-domain.com"]
   }
   # theme_id%[2]s
   user_delete_policy {
