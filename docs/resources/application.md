@@ -109,6 +109,7 @@ resource "fusionauth_application" "Forum" {
     - `enabled` - (Optional) Indicates if this application is using the JWT configuration defined here or the global JWT configuration defined by the System Configuration. If this is false the signing algorithm configured in the System Configuration will be used. If true the signing algorithm defined in this application will be used.
     - `id_token_key_id` - (Optional) The Id of the signing key used to sign the Id token.
     - `refresh_token_ttl_minutes` - (Optional) The length of time in minutes the JWT refresh token will live before it is expired and is not able to be exchanged for a JWT.
+    - `refresh_token_expiration_policy` - (Optional) The Refresh Token expiration policy. The possible values are: Fixed - the expiration is calculated from the time the token is issued.  SlidingWindow - the expiration is calculated from the last time the token was used.
     - `ttl_seconds` - (Optional) The length of time in seconds the JWT will live before it is expired and no longer valid.
 * `lambda_configuration` - (Optional)
     - `access_token_populate_id` - (Optional) The Id of the Lambda that will be invoked when an access token is generated for this application. This will be utilized during OAuth2 and OpenID Connect authentication requests as well as when an access token is generated for the Login API.
