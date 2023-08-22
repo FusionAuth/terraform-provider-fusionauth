@@ -718,7 +718,23 @@ func newJWTConfiguration() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					fusionauth.RefreshTokenExpirationPolicy_SlidingWindow.String(),
 					fusionauth.RefreshTokenExpirationPolicy_Fixed.String(),
+					"SlidingWindowWithMaximumLifetime",
 				}, false),
+			},
+			"refresh_token_sliding_window_configuration": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"maximum_time_to_live_in_minutes": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     43200,
+							Description: "The maximum lifetime of a refresh token when using a refreshTokenExpirationPolicy of SlidingWindowWithMaximumLifetime. Value must be greater than 0.",
+						},
+					},
+				},
 			},
 			"ttl_seconds": {
 				Type:        schema.TypeInt,

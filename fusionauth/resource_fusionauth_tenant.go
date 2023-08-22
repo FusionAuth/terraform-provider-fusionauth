@@ -282,8 +282,24 @@ func newTenant() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{
 								"Fixed",
 								"SlidingWindow",
+								"SlidingWindowWithMaximumLifetime",
 							}, false),
 							Description: "The refresh token expiration policy.",
+						},
+						"refresh_token_sliding_window_configuration": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"maximum_time_to_live_in_minutes": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Default:     43200,
+										Description: "The maximum lifetime of a refresh token when using a refreshTokenExpirationPolicy of SlidingWindowWithMaximumLifetime. Value must be greater than 0.",
+									},
+								},
+							},
 						},
 						"refresh_token_revocation_policy_on_login_prevented": {
 							Type:        schema.TypeBool,
