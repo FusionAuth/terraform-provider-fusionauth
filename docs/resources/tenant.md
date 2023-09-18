@@ -324,7 +324,8 @@ resource "fusionauth_tenant" "example" {
       length = 6
       type   = "randomDigits"
     }
-    two_factor_trust_id_time_to_live_in_seconds = 2592000
+    two_factor_one_time_code_id_time_to_live_in_seconds = 60
+    two_factor_trust_id_time_to_live_in_seconds         = 2592000
   }
   failed_authentication_configuration {
     action_duration        = 3
@@ -522,6 +523,7 @@ resource "fusionauth_tenant" "example" {
     - `two_factor_id_time_to_live_in_seconds` - (Required) The time in seconds until a two factor Id is no longer valid and cannot be used by the Two Factor Login API. Value must be greater than 0.
     - `trust_token_time_to_live_in_seconds` - (Optional) The number of seconds before the Trust Token is no longer valid to complete a request that requires trust. Value must be greater than 0.
     - `pending_account_link_time_to_live_in_seconds` - (Optional) The number of seconds before the pending account link identifier is no longer valid to complete an account link request. Value must be greater than 0.
+    - `two_factor_one_time_code_id_time_to_live_in_seconds` - (Optional) The number of seconds before the Two-Factor One Time Code used to enable or disable a two-factor method is no longer valid. Must be greater than 0.
     - `two_factor_trust_id_time_to_live_in_seconds` - (Require) The time in seconds until an issued Two Factor trust Id is no longer valid and the User will be required to complete Two Factor authentication during the next authentication attempt. Value must be greater than 0.
     - `two_factor_one_time_code_id_generator` - (Required)
         - `length` - (Required) TThe length of the secure generator used for generating the the two factor code Id.

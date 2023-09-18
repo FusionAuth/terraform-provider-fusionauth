@@ -1220,6 +1220,12 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The time in seconds until a two factor Id is no longer valid and cannot be used by the Two Factor Login API. Value must be greater than 0.",
 			},
+			"two_factor_one_time_code_id_time_to_live_in_seconds": {
+				Type:         schema.TypeInt,
+				Required:     true,
+				ValidateFunc: validation.IntAtLeast(1),
+				Description:  "The number of seconds before the Two-Factor One Time Code used to enable or disable a two-factor method is no longer valid. Must be greater than 0.",
+			},
 			"two_factor_trust_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
 				Required:     true,
