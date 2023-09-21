@@ -1233,10 +1233,24 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 func newEmailConfiguration() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"additional_headers": {
-				Type:        schema.TypeMap,
+			"additional_header": {
+				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "The additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.",
+				Description: "A list of  additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The email header name.",
+						},
+						"value": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The email header value.",
+						},
+					},
+				},
 			},
 			"default_from_name": {
 				Type:        schema.TypeString,
