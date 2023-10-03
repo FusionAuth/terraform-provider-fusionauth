@@ -314,13 +314,13 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 }
 
 func buildAdditionalHeaders(data *schema.ResourceData) (emailHeaders []fusionauth.EmailHeader, diags diag.Diagnostics) {
-	emailHeadersData, ok := data.Get("email_configuration.0.additional_header").([]interface{})
+	emailHeadersData, ok := data.Get("email_configuration.0.additional_headers").(map[string]interface{})
 	if emailHeadersData == nil || !ok {
 		if !ok {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Warning,
 				Summary:  "Unable to convert additional headers data",
-				Detail:   "additional_header unable to be typecast to []interface{}",
+				Detail:   "additional_headers unable to be typecast to map[string]interface{}",
 			})
 		}
 
@@ -329,22 +329,14 @@ func buildAdditionalHeaders(data *schema.ResourceData) (emailHeaders []fusionaut
 	}
 
 	emailHeaders = make([]fusionauth.EmailHeader, len(emailHeadersData))
-
-	for i, emailHeadersDatum := range emailHeadersData {
-		if emailHeader, ok := emailHeadersDatum.(map[string]interface{}); !ok {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  "Unable to convert a additional header",
-				Detail:   fmt.Sprintf("additional_header.%d: %#+v unable to be typecast to map[string]interface{}", i, emailHeadersDatum),
-			})
-		} else {
-			emailHeaders[i] = fusionauth.EmailHeader{
-				Name:  emailHeader["name"].(string),
-				Value: emailHeader["value"].(string),
-			}
+	i := 0
+	for headerName, headerValue := range emailHeadersData {
+		emailHeaders[i] = fusionauth.EmailHeader{
+			Name:  headerName,
+			Value: headerValue.(string),
 		}
+		i++
 	}
-
 	return emailHeaders, diags
 }
 
@@ -428,17 +420,14 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.connector_policy: %s", err.Error())
 	}
 
-	additionalHeaders := []map[string]interface{}{}
+	additionalHeaders := make(map[string]string, len(t.EmailConfiguration.AdditionalHeaders))
 	for _, additionalHeader := range t.EmailConfiguration.AdditionalHeaders {
-		additionalHeaders = append(additionalHeaders, map[string]interface{}{
-			"name":  additionalHeader.Name,
-			"value": additionalHeader.Value,
-		})
+		additionalHeaders[additionalHeader.Name] = additionalHeader.Value
 	}
 
 	err := data.Set("email_configuration", []map[string]interface{}{
 		{
-			"additional_header":                           additionalHeaders,
+			"additional_headers":                          additionalHeaders,
 			"email_update_email_template_id":              t.EmailConfiguration.EmailUpdateEmailTemplateId,
 			"email_verified_email_template_id":            t.EmailConfiguration.EmailVerifiedEmailTemplateId,
 			"forgot_password_email_template_id":           t.EmailConfiguration.ForgotPasswordEmailTemplateId,

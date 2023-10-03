@@ -306,11 +306,9 @@ func testAccCheckConnectorPolicies(tfResourcePath string, genericConnectorInclud
 
 func testAccCheckEmailConfigurationAdditionalHeaders(tfResourcePath string) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.additional_header.#", "2"),
-		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.additional_header.0.name", "Header-Name-1"),
-		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.additional_header.0.value", "Header-Value-1"),
-		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.additional_header.1.name", "Header-Name-2"),
-		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.additional_header.1.value", "Header-Value-2"),
+		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.additional_headers.%", "2"),
+		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.additional_headers.HeaderName1", "HeaderValue1"),
+		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.additional_headers.HeaderName2", "HeaderValue2"),
 	)
 }
 
@@ -482,13 +480,9 @@ resource "fusionauth_tenant" "test_%[1]s" {
   }
   email_configuration {
     default_from_name  = "noreply"
-    additional_header {
-      name = "Header-Name-1"
-      value = "Header-Value-1"
-    }
-    additional_header {
-      name = "Header-Name-2"
-      value = "Header-Value-2"
+    additional_headers = {
+      "HeaderName1" = "HeaderValue1"
+      "HeaderName2" = "HeaderValue2"
     }
     default_from_email = "%[3]s"
     #forgot_password_email_template_id = ""

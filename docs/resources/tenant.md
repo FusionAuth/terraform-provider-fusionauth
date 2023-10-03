@@ -30,9 +30,9 @@ resource "fusionauth_tenant" "example" {
     username                          = "username"
     verify_email                      = true
     verify_email_when_changed         = true
-    additional_header {
-      name = "Header-Name-1"
-      value = "Header-Value-1"
+    additional_headers = {
+      "HeaderName1" = "HeaderValue1"
+      "HeaderName2" = "HeaderValue2"
     }
   }
   event_configuration {
@@ -454,7 +454,7 @@ resource "fusionauth_tenant" "example" {
     - `migrate` - (Optional) If true, the user’s data will be migrated to FusionAuth at first successful authentication; subsequent authentications will occur against the FusionAuth datastore. If false, the Connector’s source will be treated as authoritative.
 * `data` - (Optional) An object that can hold any information about the Tenant that should be persisted.
 * `email_configuration` - (Required)
-    - `additional_header` - (Optional) A list of additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.
+    - `additional_headers` - (Optional) The additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.
     - `email_update_email_template_id` - (Optional) The Id of the Email Template that is used when a user is sent a forgot password email.
     - `email_verified_email_template_id` - (Optional) The Id of the Email Template used to verify user emails.
     - `host` - (Required) The host name of the SMTP server that FusionAuth will use.
