@@ -163,6 +163,7 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.two_factor_one_time_code_id_generator.0.length", "8"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.two_factor_one_time_code_id_generator.0.type", "randomDigits"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.two_factor_id_time_to_live_in_seconds", "300"),
+		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.two_factor_one_time_code_id_time_to_live_in_seconds", "60"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.two_factor_trust_id_time_to_live_in_seconds", "2592000"),
 
 		// failed_authentication_configuration
@@ -555,8 +556,9 @@ resource "fusionauth_tenant" "test_%[1]s" {
       length = 8
       type   = "randomDigits"
     }
-    two_factor_id_time_to_live_in_seconds       = 300
-    two_factor_trust_id_time_to_live_in_seconds = 2592000
+    two_factor_id_time_to_live_in_seconds               = 300
+    two_factor_one_time_code_id_time_to_live_in_seconds = 60
+    two_factor_trust_id_time_to_live_in_seconds         = 2592000
   }
   failed_authentication_configuration {
     action_duration        = 1

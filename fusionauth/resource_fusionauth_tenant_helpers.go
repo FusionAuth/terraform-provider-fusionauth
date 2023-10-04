@@ -115,6 +115,9 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			TwoFactorIdTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.two_factor_id_time_to_live_in_seconds",
 			).(int),
+			TwoFactorOneTimeCodeIdTimeToLiveInSeconds: data.Get(
+				"external_identifier_configuration.0.two_factor_one_time_code_id_time_to_live_in_seconds",
+			).(int),
 			TwoFactorTrustIdTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.two_factor_trust_id_time_to_live_in_seconds",
 			).(int),
@@ -499,11 +502,12 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"length": t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type,
 			}},
-			"setup_password_id_time_to_live_in_seconds":    t.ExternalIdentifierConfiguration.SetupPasswordIdTimeToLiveInSeconds,
-			"trust_token_time_to_live_in_seconds":          t.ExternalIdentifierConfiguration.TrustTokenTimeToLiveInSeconds,
-			"pending_account_link_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.PendingAccountLinkTimeToLiveInSeconds,
-			"two_factor_id_time_to_live_in_seconds":        t.ExternalIdentifierConfiguration.TwoFactorIdTimeToLiveInSeconds,
-			"two_factor_trust_id_time_to_live_in_seconds":  t.ExternalIdentifierConfiguration.TwoFactorTrustIdTimeToLiveInSeconds,
+			"setup_password_id_time_to_live_in_seconds":           t.ExternalIdentifierConfiguration.SetupPasswordIdTimeToLiveInSeconds,
+			"trust_token_time_to_live_in_seconds":                 t.ExternalIdentifierConfiguration.TrustTokenTimeToLiveInSeconds,
+			"pending_account_link_time_to_live_in_seconds":        t.ExternalIdentifierConfiguration.PendingAccountLinkTimeToLiveInSeconds,
+			"two_factor_id_time_to_live_in_seconds":               t.ExternalIdentifierConfiguration.TwoFactorIdTimeToLiveInSeconds,
+			"two_factor_one_time_code_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.TwoFactorOneTimeCodeIdTimeToLiveInSeconds,
+			"two_factor_trust_id_time_to_live_in_seconds":         t.ExternalIdentifierConfiguration.TwoFactorTrustIdTimeToLiveInSeconds,
 			"email_verification_one_time_code_generator": []map[string]interface{}{{
 				"length": t.ExternalIdentifierConfiguration.EmailVerificationOneTimeCodeGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.EmailVerificationOneTimeCodeGenerator.Type,
