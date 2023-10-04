@@ -12,7 +12,6 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 	tenant := fusionauth.Tenant{
 		Data: data.Get("data").(map[string]interface{}),
 		EmailConfiguration: fusionauth.EmailConfiguration{
-			// AdditionalHeaders:                    data.Get("email_configuration.0.additional_headers").(string),
 			EmailUpdateEmailTemplateId:           data.Get("email_configuration.0.email_update_email_template_id").(string),
 			EmailVerifiedEmailTemplateId:         data.Get("email_configuration.0.email_verified_email_template_id").(string),
 			ImplicitEmailVerificationAllowed:     data.Get("email_configuration.0.implicit_email_verification_allowed").(bool),
@@ -301,12 +300,44 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 		},
 	}
 
-	connectorPolicies, diags := buildConnectorPolicies(data)
-	if diags == nil {
+	connectorPolicies, connectorDiags := buildConnectorPolicies(data)
+	if connectorDiags == nil {
 		tenant.ConnectorPolicies = connectorPolicies
 	}
 
-	return tenant, diags
+	additionalheaders, emailDiags := buildAdditionalHeaders(data)
+	if emailDiags == nil {
+		tenant.EmailConfiguration.AdditionalHeaders = additionalheaders
+	}
+
+	return tenant, append(connectorDiags, emailDiags...)
+}
+
+func buildAdditionalHeaders(data *schema.ResourceData) (emailHeaders []fusionauth.EmailHeader, diags diag.Diagnostics) {
+	emailHeadersData, ok := data.Get("email_configuration.0.additional_headers").(map[string]interface{})
+	if emailHeadersData == nil || !ok {
+		if !ok {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Unable to convert additional headers data",
+				Detail:   "additional_headers unable to be typecast to map[string]interface{}",
+			})
+		}
+
+		// Nothing to do here!
+		return emailHeaders, diags
+	}
+
+	emailHeaders = make([]fusionauth.EmailHeader, len(emailHeadersData))
+	i := 0
+	for headerName, headerValue := range emailHeadersData {
+		emailHeaders[i] = fusionauth.EmailHeader{
+			Name:  headerName,
+			Value: headerValue.(string),
+		}
+		i++
+	}
+	return emailHeaders, diags
 }
 
 func buildConnectorPolicies(data *schema.ResourceData) (connectorPolicies []fusionauth.ConnectorPolicy, diags diag.Diagnostics) {
@@ -389,9 +420,14 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.connector_policy: %s", err.Error())
 	}
 
+	additionalHeaders := make(map[string]string, len(t.EmailConfiguration.AdditionalHeaders))
+	for _, additionalHeader := range t.EmailConfiguration.AdditionalHeaders {
+		additionalHeaders[additionalHeader.Name] = additionalHeader.Value
+	}
+
 	err := data.Set("email_configuration", []map[string]interface{}{
 		{
-			// "additional_headers":                t.EmailConfiguration.AdditionalHeaders,
+			"additional_headers":                          additionalHeaders,
 			"email_update_email_template_id":              t.EmailConfiguration.EmailUpdateEmailTemplateId,
 			"email_verified_email_template_id":            t.EmailConfiguration.EmailVerifiedEmailTemplateId,
 			"forgot_password_email_template_id":           t.EmailConfiguration.ForgotPasswordEmailTemplateId,
@@ -411,13 +447,13 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"set_password_email_template_id":              t.EmailConfiguration.SetPasswordEmailTemplateId,
 			"two_factor_method_add_email_template_id":     t.EmailConfiguration.TwoFactorMethodAddEmailTemplateId,
 			"two_factor_method_remove_email_template_id":  t.EmailConfiguration.TwoFactorMethodRemoveEmailTemplateId,
-			"username":                       t.EmailConfiguration.Username,
-			"verification_email_template_id": t.EmailConfiguration.VerificationEmailTemplateId,
-			"verification_strategy":          t.EmailConfiguration.VerificationStrategy,
-			"verify_email":                   t.EmailConfiguration.VerifyEmail,
-			"verify_email_when_changed":      t.EmailConfiguration.VerifyEmailWhenChanged,
-			"default_from_email":             t.EmailConfiguration.DefaultFromEmail,
-			"default_from_name":              t.EmailConfiguration.DefaultFromName,
+			"username":                                    t.EmailConfiguration.Username,
+			"verification_email_template_id":              t.EmailConfiguration.VerificationEmailTemplateId,
+			"verification_strategy":                       t.EmailConfiguration.VerificationStrategy,
+			"verify_email":                                t.EmailConfiguration.VerifyEmail,
+			"verify_email_when_changed":                   t.EmailConfiguration.VerifyEmailWhenChanged,
+			"default_from_email":                          t.EmailConfiguration.DefaultFromEmail,
+			"default_from_name":                           t.EmailConfiguration.DefaultFromName,
 			"unverified": []map[string]interface{}{{
 				"allow_email_change_when_gated": t.EmailConfiguration.Unverified.AllowEmailChangeWhenGated,
 				"behavior":                      t.EmailConfiguration.Unverified.Behavior,

@@ -106,6 +106,7 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "data.lives", "here"),
 
 		// email_configuration
+		testAccCheckEmailConfigurationAdditionalHeaders(tfResourcePath),
 		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.default_from_name", "noreply"),
 		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.default_from_email", fromEmail),
 		// resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.forgot_password_email_template_id", "UUID"),
@@ -303,6 +304,14 @@ func testAccCheckConnectorPolicies(tfResourcePath string, genericConnectorInclud
 	)
 }
 
+func testAccCheckEmailConfigurationAdditionalHeaders(tfResourcePath string) resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.additional_headers.%", "2"),
+		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.additional_headers.HeaderName1", "HeaderValue1"),
+		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.additional_headers.HeaderName2", "HeaderValue2"),
+	)
+}
+
 func testAccCheckFusionauthTenantExists(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
@@ -471,6 +480,10 @@ resource "fusionauth_tenant" "test_%[1]s" {
   }
   email_configuration {
     default_from_name  = "noreply"
+    additional_headers = {
+      "HeaderName1" = "HeaderValue1"
+      "HeaderName2" = "HeaderValue2"
+    }
     default_from_email = "%[3]s"
     #forgot_password_email_template_id = ""
     host               = "smtp.example.com"

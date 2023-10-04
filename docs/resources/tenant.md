@@ -30,6 +30,10 @@ resource "fusionauth_tenant" "example" {
     username                          = "username"
     verify_email                      = true
     verify_email_when_changed         = true
+    additional_headers = {
+      "HeaderName1" = "HeaderValue1"
+      "HeaderName2" = "HeaderValue2"
+    }
   }
   event_configuration {
     enabled          = false
