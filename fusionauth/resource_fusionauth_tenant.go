@@ -1222,7 +1222,7 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 			},
 			"two_factor_one_time_code_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The number of seconds before the Two-Factor One Time Code used to enable or disable a two-factor method is no longer valid. Must be greater than 0.",
 			},
