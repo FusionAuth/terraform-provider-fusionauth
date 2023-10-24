@@ -78,6 +78,10 @@ resource "fusionauth_application" "Forum" {
       enabled  = false
       required = false
     }
+    preferred_languages {
+      enabled  = false
+      required = false
+    }
     type = ""
   }
   passwordless_configuration_enabled = false
@@ -152,6 +156,9 @@ resource "fusionauth_application" "Forum" {
         * `enabled` - (Optional)
         * `required` - (Optional)
     - `last_name` - (Optional)
+        * `enabled` - (Optional)
+        * `required` - (Optional)
+    - `preferred_languages` - (Optional)
         * `enabled` - (Optional)
         * `required` - (Optional)
     - `login_id_type` - (Optional) The unique login Id that will be collected during registration, this value can be email or username. Leaving the default value of email is preferred because an email address is globally unique.

@@ -58,9 +58,10 @@ func newEmail() *schema.Resource {
 				Description: "The From Name used when sending emails to users who speak other languages. This overrides the default From Name based on the user’s list of preferred languages.",
 			},
 			"localized_html_templates": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "The HTML Email Template used when sending emails to users who speak other languages. This overrides the default HTML Email Template based on the user’s list of preferred languages.",
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Description:      "The HTML Email Template used when sending emails to users who speak other languages. This overrides the default HTML Email Template based on the user’s list of preferred languages.",
+				DiffSuppressFunc: diffSuppressTemplate,
 			},
 			"localized_subjects": {
 				Type:        schema.TypeMap,
@@ -68,9 +69,10 @@ func newEmail() *schema.Resource {
 				Description: "The Subject used when sending emails to users who speak other languages. This overrides the default Subject based on the user’s list of preferred languages.",
 			},
 			"localized_text_templates": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "The Text Email Template used when sending emails to users who speak other languages. This overrides the default Text Email Template based on the user’s list of preferred languages.",
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Description:      "The Text Email Template used when sending emails to users who speak other languages. This overrides the default Text Email Template based on the user’s list of preferred languages.",
+				DiffSuppressFunc: diffSuppressTemplate,
 			},
 			"name": {
 				Type:         schema.TypeString,

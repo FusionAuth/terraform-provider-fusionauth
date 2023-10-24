@@ -798,6 +798,12 @@ func newRegistrationConfiguration() *schema.Resource {
 				Elem:     requireable(),
 				Optional: true,
 			},
+			"preferred_languages": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem:     requireable(),
+				Optional: true,
+			},
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,

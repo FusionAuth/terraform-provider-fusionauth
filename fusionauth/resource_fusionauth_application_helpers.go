@@ -75,17 +75,18 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			Enableable: buildEnableable("passwordless_configuration_enabled", data),
 		},
 		RegistrationConfiguration: fusionauth.RegistrationConfiguration{
-			Enableable:      buildEnableable("registration_configuration.0.enabled", data),
-			BirthDate:       buildRequireable("registration_configuration.0.birth_date", data),
-			ConfirmPassword: data.Get("registration_configuration.0.confirm_password").(bool),
-			FormId:          data.Get("registration_configuration.0.form_id").(string),
-			FirstName:       buildRequireable("registration_configuration.0.first_name", data),
-			FullName:        buildRequireable("registration_configuration.0.full_name", data),
-			LastName:        buildRequireable("registration_configuration.0.last_name", data),
-			MiddleName:      buildRequireable("registration_configuration.0.middle_name", data),
-			MobilePhone:     buildRequireable("registration_configuration.0.mobile_phone", data),
-			LoginIdType:     fusionauth.LoginIdType(data.Get("registration_configuration.0.login_id_type").(string)),
-			Type:            fusionauth.RegistrationType(data.Get("registration_configuration.0.type").(string)),
+			Enableable:         buildEnableable("registration_configuration.0.enabled", data),
+			BirthDate:          buildRequireable("registration_configuration.0.birth_date", data),
+			ConfirmPassword:    data.Get("registration_configuration.0.confirm_password").(bool),
+			FormId:             data.Get("registration_configuration.0.form_id").(string),
+			FirstName:          buildRequireable("registration_configuration.0.first_name", data),
+			FullName:           buildRequireable("registration_configuration.0.full_name", data),
+			LastName:           buildRequireable("registration_configuration.0.last_name", data),
+			MiddleName:         buildRequireable("registration_configuration.0.middle_name", data),
+			MobilePhone:        buildRequireable("registration_configuration.0.mobile_phone", data),
+			PreferredLanguages: buildRequireable("registration_configuration.0.preferred_languages", data),
+			LoginIdType:        fusionauth.LoginIdType(data.Get("registration_configuration.0.login_id_type").(string)),
+			Type:               fusionauth.RegistrationType(data.Get("registration_configuration.0.type").(string)),
 		},
 		RegistrationDeletePolicy: fusionauth.ApplicationRegistrationDeletePolicy{
 			Unverified: fusionauth.TimeBasedDeletePolicy{
@@ -337,6 +338,12 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 				{
 					"enabled":  a.RegistrationConfiguration.MobilePhone.Enabled,
 					"required": a.RegistrationConfiguration.MobilePhone.Required,
+				},
+			},
+			"preferred_languages": []map[string]interface{}{
+				{
+					"enabled":  a.RegistrationConfiguration.PreferredLanguages.Enabled,
+					"required": a.RegistrationConfiguration.PreferredLanguages.Required,
 				},
 			},
 			"login_id_type": a.RegistrationConfiguration.LoginIdType,
