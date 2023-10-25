@@ -561,6 +561,7 @@ resource "fusionauth_tenant" "example" {
     - `refresh_token_expiration_policy` - (Optional) The refresh token expiration policy.
     - `refresh_token_revocation_policy_on_login_prevented` - (Optional) When enabled, the refresh token will be revoked when a user action, such as locking an account based on a number of failed login attempts, prevents user login.
     - `refresh_token_revocation_policy_on_password_change` - (Optional) When enabled, the refresh token will be revoked when a user changes their password."
+    - `refresh_token_sliding_window_maximum_time_to_live_in_minutes` - (Optional) The maximum lifetime of a refresh token when using a refresh token expiration policy of SlidingWindowWithMaximumLifetime. Value must be greater than 0.
     - `refresh_token_time_to_live_in_minutes` - (Required) The length of time in minutes a Refresh Token is valid from the time it was issued. Value must be greater than 0.
     - `refresh_token_usage_policy` - (Optional) The refresh token usage policy.
     - `time_to_live_in_seconds` - (Required) The length of time in seconds this JWT is valid from the time it was issued. Value must be greater than 0.
