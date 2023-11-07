@@ -198,6 +198,7 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttrSet(tfResourcePath, "jwt_configuration.0.id_token_key_id"),
 		resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.refresh_token_time_to_live_in_minutes", "43200"),
 		resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.time_to_live_in_seconds", "3600"),
+		resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.refresh_token_sliding_window_maximum_time_to_live_in_minutes", "43200"),
 
 		// login_configuration
 		resource.TestCheckResourceAttr(tfResourcePath, "login_configuration.0.require_authentication", "true"),
@@ -590,6 +591,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
   jwt_configuration {
     refresh_token_time_to_live_in_minutes = 43200
     time_to_live_in_seconds               = 3600
+	refresh_token_sliding_window_maximum_time_to_live_in_minutes = 43200
   }
   login_configuration {
     require_authentication = true
