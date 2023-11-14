@@ -36,6 +36,7 @@ data "fusionauth_lambda" "default_google_reconcile" {
     - `SteamReconcile`
     - `TwitchReconcile`
     - `XboxReconcile`
+    - `SelfServiceRegistrationValidation`
     - `ClientCredentialsJWTPopulate`
 
 ## Attributes Reference

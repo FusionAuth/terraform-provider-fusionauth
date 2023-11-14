@@ -63,6 +63,7 @@ func dataSourceLambda() *schema.Resource {
 					string(fusionauth.LambdaType_SteamReconcile),
 					string(fusionauth.LambdaType_TwitchReconcile),
 					string(fusionauth.LambdaType_XboxReconcile),
+					string(fusionauth.LambdaType_SelfServiceRegistrationValidation),
 					string(fusionauth.LambdaType_ClientCredentialsJWTPopulate),
 				}, false),
 				Description: "The Lambda type.",
