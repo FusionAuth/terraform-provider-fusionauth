@@ -35,9 +35,10 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			TimeToLiveInSeconds:             data.Get("jwt_configuration.0.ttl_seconds").(int),
 		},
 		LambdaConfiguration: fusionauth.LambdaConfiguration{
-			AccessTokenPopulateId: data.Get("lambda_configuration.0.access_token_populate_id").(string),
-			IdTokenPopulateId:     data.Get("lambda_configuration.0.id_token_populate_id").(string),
-			Samlv2PopulateId:      data.Get("lambda_configuration.0.samlv2_populate_id").(string),
+			AccessTokenPopulateId:               data.Get("lambda_configuration.0.access_token_populate_id").(string),
+			IdTokenPopulateId:                   data.Get("lambda_configuration.0.id_token_populate_id").(string),
+			Samlv2PopulateId:                    data.Get("lambda_configuration.0.samlv2_populate_id").(string),
+			SelfServiceRegistrationValidationId: data.Get("lambda_configuration.0.self_service_registration_validation_id").(string),
 		},
 		LoginConfiguration: fusionauth.LoginConfiguration{
 			AllowTokenRefresh:     data.Get("login_configuration.0.allow_token_refresh").(bool),
@@ -236,9 +237,10 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	err = data.Set("lambda_configuration", []map[string]interface{}{
 		{
-			"access_token_populate_id": a.LambdaConfiguration.AccessTokenPopulateId,
-			"id_token_populate_id":     a.LambdaConfiguration.IdTokenPopulateId,
-			"samlv2_populate_id":       a.LambdaConfiguration.Samlv2PopulateId,
+			"access_token_populate_id":                a.LambdaConfiguration.AccessTokenPopulateId,
+			"id_token_populate_id":                    a.LambdaConfiguration.IdTokenPopulateId,
+			"samlv2_populate_id":                      a.LambdaConfiguration.Samlv2PopulateId,
+			"self_service_registration_validation_id": a.LambdaConfiguration.SelfServiceRegistrationValidationId,
 		},
 	})
 	if err != nil {
