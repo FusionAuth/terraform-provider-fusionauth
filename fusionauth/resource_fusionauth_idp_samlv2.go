@@ -146,11 +146,7 @@ func resourceIDPSAMLv2() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "When using FusionAuth as a SAML IdP, FusionAuth will now accept urn:oasis:names:tc:SAML:2.0:nameid-format:persistent in addition to urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress. This should allow FusionAuth to work with SAML v2 service providers that only support the persistent NameID format.",
-				ValidateFunc: validation.StringInSlice([]string{
-					"urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
-					"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
-				}, false),
+				Description: "The Name Id is used to facilitate communication about a user between a Service Provider (SP) and Identity Provider (IdP). The SP can specify the preferred format in the AuthN request regarding a user. The identity Provider will attempt to honor this format in the AuthN response. When this parameter is omitted a default value of urn:oasis:names:tc:SAML:2.0:nameid-format:persistent will be used."
 			},
 			"post_request": {
 				Type:        schema.TypeBool,
