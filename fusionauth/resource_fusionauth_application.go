@@ -146,6 +146,11 @@ func newApplication() *schema.Resource {
 							Optional:    true,
 							Description: "The Id of the Lambda that will be invoked when a a SAML response is generated during a SAML authentication request.",
 						},
+						"self_service_registration_validation_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The unique Id of the lambda that will be used to perform additional validation on registration form steps.",
+						},
 					},
 				},
 			},

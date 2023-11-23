@@ -46,4 +46,5 @@ function populate(jwt, user, registration) {
     - `SteamReconcile`
     - `TwitchReconcile`
     - `XboxReconcile`
+    - `SelfServiceRegistrationValidation`
     - `ClientCredentialsJWTPopulate`

@@ -181,6 +181,9 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			RefreshTokenTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_time_to_live_in_minutes").(int),
 			RefreshTokenUsagePolicy:         fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
 			TimeToLiveInSeconds:             data.Get("jwt_configuration.0.time_to_live_in_seconds").(int),
+			RefreshTokenSlidingWindowConfiguration: fusionauth.RefreshTokenSlidingWindowConfiguration{
+				MaximumTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_sliding_window_maximum_time_to_live_in_minutes").(int),
+			},
 		},
 		LoginConfiguration: fusionauth.TenantLoginConfiguration{
 			RequireAuthentication: data.Get("login_configuration.0.require_authentication").(bool),
@@ -578,14 +581,15 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	err = data.Set("jwt_configuration", []map[string]interface{}{
 		{
-			"access_token_key_id":                                t.JwtConfiguration.AccessTokenKeyId,
-			"id_token_key_id":                                    t.JwtConfiguration.IdTokenKeyId,
-			"refresh_token_expiration_policy":                    t.JwtConfiguration.RefreshTokenExpirationPolicy,
-			"refresh_token_revocation_policy_on_login_prevented": t.JwtConfiguration.RefreshTokenRevocationPolicy.OnLoginPrevented,
-			"refresh_token_revocation_policy_on_password_change": t.JwtConfiguration.RefreshTokenRevocationPolicy.OnPasswordChanged,
-			"refresh_token_usage_policy":                         t.JwtConfiguration.RefreshTokenUsagePolicy,
-			"refresh_token_time_to_live_in_minutes":              t.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
-			"time_to_live_in_seconds":                            t.JwtConfiguration.TimeToLiveInSeconds,
+			"access_token_key_id":                                          t.JwtConfiguration.AccessTokenKeyId,
+			"id_token_key_id":                                              t.JwtConfiguration.IdTokenKeyId,
+			"refresh_token_expiration_policy":                              t.JwtConfiguration.RefreshTokenExpirationPolicy,
+			"refresh_token_revocation_policy_on_login_prevented":           t.JwtConfiguration.RefreshTokenRevocationPolicy.OnLoginPrevented,
+			"refresh_token_revocation_policy_on_password_change":           t.JwtConfiguration.RefreshTokenRevocationPolicy.OnPasswordChanged,
+			"refresh_token_usage_policy":                                   t.JwtConfiguration.RefreshTokenUsagePolicy,
+			"refresh_token_time_to_live_in_minutes":                        t.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
+			"time_to_live_in_seconds":                                      t.JwtConfiguration.TimeToLiveInSeconds,
+			"refresh_token_sliding_window_maximum_time_to_live_in_minutes": t.JwtConfiguration.RefreshTokenSlidingWindowConfiguration.MaximumTimeToLiveInMinutes,
 		},
 	})
 	if err != nil {
