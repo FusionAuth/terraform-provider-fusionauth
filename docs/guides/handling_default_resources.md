@@ -6,7 +6,7 @@ description: |-
 
 # Handling Default Resources
 
-There are [FusionAuth default configuration elements](/docs/get-started/core-concepts/limitations#default-configuration) present in every FusionAuth instance. If you want to manage changes to these elements via Terraform, you must tell Terraform about by using either importing the resource or setting up a datasource.
+There are [FusionAuth default configuration elements](https://fusionauth.io/docs/get-started/core-concepts/limitations#default-configuration) present in every FusionAuth instance. If you want to manage changes to these elements via Terraform, you must tell Terraform about by using either importing the resource or setting up a datasource.
 
 ### Importing A Resource
 
