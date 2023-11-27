@@ -1,6 +1,8 @@
 # FusionAuth Provider
 
-This provider is used for setting up [FusionAuth](https://fusionauth.io)
+This provider is used for setting up [FusionAuth](https://fusionauth.io).
+
+Learn more about [using FusionAuth and Terraform together](https://fusionauth.io/docs/operate/deploy/terraform).
 
 ## Argument Reference
 
