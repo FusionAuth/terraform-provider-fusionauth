@@ -19,6 +19,7 @@ resource "fusionauth_theme" "mytheme" {
   account_webauthn_add                           = "[#ftl/]"
   account_webauthn_delete                        = "[#ftl/]"
   account_webauthn_index                         = "[#ftl/]"
+  confirmation_required                          = "[#ftl/]"
   email_complete                                 = "[#ftl/]"
   email_sent                                     = "[#ftl/]"
   email_verification_required                    = "[#ftl/]"
@@ -80,6 +81,7 @@ resource "fusionauth_theme" "mytheme" {
 * `account_webauthn_add` - (Optional) A FreeMarker template that is rendered when the user requests the /account/webauthn/add path. This page contains a form that allows a user to register a new WebAuthn passkey.
 * `account_webauthn_delete` - (Optional) A FreeMarker template that is rendered when the user requests the /account/webauthn/delete path. This page contains a form that allows a user to delete a WebAuthn passkey.
 * `account_webauthn_index` - (Optional) A FreeMarker template that is rendered when the user requests the /account/webauthn/ path. This page displays an authenticated user’s registered WebAuthn passkeys. Additionally, it provides links to delete an existing passkey and register a new passkey.
+* `confirmation_required` - (Optional) A FreeMarker template that is rendered when the user requests the /confirmation-required path. This page is displayed when a user attempts to complete an email based workflow that did not begin in the same browser. For example, if the user starts a forgot password workflow, and then opens the link in a separate browser the user will be shown this panel.
 * `email_complete` - (Optional) A FreeMarker template that is rendered when the user requests the /email/complete path. This page is used after a user has verified their email address by clicking the URL in the email. After FusionAuth has updated their user object to indicate that their email was verified, the browser is redirected to this page.
 * `email_sent` - (Optional) A FreeMarker template that is rendered when the user requests the /email/sent path. This page is used after a user has asked for the verification email to be resent. This can happen if the URL in the email expired and the user clicked it. In this case, the user can provide their email address again and FusionAuth will resend the email. After the user submits their email and FusionAuth re-sends a verification email to them, the browser is redirected to this page.
 * `email_verification_required` - (Optional) A FreeMarker template that is rendered when the user requests the /email/verification-required path. This page is rendered when a user is required to verify their email address prior to being allowed to proceed with login. This occurs when Unverified behavior is set to Gated in email verification settings on the Tenant.

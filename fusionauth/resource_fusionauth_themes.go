@@ -83,6 +83,13 @@ func newTheme() *schema.Resource {
 				Description:      "A FreeMarker template that is rendered when the user requests the /account/two-factor path. This page displays an authenticated user’s configured multi-factor authentication methods. Additionally, it provides links to enable and disable a method.",
 				DiffSuppressFunc: diffSuppressTemplate,
 			},
+			"confirmation_required": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that is rendered when the user requests the /confirmation-required path. This page is displayed when a user attempts to complete an email based workflow that did not begin in the same browser. For example, if the user starts a forgot password workflow, and then opens the link in a separate browser the user will be shown this panel.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
 			"account_webauthn_add": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -393,6 +400,7 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 			AccountTwoFactorDisable:           data.Get("account_two_factor_disable").(string),
 			AccountTwoFactorEnable:            data.Get("account_two_factor_enable").(string),
 			AccountTwoFactorIndex:             data.Get("account_two_factor_index").(string),
+			ConfirmationRequired:              data.Get("confirmation_required").(string),
 			AccountWebAuthnAdd:                data.Get("account_webauthn_add").(string),
 			AccountWebAuthnDelete:             data.Get("account_webauthn_delete").(string),
 			AccountWebAuthnIndex:              data.Get("account_webauthn_index").(string),
@@ -557,6 +565,9 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) d
 	}
 	if err := data.Set("account_two_factor_index", t.Templates.AccountTwoFactorIndex); err != nil {
 		return diag.Errorf("theme.account_two_factor_index: %s", err.Error())
+	}
+	if err := data.Set("confirmation_required", t.Templates.AccountTwoFactorIndex); err != nil {
+		return diag.Errorf("theme.confirmation_required: %s", err.Error())
 	}
 	if err := data.Set("account_webauthn_add", t.Templates.AccountWebAuthnAdd); err != nil {
 		return diag.Errorf("theme.account_webauthn_add: %s", err.Error())
