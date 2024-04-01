@@ -566,7 +566,7 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) d
 	if err := data.Set("account_two_factor_index", t.Templates.AccountTwoFactorIndex); err != nil {
 		return diag.Errorf("theme.account_two_factor_index: %s", err.Error())
 	}
-	if err := data.Set("confirmation_required", t.Templates.AccountTwoFactorIndex); err != nil {
+	if err := data.Set("confirmation_required", t.Templates.ConfirmationRequired); err != nil {
 		return diag.Errorf("theme.confirmation_required: %s", err.Error())
 	}
 	if err := data.Set("account_webauthn_add", t.Templates.AccountWebAuthnAdd); err != nil {
