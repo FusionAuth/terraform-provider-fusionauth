@@ -20,6 +20,7 @@ type AppleAppConfig struct {
 	Enabled            bool   `json:"enabled"`
 	KeyID              string `json:"keyId,omitempty"`
 	Scope              string `json:"scope,omitempty"`
+	BundleID           string `json:"bundleId,omitempty"`
 	ServicesID         string `json:"servicesId,omitempty"`
 	TeamID             string `json:"teamId,omitempty"`
 }
@@ -69,6 +70,11 @@ func resourceIDPApple() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "This is an optional Application specific override for for the top level scope.",
+						},
+						"bundle_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "This is an optional Application specific override for for the top level bundleId.",
 						},
 						"services_id": {
 							Type:        schema.TypeString,
@@ -132,6 +138,11 @@ func resourceIDPApple() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The top-level space separated scope that you are requesting from Apple.",
+			},
+			"bundle_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The Apple Bundle Id you have configured in your Apple developer account to uniquely identify your native app",
 			},
 			"services_id": {
 				Type:        schema.TypeString,
@@ -250,6 +261,7 @@ func buildIDPApple(data *schema.ResourceData) AppleIdentityProviderBody {
 		},
 		KeyId:      data.Get("key_id").(string),
 		Scope:      data.Get("scope").(string),
+		BundleId:   data.Get("bundle_id").(string),
 		ServicesId: data.Get("services_id").(string),
 		TeamId:     data.Get("team_id").(string),
 	}
@@ -277,6 +289,7 @@ func buildAppleAppConfig(key string, data *schema.ResourceData) map[string]inter
 			Enabled:            ac["enabled"].(bool),
 			KeyID:              ac["key_id"].(string),
 			Scope:              ac["scope"].(string),
+			BundleID:           ac["bundle_id"].(string),
 			ServicesID:         ac["services_id"].(string),
 			TeamID:             ac["team_id"].(string),
 		}
@@ -304,6 +317,9 @@ func buildResourceFromIDPApple(o fusionauth.AppleIdentityProvider, data *schema.
 	if err := data.Set("scope", o.Scope); err != nil {
 		return diag.Errorf("idpApple.scope: %s", err.Error())
 	}
+	if err := data.Set("bundle_id", o.BundleId); err != nil {
+		return diag.Errorf("idpApple.bundle_id: %s", err.Error())
+	}
 	if err := data.Set("services_id", o.ServicesId); err != nil {
 		return diag.Errorf("idpApple.services_id: %s", err.Error())
 	}
@@ -329,6 +345,7 @@ func buildResourceFromIDPApple(o fusionauth.AppleIdentityProvider, data *schema.
 			"enabled":             v.Enabled,
 			"key_id":              v.KeyID,
 			"scope":               v.Scope,
+			"bundle_id":           v.BundleID,
 			"services_id":         v.ServicesID,
 			"team_id":             v.TeamID,
 		})
