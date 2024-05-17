@@ -10,7 +10,7 @@ func MessageProperties(name string) string {
 
 	return fmt.Sprintf(`
 #
-# Copyright (c) 2019-2023, FusionAuth, All Rights Reserved
+# Copyright (c) 2019-2024, FusionAuth, All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,11 +53,13 @@ complete=Complete
 complete-registration=Complete registration
 configure=Configure
 configured=Configured
+confirmation-required=Confirmation required
 create-an-account=Create an account
 complete-external-login=Complete login on your external device\u2026
 completed-link=You have successfully linked your %s account.
 completed-links=You have successfully linked your %s and %s account.
 confirm=Confirm
+consent-required=Consent required
 delete-webauthn-passkey=Delete passkey
 device-form-title=Device login
 device-login-complete=Successfully connected device
@@ -82,7 +84,7 @@ email-verification-required-send-another=Send me another email
 enabled=Enabled
 enable=Enable
 forgot-password=Forgot your password? Type in your email address in the form below to reset your password.
-forgot-password-email-sent=We've sent you an email containing a link that will allow you to reset your password. Once you receive the email follow the instructions to change your password.
+forgot-password-email-sent=We have sent an email to %s containing a link that will allow you to reset your password. Once you receive the email follow the instructions to change your password.
 forgot-password-email-sent-title=Email sent
 forgot-password-title=Forgot password
 forgot-your-password=Forgot your password?
@@ -180,6 +182,7 @@ warning=Warning
 webauthn-button-text=Fingerprint, device or key
 webauthn-reauth-return-to-login=If you don't recognize the passkeys(s) above click "Return to normal login" below.
 webauthn-reauth-select-passkey=Welcome back, click on a passkey to continue.
+allow=Allow
 
 # Locale Specific separators, etc
 #  - list separator - comma and a space
@@ -299,6 +302,14 @@ manage-two-factor=Manage two-factor
 go-back-to-send=Go back to send
 
 #
+# Confirmation required
+#
+{description}confirmation-required-verifyEmail=To confirm you wish to verify your email address, click continue.
+{description}confirmation-required-verifyRegistration=To confirm you wish to verify your registration, click continue.
+{description}confirmation-required-changePasswordMultiFactor=Because you have enabled two-factor authentication, you must first complete an authentication challenge prior to changing your password.<br><br>To confirm you wish to start a two-factor challenge, click continue.
+{description}confirmation-required-passwordlessLogin=To confirm you wish to complete a passwordless login, click continue.
+{description}confirmation-required-ignore=If you did not initiate this request, you can safely close the browser.
+#
 # Multi-factor configuration descriptions
 #
 {description}two-factor-authentication=Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to login. Configure one or more methods to utilize during login.
@@ -370,6 +381,42 @@ go-back-to-send=Go back to send
 
 # {registration-form-section}1=Optionally name me!
 {registration-form-section}2=Options
+
+#
+# Custom OAuth Consent Prompt options
+#
+# - The consent messaging and detail provided on the consent prompt page for a given scope can be overridden
+#
+# - By default, the consent message/detail being overridden will apply to all scopes with that name
+#
+#       For example, when given a scope name of data:write
+#
+#          {scope-message}data\:write:Access to write data
+#          {scope-detail}data\:write:By approving this scope, you are allowing the requesting application to write data
+#
+# - Consent message/detail overrides can be applied at the tenant or application level as well
+#
+#       Tenant level, if the tenant Id is equal to cbeaf8fe-f4a7-4a27-9f77-c609f1b01856:
+#
+#          [{tenant}cbeaf8fe-f4a7-4a27-9f77-c609f1b01856]{scope-message}data\:write=Access to write data
+#          [{tenant}cbeaf8fe-f4a7-4a27-9f77-c609f1b01856]{scope-detail}data\:write=By approving this scope, you are allowing the requesting application to write data
+#
+#       Application level, if the application Id is equal to de2f91c7-c27a-4ad6-8be2-cfb36996cc89:
+#
+#          [{application}de2f91c7-c27a-4ad6-8be2-cfb36996cc89]{scope-message}data\:write=Access to write data
+#          [{application}de2f91c7-c27a-4ad6-8be2-cfb36996cc89]{scope-detail}data\:write=By approving this scope, you are allowing the requesting application to write data
+#
+#
+#   NOTE: Colons found in a scope name will need to be escaped with backslash (e.g. data\:write)
+
+# Default consent messaging for OpenID Connect Scopes
+{scope-message}address=Access your street address
+{scope-message}email=Access your email address
+{scope-message}phone=Access your phone number
+{scope-message}profile=Access details about your profile
+
+scope-consent-optional=One or more of the requests are optional and can be deselected before allowing the application to proceed.
+scope-consent-agreement=Click Allow to grant the selected requests to %s, or Cancel to deny this request.
 
 #
 # Custom Admin User and Registration tooltips
@@ -509,6 +556,7 @@ go-back-to-send=Go back to send
 [ForgotPasswordDisabled]=Forgot password handling is not enabled. Please contact your system administrator for assistance.
 [IdentityProviderDoesNotSupportRedirect]=This identity provider does not support this redirect workflow.
 [InvalidChangePasswordId]=Your password reset code has expired or is invalid. Please retry your request.
+[InvalidConfirmation]=Invalid request. This request requires user confirmation.
 [InvalidEmail]=FusionAuth was unable to find a user with that email address.
 [InvalidIdentityProviderId]=Invalid request. Unable to handle the identity provider login. Please contact your system administrator or support for assistance.
 [InvalidLogin]=Invalid login credentials.
@@ -543,7 +591,7 @@ go-back-to-send=Go back to send
 [TenantIdRequired]=FusionAuth is unable to determine which tenant to use for this request. Please add the tenantId to the URL as a request parameter.
 [TwoFactorEnableFailed]=Oops. Something didn't go as planned. Try to complete login again.
 [TwoFactorRequired]=You must configure two-factor in order to continue.
-[TwoFactorTimeout]=You did not complete the two-factor challenge in time. Please complete login again.
+[TwoFactorTimeout]=You did not complete the two-factor challenge in time. Please restart your request.
 [UserAuthorizedNotRegisteredException]=Your account has not been registered for this application.
 [UserExpiredException]=Your account has expired. Please contact your system administrator.
 [UserLockedException]=Your account has been locked. Please contact your system administrator.
@@ -566,16 +614,15 @@ go-back-to-send=Go back to send
 [ExternalAuthenticationException]GoogleToken=A request to the Google Token API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]GoogleTokenInfo=A request to the Google Token Info API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]InvalidApplication=The requested application does not exist or is currently disabled. Unable to complete this login request.
-[ExternalAuthenticationException]InvalidFederatedCSRFToken=The request origin could not be verified. Unable to complete this login request.
 [ExternalAuthenticationException]InvalidIdentityProviderId=The requested identityProviderId is invalid. Unable to complete this login request.
 [ExternalAuthenticationException]LinkedInEmail=A request to the LinkedIn Email API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]LinkedInMe=A request to the LinkedIn Me API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]LinkedInToken=A request to the LinkedIn Token API has failed. Unable to complete this login request.
-[ExternalAuthenticationException]MissingEmail=An email address was not provided for the user. This account cannot be used to login, unable to complete this login request.
-[ExternalAuthenticationException]MissingFederatedCSRFToken=The request origin could not be verified. Unable to complete this login request.
-[ExternalAuthenticationException]MissingUniqueId=A unique identifier was not provided for the user. This account cannot be used to login, unable to complete this login request.
-[ExternalAuthenticationException]MissingUser=An authentication request cannot be completed because the user that started the request no longer exists. This account cannot be used to login, unable to complete this login request.
-[ExternalAuthenticationException]MissingUsername=A username was not returned by the identity provider. This account cannot be used login, unable to complete this login request.
+[ExternalAuthenticationException]LinkedInUserInfo=A request to the LinkedIn User Info API has failed. Unable to complete this login request.
+[ExternalAuthenticationException]MissingEmail=An email address was not provided for the user. This account cannot be used to log in, unable to complete this login request.
+[ExternalAuthenticationException]MissingUniqueId=A unique identifier was not provided for the user. This account cannot be used to log in, unable to complete this login request.
+[ExternalAuthenticationException]MissingUser=An authentication request cannot be completed because the user that started the request no longer exists. This account cannot be used to log in, unable to complete this login request.
+[ExternalAuthenticationException]MissingUsername=A username was not returned by the identity provider. This account cannot be used to log in, unable to complete this login request.
 [ExternalAuthenticationException]NintendoToken=A request to the Nintendo Token API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]OpenIDConnectToken=A request to the OpenID Connect Token API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]OpenIDConnectUserinfo=A request to the OpenID Connect Userinfo API has failed. Unable to complete this login request.
@@ -604,10 +651,12 @@ go-back-to-send=Go back to send
 [ExternalAuthenticationException]TwitterVerifyCredentials=A request to Twitter Verify Credentials API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]UserDoesNotExistByEmail=You must first create a user with the same email address in order to complete this login request.
 [ExternalAuthenticationException]UserDoesNotExistByUsername=You must first create a user with the same username in order to complete this login request.
-[ExternalAuthenticationException]UnverifiedEmail=The provided email address has not yet been verified. This account cannot be used to log in, unable to complete this login request.
 [ExternalAuthenticationException]XboxSecurityTokenService=A request to the Xbox Security Token Service API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]XboxToken=A request to the Xbox Token API has failed. Unable to complete this login request.
 [ExternalAuthenticationException]XboxUserInfo=A request to the Xbox User Info API has failed. Unable to complete this login request.
+[ExternalAuthenticationException]MissingFederatedCSRFToken=The request origin could not be verified. Unable to complete this login request.
+[ExternalAuthenticationException]InvalidFederatedCSRFToken=The request origin could not be verified. Unable to complete this login request.
+[ExternalAuthenticationException]UnverifiedEmail=The provided email address has not yet been verified. This account cannot be used to log in, unable to complete this login request.
 
 # OAuth token endpoint and callback errors
 [TokenExchangeFailed]=An unexpected error occurred while completing your login attempt. Please attempt the request again.
@@ -628,7 +677,12 @@ go-back-to-send=Go back to send
 # General messages
 [UserWillBeLoggedIn]=You will be logged in after you complete this request.
 
-[TrustTokenRequired]=Please complete this step-up authentication request to complete this request.
 [TrustTokenExpired]=Your trust expired, please retry.
+[TrustTokenRequired]=Please complete this step-up authentication request to complete this request.
+[TrustTokenRequiredToChangePassword]=Please complete this challenge prior to changing your password.
+
+
+[InvalidOrMissingCSRFToken]=You are not authorized to make this request. Ensure you complete this form in a browser.
+
 `, name)
 }

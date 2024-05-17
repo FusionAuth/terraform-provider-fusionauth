@@ -81,6 +81,7 @@ func testThemeAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "account_webauthn_add", templates.AccountWebAuthnAdd),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_webauthn_delete", templates.AccountWebAuthnDelete),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_webauthn_index", templates.AccountWebAuthnIndex),
+		resource.TestCheckResourceAttr(tfResourcePath, "confirmation_required", templates.ConfirmationRequired),
 		resource.TestCheckResourceAttr(tfResourcePath, "email_complete", templates.EmailComplete),
 		// resource.TestCheckResourceAttr(tfResourcePath, "email_send", startTemplates.EmailSend), // DEPRECATED
 		resource.TestCheckResourceAttr(tfResourcePath, "email_sent", templates.EmailSent),
@@ -92,6 +93,7 @@ func testThemeAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_authorized_not_registered", templates.Oauth2AuthorizedNotRegistered),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_child_registration_not_allowed", templates.Oauth2ChildRegistrationNotAllowed),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_child_registration_not_allowed_complete", templates.Oauth2ChildRegistrationNotAllowedComplete),
+		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_consent", templates.Oauth2Consent),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_complete_registration", templates.Oauth2CompleteRegistration),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_device", templates.Oauth2Device),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_device_complete", templates.Oauth2DeviceComplete),
@@ -191,6 +193,7 @@ func generateFusionAuthTemplate() fusionauth.Templates {
 		AccountWebAuthnAdd:                randString20(),
 		AccountWebAuthnDelete:             randString20(),
 		AccountWebAuthnIndex:              randString20(),
+		ConfirmationRequired:              randString20(),
 		EmailComplete:                     randString20(),
 		EmailSent:                         randString20(),
 		EmailVerificationRequired:         randString20(),
@@ -202,6 +205,7 @@ func generateFusionAuthTemplate() fusionauth.Templates {
 		Oauth2ChildRegistrationNotAllowed: randString20(),
 		Oauth2ChildRegistrationNotAllowedComplete: randString20(),
 		Oauth2CompleteRegistration:                randString20(),
+		Oauth2Consent:                             randString20(),
 		Oauth2Device:                              randString20(),
 		Oauth2DeviceComplete:                      randString20(),
 		Oauth2Error:                               randString20(),
@@ -244,61 +248,64 @@ func testAccThemeResourceConfig(
 ) string {
 	return fmt.Sprintf(`
 # Theme Setup
-resource "fusionauth_theme" "test_%[1]s" {
-  name                                           = "test-acc %[1]s"
+resource "fusionauth_theme" "test_%s" {
+  name                                           = "test-acc %s"
   default_messages                               = <<EOF
-%[2]sEOF
-  stylesheet                                     = "%[3]s"
-  account_edit                                   = "%[4]s"
-  account_index                                  = "%[5]s"
-  account_two_factor_disable                     = "%[6]s"
-  account_two_factor_enable                      = "%[7]s"
-  account_two_factor_index                       = "%[8]s"
-  account_webauthn_add                           = "%[9]s"
-  account_webauthn_delete                        = "%[10]s"
-  account_webauthn_index                         = "%[11]s"
-  email_complete                                 = "%[12]s"
-  email_sent                                     = "%[13]s"
-  email_verification_required                    = "%[14]s"
-  email_verify                                   = "%[15]s"
-  helpers                                        = "%[16]s"
-  index                                          = "%[17]s"
-  oauth2_authorize                               = "%[18]s"
-  oauth2_authorized_not_registered               = "%[19]s"
-  oauth2_child_registration_not_allowed          = "%[20]s"
-  oauth2_child_registration_not_allowed_complete = "%[21]s"
-  oauth2_complete_registration                   = "%[22]s"
-  oauth2_device                                  = "%[23]s"
-  oauth2_device_complete                         = "%[24]s"
-  oauth2_error                                   = "%[25]s"
-  oauth2_logout                                  = "%[26]s"
-  oauth2_passwordless                            = "%[27]s"
-  oauth2_register                                = "%[28]s"
-  oauth2_start_idp_link                          = "%[29]s"
-  oauth2_two_factor                              = "%[30]s"
-  oauth2_two_factor_methods                      = "%[31]s"
-  oauth2_two_factor_enable                       = "%[32]s"
-  oauth2_two_factor_enable_complete              = "%[33]s"
-  oauth2_wait                                    = "%[34]s"
-  oauth2_webauthn                                = "%[35]s"
-  oauth2_webauthn_reauth                         = "%[36]s"
-  oauth2_webauthn_reauth_enable                  = "%[37]s"
-  password_change                                = "%[38]s"
-  password_complete                              = "%[39]s"
-  password_forgot                                = "%[40]s"
-  password_sent                                  = "%[41]s"
-  registration_complete                          = "%[42]s"
-  registration_sent                              = "%[43]s"
-  registration_verification_required             = "%[44]s"
-  registration_verify                            = "%[45]s"
-  samlv2_logout                                  = "%[46]s"
-  unauthorized                                   = "%[47]s"
+%sEOF
+  stylesheet                                     = "%s"
+  account_edit                                   = "%s"
+  account_index                                  = "%s"
+  account_two_factor_disable                     = "%s"
+  account_two_factor_enable                      = "%s"
+  account_two_factor_index                       = "%s"
+  account_webauthn_add                           = "%s"
+  account_webauthn_delete                        = "%s"
+  account_webauthn_index                         = "%s"
+  confirmation_required                          = "%s"
+  email_complete                                 = "%s"
+  email_sent                                     = "%s"
+  email_verification_required                    = "%s"
+  email_verify                                   = "%s"
+  helpers                                        = "%s"
+  index                                          = "%s"
+  oauth2_authorize                               = "%s"
+  oauth2_authorized_not_registered               = "%s"
+  oauth2_child_registration_not_allowed          = "%s"
+  oauth2_child_registration_not_allowed_complete = "%s"
+  oauth2_complete_registration                   = "%s"
+  oauth2_consent                                 = "%s"
+  oauth2_device                                  = "%s"
+  oauth2_device_complete                         = "%s"
+  oauth2_error                                   = "%s"
+  oauth2_logout                                  = "%s"
+  oauth2_passwordless                            = "%s"
+  oauth2_register                                = "%s"
+  oauth2_start_idp_link                          = "%s"
+  oauth2_two_factor                              = "%s"
+  oauth2_two_factor_methods                      = "%s"
+  oauth2_two_factor_enable                       = "%s"
+  oauth2_two_factor_enable_complete              = "%s"
+  oauth2_wait                                    = "%s"
+  oauth2_webauthn                                = "%s"
+  oauth2_webauthn_reauth                         = "%s"
+  oauth2_webauthn_reauth_enable                  = "%s"
+  password_change                                = "%s"
+  password_complete                              = "%s"
+  password_forgot                                = "%s"
+  password_sent                                  = "%s"
+  registration_complete                          = "%s"
+  registration_sent                              = "%s"
+  registration_verification_required             = "%s"
+  registration_verify                            = "%s"
+  samlv2_logout                                  = "%s"
+  unauthorized                                   = "%s"
 
   # Deprecated Properties
-  email_send                                     = "%[48]s"
-  registration_send                              = "%[49]s"
+  email_send                                     = "%s"
+  registration_send                              = "%s"
 }
 `,
+		resourceName,
 		resourceName,
 		defaultMessages,
 		stylesheet,
@@ -310,6 +317,7 @@ resource "fusionauth_theme" "test_%[1]s" {
 		templates.AccountWebAuthnAdd,
 		templates.AccountWebAuthnDelete,
 		templates.AccountWebAuthnIndex,
+		templates.ConfirmationRequired,
 		templates.EmailComplete,
 		templates.EmailSent,
 		templates.EmailVerificationRequired,
@@ -321,6 +329,7 @@ resource "fusionauth_theme" "test_%[1]s" {
 		templates.Oauth2ChildRegistrationNotAllowed,
 		templates.Oauth2ChildRegistrationNotAllowedComplete,
 		templates.Oauth2CompleteRegistration,
+		templates.Oauth2Consent,
 		templates.Oauth2Device,
 		templates.Oauth2DeviceComplete,
 		templates.Oauth2Error,

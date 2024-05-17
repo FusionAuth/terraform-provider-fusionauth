@@ -188,6 +188,13 @@ func newTheme() *schema.Resource {
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/complete-registration path. This page contains a form that is used for users that have accounts but might be missing required fields.",
 				DiffSuppressFunc: diffSuppressTemplate,
 			},
+			"oauth2_consent": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/consent path. This page contains a form for capturing a user's OAuth scope consent choices. If there are no scopes that require a prompt, the user is redirected automatically.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
 			"oauth2_device": {
 				Type:             schema.TypeString,
 				Optional:         true,
