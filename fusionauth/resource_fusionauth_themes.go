@@ -423,6 +423,7 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 			Oauth2ChildRegistrationNotAllowed: data.Get("oauth2_child_registration_not_allowed").(string),
 			Oauth2ChildRegistrationNotAllowedComplete: data.Get("oauth2_child_registration_not_allowed_complete").(string),
 			Oauth2CompleteRegistration:                data.Get("oauth2_complete_registration").(string),
+			Oauth2Consent:                             data.Get("oauth2_consent").(string),
 			Oauth2Device:                              data.Get("oauth2_device").(string),
 			Oauth2DeviceComplete:                      data.Get("oauth2_device_complete").(string),
 			Oauth2Error:                               data.Get("oauth2_error").(string),
