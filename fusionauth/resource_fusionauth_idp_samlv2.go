@@ -101,7 +101,7 @@ func resourceIDPSAMLv2() *schema.Resource {
 			"username_claim": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The name of the username claim (Attribute in the Assertion element) in the SAML response that FusionAuth uses to uniquely identity the user.",
+				Description: "The name of the claim in the SAML response that FusionAuth uses to identify the username. If this is not set, the NameId value will be used to link a user. This property is required when linkingStrategy is set to LinkByUsername or LinkByUsernameForExistingUser.",
 			},
 			"enabled": {
 				Type:        schema.TypeBool,
