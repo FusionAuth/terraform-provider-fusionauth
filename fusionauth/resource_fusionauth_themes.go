@@ -192,7 +192,7 @@ func newTheme() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Computed:         true,
-				Description:      "A FreeMarker template that is rendered when a third party application requests scopes from the user.",
+				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/consent path. This page contains a form for capturing a user's OAuth scope consent choices. If there are no scopes that require a prompt, the user is redirected automatically.",
 				DiffSuppressFunc: diffSuppressTemplate,
 			},
 			"oauth2_device": {

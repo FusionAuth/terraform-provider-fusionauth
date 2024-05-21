@@ -377,7 +377,7 @@ resource "fusionauth_tenant" "example" {
     modify_encryption_scheme_on_login = false
   }
   password_validation_rules {
-    max_length = 256
+    max_length = 50
     min_length = 7
     remember_previous_passwords {
       count   = 1

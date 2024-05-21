@@ -237,7 +237,7 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.breach_detection.0.match_mode", "Medium"),
 		// resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.breach_detection.0.notify_user_email_template_id", "UUID"),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.breach_detection.0.on_login", "NotifyUser"),
-		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.max_length", "100"),
+		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.max_length", "50"),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.min_length", "6"),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.remember_previous_passwords.0.count", "3"),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.remember_previous_passwords.0.enabled", "true"),
@@ -637,7 +637,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
       #notify_user_email_template_id = "UUID"
       on_login                      = "NotifyUser"
     }
-    max_length = 100
+    max_length = 50
     min_length = 6
     remember_previous_passwords {
       count   = 3
