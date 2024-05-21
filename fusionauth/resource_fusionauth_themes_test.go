@@ -8,6 +8,7 @@ import (
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/gpsinsight/terraform-provider-fusionauth/fusionauth/testdata"
@@ -160,7 +161,7 @@ func testAccCheckFusionauthThemeDestroy(s *terraform.State) error {
 		}
 
 		// Ensure we retry for eventual consistency in HA setups.
-		err := resource.RetryContext(context.Background(), retryTimeout, func() *resource.RetryError {
+		err := retry.RetryContext(context.Background(), retryTimeout, func() *retry.RetryError {
 			theme, faErrs, err := faClient.RetrieveTheme(rs.Primary.ID)
 			if errs := checkFusionauthRetryErrors(faErrs, err); errs != nil {
 				return errs
@@ -171,7 +172,7 @@ func testAccCheckFusionauthThemeDestroy(s *terraform.State) error {
 				return nil
 			}
 
-			return resource.RetryableError(fmt.Errorf("fusionauth resource still exists: %s", rs.Primary.ID))
+			return retry.RetryableError(fmt.Errorf("fusionauth resource still exists: %s", rs.Primary.ID))
 		})
 
 		if err != nil {

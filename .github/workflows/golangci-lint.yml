@@ -11,11 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.20'
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-          version: latest
+          version: v1.58
           # Optional: working directory, useful for monorepos
           # working-directory: somedir
           # Optional: golangci-lint command line arguments.
