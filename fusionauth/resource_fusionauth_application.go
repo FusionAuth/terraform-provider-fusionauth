@@ -715,6 +715,23 @@ func newJWTConfiguration() *schema.Resource {
 				Default:     43200,
 				Description: "The length of time in minutes the JWT refresh token will live before it is expired and is not able to be exchanged for a JWT.",
 			},
+			"refresh_token_expiration_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     fusionauth.RefreshTokenExpirationPolicy_Fixed.String(),
+				Description: "The Refresh Token expiration policy. The possible values are: Fixed - the expiration is calculated from the time the token is issued.  SlidingWindow - the expiration is calculated from the last time the token was used.",
+				ValidateFunc: validation.StringInSlice([]string{
+					fusionauth.RefreshTokenExpirationPolicy_SlidingWindow.String(),
+					fusionauth.RefreshTokenExpirationPolicy_Fixed.String(),
+					fusionauth.RefreshTokenExpirationPolicy_SlidingWindow.String(),
+				}, false),
+			},
+			"refresh_token_sliding_window_maximum_time_to_live_in_minutes": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Description:  "The maximum lifetime of a refresh token when using a refresh token expiration policy of SlidingWindowWithMaximumLifetime. Value must be greater than 0.",
+				ValidateFunc: validation.IntAtLeast(1),
+			},
 			"ttl_seconds": {
 				Type:        schema.TypeInt,
 				Optional:    true,
