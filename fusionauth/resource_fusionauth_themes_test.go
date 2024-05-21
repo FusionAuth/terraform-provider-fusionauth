@@ -93,6 +93,7 @@ func testThemeAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_child_registration_not_allowed", templates.Oauth2ChildRegistrationNotAllowed),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_child_registration_not_allowed_complete", templates.Oauth2ChildRegistrationNotAllowedComplete),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_complete_registration", templates.Oauth2CompleteRegistration),
+		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_consent", templates.Oauth2Consent),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_device", templates.Oauth2Device),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_device_complete", templates.Oauth2DeviceComplete),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_error", templates.Oauth2Error),
@@ -268,35 +269,36 @@ resource "fusionauth_theme" "test_%[1]s" {
   oauth2_child_registration_not_allowed          = "%[20]s"
   oauth2_child_registration_not_allowed_complete = "%[21]s"
   oauth2_complete_registration                   = "%[22]s"
-  oauth2_device                                  = "%[23]s"
-  oauth2_device_complete                         = "%[24]s"
-  oauth2_error                                   = "%[25]s"
-  oauth2_logout                                  = "%[26]s"
-  oauth2_passwordless                            = "%[27]s"
-  oauth2_register                                = "%[28]s"
-  oauth2_start_idp_link                          = "%[29]s"
-  oauth2_two_factor                              = "%[30]s"
-  oauth2_two_factor_methods                      = "%[31]s"
-  oauth2_two_factor_enable                       = "%[32]s"
-  oauth2_two_factor_enable_complete              = "%[33]s"
-  oauth2_wait                                    = "%[34]s"
-  oauth2_webauthn                                = "%[35]s"
-  oauth2_webauthn_reauth                         = "%[36]s"
-  oauth2_webauthn_reauth_enable                  = "%[37]s"
-  password_change                                = "%[38]s"
-  password_complete                              = "%[39]s"
-  password_forgot                                = "%[40]s"
-  password_sent                                  = "%[41]s"
-  registration_complete                          = "%[42]s"
-  registration_sent                              = "%[43]s"
-  registration_verification_required             = "%[44]s"
-  registration_verify                            = "%[45]s"
-  samlv2_logout                                  = "%[46]s"
-  unauthorized                                   = "%[47]s"
+  oauth2_consent                                 = "%[23]s"
+  oauth2_device                                  = "%[24]s"
+  oauth2_device_complete                         = "%[25]s"
+  oauth2_error                                   = "%[26]s"
+  oauth2_logout                                  = "%[27]s"
+  oauth2_passwordless                            = "%[28]s"
+  oauth2_register                                = "%[29]s"
+  oauth2_start_idp_link                          = "%[30]s"
+  oauth2_two_factor                              = "%[31]s"
+  oauth2_two_factor_methods                      = "%[32]s"
+  oauth2_two_factor_enable                       = "%[33]s"
+  oauth2_two_factor_enable_complete              = "%[34]s"
+  oauth2_wait                                    = "%[35]s"
+  oauth2_webauthn                                = "%[36]s"
+  oauth2_webauthn_reauth                         = "%[37]s"
+  oauth2_webauthn_reauth_enable                  = "%[38]s"
+  password_change                                = "%[39]s"
+  password_complete                              = "%[40]s"
+  password_forgot                                = "%[41]s"
+  password_sent                                  = "%[42]s"
+  registration_complete                          = "%[43]s"
+  registration_sent                              = "%[44]s"
+  registration_verification_required             = "%[45]s"
+  registration_verify                            = "%[46]s"
+  samlv2_logout                                  = "%[47]s"
+  unauthorized                                   = "%[48]s"
 
   # Deprecated Properties
-  email_send                                     = "%[48]s"
-  registration_send                              = "%[49]s"
+  email_send                                     = "%[49]s"
+  registration_send                              = "%[50]s"
 }
 `,
 		resourceName,
@@ -321,6 +323,7 @@ resource "fusionauth_theme" "test_%[1]s" {
 		templates.Oauth2ChildRegistrationNotAllowed,
 		templates.Oauth2ChildRegistrationNotAllowedComplete,
 		templates.Oauth2CompleteRegistration,
+		templates.Oauth2Consent,
 		templates.Oauth2Device,
 		templates.Oauth2DeviceComplete,
 		templates.Oauth2Error,

@@ -31,6 +31,7 @@ resource "fusionauth_theme" "mytheme" {
   oauth2_child_registration_not_allowed          = "[#ftl/]"
   oauth2_child_registration_not_allowed_complete = "[#ftl/]"
   oauth2_complete_registration                   = "[#ftl/]"
+  oauth2_consent                                 = "[#ftl/]"
   oauth2_device                                  = "[#ftl/]"
   oauth2_device_complete                         = "[#ftl/]"
   oauth2_error                                   = "[#ftl/]"
@@ -93,6 +94,7 @@ resource "fusionauth_theme" "mytheme" {
 * `oauth2_child_registration_not_allowed` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/child-registration-not-allowed path. This page contains a form where a child must provide their parent’s email address to ask their parent to create an account for them in a Consent workflow.
 * `oauth2_child_registration_not_allowed_complete` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/child-registration-not-allowed-complete path. This page is rendered is rendered after a child provides their parent’s email address for parental consent in a Consent workflow.
 * `oauth2_complete_registration` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/complete-registration path. This page contains a form that is used for users that have accounts but might be missing required fields.
+* `oauth2_consent` - (Optional) A FreeMarker template that is rendered when a third party application requests scopes from the user.
 * `oauth2_device` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/device path. This page contains a form for accepting an end user’s short code for the interactive portion of the OAuth Device Authorization Grant workflow.
 * `oauth2_device_complete` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/device-complete path. This page contains a complete message indicating the device authentication has completed.
 * `oauth2_error` - (Optional) This page is used if the user starts or is in the middle of the OAuth workflow and any type of error occurs. This could be caused by the user messing with the URL or internally some type of information wasn’t passed between the OAuth endpoints correctly. For example, if you are federating login to an external IdP and that IdP does not properly echo the state parameter, FusionAuth’s OAuth workflow will break and this page will be displayed.
