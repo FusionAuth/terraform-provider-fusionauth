@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/gpsinsight/terraform-provider-fusionauth/fusionauth/testdata"
@@ -370,16 +371,16 @@ func testAccCheckFusionauthUserDestroy(s *terraform.State) error {
 		}
 
 		// Retry for eventual consistency
-		err := resource.RetryContext(context.Background(), 10*time.Second, func() *resource.RetryError {
+		err := retry.RetryContext(context.Background(), 10*time.Second, func() *retry.RetryError {
 			user, faErrs, err := faClient.RetrieveUser(rs.Primary.ID)
 			if err != nil {
 				// low-level error performing api request
-				return resource.NonRetryableError(err)
+				return retry.NonRetryableError(err)
 			}
 
 			if faErrs != nil && faErrs.Present() {
 				// Fusionauth has errors to report
-				return resource.NonRetryableError(faErrs)
+				return retry.NonRetryableError(faErrs)
 			}
 
 			if user != nil && user.StatusCode == http.StatusNotFound {
@@ -387,7 +388,7 @@ func testAccCheckFusionauthUserDestroy(s *terraform.State) error {
 				return nil
 			}
 
-			return resource.RetryableError(fmt.Errorf("fusionauth user still exists: %s", rs.Primary.ID))
+			return retry.RetryableError(fmt.Errorf("fusionauth user still exists: %s", rs.Primary.ID))
 		})
 
 		if err != nil {

@@ -102,6 +102,11 @@ func resourceIDPSAMLv2() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The name of the unique claim in the SAML response that FusionAuth uses to uniquely link the user. If this is not set, the emailClaim will be used when linking user.",
+      },
+			"username_claim": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the claim in the SAML response that FusionAuth uses to identify the username. If this is not set, the NameId value will be used to link a user. This property is required when linkingStrategy is set to LinkByUsername or LinkByUsernameForExistingUser.",
 			},
 			"enabled": {
 				Type:        schema.TypeBool,
@@ -119,7 +124,6 @@ func resourceIDPSAMLv2() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.IsUUID,
 				Description:  "The id of the key stored in Key Master that is used to verify the SAML response sent back to FusionAuth from the identity provider. This key must be a verification only key or certificate (meaning that it only has a public key component).",
-				ForceNew:     true,
 			},
 			"lambda_reconcile_id": {
 				Type:         schema.TypeString,
@@ -301,6 +305,7 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 			},
 			UniqueIdClaim:     data.Get("unique_id_claim").(string),
 			EmailClaim:        data.Get("email_claim").(string),
+			UsernameClaim:     data.Get("username_claim").(string),
 			KeyId:             data.Get("key_id").(string),
 			UseNameIdForEmail: data.Get("use_name_for_email").(bool),
 		},
@@ -337,6 +342,9 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	}
 	if err := data.Set("unique_id_claim", res.UniqueIdClaim); err != nil {
 		return diag.Errorf("idpSAMLv2.unique_id_claim: %s", err.Error())
+  }
+	if err := data.Set("username_claim", res.UsernameClaim); err != nil {
+		return diag.Errorf("idpSAMLv2.username_claim: %s", err.Error())
 	}
 	if err := data.Set("enabled", res.Enabled); err != nil {
 		return diag.Errorf("idpSAMLv2.enabled: %s", err.Error())

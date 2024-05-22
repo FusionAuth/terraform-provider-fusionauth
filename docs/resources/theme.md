@@ -19,6 +19,7 @@ resource "fusionauth_theme" "mytheme" {
   account_webauthn_add                           = "[#ftl/]"
   account_webauthn_delete                        = "[#ftl/]"
   account_webauthn_index                         = "[#ftl/]"
+  confirmation_required                          = "[#ftl/]"
   email_complete                                 = "[#ftl/]"
   email_sent                                     = "[#ftl/]"
   email_verification_required                    = "[#ftl/]"
@@ -30,6 +31,7 @@ resource "fusionauth_theme" "mytheme" {
   oauth2_child_registration_not_allowed          = "[#ftl/]"
   oauth2_child_registration_not_allowed_complete = "[#ftl/]"
   oauth2_complete_registration                   = "[#ftl/]"
+  oauth2_consent                                 = "[#ftl/]"
   oauth2_device                                  = "[#ftl/]"
   oauth2_device_complete                         = "[#ftl/]"
   oauth2_error                                   = "[#ftl/]"
@@ -80,6 +82,7 @@ resource "fusionauth_theme" "mytheme" {
 * `account_webauthn_add` - (Optional) A FreeMarker template that is rendered when the user requests the /account/webauthn/add path. This page contains a form that allows a user to register a new WebAuthn passkey.
 * `account_webauthn_delete` - (Optional) A FreeMarker template that is rendered when the user requests the /account/webauthn/delete path. This page contains a form that allows a user to delete a WebAuthn passkey.
 * `account_webauthn_index` - (Optional) A FreeMarker template that is rendered when the user requests the /account/webauthn/ path. This page displays an authenticated user’s registered WebAuthn passkeys. Additionally, it provides links to delete an existing passkey and register a new passkey.
+* `confirmation_required` - (Optional) A FreeMarker template that is rendered when the user requests the /confirmation-required path. This page is displayed when a user attempts to complete an email based workflow that did not begin in the same browser. For example, if the user starts a forgot password workflow, and then opens the link in a separate browser the user will be shown this panel.
 * `email_complete` - (Optional) A FreeMarker template that is rendered when the user requests the /email/complete path. This page is used after a user has verified their email address by clicking the URL in the email. After FusionAuth has updated their user object to indicate that their email was verified, the browser is redirected to this page.
 * `email_sent` - (Optional) A FreeMarker template that is rendered when the user requests the /email/sent path. This page is used after a user has asked for the verification email to be resent. This can happen if the URL in the email expired and the user clicked it. In this case, the user can provide their email address again and FusionAuth will resend the email. After the user submits their email and FusionAuth re-sends a verification email to them, the browser is redirected to this page.
 * `email_verification_required` - (Optional) A FreeMarker template that is rendered when the user requests the /email/verification-required path. This page is rendered when a user is required to verify their email address prior to being allowed to proceed with login. This occurs when Unverified behavior is set to Gated in email verification settings on the Tenant.
@@ -91,6 +94,7 @@ resource "fusionauth_theme" "mytheme" {
 * `oauth2_child_registration_not_allowed` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/child-registration-not-allowed path. This page contains a form where a child must provide their parent’s email address to ask their parent to create an account for them in a Consent workflow.
 * `oauth2_child_registration_not_allowed_complete` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/child-registration-not-allowed-complete path. This page is rendered is rendered after a child provides their parent’s email address for parental consent in a Consent workflow.
 * `oauth2_complete_registration` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/complete-registration path. This page contains a form that is used for users that have accounts but might be missing required fields.
+* `oauth2_consent` - (Optional) A FreeMarker template that is rendered when a third party application requests scopes from the user.
 * `oauth2_device` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/device path. This page contains a form for accepting an end user’s short code for the interactive portion of the OAuth Device Authorization Grant workflow.
 * `oauth2_device_complete` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/device-complete path. This page contains a complete message indicating the device authentication has completed.
 * `oauth2_error` - (Optional) This page is used if the user starts or is in the middle of the OAuth workflow and any type of error occurs. This could be caused by the user messing with the URL or internally some type of information wasn’t passed between the OAuth endpoints correctly. For example, if you are federating login to an external IdP and that IdP does not properly echo the state parameter, FusionAuth’s OAuth workflow will break and this page will be displayed.

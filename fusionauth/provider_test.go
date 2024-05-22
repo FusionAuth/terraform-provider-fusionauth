@@ -12,6 +12,7 @@ import (
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -110,9 +111,9 @@ func checkFusionauthErrors(faErrs *fusionauth.Errors, err error) error {
 
 // checkFusionauthRetryErrors wraps checking for fusionauth or low-level client
 // errors and returns a non-retryable error on failure.
-func checkFusionauthRetryErrors(faErrs *fusionauth.Errors, err error) *resource.RetryError {
+func checkFusionauthRetryErrors(faErrs *fusionauth.Errors, err error) *retry.RetryError {
 	if anErr := checkFusionauthErrors(faErrs, err); anErr != nil {
-		return resource.NonRetryableError(anErr)
+		return retry.NonRetryableError(anErr)
 	}
 
 	return nil
