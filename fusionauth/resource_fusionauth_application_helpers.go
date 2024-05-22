@@ -36,7 +36,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			RefreshTokenExpirationPolicy:    fusionauth.RefreshTokenExpirationPolicy(data.Get("jwt_configuration.0.refresh_token_expiration_policy").(string)),
 			RefreshTokenUsagePolicy:         fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
 			RefreshTokenSlidingWindowConfiguration: fusionauth.RefreshTokenSlidingWindowConfiguration{
-				MaximumTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_sliding_window_maximum_ttl_in_minutes").(int),
+				MaximumTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_sliding_window_maximum_time_to_live_in_minutes").(int),
 			},
 		},
 		LambdaConfiguration: fusionauth.LambdaConfiguration{
@@ -230,11 +230,14 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	err = data.Set("jwt_configuration", []map[string]interface{}{
 		{
-			"enabled":                   a.JwtConfiguration.Enabled,
-			"access_token_id":           a.JwtConfiguration.AccessTokenKeyId,
-			"id_token_key_id":           a.JwtConfiguration.IdTokenKeyId,
-			"refresh_token_ttl_minutes": a.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
-			"ttl_seconds":               a.JwtConfiguration.TimeToLiveInSeconds,
+			"enabled":                         a.JwtConfiguration.Enabled,
+			"access_token_id":                 a.JwtConfiguration.AccessTokenKeyId,
+			"id_token_key_id":                 a.JwtConfiguration.IdTokenKeyId,
+			"refresh_token_expiration_policy": a.JwtConfiguration.RefreshTokenExpirationPolicy,
+			"refresh_token_sliding_window_maximum_time_to_live_in_minutes": a.JwtConfiguration.RefreshTokenSlidingWindowConfiguration.MaximumTimeToLiveInMinutes,
+			"refresh_token_ttl_minutes":                                    a.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
+			"refresh_token_usage_policy":                                   a.JwtConfiguration.RefreshTokenUsagePolicy,
+			"ttl_seconds":                                                  a.JwtConfiguration.TimeToLiveInSeconds,
 		},
 	})
 	if err != nil {
