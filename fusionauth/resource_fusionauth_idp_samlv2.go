@@ -102,7 +102,7 @@ func resourceIDPSAMLv2() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The name of the unique claim in the SAML response that FusionAuth uses to uniquely link the user. If this is not set, the emailClaim will be used when linking user.",
-      },
+			},
 			"username_claim": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -342,7 +342,7 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	}
 	if err := data.Set("unique_id_claim", res.UniqueIdClaim); err != nil {
 		return diag.Errorf("idpSAMLv2.unique_id_claim: %s", err.Error())
-  }
+	}
 	if err := data.Set("username_claim", res.UsernameClaim); err != nil {
 		return diag.Errorf("idpSAMLv2.username_claim: %s", err.Error())
 	}
