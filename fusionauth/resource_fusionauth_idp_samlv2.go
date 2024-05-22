@@ -98,6 +98,11 @@ func resourceIDPSAMLv2() *schema.Resource {
 				Optional:    true,
 				Description: "The name of the email claim (Attribute in the Assertion element) in the SAML response that FusionAuth uses to uniquely identity the user. If this is not set, the `use_name_for_email` flag must be true.",
 			},
+			"unique_id_claim": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the unique claim in the SAML response that FusionAuth uses to uniquely link the user. If this is not set, the emailClaim will be used when linking user.",
+      },
 			"username_claim": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -298,6 +303,7 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 				Type:            fusionauth.IdentityProviderType_SAMLv2,
 				LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 			},
+			UniqueIdClaim:     data.Get("unique_id_claim").(string),
 			EmailClaim:        data.Get("email_claim").(string),
 			UsernameClaim:     data.Get("username_claim").(string),
 			KeyId:             data.Get("key_id").(string),
@@ -334,6 +340,9 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	if err := data.Set("email_claim", res.EmailClaim); err != nil {
 		return diag.Errorf("idpSAMLv2.email_claim: %s", err.Error())
 	}
+	if err := data.Set("unique_id_claim", res.UniqueIdClaim); err != nil {
+		return diag.Errorf("idpSAMLv2.unique_id_claim: %s", err.Error())
+  }
 	if err := data.Set("username_claim", res.UsernameClaim); err != nil {
 		return diag.Errorf("idpSAMLv2.username_claim: %s", err.Error())
 	}
