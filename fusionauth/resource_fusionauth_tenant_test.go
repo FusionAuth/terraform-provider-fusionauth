@@ -591,10 +591,10 @@ resource "fusionauth_tenant" "test_%[1]s" {
   http_session_max_inactive_interval = 3400
   issuer   = "https://example.com"
   jwt_configuration {
-	refresh_token_expiration_policy = "SlidingWindowWithMaximumLifetime"
+    refresh_token_expiration_policy = "SlidingWindowWithMaximumLifetime"
     refresh_token_time_to_live_in_minutes = 43200
     time_to_live_in_seconds               = 3600
-	refresh_token_sliding_window_maximum_time_to_live_in_minutes = 43200
+    refresh_token_sliding_window_maximum_time_to_live_in_minutes = 43200
   }
   login_configuration {
     require_authentication = true
