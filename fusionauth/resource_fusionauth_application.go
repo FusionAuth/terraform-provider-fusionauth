@@ -721,6 +721,33 @@ func newJWTConfiguration() *schema.Resource {
 				Default:     3600,
 				Description: "The length of time in seconds the JWT will live before it is expired and no longer valid.",
 			},
+			"refresh_token_expiration_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "Fixed",
+				ValidateFunc: validation.StringInSlice([]string{
+					"Fixed",
+					"SlidingWindow",
+					"SlidingWindowWithMaximumLifetime",
+				}, false),
+				Description: "The refresh token expiration policy.",
+			},
+			"refresh_token_usage_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "Reusable",
+				ValidateFunc: validation.StringInSlice([]string{
+					"Reusable",
+					"OneTimeUse",
+				}, false),
+				Description: "The refresh token usage policy.",
+			},
+			"refresh_token_sliding_window_maximum_time_to_live_in_minutes": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Description:  "The maximum lifetime of a refresh token when using a refresh token expiration policy of SlidingWindowWithMaximumLifetime. Value must be greater than 0.",
+				ValidateFunc: validation.IntAtLeast(1),
+			},
 		},
 	}
 }
