@@ -94,7 +94,6 @@ func testThemeAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_authorized_not_registered", templates.Oauth2AuthorizedNotRegistered),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_child_registration_not_allowed", templates.Oauth2ChildRegistrationNotAllowed),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_child_registration_not_allowed_complete", templates.Oauth2ChildRegistrationNotAllowedComplete),
-		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_consent", templates.Oauth2Consent),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_complete_registration", templates.Oauth2CompleteRegistration),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_consent", templates.Oauth2Consent),
 		resource.TestCheckResourceAttr(tfResourcePath, "oauth2_device", templates.Oauth2Device),
