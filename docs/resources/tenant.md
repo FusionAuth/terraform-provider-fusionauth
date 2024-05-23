@@ -377,7 +377,7 @@ resource "fusionauth_tenant" "example" {
     modify_encryption_scheme_on_login = false
   }
   password_validation_rules {
-    max_length = 50
+    max_length = 256
     min_length = 7
     remember_previous_passwords {
       count   = 1
@@ -598,7 +598,7 @@ resource "fusionauth_tenant" "example" {
         - `match_mode` - (Optional) The level of severity where Reactor will consider a breach.
         - `notify_user_email_template_id` - (Optional) The Id of the email template to use when notifying user of breached password. Required if tenant.passwordValidationRules.breachDetection.onLogin is set to NotifyUser.
         - `on_login` - (Optional) The behavior when detecting breaches at time of user login
-    - `max_length` - (Optional) The maximum length of a password when a new user is created or a user requests a password change.
+    - `max_length` - (Optional) The maximum length of a password when a new user is created or a user requests a password change. This value must be greater than 0 and less than or equal to 256. When `passwordEncryptionConfiguration.encryptionScheme` is equal to `bcrypt`, the maximum will be limited to 50.
     - `min_length` - (Optional) The minimum length of a password when a new user is created or a user requests a password change.
     - `remember_previous_passwords` - (Optional)
         - `count` - (Optional) The number of previous passwords to remember. Value must be greater than 0.
