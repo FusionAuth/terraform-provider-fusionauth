@@ -54,6 +54,17 @@ Please continue to use and provide feedback on this provider as you have in the 
 * webhook
 * tenants
 
+## Testing
+
+Please add tests to the relevant files.
+
+To run tests:
+
+```
+cd fusionauth
+go test
+```
+
 ## Known issues
 
 If you do not specify permissions when adding an API key, you will get a key created that has no permissions. See the following issues for more details.

@@ -188,6 +188,13 @@ func newTheme() *schema.Resource {
 				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/complete-registration path. This page contains a form that is used for users that have accounts but might be missing required fields.",
 				DiffSuppressFunc: diffSuppressTemplate,
 			},
+			"oauth2_consent": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that is rendered when the user requests the /oauth2/consent path. This page contains a form for capturing a user's OAuth scope consent choices. If there are no scopes that require a prompt, the user is redirected automatically.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
 			"oauth2_device": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -416,6 +423,7 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 			Oauth2ChildRegistrationNotAllowed: data.Get("oauth2_child_registration_not_allowed").(string),
 			Oauth2ChildRegistrationNotAllowedComplete: data.Get("oauth2_child_registration_not_allowed_complete").(string),
 			Oauth2CompleteRegistration:                data.Get("oauth2_complete_registration").(string),
+			Oauth2Consent:                             data.Get("oauth2_consent").(string),
 			Oauth2Device:                              data.Get("oauth2_device").(string),
 			Oauth2DeviceComplete:                      data.Get("oauth2_device_complete").(string),
 			Oauth2Error:                               data.Get("oauth2_error").(string),
@@ -625,6 +633,9 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) d
 	}
 	if err := data.Set("oauth2_register", t.Templates.Oauth2Register); err != nil {
 		return diag.Errorf("theme.oauth2_register: %s", err.Error())
+	}
+	if err := data.Set("oauth2_consent", t.Templates.Oauth2Consent); err != nil {
+		return diag.Errorf("theme.oauth2_consent: %s", err.Error())
 	}
 	if err := data.Set("oauth2_device", t.Templates.Oauth2Device); err != nil {
 		return diag.Errorf("theme.oauth2_device: %s", err.Error())

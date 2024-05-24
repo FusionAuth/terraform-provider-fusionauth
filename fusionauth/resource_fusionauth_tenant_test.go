@@ -9,6 +9,7 @@ import (
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/gpsinsight/terraform-provider-fusionauth/fusionauth/testdata"
@@ -196,9 +197,10 @@ func testTenantAccTestCheckFuncs(
 		// jwt_configuration
 		resource.TestCheckResourceAttrSet(tfResourcePath, "jwt_configuration.0.access_token_key_id"),
 		resource.TestCheckResourceAttrSet(tfResourcePath, "jwt_configuration.0.id_token_key_id"),
-		resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.refresh_token_time_to_live_in_minutes", "43200"),
 		resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.time_to_live_in_seconds", "3600"),
 		resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.refresh_token_sliding_window_maximum_time_to_live_in_minutes", "43200"),
+		resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.refresh_token_time_to_live_in_minutes", "43200"),
+		resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.refresh_token_expiration_policy", "SlidingWindowWithMaximumLifetime"),
 
 		// login_configuration
 		resource.TestCheckResourceAttr(tfResourcePath, "login_configuration.0.require_authentication", "true"),
@@ -237,7 +239,7 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.breach_detection.0.match_mode", "Medium"),
 		// resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.breach_detection.0.notify_user_email_template_id", "UUID"),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.breach_detection.0.on_login", "NotifyUser"),
-		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.max_length", "100"),
+		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.max_length", "50"),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.min_length", "6"),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.remember_previous_passwords.0.count", "3"),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_validation_rules.0.remember_previous_passwords.0.enabled", "true"),
@@ -349,7 +351,7 @@ func testAccCheckFusionauthTenantDestroy(s *terraform.State) error {
 		}
 
 		// Ensure we retry for eventual consistency in HA setups.
-		err := resource.RetryContext(context.Background(), retryTimeout, func() *resource.RetryError {
+		err := retry.RetryContext(context.Background(), retryTimeout, func() *retry.RetryError {
 			tenant, faErrs, err := faClient.RetrieveTenant(rs.Primary.ID)
 			if errs := checkFusionauthRetryErrors(faErrs, err); errs != nil {
 				return errs
@@ -360,7 +362,7 @@ func testAccCheckFusionauthTenantDestroy(s *terraform.State) error {
 				return nil
 			}
 
-			return resource.RetryableError(fmt.Errorf("fusionauth resource still exists: %s", rs.Primary.ID))
+			return retry.RetryableError(fmt.Errorf("fusionauth resource still exists: %s", rs.Primary.ID))
 		})
 
 		if err != nil {
@@ -589,9 +591,10 @@ resource "fusionauth_tenant" "test_%[1]s" {
   http_session_max_inactive_interval = 3400
   issuer   = "https://example.com"
   jwt_configuration {
+    refresh_token_expiration_policy = "SlidingWindowWithMaximumLifetime"
     refresh_token_time_to_live_in_minutes = 43200
     time_to_live_in_seconds               = 3600
-	refresh_token_sliding_window_maximum_time_to_live_in_minutes = 43200
+    refresh_token_sliding_window_maximum_time_to_live_in_minutes = 43200
   }
   login_configuration {
     require_authentication = true
@@ -637,7 +640,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
       #notify_user_email_template_id = "UUID"
       on_login                      = "NotifyUser"
     }
-    max_length = 100
+    max_length = 50
     min_length = 6
     remember_previous_passwords {
       count   = 3
