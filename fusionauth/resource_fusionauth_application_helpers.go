@@ -76,6 +76,12 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			LogoutBehavior:                fusionauth.LogoutBehavior(data.Get("oauth_configuration.0.logout_behavior").(string)),
 			EnabledGrants:                 buildGrants("oauth_configuration.0.enabled_grants", data),
 			RequireRegistration:           data.Get("oauth_configuration.0.require_registration").(bool),
+			ProvidedScopePolicy: fusionauth.ProvidedScopePolicy{
+				Address: buildRequireable("oauth_configuration.0.provided_scope_policy.0.address", data),
+				Email:   buildRequireable("oauth_configuration.0.provided_scope_policy.0.email", data),
+				Phone:   buildRequireable("oauth_configuration.0.provided_scope_policy.0.phone", data),
+				Profile: buildRequireable("oauth_configuration.0.provided_scope_policy.0.profile", data),
+			},
 		},
 		PasswordlessConfiguration: fusionauth.PasswordlessConfiguration{
 			Enableable: buildEnableable("passwordless_configuration_enabled", data),

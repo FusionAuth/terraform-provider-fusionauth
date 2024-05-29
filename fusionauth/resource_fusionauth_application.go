@@ -686,6 +686,11 @@ func newOAuthConfiguration() *schema.Resource {
 				Default:     false,
 				Description: "When enabled the user will be required to be registered, or complete registration before redirecting to the configured callback in the authorization code grant or the implicit grant. This configuration does not currently apply to any other grant.",
 			},
+			"provided_scope_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     newOAuthConfigurationScopePolicy(),
+			},
 		},
 	}
 }
@@ -850,6 +855,54 @@ func newRegistrationConfiguration() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The Id of an associated Form when using advanced registration configuration type. This field is required when application.registrationConfiguration.type is set to advanced.",
+			},
+		},
+	}
+}
+
+func newOAuthConfigurationScopePolicy() *schema.Resource {
+	requireable := func() *schema.Resource {
+		return &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"enabled": {
+					Type:     schema.TypeBool,
+					Optional: true,
+					Default:  false,
+				},
+				"required": {
+					Type:     schema.TypeBool,
+					Optional: true,
+					Default:  false,
+				},
+			},
+		}
+	}
+
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"address": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     requireable(),
+			},
+			"email": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     requireable(),
+			},
+			"phone": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     requireable(),
+			},
+			"profile": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     requireable(),
 			},
 		},
 	}
