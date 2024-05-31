@@ -76,7 +76,7 @@ func resourceFormField() *schema.Resource {
 				Description: "The unique name of the Form Field.",
 			},
 			"options": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 				Description: "A list of options that are applied to checkbox, radio, or select controls.",
@@ -208,7 +208,7 @@ func buildFormField(data *schema.ResourceData) fusionauth.FormField {
 		Description: data.Get("description").(string),
 		Key:         data.Get("key").(string),
 		Name:        data.Get("name").(string),
-		Options:     handleStringSlice("options", data),
+		Options:     handleStringSliceFromList(data.Get("options").([]interface{})),
 		Required:    data.Get("required").(bool),
 		Type:        fusionauth.FormDataType(data.Get("type").(string)),
 		Validator: fusionauth.FormFieldValidator{
