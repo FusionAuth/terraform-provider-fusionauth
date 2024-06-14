@@ -867,7 +867,7 @@ func newOAuthConfigurationScopePolicy() *schema.Resource {
 				"enabled": {
 					Type:     schema.TypeBool,
 					Optional: true,
-					Default:  false,
+					Default:  true,
 				},
 				"required": {
 					Type:     schema.TypeBool,
