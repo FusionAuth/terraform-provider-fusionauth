@@ -165,7 +165,7 @@ resource "fusionauth_application" "Forum" {
     - `proof_key_for_code_exchange_policy` - (Optional) Determines the PKCE requirements when using the authorization code grant.
     - `require_client_authentication` - (Optional) Determines if the OAuth 2.0 Token endpoint requires client authentication. If this is enabled, the client must provide client credentials when using the Token endpoint. The client_id and client_secret may be provided using a Basic Authorization HTTP header, or by sending these parameters in the request body using POST data.
     - `require_registration` - (Optional) When enabled the user will be required to be registered, or complete registration before redirecting to the configured callback in the authorization code grant or the implicit grant. This configuration does not currently apply to any other grant.
-    - `provided_scope_policy` - (Optional) Configures which of the default scopes are enabled and required 
+    - `provided_scope_policy` - (Optional) Configures which of the default scopes are enabled and required.
         * `address`
           * `enabled` - (Optional)
           * `required` - (Optional)
