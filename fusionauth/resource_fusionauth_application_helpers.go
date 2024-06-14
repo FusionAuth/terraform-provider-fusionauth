@@ -63,7 +63,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		Name: data.Get("name").(string),
 		OauthConfiguration: fusionauth.OAuth2Configuration{
 			AuthorizedOriginURLs:          handleStringSlice("oauth_configuration.0.authorized_origin_urls", data),
-			AuthorizedRedirectURLs:        handleStringSlice("oauth_configuration.0.authorized_redirect_urls", data),
+			AuthorizedRedirectURLs:        handleStringSliceFromList(data.Get("oauth_configuration.0.authorized_redirect_urls").([]interface{})),
 			AuthorizedURLValidationPolicy: fusionauth.Oauth2AuthorizedURLValidationPolicy(data.Get("oauth_configuration.0.authorized_url_validation_policy").(string)),
 			ClientAuthenticationPolicy:    fusionauth.ClientAuthenticationPolicy(data.Get("oauth_configuration.0.client_authentication_policy").(string)),
 			ClientSecret:                  data.Get("oauth_configuration.0.client_secret").(string),
@@ -103,7 +103,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		Samlv2Configuration: fusionauth.SAMLv2Configuration{
 			Enableable:               buildEnableable("samlv2_configuration.0.enabled", data),
 			Audience:                 data.Get("samlv2_configuration.0.audience").(string),
-			AuthorizedRedirectURLs:   handleStringSlice("samlv2_configuration.0.authorized_redirect_urls", data),
+			AuthorizedRedirectURLs:   handleStringSliceFromList(data.Get("samlv2_configuration.0.authorized_redirect_urls").([]interface{})),
 			CallbackURL:              data.Get("samlv2_configuration.0.callback_url").(string),
 			Debug:                    data.Get("samlv2_configuration.0.debug").(bool),
 			DefaultVerificationKeyId: data.Get("samlv2_configuration.0.default_verification_key_id").(string),
