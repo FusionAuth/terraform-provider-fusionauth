@@ -17,7 +17,6 @@ func handleStringSlice(key string, data *schema.ResourceData) []string {
 }
 
 func handleStringSliceFromList(list []interface{}) []string {
-	fmt.Println(list)
 	s := make([]string, 0, len(list))
 
 	for _, x := range list {
