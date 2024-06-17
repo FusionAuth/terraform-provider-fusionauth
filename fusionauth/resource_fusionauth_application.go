@@ -412,7 +412,7 @@ func newSamlv2Configuration() *schema.Resource {
 				Description: "The audience for the SAML response sent to back to the service provider from FusionAuth. Some service providers require different audience values than the issuer and this configuration option lets you change the audience in the response.",
 			},
 			"authorized_redirect_urls": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Required:    true,
 				Description: "An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.",
@@ -587,7 +587,7 @@ func newOAuthConfiguration() *schema.Resource {
 				Description: "An array of URLs that are the authorized origins for FusionAuth OAuth.",
 			},
 			"authorized_redirect_urls": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 				Description: "An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.",

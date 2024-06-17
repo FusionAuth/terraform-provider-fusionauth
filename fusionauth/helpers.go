@@ -16,6 +16,16 @@ func handleStringSlice(key string, data *schema.ResourceData) []string {
 	return handleStringSliceFromSet(data.Get(key).(*schema.Set))
 }
 
+func handleStringSliceFromList(list []interface{}) []string {
+	s := make([]string, 0, len(list))
+
+	for _, x := range list {
+		s = append(s, x.(string))
+	}
+
+	return s
+}
+
 func handleStringSliceFromSet(set *schema.Set) []string {
 	l := set.List()
 	s := make([]string, 0, len(l))
