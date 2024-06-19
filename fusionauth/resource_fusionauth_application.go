@@ -151,6 +151,11 @@ func newApplication() *schema.Resource {
 							Optional:    true,
 							Description: "The unique Id of the lambda that will be used to perform additional validation on registration form steps.",
 						},
+						"userinfo_populate_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The Id of the Lambda that will be invoked when a UserInfo response is generated for this application.",
+						},
 					},
 				},
 			},
@@ -625,6 +630,17 @@ func newOAuthConfiguration() *schema.Resource {
 				Description: "The OAuth 2.0 client id. If you leave this blank during a POST, a client id will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored.",
 				Computed:    true,
 			},
+			"consent_mode": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     fusionauth.OAuthScopeConsentMode_AlwaysPrompt.String(),
+				Description: "Controls the policy for prompting a user to consent to requested OAuth scopes. This configuration only takes effect when `application.oauthConfiguration.relationship` is `ThirdParty`. The possible values are: `AlwaysPrompt` - Always prompt the user for consent. `RememberDecision` - Remember previous consents; only prompt if the choice expires or if the requested or required scopes have changed. The duration of this persisted choice is controlled by the Tenant’s `externalIdentifierConfiguration.rememberOAuthScopeConsentChoiceTimeToLiveInSeconds` value. `NeverPrompt` - The user will be never be prompted to consent to requested OAuth scopes. Permission will be granted implicitly as if this were a `FirstParty` application. This configuration is meant for testing purposes only and should not be used in production.",
+				ValidateFunc: validation.StringInSlice([]string{
+					fusionauth.OAuthScopeConsentMode_AlwaysPrompt.String(),
+					fusionauth.OAuthScopeConsentMode_RememberDecision.String(),
+					fusionauth.OAuthScopeConsentMode_NeverPrompt.String(),
+				}, false),
+			},
 			"debug": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -673,6 +689,22 @@ func newOAuthConfiguration() *schema.Resource {
 				}, false),
 				Description: "Determines the PKCE requirements when using the authorization code grant.",
 			},
+			"provided_scope_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem:     newOAuthConfigurationProvidedScopePolicy(),
+			},
+			"relationship": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     fusionauth.OAuthApplicationRelationship_FirstParty.String(),
+				Description: "The application’s relationship to the OAuth server. The possible values are: `FirstParty` - The application has the same owner as the authorization server. Consent to requested OAuth scopes is granted implicitly. `ThirdParty` - The application is external to the authorization server. Users will be prompted to consent to requested OAuth scopes based on the application object’s `oauthConfiguration.consentMode` value. Note: An Essentials or Enterprise plan is required to utilize third-party applications.",
+				ValidateFunc: validation.StringInSlice([]string{
+					fusionauth.OAuthApplicationRelationship_FirstParty.String(),
+					fusionauth.OAuthApplicationRelationship_ThirdParty.String(),
+				}, false),
+			},
 			"require_client_authentication": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -686,10 +718,26 @@ func newOAuthConfiguration() *schema.Resource {
 				Default:     false,
 				Description: "When enabled the user will be required to be registered, or complete registration before redirecting to the configured callback in the authorization code grant or the implicit grant. This configuration does not currently apply to any other grant.",
 			},
-			"provided_scope_policy": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     newOAuthConfigurationScopePolicy(),
+			"scope_handling_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     fusionauth.OAuthScopeHandlingPolicy_Strict.String(),
+				Description: "Controls the policy for handling of OAuth scopes when populating JWTs and the UserInfo response. The possible values are: `Compatibility` - OAuth workflows will populate JWT and UserInfo claims in a manner compatible with versions of FusionAuth before version 1.50.0. `Strict` - OAuth workflows will populate token and UserInfo claims according to the OpenID Connect 1.0 specification based on requested and consented scopes.",
+				ValidateFunc: validation.StringInSlice([]string{
+					fusionauth.OAuthScopeHandlingPolicy_Compatibility.String(),
+					fusionauth.OAuthScopeHandlingPolicy_Strict.String(),
+				}, false),
+			},
+			"unknown_scope_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     fusionauth.UnknownScopePolicy_Reject.String(),
+				Description: "Controls the policy for handling unknown scopes on an OAuth request. The possible values are: `Allow` - Unknown scopes will be allowed on the request, passed through the OAuth workflow, and written to the resulting tokens without consent. `Remove` - Unknown scopes will be removed from the OAuth workflow, but the workflow will proceed without them. `Reject` - Unknown scopes will be rejected and cause the OAuth workflow to fail with an error.",
+				ValidateFunc: validation.StringInSlice([]string{
+					fusionauth.UnknownScopePolicy_Allow.String(),
+					fusionauth.UnknownScopePolicy_Remove.String(),
+					fusionauth.UnknownScopePolicy_Reject.String(),
+				}, false),
 			},
 		},
 	}
@@ -860,7 +908,7 @@ func newRegistrationConfiguration() *schema.Resource {
 	}
 }
 
-func newOAuthConfigurationScopePolicy() *schema.Resource {
+func newOAuthConfigurationProvidedScopePolicy() *schema.Resource {
 	requireable := func() *schema.Resource {
 		return &schema.Resource{
 			Schema: map[string]*schema.Schema{
