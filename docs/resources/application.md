@@ -140,6 +140,7 @@ resource "fusionauth_application" "Forum" {
     - `id_token_populate_id` - (Optional) The Id of the Lambda that will be invoked when an Id token is generated for this application during an OpenID Connect authentication request.
     - `samlv2_populate_id` - (Optional) The Id of the Lambda that will be invoked when a a SAML response is generated during a SAML authentication request.
     - `self_service_registration_validation_id` - (Optional) The unique Id of the lambda that will be used to perform additional validation on registration form steps.
+    - `userinfo_populate_id` - (Optional) The Id of the Lambda that will be invoked when a UserInfo response is generated for this application.
 * `login_configuration` - (Optional)
     - `allow_token_refresh` - (Optional) Indicates if a JWT may be refreshed using a Refresh Token for this application. This configuration is separate from issuing new Refresh Tokens which is controlled by the generateRefreshTokens parameter. This configuration indicates specifically if an existing Refresh Token may be used to request a new JWT using the Refresh API.
     - `generate_refresh_tokens` - (Optional) Indicates if a Refresh Token should be issued from the Login API
@@ -156,6 +157,10 @@ resource "fusionauth_application" "Forum" {
     - `authorized_url_validation_policy` - (Optional) Determines whether wildcard expressions will be allowed in the authorized_redirect_urls and authorized_origin_urls.
     - `client_secret` - (Optional) The OAuth 2.0 client secret. If you leave this blank during a POST, a secure secret will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored.
     - `client_authentication_policy` - (Optional) Determines the client authentication requirements for the OAuth 2.0 Token endpoint.
+    - `consent_mode` (Optional) Controls the policy for prompting a user to consent to requested OAuth scopes. This configuration only takes effect when `application.oauthConfiguration.relationship` is `ThirdParty`. The possible values are: 
+      - `AlwaysPrompt` - Always prompt the user for consent. 
+      - `RememberDecision` - Remember previous consents; only prompt if the choice expires or if the requested or required scopes have changed. The duration of this persisted choice is controlled by the Tenant’s `externalIdentifierConfiguration.rememberOAuthScopeConsentChoiceTimeToLiveInSeconds` value. 
+      - `NeverPrompt` - The user will be never be prompted to consent to requested OAuth scopes. Permission will be granted implicitly as if this were a `FirstParty` application. This configuration is meant for testing purposes only and should not be used in production.
     - `debug` - (Optional) Whether or not FusionAuth will log a debug Event Log. This is particular useful for debugging the authorization code exchange with the Token endpoint during an Authorization Code grant."
     - `device_verification_url` - (Optional) The device verification URL to be used with the Device Code grant type, this field is required when device_code is enabled.
     - `enabled_grants` - (Optional) The enabled grants for this application. In order to utilize a particular grant with the OAuth 2.0 endpoints you must have enabled the grant.
@@ -163,6 +168,9 @@ resource "fusionauth_application" "Forum" {
     - `logout_behavior` - (Optional) Behavior when /oauth2/logout is called.
     - `logout_url` - (Optional) The logout URL for the Application. FusionAuth will redirect to this URL after the user logs out of OAuth.
     - `proof_key_for_code_exchange_policy` - (Optional) Determines the PKCE requirements when using the authorization code grant.
+    - `relationship` (Optional) The application’s relationship to the OAuth server. The possible values are: 
+      - `FirstParty` - The application has the same owner as the authorization server. Consent to requested OAuth scopes is granted implicitly. 
+      - `ThirdParty` - The application is external to the authorization server. Users will be prompted to consent to requested OAuth scopes based on the application object’s `oauthConfiguration.consentMode` value. Note: An Essentials or Enterprise plan is required to utilize third-party applications.
     - `require_client_authentication` - (Optional) Determines if the OAuth 2.0 Token endpoint requires client authentication. If this is enabled, the client must provide client credentials when using the Token endpoint. The client_id and client_secret may be provided using a Basic Authorization HTTP header, or by sending these parameters in the request body using POST data.
     - `require_registration` - (Optional) When enabled the user will be required to be registered, or complete registration before redirecting to the configured callback in the authorization code grant or the implicit grant. This configuration does not currently apply to any other grant.
     - `provided_scope_policy` - (Optional) Configures which of the default scopes are enabled and required.
@@ -178,6 +186,13 @@ resource "fusionauth_application" "Forum" {
         * `profile`
             * `enabled` - (Optional)
             * `required` - (Optional)
+    - `unknown_scope_policy` (Optional) Controls the policy for handling unknown scopes on an OAuth request. The possible values are: 
+      - `Allow` - Unknown scopes will be allowed on the request, passed through the OAuth workflow, and written to the resulting tokens without consent. 
+      - `Remove` - Unknown scopes will be removed from the OAuth workflow, but the workflow will proceed without them. 
+      - `Reject` - Unknown scopes will be rejected and cause the OAuth workflow to fail with an error.
+    - `scope_handling_policy` (Optional) Controls the policy for handling of OAuth scopes when populating JWTs and the UserInfo response. The possible values are:
+      - `Compatibility` - OAuth workflows will populate JWT and UserInfo claims in a manner compatible with versions of FusionAuth before version 1.50.0. 
+      -`Strict` - OAuth workflows will populate token and UserInfo claims according to the OpenID Connect 1.0 specification based on requested and consented scopes.
 * `registration_configuration` - (Optional)
     - `birth_date` - (Optional)
         * `enabled` - (Optional)
