@@ -44,6 +44,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			IdTokenPopulateId:                   data.Get("lambda_configuration.0.id_token_populate_id").(string),
 			Samlv2PopulateId:                    data.Get("lambda_configuration.0.samlv2_populate_id").(string),
 			SelfServiceRegistrationValidationId: data.Get("lambda_configuration.0.self_service_registration_validation_id").(string),
+			UserinfoPopulateId:                  data.Get("lambda_configuration.0.userinfo_populate_id").(string),
 		},
 		LoginConfiguration: fusionauth.LoginConfiguration{
 			AllowTokenRefresh:     data.Get("login_configuration.0.allow_token_refresh").(bool),
@@ -67,21 +68,25 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			AuthorizedURLValidationPolicy: fusionauth.Oauth2AuthorizedURLValidationPolicy(data.Get("oauth_configuration.0.authorized_url_validation_policy").(string)),
 			ClientAuthenticationPolicy:    fusionauth.ClientAuthenticationPolicy(data.Get("oauth_configuration.0.client_authentication_policy").(string)),
 			ClientSecret:                  data.Get("oauth_configuration.0.client_secret").(string),
+			ConsentMode:                   fusionauth.OAuthScopeConsentMode(data.Get("oauth_configuration.0.consent_mode").(string)),
 			Debug:                         data.Get("oauth_configuration.0.debug").(bool),
 			DeviceVerificationURL:         data.Get("oauth_configuration.0.device_verification_url").(string),
+			EnabledGrants:                 buildGrants("oauth_configuration.0.enabled_grants", data),
 			GenerateRefreshTokens:         data.Get("oauth_configuration.0.generate_refresh_tokens").(bool),
+			LogoutBehavior:                fusionauth.LogoutBehavior(data.Get("oauth_configuration.0.logout_behavior").(string)),
 			LogoutURL:                     data.Get("oauth_configuration.0.logout_url").(string),
 			ProofKeyForCodeExchangePolicy: fusionauth.ProofKeyForCodeExchangePolicy(data.Get("oauth_configuration.0.proof_key_for_code_exchange_policy").(string)),
-			RequireClientAuthentication:   data.Get("oauth_configuration.0.require_client_authentication").(bool),
-			LogoutBehavior:                fusionauth.LogoutBehavior(data.Get("oauth_configuration.0.logout_behavior").(string)),
-			EnabledGrants:                 buildGrants("oauth_configuration.0.enabled_grants", data),
-			RequireRegistration:           data.Get("oauth_configuration.0.require_registration").(bool),
 			ProvidedScopePolicy: fusionauth.ProvidedScopePolicy{
 				Address: buildRequireable("oauth_configuration.0.provided_scope_policy.0.address", data),
 				Email:   buildRequireable("oauth_configuration.0.provided_scope_policy.0.email", data),
 				Phone:   buildRequireable("oauth_configuration.0.provided_scope_policy.0.phone", data),
 				Profile: buildRequireable("oauth_configuration.0.provided_scope_policy.0.profile", data),
 			},
+			Relationship:                fusionauth.OAuthApplicationRelationship(data.Get("oauth_configuration.0.relationship").(string)),
+			RequireClientAuthentication: data.Get("oauth_configuration.0.require_client_authentication").(bool),
+			RequireRegistration:         data.Get("oauth_configuration.0.require_registration").(bool),
+			ScopeHandlingPolicy:         fusionauth.OAuthScopeHandlingPolicy(data.Get("oauth_configuration.0.scope_handling_policy").(string)),
+			UnknownScopePolicy:          fusionauth.UnknownScopePolicy(data.Get("oauth_configuration.0.unknown_scope_policy").(string)),
 		},
 		PasswordlessConfiguration: fusionauth.PasswordlessConfiguration{
 			Enableable: buildEnableable("passwordless_configuration_enabled", data),
@@ -256,6 +261,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"id_token_populate_id":                    a.LambdaConfiguration.IdTokenPopulateId,
 			"samlv2_populate_id":                      a.LambdaConfiguration.Samlv2PopulateId,
 			"self_service_registration_validation_id": a.LambdaConfiguration.SelfServiceRegistrationValidationId,
+			"userinfo_populate_id":                    a.LambdaConfiguration.UserinfoPopulateId,
 		},
 	})
 	if err != nil {
@@ -297,15 +303,47 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"client_authentication_policy":       a.OauthConfiguration.ClientAuthenticationPolicy,
 			"client_secret":                      a.OauthConfiguration.ClientSecret,
 			"client_id":                          a.OauthConfiguration.ClientId,
+			"consent_mode":                       a.OauthConfiguration.ConsentMode,
 			"debug":                              a.OauthConfiguration.Debug,
 			"device_verification_url":            a.OauthConfiguration.DeviceVerificationURL,
-			"generate_refresh_tokens":            a.OauthConfiguration.GenerateRefreshTokens,
-			"logout_url":                         a.OauthConfiguration.LogoutURL,
-			"require_client_authentication":      a.OauthConfiguration.RequireClientAuthentication,
-			"logout_behavior":                    a.OauthConfiguration.LogoutBehavior,
 			"enabled_grants":                     a.OauthConfiguration.EnabledGrants,
-			"require_registration":               a.OauthConfiguration.RequireRegistration,
+			"generate_refresh_tokens":            a.OauthConfiguration.GenerateRefreshTokens,
+			"logout_behavior":                    a.OauthConfiguration.LogoutBehavior,
+			"logout_url":                         a.OauthConfiguration.LogoutURL,
 			"proof_key_for_code_exchange_policy": a.OauthConfiguration.ProofKeyForCodeExchangePolicy,
+			"provided_scope_policy": []map[string]interface{}{
+				{
+					"address": []map[string]interface{}{
+						{
+							"enabled":  a.OauthConfiguration.ProvidedScopePolicy.Address.Enabled,
+							"required": a.OauthConfiguration.ProvidedScopePolicy.Address.Required,
+						},
+					},
+					"email": []map[string]interface{}{
+						{
+							"enabled":  a.OauthConfiguration.ProvidedScopePolicy.Email.Enabled,
+							"required": a.OauthConfiguration.ProvidedScopePolicy.Email.Required,
+						},
+					},
+					"phone": []map[string]interface{}{
+						{
+							"enabled":  a.OauthConfiguration.ProvidedScopePolicy.Phone.Enabled,
+							"required": a.OauthConfiguration.ProvidedScopePolicy.Phone.Required,
+						},
+					},
+					"profile": []map[string]interface{}{
+						{
+							"enabled":  a.OauthConfiguration.ProvidedScopePolicy.Profile.Enabled,
+							"required": a.OauthConfiguration.ProvidedScopePolicy.Profile.Required,
+						},
+					},
+				},
+			},
+			"relationship":                  a.OauthConfiguration.Relationship,
+			"require_client_authentication": a.OauthConfiguration.RequireClientAuthentication,
+			"require_registration":          a.OauthConfiguration.RequireRegistration,
+			"scope_handling_policy":         a.OauthConfiguration.ScopeHandlingPolicy,
+			"unknown_scope_policy":          a.OauthConfiguration.UnknownScopePolicy,
 		},
 	})
 	if err != nil {
