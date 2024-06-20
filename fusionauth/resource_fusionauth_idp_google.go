@@ -133,7 +133,7 @@ func newIDPGoogle() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"UsePopup",
 					"UseRedirect",
-					"LinkByEmail",
+					"UseVendorJavaScript",
 				}, false),
 				Description: "The login method to use for this Identity Provider.",
 			},
