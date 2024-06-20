@@ -186,11 +186,11 @@ resource "fusionauth_application" "Forum" {
         * `profile`
             * `enabled` - (Optional)
             * `required` - (Optional)
-    - `unknown_scope_policy` (Optional) Controls the policy for handling unknown scopes on an OAuth request. The possible values are: 
+    - `unknown_scope_policy` Controls the policy for handling unknown scopes on an OAuth request. The possible values are: 
       - `Allow` - Unknown scopes will be allowed on the request, passed through the OAuth workflow, and written to the resulting tokens without consent. 
       - `Remove` - Unknown scopes will be removed from the OAuth workflow, but the workflow will proceed without them. 
       - `Reject` - Unknown scopes will be rejected and cause the OAuth workflow to fail with an error.
-    - `scope_handling_policy` (Optional) Controls the policy for handling of OAuth scopes when populating JWTs and the UserInfo response. The possible values are:
+    - `scope_handling_policy` Controls the policy for handling of OAuth scopes when populating JWTs and the UserInfo response. The possible values are:
       - `Compatibility` - OAuth workflows will populate JWT and UserInfo claims in a manner compatible with versions of FusionAuth before version 1.50.0. 
       - `Strict` - OAuth workflows will populate token and UserInfo claims according to the OpenID Connect 1.0 specification based on requested and consented scopes.
 * `registration_configuration` - (Optional)

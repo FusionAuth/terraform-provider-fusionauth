@@ -720,8 +720,7 @@ func newOAuthConfiguration() *schema.Resource {
 			},
 			"scope_handling_policy": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     fusionauth.OAuthScopeHandlingPolicy_Strict.String(),
+				Required:    true,
 				Description: "Controls the policy for handling of OAuth scopes when populating JWTs and the UserInfo response. The possible values are: `Compatibility` - OAuth workflows will populate JWT and UserInfo claims in a manner compatible with versions of FusionAuth before version 1.50.0. `Strict` - OAuth workflows will populate token and UserInfo claims according to the OpenID Connect 1.0 specification based on requested and consented scopes.",
 				ValidateFunc: validation.StringInSlice([]string{
 					fusionauth.OAuthScopeHandlingPolicy_Compatibility.String(),
@@ -730,8 +729,7 @@ func newOAuthConfiguration() *schema.Resource {
 			},
 			"unknown_scope_policy": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     fusionauth.UnknownScopePolicy_Reject.String(),
+				Required:    true,
 				Description: "Controls the policy for handling unknown scopes on an OAuth request. The possible values are: `Allow` - Unknown scopes will be allowed on the request, passed through the OAuth workflow, and written to the resulting tokens without consent. `Remove` - Unknown scopes will be removed from the OAuth workflow, but the workflow will proceed without them. `Reject` - Unknown scopes will be rejected and cause the OAuth workflow to fail with an error.",
 				ValidateFunc: validation.StringInSlice([]string{
 					fusionauth.UnknownScopePolicy_Allow.String(),
