@@ -58,7 +58,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 				"external_identifier_configuration.0.change_password_id_time_to_live_in_seconds",
 			).(int),
 			CompletionTokenTimeToLiveInSeconds: data.Get(
-				"external_identifier_configuration.0.completion_token_time_to_live_in_seconds"
+				"external_identifier_configuration.0.completion_token_time_to_live_in_seconds",
 			).(int),
 			DeviceCodeTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.device_code_time_to_live_in_seconds",
