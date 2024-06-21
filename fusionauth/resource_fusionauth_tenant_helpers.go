@@ -57,6 +57,9 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			ChangePasswordIdTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.change_password_id_time_to_live_in_seconds",
 			).(int),
+			CompletionTokenTimeToLiveInSeconds: data.Get(
+				"external_identifier_configuration.0.completion_token_time_to_live_in_seconds"
+			)
 			DeviceCodeTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.device_code_time_to_live_in_seconds",
 			).(int),
@@ -478,6 +481,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"type":   t.ExternalIdentifierConfiguration.ChangePasswordIdGenerator.Type,
 			}},
 			"change_password_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.ChangePasswordIdTimeToLiveInSeconds,
+			"completion_token_time_to_live_in_seconds":   t.ExternalIdentifierConfiguration.CompletionTokenTimeToLiveInSeconds,
 			"device_code_time_to_live_in_seconds":        t.ExternalIdentifierConfiguration.DeviceCodeTimeToLiveInSeconds,
 			"device_user_code_id_generator": []map[string]interface{}{{
 				"length": t.ExternalIdentifierConfiguration.DeviceUserCodeIdGenerator.Length,

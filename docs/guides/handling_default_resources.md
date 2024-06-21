@@ -33,6 +33,7 @@ resource "fusionauth_tenant" "Default" {
       type   = "randomBytes"
     }
     change_password_id_time_to_live_in_seconds = 600
+    completion_token_time_to_live_in_seconds   = 1800
     device_code_time_to_live_in_seconds        = 300
     device_user_code_id_generator {
       length = 6
