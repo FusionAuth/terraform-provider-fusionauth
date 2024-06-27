@@ -33,7 +33,6 @@ resource "fusionauth_tenant" "Default" {
       type   = "randomBytes"
     }
     change_password_id_time_to_live_in_seconds = 600
-    completion_token_time_to_live_in_seconds   = 1800
     device_code_time_to_live_in_seconds        = 300
     device_user_code_id_generator {
       length = 6
@@ -49,6 +48,7 @@ resource "fusionauth_tenant" "Default" {
       type   = "randomAlphaNumeric"
     }
     external_authentication_id_time_to_live_in_seconds = 300
+    login_intent_time_to_live_in_seconds               = 1800
     one_time_password_time_to_live_in_seconds          = 60
     passwordless_login_generator {
       length = 32

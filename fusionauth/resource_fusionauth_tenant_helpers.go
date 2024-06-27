@@ -57,9 +57,6 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			ChangePasswordIdTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.change_password_id_time_to_live_in_seconds",
 			).(int),
-			CompletionTokenTimeToLiveInSeconds: data.Get(
-				"external_identifier_configuration.0.completion_token_time_to_live_in_seconds",
-			).(int),
 			DeviceCodeTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.device_code_time_to_live_in_seconds",
 			).(int),
@@ -80,6 +77,9 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			).(int),
 			ExternalAuthenticationIdTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.external_authentication_id_time_to_live_in_seconds",
+			).(int),
+			LoginIntentTimeToLiveInSeconds: data.Get(
+				"external_identifier_configuration.0.login_intent_time_to_live_in_seconds",
 			).(int),
 			OneTimePasswordTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.one_time_password_time_to_live_in_seconds",
@@ -481,7 +481,6 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"type":   t.ExternalIdentifierConfiguration.ChangePasswordIdGenerator.Type,
 			}},
 			"change_password_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.ChangePasswordIdTimeToLiveInSeconds,
-			"completion_token_time_to_live_in_seconds":   t.ExternalIdentifierConfiguration.CompletionTokenTimeToLiveInSeconds,
 			"device_code_time_to_live_in_seconds":        t.ExternalIdentifierConfiguration.DeviceCodeTimeToLiveInSeconds,
 			"device_user_code_id_generator": []map[string]interface{}{{
 				"length": t.ExternalIdentifierConfiguration.DeviceUserCodeIdGenerator.Length,
@@ -493,6 +492,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			}},
 			"email_verification_id_time_to_live_in_seconds":      t.ExternalIdentifierConfiguration.EmailVerificationIdTimeToLiveInSeconds,
 			"external_authentication_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.ExternalAuthenticationIdTimeToLiveInSeconds,
+			"login_intent_time_to_live_in_seconds":               t.ExternalIdentifierConfiguration.LoginIntentTimeToLiveInSeconds,
 			"one_time_password_time_to_live_in_seconds":          t.ExternalIdentifierConfiguration.OneTimePasswordTimeToLiveInSeconds,
 			"passwordless_login_generator": []map[string]interface{}{{
 				"length": t.ExternalIdentifierConfiguration.PasswordlessLoginGenerator.Length,

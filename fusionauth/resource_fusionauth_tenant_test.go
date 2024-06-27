@@ -139,7 +139,6 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.change_password_id_generator.0.length", "32"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.change_password_id_generator.0.type", "randomBytes"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.change_password_id_time_to_live_in_seconds", "600"),
-		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.completion_token_time_to_live_in_seconds", "3600"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.device_code_time_to_live_in_seconds", "1800"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.device_user_code_id_generator.0.length", "6"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.device_user_code_id_generator.0.type", "randomAlphaNumeric"),
@@ -149,6 +148,7 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.email_verification_one_time_code_generator.0.type", "randomAlphaNumeric"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.email_verification_id_time_to_live_in_seconds", "86400"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.external_authentication_id_time_to_live_in_seconds", "300"),
+		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.login_intent_time_to_live_in_seconds", "3600"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.one_time_password_time_to_live_in_seconds", "60"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.passwordless_login_generator.0.length", "32"),
 		resource.TestCheckResourceAttr(tfResourcePath, "external_identifier_configuration.0.passwordless_login_generator.0.type", "randomBytes"),
@@ -520,7 +520,6 @@ resource "fusionauth_tenant" "test_%[1]s" {
       type   = "randomBytes"
     }
     change_password_id_time_to_live_in_seconds = 600
-    completion_token_time_to_live_in_seconds   = 3600
     device_code_time_to_live_in_seconds        = 1800
     device_user_code_id_generator {
       length = 6
@@ -536,6 +535,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
     }
     email_verification_id_time_to_live_in_seconds      = 86400
     external_authentication_id_time_to_live_in_seconds = 300
+		login_intent_time_to_live_in_seconds		   				= 3600
     one_time_password_time_to_live_in_seconds          = 60
     passwordless_login_generator {
       length = 32
