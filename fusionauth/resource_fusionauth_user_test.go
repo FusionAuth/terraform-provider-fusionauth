@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/gpsinsight/terraform-provider-fusionauth/fusionauth/testdata"
+	"github.com/fusionauth/terraform-provider-fusionauth/fusionauth/testdata"
 )
 
 func TestAccFusionauthUser_basic(t *testing.T) {

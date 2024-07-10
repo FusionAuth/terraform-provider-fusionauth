@@ -5,7 +5,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/gpsinsight/terraform-provider-fusionauth/fusionauth"
+	"github.com/fusionauth/terraform-provider-fusionauth/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 )
 
@@ -18,7 +18,7 @@ func main() {
 	opts := &plugin.ServeOpts{ProviderFunc: fusionauth.Provider}
 
 	if debugMode {
-		err := plugin.Debug(context.Background(), "registry.terraform.io/gpsinsight/fusionauth", opts) //nolint:staticcheck
+		err := plugin.Debug(context.Background(), "registry.terraform.io/fusionauth/fusionauth", opts) //nolint:staticcheck
 		if err != nil {
 			log.Println(err.Error())
 		}
