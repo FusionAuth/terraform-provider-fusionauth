@@ -19,6 +19,7 @@ func createTenant(_ context.Context, data *schema.ResourceData, i interface{}) d
 	t := fusionauth.TenantRequest{
 		Tenant:         tenant,
 		SourceTenantId: data.Get("source_tenant_id").(string),
+		WebhookIds:     handleStringSlice("webhook_ids", data),
 	}
 	client.FAClient.TenantId = ""
 
@@ -69,6 +70,7 @@ func updateTenant(_ context.Context, data *schema.ResourceData, i interface{}) d
 	t := fusionauth.TenantRequest{
 		Tenant:         tenant,
 		SourceTenantId: data.Get("source_tenant_id").(string),
+		WebhookIds:     handleStringSlice("webhook_ids", data),
 	}
 
 	resp, faErrs, err := client.FAClient.UpdateTenant(data.Id(), t)

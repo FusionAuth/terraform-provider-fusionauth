@@ -440,8 +440,9 @@ resource "fusionauth_tenant" "example" {
 
 ## Argument Reference
 * `source_tenant_id` - (Optional) The optional Id of an existing Tenant to make a copy of. If present, the tenant.id and tenant.name values of the request body will be applied to the new Tenant, all other values will be copied from the source Tenant to the new Tenant.
+* `webhook_ids` - (Optional) An array of Webhook Ids. For Webhooks that are not already configured for All Tenants, specifying an Id on this request will indicate the associated Webhook should handle events for this tenant.
 * `tenant_id` - (Optional) The Id to use for the new Tenant. If not specified a secure random UUID will be generated.
-* `access_control_configuration` - (Optiona)
+* `access_control_configuration` - (Optional)
     - `ui_ip_access_control_list_id` - (Optional) The Id of the IP Access Control List limiting access to all applications in this tenant.
 * `captcha_configuration` - (Optional)
     - `enabled` - (Optional) Whether captcha configuration is enabled.
