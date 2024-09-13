@@ -292,6 +292,9 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "username_configuration.0.unique.0.number_of_digits", "8"),
 		resource.TestCheckResourceAttr(tfResourcePath, "username_configuration.0.unique.0.separator", "_"),
 		resource.TestCheckResourceAttr(tfResourcePath, "username_configuration.0.unique.0.strategy", "Always"),
+
+		// webauthn_configuration
+		resource.TestCheckResourceAttr(tfResourcePath, "webauthn_configuration.0.unique.0.enabled", "false"),
 	)
 }
 
@@ -706,6 +709,22 @@ resource "fusionauth_tenant" "test_%[1]s" {
       separator        = "_"
       strategy         = "Always"
     }
+  }
+  webauthn_configuration {
+	enabled			    = false
+	debug			    = false
+	relaying_party_id   = "auth.piedpiper.com"
+    relaying_party_name = "Pied Piper"
+	bootstrap_workflow {
+      enabled		    = false
+      authenticator_attachment_preference 	= "any"
+	  user_verification_requirement 		= "required"
+	}
+	reauthentication_workflow {
+	  enabled		   = false
+      authenticator_attachment_preference 	= "platform"
+      user_verification_requirement 		= "required"
+	}
   }
 }
 `,
