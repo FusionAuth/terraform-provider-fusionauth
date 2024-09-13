@@ -302,6 +302,7 @@ resource "fusionauth_tenant" "example" {
       type   = "randomAlphaNumeric"
     }
     external_authentication_id_time_to_live_in_seconds = 300
+    login_intent_time_to_live_in_seconds               = 1800
     one_time_password_time_to_live_in_seconds          = 60
     passwordless_login_generator {
       length = 32
