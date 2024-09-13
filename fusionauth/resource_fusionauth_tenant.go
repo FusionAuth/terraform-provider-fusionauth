@@ -988,7 +988,7 @@ func newTenantWebAuthNConfiguration() *schema.Resource {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     false,
-							Description: "Whether the WebAuthn bootstrap workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.",
+							Description: "Whether or not this tenant has the WebAuthn bootstrap workflow enabled. The bootstrap workflow is used when the user must “bootstrap” the authentication process by identifying themselves prior to the WebAuthn ceremony and can be used to authenticate from a new device using WebAuthn.",
 						},
 						"authenticator_attachment_preference": {
 							Type:     schema.TypeString,
@@ -1026,7 +1026,7 @@ func newTenantWebAuthNConfiguration() *schema.Resource {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     false,
-							Description: "Whether the WebAuthn reauthentication workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.",
+							Description: "Whether or not this tenant has the WebAuthn reauthentication workflow enabled. The reauthentication workflow will automatically prompt a user to authenticate using WebAuthn for repeated logins from the same device.",
 						},
 						"authenticator_attachment_preference": {
 							Type:     schema.TypeString,
@@ -1057,7 +1057,7 @@ func newTenantWebAuthNConfiguration() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: "Indicates if this application enables WebAuthn workflows based on the configuration defined here or the Tenant WebAuthn configuration. If this is false, WebAuthn workflows are enabled based on the Tenant configuration. If true, WebAuthn workflows are enabled according to the configuration of this application.",
+				Description: "Whether or not this tenant has WebAuthn enabled globally.",
 			},
 			"debug": {
 				Type:        schema.TypeBool,
