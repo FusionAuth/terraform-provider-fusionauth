@@ -61,6 +61,15 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			},
 			TrustPolicy: fusionauth.ApplicationMultiFactorTrustPolicy(data.Get("multi_factor_configuration.0.trust_policy").(string)),
 		},
+		WebAuthnConfiguration: fusionauth.ApplicationWebAuthnConfiguration{
+			Enableable: buildEnableable("webauthn_configuration.0.enabled", data),
+			BootstrapWorkflow: fusionauth.ApplicationWebAuthnWorkflowConfiguration{
+				Enableable: buildEnableable("webauthn_configuration.0.bootstrap_workflow.0.enabled", data),
+			},
+			ReauthenticationWorkflow: fusionauth.ApplicationWebAuthnWorkflowConfiguration{
+				Enableable: buildEnableable("webauthn_configuration.0.reauthentication_workflow.0.enabled", data),
+			},
+		},
 		Name: data.Get("name").(string),
 		OauthConfiguration: fusionauth.OAuth2Configuration{
 			AuthorizedOriginURLs:          handleStringSlice("oauth_configuration.0.authorized_origin_urls", data),
@@ -289,6 +298,22 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 	})
 	if err != nil {
 		return diag.Errorf("application.multi_factor_configuration: %s", err.Error())
+	}
+
+	err = data.Set("webauthn_configuration", []map[string]interface{}{
+		{
+			"enabled": a.WebAuthnConfiguration.Enabled,
+			"bootstrap_workflow": []map[string]interface{}{{
+				"enabled": a.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
+			}},
+			"reauthentication_workflow": []map[string]interface{}{{
+				"enabled": a.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
+			}},
+		},
+	})
+
+	if err != nil {
+		return diag.Errorf("application.webauthn_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("name", a.Name); err != nil {

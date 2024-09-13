@@ -212,6 +212,22 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 				TemplateId:  data.Get("multi_factor_configuration.0.sms.0.template_id").(string),
 			},
 		},
+		WebAuthnConfiguration: fusionauth.TenantWebAuthnConfiguration{
+			Enableable: buildEnableable("webauthn_configuration.0.enabled", data),
+			BootstrapWorkflow: fusionauth.TenantWebAuthnWorkflowConfiguration{
+				Enableable:                        buildEnableable("webauthn_configuration.0.bootstrap_workflow.0.enabled", data),
+				AuthenticatorAttachmentPreference: fusionauth.AuthenticatorAttachmentPreference(data.Get("webauthn_configuration.0.bootstrap_workflow.0.authenticator_attachment_preference").(string)),
+				UserVerificationRequirement:       fusionauth.UserVerificationRequirement(data.Get("webauthn_configuration.0.bootstrap_workflow.0.user_verification_requirement").(string)),
+			},
+			Debug: data.Get("webauthn_configuration.0.debug").(bool),
+			ReauthenticationWorkflow: fusionauth.TenantWebAuthnWorkflowConfiguration{
+				Enableable:                        buildEnableable("webauthn_configuration.0.reauthentication_workflow.0.enabled", data),
+				AuthenticatorAttachmentPreference: fusionauth.AuthenticatorAttachmentPreference(data.Get("webauthn_configuration.0.reauthentication_workflow.0.authenticator_attachment_preference").(string)),
+				UserVerificationRequirement:       fusionauth.UserVerificationRequirement(data.Get("webauthn_configuration.0.reauthentication_workflow.0.user_verification_requirement").(string)),
+			},
+			RelyingPartyId:   data.Get("webauthn_configuration.0.relaying_party_id").(string),
+			RelyingPartyName: data.Get("webauthn_configuration.0.relaying_party_name").(string),
+		},
 		Name: data.Get("name").(string),
 		OauthConfiguration: fusionauth.TenantOAuth2Configuration{
 			ClientCredentialsAccessTokenPopulateLambdaId: data.Get("oauth_configuration.0.client_credentials_access_token_populate_lambda_id").(string),
@@ -645,8 +661,32 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			}},
 		},
 	})
+
 	if err != nil {
 		return diag.Errorf("tenant.multi_factor_configuration: %s", err.Error())
+	}
+
+	err = data.Set("webauthn_configuration", []map[string]interface{}{
+		{
+			"enabled":             t.WebAuthnConfiguration.Enabled,
+			"debug":               t.WebAuthnConfiguration.Debug,
+			"relaying_party_id":   t.WebAuthnConfiguration.RelyingPartyId,
+			"relaying_party_name": t.WebAuthnConfiguration.RelyingPartyName,
+			"bootstrap_workflow": []map[string]interface{}{{
+				"enabled":                             t.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
+				"authenticator_attachment_preference": t.WebAuthnConfiguration.BootstrapWorkflow.AuthenticatorAttachmentPreference,
+				"user_verification_requirement":       t.WebAuthnConfiguration.BootstrapWorkflow.UserVerificationRequirement,
+			}},
+			"reauthentication_workflow": []map[string]interface{}{{
+				"enabled":                             t.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
+				"authenticator_attachment_preference": t.WebAuthnConfiguration.ReauthenticationWorkflow.AuthenticatorAttachmentPreference,
+				"user_verification_requirement":       t.WebAuthnConfiguration.ReauthenticationWorkflow.UserVerificationRequirement,
+			}},
+		},
+	})
+
+	if err != nil {
+		return diag.Errorf("tenant.webauthn_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("name", t.Name); err != nil {
