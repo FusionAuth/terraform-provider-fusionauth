@@ -819,6 +819,13 @@ func newTenant() *schema.Resource {
 					},
 				},
 			},
+			"webauthn_configuration": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem:     newTenantWebAuthNConfiguration(),
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -962,6 +969,113 @@ func newFailedAuthenticationConfiguration() *schema.Resource {
 				Optional:     true,
 				Description:  "The Id of the User Action that is applied when the threshold is reached for too many failed authentication attempts.",
 				ValidateFunc: validation.IsUUID,
+			},
+		},
+	}
+}
+
+func newTenantWebAuthNConfiguration() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bootstrap_workflow": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether the WebAuthn bootstrap workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.",
+						},
+						"authenticator_attachment_preference": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "any",
+							ValidateFunc: validation.StringInSlice([]string{
+								"any",
+								"crossPlatform",
+								"platform",
+							}, false),
+							Description: "Determines the authenticator attachment requirement for WebAuthn passkey registration when using the bootstrap workflow.",
+						},
+						"user_verification_requirement": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "required",
+							ValidateFunc: validation.StringInSlice([]string{
+								"discouraged",
+								"preferred",
+								"required",
+							}, false),
+							Description: "Determines the user verification requirement for WebAuthn passkey registration and authentication when using the bootstrap workflow.",
+						},
+					},
+				},
+			},
+			"reauthentication_workflow": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether the WebAuthn reauthentication workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.",
+						},
+						"authenticator_attachment_preference": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "platform",
+							ValidateFunc: validation.StringInSlice([]string{
+								"any",
+								"crossPlatform",
+								"platform",
+							}, false),
+							Description: "Determines the authenticator attachment requirement for WebAuthn passkey registration when using the reauthentication workflow.",
+						},
+						"user_verification_requirement": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "required",
+							ValidateFunc: validation.StringInSlice([]string{
+								"discouraged",
+								"preferred",
+								"required",
+							}, false),
+							Description: "Determines the user verification requirement for WebAuthn passkey registration and authentication when using the reauthentication workflow.",
+						},
+					},
+				},
+			},
+			"enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Indicates if this application enables WebAuthn workflows based on the configuration defined here or the Tenant WebAuthn configuration. If this is false, WebAuthn workflows are enabled based on the Tenant configuration. If true, WebAuthn workflows are enabled according to the configuration of this application.",
+			},
+			"debug": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Determines if debug should be enabled for this tenant to create an event log to assist in debugging WebAuthn errors.",
+			},
+			"relaying_party_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "The value this tenant will use for the Relying Party Id in WebAuthn ceremonies. Passkeys can only be used to authenticate on sites using the same Relying Party Id they were registered with. This value must match the browser origin or be a registrable domain suffix of the browser origin.",
+			},
+			"relaying_party_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "The value this tenant will use for the Relying Party name in WebAuthn ceremonies. This value may be displayed by browser or operating system dialogs during WebAuthn ceremonies.",
 			},
 		},
 	}
