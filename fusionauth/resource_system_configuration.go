@@ -479,6 +479,13 @@ func getDefaultSystemConfigurationRequest() fusionauth.SystemConfigurationReques
 				},
 			},
 			ReportTimezone: "America/Denver",
+			WebhookEventLogConfiguration: fusionauth.WebhookEventLogConfiguration{
+				Delete: fusionauth.DeleteConfiguration{
+					Enableable: fusionauth.Enableable{
+						Enabled: false,
+					},
+				},
+			},
 		},
 	}
 }
