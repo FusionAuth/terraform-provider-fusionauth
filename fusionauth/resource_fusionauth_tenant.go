@@ -19,6 +19,12 @@ func newTenant() *schema.Resource {
 				Description:  "The optional Id of an existing Tenant to make a copy of. If present, the tenant.id and tenant.name values of the request body will be applied to the new Tenant, all other values will be copied from the source Tenant to the new Tenant.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"webhook_ids": {
+				Type:        schema.TypeSet,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+				Description: "An array of Webhook Ids. For Webhooks that are not already configured for All Tenants, specifying an Id on this request will indicate the associated Webhook should handle events for this tenant.",
+			},
 			"tenant_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1073,6 +1079,12 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				Type:         schema.TypeInt,
 				Required:     true,
 				Description:  "The time in seconds until an external authentication Id is no longer valid and cannot be used by the Token API. Value must be greater than 0.",
+				ValidateFunc: validation.IntAtLeast(1),
+			},
+			"login_intent_time_to_live_in_seconds": {
+				Type:         schema.TypeInt,
+				Required:     true,
+				Description:  "The number of seconds before the Login Timeout identifier is no longer valid to complete post-authentication steps in the OAuth workflow. Must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"one_time_password_time_to_live_in_seconds": {
