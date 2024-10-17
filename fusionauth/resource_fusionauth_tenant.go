@@ -1081,6 +1081,12 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				Description:  "The time in seconds until an external authentication Id is no longer valid and cannot be used by the Token API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
+			"login_intent_time_to_live_in_seconds": {
+				Type:         schema.TypeInt,
+				Required:     true,
+				Description:  "The number of seconds before the Login Timeout identifier is no longer valid to complete post-authentication steps in the OAuth workflow. Must be greater than 0.",
+				ValidateFunc: validation.IntAtLeast(1),
+			},
 			"one_time_password_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
 				Required:     true,
