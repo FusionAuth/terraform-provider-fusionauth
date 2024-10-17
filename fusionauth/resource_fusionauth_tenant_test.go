@@ -535,7 +535,7 @@ resource "fusionauth_tenant" "test_%[1]s" {
     }
     email_verification_id_time_to_live_in_seconds      = 86400
     external_authentication_id_time_to_live_in_seconds = 300
-		login_intent_time_to_live_in_seconds		   				= 3600
+    login_intent_time_to_live_in_seconds               = 3600
     one_time_password_time_to_live_in_seconds          = 60
     passwordless_login_generator {
       length = 32
