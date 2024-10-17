@@ -1,6 +1,4 @@
 dario.cat/mergo v1.0.0 h1:AGCNq9Evsj31mOgNPcLyXc+4PNABt905YmuqPYYpBWk=
-github.com/FusionAuth/go-client v0.0.0-20240425220342-2317e10dfcf5 h1:GGDFaOr/r7FTXZj4wrgtW4LlXeTFuBVoWgzuW4cbQ+s=
-github.com/FusionAuth/go-client v0.0.0-20240425220342-2317e10dfcf5/go.mod h1:SyRrXMJAzMVQLiJjKfQUR59dRI3jPyZv+BXIZ//HwE4=
 github.com/FusionAuth/go-client v0.0.0-20240912225700-ce40548e5bef h1:BRn4829CZpFBMp9afGlru7+9p/4U1m7ELhghd6vcRWg=
 github.com/FusionAuth/go-client v0.0.0-20240912225700-ce40548e5bef/go.mod h1:SyRrXMJAzMVQLiJjKfQUR59dRI3jPyZv+BXIZ//HwE4=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
