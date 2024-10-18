@@ -309,6 +309,13 @@ func newApplication() *schema.Resource {
 				Default:     false,
 				Description: "Whether or not registrations to this Application may be verified. When this is set to true the verificationEmailTemplateId parameter is also required.",
 			},
+			"webauthn_configuration": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem:     newApplicationWebAuthNConfiguration(),
+			},
 			"email_configuration": {
 				Type:       schema.TypeList,
 				MaxItems:   1,
@@ -736,6 +743,51 @@ func newOAuthConfiguration() *schema.Resource {
 					fusionauth.UnknownScopePolicy_Remove.String(),
 					fusionauth.UnknownScopePolicy_Reject.String(),
 				}, false),
+			},
+		},
+	}
+}
+
+func newApplicationWebAuthNConfiguration() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bootstrap_workflow": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether the WebAuthn bootstrap workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.",
+						},
+					},
+				},
+			},
+			"reauthentication_workflow": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether the WebAuthn reauthentication workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.",
+						},
+					},
+				},
+			},
+			"enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Indicates if this application enables WebAuthn workflows based on the configuration defined here or the Tenant WebAuthn configuration. If this is false, WebAuthn workflows are enabled based on the Tenant configuration. If true, WebAuthn workflows are enabled according to the configuration of this application.",
 			},
 		},
 	}
