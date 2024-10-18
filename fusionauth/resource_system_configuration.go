@@ -187,6 +187,39 @@ func resourceSystemConfiguration() *schema.Resource {
 					},
 				},
 			},
+			"webhook_event_log_configuration": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"delete": {
+							Type:       schema.TypeList,
+							MaxItems:   1,
+							Optional:   true,
+							ConfigMode: schema.SchemaConfigModeAttr,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether or not FusionAuth should delete the webhook event logs based upon this configuration. When true the webhookEventLogConfiguration.delete.numberOfDaysToRetain will be used to identify webhook event logs that are eligible for deletion. When this value is set to false webhook event logs will be preserved forever.",
+									},
+									"number_of_days_to_retain": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Default:     365,
+										Description: "The number of days to retain webhook event logs.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -304,6 +337,13 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.UiConfiguration.MenuFontColor = v.(string)
 	}
 
+	if v, ok := data.GetOk("webhook_event_log_configuration.0.delete.0.enabled"); ok {
+		sc.SystemConfiguration.WebhookEventLogConfiguration.Delete.Enabled = v.(bool)
+	}
+	if v, ok := data.GetOk("webhook_event_log_configuration.0.delete.0.number_of_days_to_retain"); ok {
+		sc.SystemConfiguration.WebhookEventLogConfiguration.Delete.NumberOfDaysToRetain = v.(int)
+	}
+
 	return sc
 }
 
@@ -375,6 +415,20 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		return diag.Errorf("system_configuration.ui_configuration: %s", err.Error())
 	}
 
+	err = data.Set("webhook_event_log_configuration", []map[string]interface{}{
+		{
+			"delete": []map[string]interface{}{
+				{
+					"enabled":                  sc.WebhookEventLogConfiguration.Delete.Enabled,
+					"number_of_days_to_retain": sc.WebhookEventLogConfiguration.Delete.NumberOfDaysToRetain,
+				},
+			},
+		},
+	})
+	if err != nil {
+		return diag.Errorf("system_configuration.webhook_event_log_configuration: %s", err.Error())
+	}
+
 	return nil
 }
 
@@ -425,6 +479,13 @@ func getDefaultSystemConfigurationRequest() fusionauth.SystemConfigurationReques
 				},
 			},
 			ReportTimezone: "America/Denver",
+			WebhookEventLogConfiguration: fusionauth.WebhookEventLogConfiguration{
+				Delete: fusionauth.DeleteConfiguration{
+					Enableable: fusionauth.Enableable{
+						Enabled: false,
+					},
+				},
+			},
 		},
 	}
 }
