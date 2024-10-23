@@ -7,7 +7,7 @@ import (
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-		"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func newWebhook() *schema.Resource {
@@ -324,8 +324,7 @@ func buildWebhook(data *schema.ResourceData) fusionauth.Webhook {
 		ReadTimeout:                data.Get("read_timeout").(int),
 		SslCertificate:             data.Get("ssl_certificate").(string),
 		Url:                        data.Get("url").(string),
-		SignatureConfiguration: 	buildSignatureConfiguration(data),
-
+		SignatureConfiguration:     buildSignatureConfiguration(data),
 	}
 
 	if i, ok := data.GetOk("headers"); ok {
@@ -335,14 +334,12 @@ func buildWebhook(data *schema.ResourceData) fusionauth.Webhook {
 	return wh
 }
 
-
 func buildSignatureConfiguration(data *schema.ResourceData) fusionauth.WebhookSignatureConfiguration {
 	return fusionauth.WebhookSignatureConfiguration{
-		Enableable:    buildEnableable("signature_configuration.0.enabled", data),
-		SigningKeyId:  data.Get("signature_configuration.0.signing_key_id").(string),
+		Enableable:   buildEnableable("signature_configuration.0.enabled", data),
+		SigningKeyId: data.Get("signature_configuration.0.signing_key_id").(string),
 	}
 }
-
 
 func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.EventType]bool {
 	prefix := key + ".0."
