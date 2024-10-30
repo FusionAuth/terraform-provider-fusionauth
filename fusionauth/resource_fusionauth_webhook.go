@@ -7,6 +7,7 @@ import (
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func newWebhook() *schema.Resource {
@@ -269,6 +270,30 @@ func newWebhook() *schema.Resource {
 				Required:    true,
 				Description: "The read timeout in milliseconds used when FusionAuth sends events to the Webhook.",
 			},
+			"signature_configuration": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Indicates if the Webhook request should be signed.",
+							RequiredWith: []string{
+								"signature_configuration.0.signing_key_id",
+							},
+						},
+						"signing_key_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the key used to sign the Webhook request.",
+							ValidateFunc: validation.IsUUID,
+						},
+					},
+				},
+			},
 			"ssl_certificate": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -299,6 +324,7 @@ func buildWebhook(data *schema.ResourceData) fusionauth.Webhook {
 		ReadTimeout:                data.Get("read_timeout").(int),
 		SslCertificate:             data.Get("ssl_certificate").(string),
 		Url:                        data.Get("url").(string),
+		SignatureConfiguration:     buildSignatureConfiguration(data),
 	}
 
 	if i, ok := data.GetOk("headers"); ok {
@@ -306,6 +332,13 @@ func buildWebhook(data *schema.ResourceData) fusionauth.Webhook {
 	}
 
 	return wh
+}
+
+func buildSignatureConfiguration(data *schema.ResourceData) fusionauth.WebhookSignatureConfiguration {
+	return fusionauth.WebhookSignatureConfiguration{
+		Enableable:   buildEnableable("signature_configuration.0.enabled", data),
+		SigningKeyId: data.Get("signature_configuration.0.signing_key_id").(string),
+	}
 }
 
 func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.EventType]bool {
