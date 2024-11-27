@@ -55,7 +55,7 @@ resource "fusionauth_user" "example" {
 * `middle_name` - (Optional) The User’s middle name.
 * `mobile_phone` - (Optional) The User’s mobile phone number. This is useful is you will be sending push notifications or SMS messages to the User.
 * `parent_email` - (Optional) The email address of the user’s parent or guardian. This field is used to allow a child user to identify their parent so FusionAuth can make a request to the parent to confirm the parent relationship.
-* `password` - (Optional) The User’s plain texts password. This password will be hashed and the provided value will never be stored and cannot be retrieved.
+* `password` - (Optional) The User’s plaintext password. This password will be hashed and the provided value will never be stored and cannot be retrieved.
 * `password_change_required` - (Optional) Indicates that the User’s password needs to be changed during their next login attempt.
 * `preferred_languages` - (Optional) An array of locale strings that give, in order, the User’s preferred languages. These are important for email templates and other localizable text.
 * `timezone` - (Optional) The User’s preferred timezone. The string must be in an IANA time zone format.
