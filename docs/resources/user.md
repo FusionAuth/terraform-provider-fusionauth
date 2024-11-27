@@ -40,7 +40,7 @@ resource "fusionauth_user" "example" {
 * `user_id` - (Optional) The Id to use for the new User. If not specified a secure random UUID will be generated..
 * `tenant_id` - (Optional) The unique Id of the tenant used to scope this API request.
 * `application_id` (Optional )-An optional Application Id. When this value is provided, it will be used to resolve an application specific email template if you have configured transactional emails such as setup password, email verification and others.
-* `disable_domain_block` - (Optional) An optional Application Id. When this value is provided, it will be used to resolve an application specific email template if you have configured transactional emails such as setup password, email verification and others.
+* `disable_domain_block` - A tenant has the option to configure one or more email domains to be blocked in order to restrict email domains during user create or update.  Setting this property equal to true will override the tenant configuration.
 * `send_set_password_email` - (Optional) Indicates to FusionAuth to send the User an email asking them to set their password. The Email Template that is used is configured in the System Configuration setting for Set Password Email Template.
 * `skip_verification` - (Optional) Indicates to FusionAuth that it should skip email verification even if it is enabled. This is useful for creating admin or internal User accounts.
 * `birth_date` - (Optional) An ISO-8601 formatted date of the User’s birthdate such as YYYY-MM-DD.
@@ -55,7 +55,7 @@ resource "fusionauth_user" "example" {
 * `middle_name` - (Optional) The User’s middle name.
 * `mobile_phone` - (Optional) The User’s mobile phone number. This is useful is you will be sending push notifications or SMS messages to the User.
 * `parent_email` - (Optional) The email address of the user’s parent or guardian. This field is used to allow a child user to identify their parent so FusionAuth can make a request to the parent to confirm the parent relationship.
-* `password` - (Optional) The User’s plain texts password. This password will be hashed and the provided value will never be stored and cannot be retrieved.
+* `password` - (Optional) The User’s plaintext password. This password will be hashed and the provided value will never be stored and cannot be retrieved.
 * `password_change_required` - (Optional) Indicates that the User’s password needs to be changed during their next login attempt.
 * `preferred_languages` - (Optional) An array of locale strings that give, in order, the User’s preferred languages. These are important for email templates and other localizable text.
 * `timezone` - (Optional) The User’s preferred timezone. The string must be in an IANA time zone format.
