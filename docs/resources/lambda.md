@@ -28,23 +28,23 @@ function populate(jwt, user, registration) {
 * `engine_type` - (Optional) The JavaScript execution engine for the lambda.
 * `name` - (Required) The name of the lambda.
 * `type` - (Required) The lambda type. The possible values are:
-    - `JWTPopulate`
-    - `OpenIDReconcile`
-    - `SAMLv2Reconcile`
-    - `SAMLv2Populate`
     - `AppleReconcile`
+    - `ClientCredentialsJWTPopulate`
+    - `EpicGamesReconcile`
     - `ExternalJWTReconcile`
     - `FacebookReconcile`
     - `GoogleReconcile`
     - `HYPRReconcile`
-    - `TwitterReconcile`
+    - `JWTPopulate`
     - `LDAPConnectorReconcile`
     - `LinkedInReconcile`
-    - `EpicGamesReconcile`
     - `NintendoReconcile`
+    - `OpenIDReconcile`
+    - `SAMLv2Populate`
+    - `SAMLv2Reconcile`
+    - `SelfServiceRegistrationValidation`
     - `SonyPSNReconcile`
     - `SteamReconcile`
     - `TwitchReconcile`
+    - `TwitterReconcile`
     - `XboxReconcile`
-    - `SelfServiceRegistrationValidation`
-    - `ClientCredentialsJWTPopulate`

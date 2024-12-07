@@ -18,26 +18,26 @@ data "fusionauth_lambda" "default_google_reconcile" {
 * `id`   - (Optional) The ID of the Lambda. At least one of `id` or `name` must be specified.
 * `name` - (Optional) The name of the Lambda. At least one of `id` or `name` must be specified.
 * `type` - (Required) The Lambda type. The possible values are:
-    - `JWTPopulate`
-    - `OpenIDReconcile`
-    - `SAMLv2Reconcile`
-    - `SAMLv2Populate`
     - `AppleReconcile`
+    - `ClientCredentialsJWTPopulate`
+    - `EpicGamesReconcile`
     - `ExternalJWTReconcile`
     - `FacebookReconcile`
     - `GoogleReconcile`
     - `HYPRReconcile`
-    - `TwitterReconcile`
+    - `JWTPopulate`
     - `LDAPConnectorReconcile`
     - `LinkedInReconcile`
-    - `EpicGamesReconcile`
     - `NintendoReconcile`
+    - `OpenIDReconcile`
+    - `SAMLv2Populate`
+    - `SAMLv2Reconcile`
+    - `SelfServiceRegistrationValidation`
     - `SonyPSNReconcile`
     - `SteamReconcile`
     - `TwitchReconcile`
+    - `TwitterReconcile`
     - `XboxReconcile`
-    - `SelfServiceRegistrationValidation`
-    - `ClientCredentialsJWTPopulate`
 
 ## Attributes Reference
 
