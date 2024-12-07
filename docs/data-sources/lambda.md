@@ -28,6 +28,7 @@ data "fusionauth_lambda" "default_google_reconcile" {
     - `JWTPopulate`
     - `LDAPConnectorReconcile`
     - `LinkedInReconcile`
+    - `LoginValidation`
     - `NintendoReconcile`
     - `OpenIDReconcile`
     - `SAMLv2Populate`

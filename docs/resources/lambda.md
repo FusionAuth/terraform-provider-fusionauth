@@ -38,6 +38,7 @@ function populate(jwt, user, registration) {
     - `JWTPopulate`
     - `LDAPConnectorReconcile`
     - `LinkedInReconcile`
+    - `LoginValidation`
     - `NintendoReconcile`
     - `OpenIDReconcile`
     - `SAMLv2Populate`

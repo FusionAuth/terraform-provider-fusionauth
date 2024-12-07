@@ -55,6 +55,7 @@ func dataSourceLambda() *schema.Resource {
 					string(fusionauth.LambdaType_JWTPopulate),
 					string(fusionauth.LambdaType_LDAPConnectorReconcile),
 					string(fusionauth.LambdaType_LinkedInReconcile),
+					string(fusionauth.LambdaType_LoginValidation),
 					string(fusionauth.LambdaType_NintendoReconcile),
 					string(fusionauth.LambdaType_OpenIDReconcile),
 					string(fusionauth.LambdaType_SAMLv2Populate),
