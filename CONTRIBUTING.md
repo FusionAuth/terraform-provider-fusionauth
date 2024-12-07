@@ -51,7 +51,7 @@ Then run it:
 golangci-lint run
 ```
 
-## To uppdate the FusionAuth go-client
+## To update the FusionAuth go-client
 
 In this example, we are pulling the go-client at version `1.42.1`
 
