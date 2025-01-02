@@ -532,7 +532,7 @@ resource "fusionauth_tenant" "example" {
     - `two_factor_one_time_code_id_time_to_live_in_seconds` - (Optional) The number of seconds before the Two-Factor One Time Code used to enable or disable a two-factor method is no longer valid. Must be greater than 0.
     - `two_factor_trust_id_time_to_live_in_seconds` - (Required) The time in seconds until an issued Two Factor trust Id is no longer valid and the User will be required to complete Two Factor authentication during the next authentication attempt. Value must be greater than 0.
     - `two_factor_one_time_code_id_generator` - (Required)
-        - `length` - (Required) TThe length of the secure generator used for generating the the two factor code Id.
+        - `length` - (Required) The length of the secure generator used for generating the the two factor code Id.
         - `type` - (Optional) The type of the secure generator used for generating the two factor one time code Id.
 * `failed_authentication_configuration` - (Optional)
     - `action_duration` - (Required) The duration of the User Action. This value along with the actionDurationUnit will be used to set the duration of the User Action. Value must be greater than 0.

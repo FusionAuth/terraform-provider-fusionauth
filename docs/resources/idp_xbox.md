@@ -38,7 +38,7 @@ resource "fusionauth_idp_xbox" "xbox" {
     - `enabled` - (Optional) Determines if this identity provider is enabled for the Application specified by the applicationId key.
     - `scope` - (Optional)This is an optional Application specific override for the top level scope.
 * `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
-* `client_id` - (Required) TThe top-level Xbox client id for your Application. This value is retrieved from the Xbox developer website when you setup your Xbox developer account.
+* `client_id` - (Required) The top-level Xbox client id for your Application. This value is retrieved from the Xbox developer website when you setup your Xbox developer account.
 * `client_secret` - (Required) The top-level client secret to use with the Xbox Identity Provider when retrieving the long-lived token. This value is retrieved from the Xbox developer website when you setup your Xbox developer account.
 * `debug` - (Optional) Determines if debug is enabled for this provider. When enabled, each time this provider is invoked to reconcile a login an Event Log will be created.
 * `enabled` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
