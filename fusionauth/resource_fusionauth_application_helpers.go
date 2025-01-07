@@ -166,6 +166,15 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			TwoFactorMethodAddEmailTemplateId:    data.Get("email_configuration.0.two_factor_method_add_template_id").(string),
 			TwoFactorMethodRemoveEmailTemplateId: data.Get("email_configuration.0.two_factor_method_remove_template_id").(string),
 		},
+		WebAuthnConfiguration: fusionauth.ApplicationWebAuthnConfiguration{
+			BootstrapWorkflow: fusionauth.ApplicationWebAuthnWorkflowConfiguration{
+				Enableable: buildEnableable("webauthn_configuration.0.bootstrap_workflow.0.enabled", data),
+			},
+			Enableable: buildEnableable("webauthn_configuration.0.enabled", data),
+			ReauthenticationWorkflow: fusionauth.ApplicationWebAuthnWorkflowConfiguration{
+				Enableable: buildEnableable("webauthn_configuration.0.reauthentication_workflow.0.enabled", data),
+			},
+		},
 	}
 
 	return a
@@ -490,6 +499,25 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 	})
 	if err != nil {
 		return diag.Errorf("application.email_configuration: %s", err.Error())
+	}
+
+	err = data.Set("webauthn_configuration", []map[string]interface{}{
+		{
+			"bootstrap_workflow": []map[string]interface{}{
+				{
+					"enabled": a.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
+				},
+			},
+			"enabled": a.WebAuthnConfiguration.Enabled,
+			"reauthentication_workflow": []map[string]interface{}{
+				{
+					"enabled": a.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
+				},
+			},
+		},
+	})
+	if err != nil {
+		return diag.Errorf("application.webauthn_configuration: %s", err.Error())
 	}
 
 	return nil

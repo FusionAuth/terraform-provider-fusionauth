@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -17,6 +18,48 @@ func dataSourceApplication() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: "The name of the Application.",
+			},
+			"tenant_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the Tenant that owns the Application.",
+			},
+			"webauthn_configuration": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The WebAuthnConfiguration for the Application.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"bootstrap_workflow": {
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+								},
+							},
+							Computed: true,
+							Type:     schema.TypeList,
+						},
+						"enabled": {
+							Computed: true,
+							Type:     schema.TypeBool,
+						},
+						"reauthentication_workflow": {
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+								},
+							},
+							Computed: true,
+							Type:     schema.TypeList,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -44,5 +87,26 @@ func dataSourceApplicationRead(_ context.Context, data *schema.ResourceData, i i
 		return diag.Errorf("couldn't find application %s", name)
 	}
 	data.SetId(app.Id)
+	data.Set("tenant_id", app.TenantId)
+	// Properly structure WebAuthn configuration
+	webauthnConfig := []map[string]interface{}{
+		{
+			"enabled": app.WebAuthnConfiguration.Enabled,
+			"bootstrap_workflow": []map[string]interface{}{
+				{
+					"enabled": app.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
+				},
+			},
+			"reauthentication_workflow": []map[string]interface{}{
+				{
+					"enabled": app.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
+				},
+			},
+		},
+	}
+
+	if err := data.Set("webauthn_configuration", webauthnConfig); err != nil {
+		return diag.FromErr(fmt.Errorf("error setting webauthn_configuration: %v", err))
+	}
 	return nil
 }
