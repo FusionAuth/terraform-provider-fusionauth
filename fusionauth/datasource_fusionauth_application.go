@@ -30,33 +30,17 @@ func dataSourceApplication() *schema.Resource {
 				Description: "The WebAuthnConfiguration for the Application.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"bootstrap_workflow": {
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"enabled": {
-										Type:     schema.TypeBool,
-										Computed: true,
-									},
-								},
-							},
+						"bootstrap_workflow_enabled": {
 							Computed: true,
-							Type:     schema.TypeList,
+							Type:     schema.TypeBool,
 						},
 						"enabled": {
 							Computed: true,
 							Type:     schema.TypeBool,
 						},
-						"reauthentication_workflow": {
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"enabled": {
-										Type:     schema.TypeBool,
-										Computed: true,
-									},
-								},
-							},
+						"reauthentication_workflow_enabled": {
 							Computed: true,
-							Type:     schema.TypeList,
+							Type:     schema.TypeBool,
 						},
 					},
 				},
@@ -91,17 +75,9 @@ func dataSourceApplicationRead(_ context.Context, data *schema.ResourceData, i i
 	// Properly structure WebAuthn configuration
 	webauthnConfig := []map[string]interface{}{
 		{
+			"bootstrap_workflow_enabled": app.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
 			"enabled": app.WebAuthnConfiguration.Enabled,
-			"bootstrap_workflow": []map[string]interface{}{
-				{
-					"enabled": app.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
-				},
-			},
-			"reauthentication_workflow": []map[string]interface{}{
-				{
-					"enabled": app.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
-				},
-			},
+			"reauthentication_workflow_enabled": app.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
 		},
 	}
 

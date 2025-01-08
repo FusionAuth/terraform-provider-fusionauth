@@ -168,11 +168,11 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		},
 		WebAuthnConfiguration: fusionauth.ApplicationWebAuthnConfiguration{
 			BootstrapWorkflow: fusionauth.ApplicationWebAuthnWorkflowConfiguration{
-				Enableable: buildEnableable("webauthn_configuration.0.bootstrap_workflow.0.enabled", data),
+				Enableable: buildEnableable("webauthn_configuration.0.bootstrap_workflow_enabled", data),
 			},
 			Enableable: buildEnableable("webauthn_configuration.0.enabled", data),
 			ReauthenticationWorkflow: fusionauth.ApplicationWebAuthnWorkflowConfiguration{
-				Enableable: buildEnableable("webauthn_configuration.0.reauthentication_workflow.0.enabled", data),
+				Enableable: buildEnableable("webauthn_configuration.0.reauthentication_workflow_enabled", data),
 			},
 		},
 	}
@@ -503,17 +503,9 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	err = data.Set("webauthn_configuration", []map[string]interface{}{
 		{
-			"bootstrap_workflow": []map[string]interface{}{
-				{
-					"enabled": a.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
-				},
-			},
+			"bootstrap_workflow_enabled": a.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
 			"enabled": a.WebAuthnConfiguration.Enabled,
-			"reauthentication_workflow": []map[string]interface{}{
-				{
-					"enabled": a.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
-				},
-			},
+			"reauthentication_workflow_enabled": a.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
 		},
 	})
 	if err != nil {

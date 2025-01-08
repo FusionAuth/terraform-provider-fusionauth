@@ -409,46 +409,21 @@ func newApplication() *schema.Resource {
 				MaxItems:   1,
 				Computed:   true,
 				ConfigMode: schema.SchemaConfigModeAttr,
-				Elem:       newWebAuthnConfiguration(),
-				Optional:   true,
-			},
-		},
-	}
-}
-
-func newWebAuthnConfiguration() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"bootstrap_workflow": {
-				Type:       schema.TypeList,
-				MaxItems:   1,
-				Optional:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
-				Elem: &schema.Resource{
+				Elem:       &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"enabled": {
+						"bootstrap_workflow_enabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     false,
 							Description: "Whether the WebAuthn bootstrap workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.",
 						},
-					},
-				},
-			},
-			"enabled": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Indicates if this application enables WebAuthn workflows based on the configuration defined here or the Tenant WebAuthn configuration. If this is false, WebAuthn workflows will be enabled based on the Tenant configuration. If true, WebAuthn workflows will be enabled according to the configuration of this application.",
-			},
-			"reauthentication_workflow": {
-				Type:       schema.TypeList,
-				MaxItems:   1,
-				Optional:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
 						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Indicates if this application enables WebAuthn workflows based on the configuration defined here or the Tenant WebAuthn configuration. If this is false, WebAuthn workflows will be enabled based on the Tenant configuration. If true, WebAuthn workflows will be enabled according to the configuration of this application.",
+						},
+						"reauthentication_workflow_enabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     false,
@@ -456,6 +431,7 @@ func newWebAuthnConfiguration() *schema.Resource {
 						},
 					},
 				},
+				Optional:   true,
 			},
 		},
 	}

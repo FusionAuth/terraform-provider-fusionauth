@@ -268,8 +268,6 @@ resource "fusionauth_application" "Forum" {
   * `two_factor_method_add_template_id` - (Optional) The Id of the Email Template used to send emails to users when a MFA method has been added to their account. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
   * `two_factor_method_remove_template_id` - (Optional) The Id of the Email Template used to send emails to users when a MFA method has been removed from their account. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
 * `webauthn_configuration` - (Optional)
-  * `bootstrapWorkflow` - (Optional)
-    * `enabled` - (Optional) Whether the WebAuthn bootstrap workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.
-  * `enabled` - (Optional) Indicates if this application enables WebAuthn workflows based on the configuration defined here or the Tenant WebAuthn configuration. If this is false, WebAuthn workflows will be enabled based on the Tenant configuration. If true, WebAuthn workflows will be enabled according to the configuration of this application.
-  * `reauthenticationWorkflow` - (Optional)
-    * `enabled` - (Optional) Whether the WebAuthn reauthentication workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.
+  * `enabled` - (Optional) Whether the WebAuthn bootstrap workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.
+  * `bootstrap_workflow_enabled` - (Optional) Indicates if this application enables WebAuthn workflows based on the configuration defined here or the Tenant WebAuthn configuration. If this is false, WebAuthn workflows will be enabled based on the Tenant configuration. If true, WebAuthn workflows will be enabled according to the configuration of this application.
+  * `reauthentication_workflow_enabled` - (Optional) Whether the WebAuthn reauthentication workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.
