@@ -2,7 +2,6 @@
 
 The FusionAuth APIs are primarily secured using API keys. This API can only be accessed using an API key that is set as a keyManager. In order to retrieve, update or delete an API key, an API key with equal or greater permissions must be used. A "tenant-scoped" API key can retrieve, create, update or delete an API key for the same tenant. This page describes APIs that are used to manage API keys.
 
-
 [API Key](https://fusionauth.io/docs/v1/tech/apis/api-keys/)
 
 ## Example Usage
@@ -32,9 +31,10 @@ resource "fusionauth_api_key" "example" {
 * `ip_access_control_list_id` - (Optional) The Id of the IP Access Control List limiting access to this API key.
 * `permissions_endpoints` - (Required) The unique Id of the private key downloaded from Apple and imported into Key Master that will be used to sign the client secret.
 * `lambda_reconcile_id` - (Optional) Endpoint permissions for this key. Each key of the object is an endpoint, with the value being an array of the HTTP methods which can be used against the endpoint. An Empty permissions_endpoints object mean that this is a super key that authorizes this key for all the endpoints.
-    - `endpoint` - (Optional)
-    - `delete` - (Optional) HTTP DELETE Verb.
-    - `get` - (Optional) HTTP GET Verb.
-    - `patch` - (Optional) HTTP PATCH Verb
-    - `post` - (Optional) HTTP POST Verb
-    - `put` - (Optional) HTTP PUT Verb
+  * `endpoint` - (Optional)
+  * `delete` - (Optional) HTTP DELETE Verb.
+  * `get` - (Optional) HTTP GET Verb.
+  * `patch` - (Optional) HTTP PATCH Verb
+  * `post` - (Optional) HTTP POST Verb
+  * `put` - (Optional) HTTP PUT Verb
+* `expiration_instant` - (Optional) The expiration instant of this API key. Using an expired API key for API Authentication will result in a 401 response code.

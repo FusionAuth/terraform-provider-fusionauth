@@ -184,6 +184,11 @@ func resourceAPIKey() *schema.Resource {
 					},
 				},
 			},
+			"expiration_instant": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Description:  "The expiration instant of this API key. Using an expired API key for API Authentication will result in a 401 response code.",
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -280,6 +285,7 @@ func buildAPIKey(data *schema.ResourceData) fusionauth.APIKey {
 				"description": data.Get("description").(string),
 			},
 		},
+		ExpirationInstant: int64(data.Get("expiration_instant").(int)),
 	}
 
 	m := make(map[string][]string)
@@ -360,6 +366,10 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 
 	if err := data.Set("permissions_endpoints", pe); err != nil {
 		return diag.Errorf("apiKey.permissions_endpoints: %s", err.Error())
+	}
+
+	if err := data.Set("expiration_instant", res.ExpirationInstant); err != nil {
+		return diag.Errorf("apiKey.expiration_instant: %s", err.Error())
 	}
 	return nil
 }
