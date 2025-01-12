@@ -97,15 +97,31 @@ func newApplication() *schema.Resource {
 				Type:       schema.TypeList,
 				MaxItems:   1,
 				Optional:   true,
-				Computed:   true,
 				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"admin_registration_form_id": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:    true,
 							ValidateFunc: validation.IsUUID,
 							Description:  "The unique Id of the form to use for the Add and Edit User Registration form when used in the FusionAuth admin UI.",
+						},
+						"self_service_form_configuration": {
+							Type:       schema.TypeList,
+							MaxItems:   1,
+							Optional:   true,
+							ConfigMode: schema.SchemaConfigModeAttr,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"require_current_password_on_password_change": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether or not the self-service form is enabled.",
+									},
+								},
+							},
 						},
 						"self_service_form_id": {
 							Type:         schema.TypeString,
@@ -116,12 +132,16 @@ func newApplication() *schema.Resource {
 					},
 				},
 			},
+			"insert_instant": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The instant that the Application was added to the FusionAuth database.",
+			},
 			"jwt_configuration": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Elem:     newJWTConfiguration(),
 				Optional: true,
-				Computed: true,
 			},
 			"lambda_configuration": {
 				Type:       schema.TypeList,
@@ -158,6 +178,11 @@ func newApplication() *schema.Resource {
 						},
 					},
 				},
+			},
+			"last_update_instant": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The instant that the Application was last updated in the FusionAuth database.",
 			},
 			"login_configuration": {
 				Type:     schema.TypeList,
@@ -407,9 +432,9 @@ func newApplication() *schema.Resource {
 			"webauthn_configuration": {
 				Type:       schema.TypeList,
 				MaxItems:   1,
-				Computed:   true,
 				ConfigMode: schema.SchemaConfigModeAttr,
-				Elem:       &schema.Resource{
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bootstrap_workflow_enabled": {
 							Type:        schema.TypeBool,
@@ -431,7 +456,7 @@ func newApplication() *schema.Resource {
 						},
 					},
 				},
-				Optional:   true,
+				Optional: true,
 			},
 		},
 	}
@@ -440,6 +465,90 @@ func newApplication() *schema.Resource {
 func newSamlv2Configuration() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"assertion_encryption_configuration": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"digest_algorithm": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default: "SHA256",
+							ValidateFunc: validation.StringInSlice([]string{
+								"SHA1",
+								"SHA256",
+								"SHA384",
+								"SHA512",
+							}, false),
+							Description: "The message digest algorithm to use when encrypting the symmetric key for transport.",
+						},
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Determines if SAML assertion encryption is enabled for this Application.",
+						},
+						"encryption_algorithm": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default: "AES256GCM",
+							ValidateFunc: validation.StringInSlice([]string{
+								"AES128",
+								"AES192",
+								"AES256",
+								"AES128GCM",
+								"AES192GCM",
+								"AES256GCM",
+								"TripleDES",
+							}, false),
+							Description: "The symmetric key encryption algorithm that will be used to encrypt SAML assertions. A new symmetric key will be generated every time an assertion is encrypted. AES ciphers can operate in Cipher Block Chaining (CBC) or Galois/Counter Mode (GCM).",
+						},
+						"key_location": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default: "Child",
+							ValidateFunc: validation.StringInSlice([]string{
+								"Child",
+								"Sibling",
+							}, false),
+							Description: "The message digest algorithm to use when encrypting the symmetric key for transport.",
+						},
+						"key_transport_algorithm": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default: "RSA_OAEP",
+							ValidateFunc: validation.StringInSlice([]string{
+								"RSAv15",
+								"RSA_OAEP",
+								"RSA_OAEP_MGF1P",
+							}, false),
+							Description: "The encryption algorithm used to encrypt the symmetric key for transport in the SAML response.",
+						},
+						"key_transport_encryption_key_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.IsUUID,
+							Description:  "The unique Id of the Key used to encrypt the symmetric key for transport in the SAML response. The selected Key must contain an RSA certificate. This parameter is required when application.samlv2Configuration.assertionEncryptionConfiguration.enabled is set to true.",
+						},
+						"mask_generation_function": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default: "MGF1_SHA1",
+							ValidateFunc: validation.StringInSlice([]string{
+								"MGF1_SHA1",
+								"MGF1_SHA224",
+								"MGF1_SHA256",
+								"MGF1_SHA384",
+								"MGF1_SHA512",
+							}, false),
+							Description: "The mask generation function and hash function to use for the Optimal Asymmetric Encryption Padding when encrypting a symmetric key for transport. This value is only used when the application.samlv2Configuration.assertionEncryptionConfiguration.keyTransportAlgorithm is set to RSA_OAEP. RSAv15 does not require a message digest function, and RSA_OAEP_MGF1P will always use MGF1_SHA1 regardless of this value.",
+						},
+					},
+				},
+			},
 			"audience": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -454,6 +563,7 @@ func newSamlv2Configuration() *schema.Resource {
 			"callback_url": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Deprecated:  "In version 1.20.0 and beyond, Callback URLs can be managed via authorized_redirect_urls.",
 				Description: "The URL of the callback (sometimes called the Assertion Consumer Service or ACS). This is where FusionAuth sends the browser after the user logs in via SAML.",
 			},
@@ -469,6 +579,29 @@ func newSamlv2Configuration() *schema.Resource {
 				Description:  "Default verification key to use for HTTP Redirect Bindings, and for POST Bindings when no key is found in request.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"initiated_login": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				ConfigMode:       schema.SchemaConfigModeAttr,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Determines if SAML v2 IdP initiated login is enabled for this application. See application.samlv2Configuration.authorizedRedirectURLs for information on which destination URLs are allowed.",
+						},
+						"name_id_format": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+							Description: "The value sent in the AuthN response to the SAML v2 Service Provider in the NameID assertion.",
+						},
+					},
+				},
+			},
 			"enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -482,14 +615,40 @@ func newSamlv2Configuration() *schema.Resource {
 			},
 			"key_id": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: "The id of the Key used to sign the SAML response. If you do not specify this property, FusionAuth will create a new key and associate it with this Application.",
 			},
+			"login_hint_configuration": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				ConfigMode:       schema.SchemaConfigModeAttr,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Determines if SAML v2 login hint is enabled for this application.",
+						},
+						"parameter_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "login_hint",
+							Description: "The name of the parameter that will be used to pass the login hint to the SAML v2 IdP.",
+						},
+					},
+				},
+			},
 			"logout": {
-				Type:       schema.TypeList,
-				MaxItems:   1,
-				Optional:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				Computed:         true,
+				ConfigMode:       schema.SchemaConfigModeAttr,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"behavior": {
@@ -776,6 +935,7 @@ func newJWTConfiguration() *schema.Resource {
 			"access_token_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:   true,
 				Description: "The Id of the signing key used to sign the access token.",
 			},
 			"enabled": {
@@ -787,6 +947,7 @@ func newJWTConfiguration() *schema.Resource {
 			"id_token_key_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed: true,
 				Description: "The Id of the signing key used to sign the Id token.",
 			},
 			"refresh_token_ttl_minutes": {
@@ -806,7 +967,7 @@ func newJWTConfiguration() *schema.Resource {
 					fusionauth.RefreshTokenExpirationPolicy_SlidingWindowWithMaximumLifetime.String(),
 				}, false),
 			},
-			"refresh_token_sliding_window_maximum_time_to_live_in_minutes": {
+			"refresh_token_sliding_window_maximum_ttl_in_minutes": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "The maximum lifetime of a refresh token when using a refresh token expiration policy of SlidingWindowWithMaximumLifetime. Value must be greater than 0.",

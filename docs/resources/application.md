@@ -126,13 +126,15 @@ resource "fusionauth_application" "Forum" {
 * `form_configuration` - (Optional)
   * `admin_registration_form_id` - (Optional) The unique Id of the form to use for the Add and Edit User Registration form when used in the FusionAuth admin UI.
   * `self_service_form_id` - (Optional) The unique Id of the form to to enable authenticated users to manage their profile on the account page.
+  * `self_service_form_configuration` - (Optional)
+    * `require_current_password_on_password_change` - (Optional) When enabled a user will be required to provide their current password when changing their password on a self-service account form.
 * `jwt_configuration` - (Optional)
   * `access_token_id` - (Optional) The Id of the signing key used to sign the access token.
   * `enabled` - (Optional) Indicates if this application is using the JWT configuration defined here or the global JWT configuration defined by the System Configuration. If this is false the signing algorithm configured in the System Configuration will be used. If true the signing algorithm defined in this application will be used.
   * `id_token_key_id` - (Optional) The Id of the signing key used to sign the Id token.
-  * `refresh_token_sliding_window_maximum_time_to_live_in_minutes` - (Optional) The maximum lifetime of a refresh token when using a refresh token expiration policy of `SlidingWindowWithMaximumLifetime`. Value must be greater than 0.
+  * `refresh_token_sliding_window_maximum_ttl_in_minutes` - (Optional) The maximum lifetime of a refresh token when using a refresh token expiration policy of `SlidingWindowWithMaximumLifetime`. Value must be greater than 0.
   * `refresh_token_ttl_minutes` - (Optional) The length of time in minutes the JWT refresh token will live before it is expired and is not able to be exchanged for a JWT.
-  * `refresh_token_expiration_policy` - (Optional) The Refresh Token expiration policy. The possible values are: Fixed - the expiration is calculated from the time the token is issued.  SlidingWindow - the expiration is calculated from the last time the token was used. SlidingWindowWithMaximumLifetime - the expiration is calculated from the last time the token was used, or until `refresh_token_sliding_window_maximum_time_to_live_in_minutes` is reached.
+  * `refresh_token_expiration_policy` - (Optional) The Refresh Token expiration policy. The possible values are: Fixed - the expiration is calculated from the time the token is issued.  SlidingWindow - the expiration is calculated from the last time the token was used. SlidingWindowWithMaximumLifetime - the expiration is calculated from the last time the token was used, or until `refresh_token_sliding_window_maximum_ttl_in_minutes` is reached.
   * `refresh_token_usage_policy` - (Optional) The refresh token usage policy. The following are valid values: Reusable - the token does not change after it was issued. OneTimeUse - the token value will be changed each time the token is used to refresh a JWT. The client must store the new value after each usage. Defaults to Reusable.
   * `ttl_seconds` - (Optional) The length of time in seconds the JWT will live before it is expired and no longer valid.
 * `lambda_configuration` - (Optional)
@@ -225,14 +227,28 @@ resource "fusionauth_application" "Forum" {
   * `unverified_enabled` - (Optional) Indicates that users without a verified registration for this application will have their registration permanently deleted after application.registrationDeletePolicy.unverified.numberOfDaysToRetain days.
   * `unverified_number_of_days_to_retain` - (Optional) The number of days from registration a user’s registration will be retained before being deleted for not completing registration verification. This field is required when application.registrationDeletePolicy.enabled is set to true. Value must be greater than 0.
 * `samlv2_configuration` - (Optional)
+  * `assertion_encryption_configuration` - (Optional)
+    * `digest_algorithm` - (Optional) The message digest algorithm to use when encrypting the symmetric key for transport. The possible values are: SHA1 - SHA-1 hashing algorithm, SHA256 - SHA-256 hashing algorithm, SHA384 - SHA-384 hashing algorithm or SHA512 - SHA-512 hashing algorithm. Using SHA256 or higher is recommended.
+    * `enabled` - (Optional) Determines if SAML assertion encryption is enabled for this Application.
+    * `encryption_algorithm` - (Optional) The symmetric key encryption algorithm that will be used to encrypt SAML assertions. A new symmetric key will be generated every time an assertion is encrypted. AES ciphers can operate in Cipher Block Chaining (CBC) or Galois/Counter Mode (GCM). The possible values are: AES128, AES192, AES256, AES128GCM, AES192GCM, AES256GCM or TripleDES.
+    * `key_location` - (Optional) The location that the encrypted symmetric key information will be placed in the SAML response in relation to the EncryptedData element containing the encrypted assertion value. The possible values are: Child (The EncryptedKey element will be wrapped in a KeyInfo element and added inside the EncryptedData) or Sibling (The EncryptedKey element will be added to the document as a sibling of EncryptedData).
+    * `key_transport_algorithm` - (Optional) The encryption algorithm used to encrypt the symmetric key for transport in the SAML response. The possible values are: RSAv15, RSA_OAEP or RSA_OAEP_MGF1P.
+    * `key_transport_encryption_key_id` - (Optional) The unique Id of the Key used to encrypt the symmetric key for transport in the SAML response. The selected Key must contain an RSA certificate. This parameter is required when application.samlv2Configuration.assertionEncryptionConfiguration.enabled is set to true.
+    * `mask_generation_function` - (Optional) The mask generation function and hash function to use for the Optimal Asymmetric Encryption Padding when encrypting a symmetric key for transport. The possible values are: MGF1_SHA1, MGF1_SHA224, MGF1_SHA256, MGF1_SHA384 or MGF1_SHA512. This value is only used when the `application.samlv2Configuration.assertionEncryptionConfiguration.keyTransportAlgorithm` is set to RSA_OAEP. RSAv15 does not require a message digest function, and RSA_OAEP_MGF1P will always use MGF1_SHA1 regardless of this value.
   * `audience` - (Optional) The audience for the SAML response sent to back to the service provider from FusionAuth. Some service providers require different audience values than the issuer and this configuration option lets you change the audience in the response.
   * `authorized_redirect_urls` - (Required) An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.
   * `callback_url` - (Required) The URL of the callback (sometimes called the Assertion Consumer Service or ACS). This is where FusionAuth sends the browser after the user logs in via SAML.
   * `debug` - (Optional) Whether or not FusionAuth will log SAML debug messages to the event log. This is useful for debugging purposes.
   * `default_verification_key_id` - (Optional) Default verification key to use for HTTP Redirect Bindings, and for POST Bindings when no key is found in request.
+  * `initiated_login` - (Optional)
+    * `enabled` - (Optional) Determines if SAML v2 IdP initiated login is enabled for this application. See application.samlv2Configuration.authorizedRedirectURLs for information on which destination URLs are allowed.
+    * `name_id_format` - (Optional) The value sent in the AuthN response to the SAML v2 Service Provider in the NameID assertion.
   * `enabled` - (Optional) Whether or not the SAML IdP for this Application is enabled or not.
   * `issuer` - (Required) The issuer that identifies the service provider and allows FusionAuth to load the correct Application and SAML configuration. If you don’t know the issuer, you can often times put in anything here and FusionAuth will display an error message with the issuer from the service provider when you test the SAML login.
   * `key_id` - (Optional) The id of the Key used to sign the SAML response. If you do not specify this property, FusionAuth will create a new key and associate it with this Application.
+  * `login_hint_configuration` - (Optional)
+    * `enabled` - (Optional) When enabled, FusionAuth will accept a username or email address as a login hint on a custom HTTP request parameter.
+    * `name_id_format` - (Optional) The name of the login hint parameter provided by the service provider on an AuthnRequest. If this parameter is present, its value will be used to pre-populate the username field on the FusionAuth login form.
   * `logout` - (Optional)
     * `behavior` - (Optional) This configuration is functionally equivalent to the Logout Behavior found in the OAuth2 configuration.
     * `default_verification_key_id` - (Optional) The unique Id of the Key used to verify the signature if the public key cannot be determined by the KeyInfo element when using POST bindings, or the key used to verify the signature when using HTTP Redirect bindings.
