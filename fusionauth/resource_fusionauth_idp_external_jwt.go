@@ -72,6 +72,12 @@ func resourceIDPExternalJWT() *schema.Resource {
 				Default:     false,
 				Description: "Determines if debug is enabled for this provider. When enabled, each time this provider is invoked to reconcile a login an Event Log will be created.",
 			},
+			"default_key_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "When configured this key will be used to verify the signature of the JWT when the header key defined by the headerKeyParameter property is not found in the JWT header. In most cases, the JWT header will contain the key identifier and this value will be used to resolve the correct public key or X.509 certificate to verify the signature. This assumes the public key or X.509 certificate has already been imported using the Key API or Key Master in the FusionAuth admin UI.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"domains": {
 				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -126,14 +132,39 @@ func resourceIDPExternalJWT() *schema.Resource {
 				Optional:    true,
 				Description: "The authorization endpoint for this Identity Provider. This value is not utilized by FusionAuth is only provided to be returned by the Lookup Identity Provider API response. During integration you may then utilize this value to perform the browser redirect to the OAuth2 authorize endpoint.",
 			},
+			"oauth2_email_claim": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:	 "email",
+				Description: "The name of the claim that contains the user's email address. This will only be used when the linking_stategy is equal to LinkByEmail or LinkByEmailForExistingUser.",
+			},
+			"oauth2_email_verified_claim": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:	 "email_verified",
+				Description: "The name of the claim that identities if the user's email address has been verified. When the linking_stategy is equal to LinkByEmail or LinkByEmailForExistingUser and this claim is present and the value is false a link will not be established and an error will be returned indicating a link cannot be established using an unverified email address.",
+			},
 			"oauth2_token_endpoint": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The token endpoint for this Identity Provider. This value is not utilized by FusionAuth is only provided to be returned by the Lookup Identity Provider API response. During integration you may then utilize this value to complete the OAuth2 grant workflow.",
 			},
+			"oauth2_unique_id_claim": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:	 "sub",
+				Description: "The name of the claim that contains the user's unique user Id.",
+			},
+			"oauth2_username_claim": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:	 "preferred_username",
+				Description: "The name of the claim that contains the user's username. This will only be used when the linking_stategy is equal to LinkByUsername or LinkByUsernameForExistingUser.",
+			},
 			"unique_identity_claim": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
+				Deprecated: "This field is deprecated and will be removed in a future release. Prefer the use of oauth2_unique_id_claim.",
 				Description: "The name of the claim that represents the unique identify of the User. This will generally be email or the name of the claim that provides the email address.",
 			},
 			"tenant_configuration": {
@@ -241,12 +272,17 @@ func buildIDPExternalJWT(data *schema.ResourceData) IDPExternalJWTProviderBody {
 			Type:            fusionauth.IdentityProviderType_ExternalJWT,
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 		},
+		DefaultKeyId:       data.Get("default_key_id").(string),
 		Domains:            handleStringSlice("domains", data),
 		HeaderKeyParameter: data.Get("header_key_parameter").(string),
 		// TODO: handle keys
 		Oauth2: fusionauth.IdentityProviderOauth2Configuration{
 			AuthorizationEndpoint: data.Get("oauth2_authorization_endpoint").(string),
+			EmailClaim: 		  data.Get("oauth2_email_claim").(string),
+			EmailVerifiedClaim:   data.Get("oauth2_email_verified_claim").(string),
 			TokenEndpoint:         data.Get("oauth2_token_endpoint").(string),
+			UniqueIdClaim:        data.Get("oauth2_unique_id_claim").(string),
+			UsernameClaim:        data.Get("oauth2_username_claim").(string),
 		},
 		UniqueIdentityClaim: data.Get("unique_identity_claim").(string),
 	}
@@ -287,6 +323,9 @@ func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionau
 	if err := data.Set("debug", res.Debug); err != nil {
 		return diag.Errorf("idpExternalJwt.debug: %s", err.Error())
 	}
+	if err := data.Set("default_key_id", res.DefaultKeyId); err != nil {
+		return diag.Errorf("idpExternalJwt.default_key_id: %s", err.Error())
+	}
 	if err := data.Set("domains", res.Domains); err != nil {
 		return diag.Errorf("idpExternalJwt.domains: %s", err.Error())
 	}
@@ -310,8 +349,20 @@ func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionau
 	if err := data.Set("oauth2_authorization_endpoint", res.Oauth2.AuthorizationEndpoint); err != nil {
 		return diag.Errorf("idpExternalJwt.oauth2_authorization_endpoint: %s", err.Error())
 	}
+	if err := data.Set("oauth2_email_claim", res.Oauth2.EmailClaim); err != nil {
+		return diag.Errorf("idpExternalJwt.oauth2_email_claim: %s", err.Error())
+	}
+	if err := data.Set("oauth2_email_verified_claim", res.Oauth2.EmailVerifiedClaim); err != nil {
+		return diag.Errorf("idpExternalJwt.oauth2_email_verified_claim: %s", err.Error())
+	}
 	if err := data.Set("oauth2_token_endpoint", res.Oauth2.TokenEndpoint); err != nil {
 		return diag.Errorf("idpExternalJwt.oauth2_token_endpoint: %s", err.Error())
+	}
+	if err := data.Set("oauth2_unique_id_claim", res.Oauth2.UniqueIdClaim); err != nil {
+		return diag.Errorf("idpExternalJwt.oauth2_unique_id_claim: %s", err.Error())
+	}
+	if err := data.Set("oauth2_username_claim", res.Oauth2.UsernameClaim); err != nil {
+		return diag.Errorf("idpExternalJwt.oauth2_username_claim: %s", err.Error())
 	}
 	if err := data.Set("unique_identity_claim", res.UniqueIdentityClaim); err != nil {
 		return diag.Errorf("idpExternalJwt.unique_identity_claim: %s", err.Error())
