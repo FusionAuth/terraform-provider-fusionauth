@@ -3,6 +3,7 @@ package fusionauth
 import (
 	"context"
 	"encoding/json"
+	"log"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -15,12 +16,18 @@ type GoogleIdentityProviderBody struct {
 }
 
 type GoogleAppConfig struct {
-	ButtonText         string `json:"buttonText,omitempty"`
-	ClientID           string `json:"client_id,omitempty"`
-	ClientSecret       string `json:"client_secret,omitempty"`
-	Scope              string `json:"scope,omitempty"`
-	CreateRegistration bool   `json:"createRegistration"`
-	Enabled            bool   `json:"enabled"`
+	ButtonText         string                           `json:"buttonText,omitempty"`
+	ClientID           string                           `json:"client_id,omitempty"`
+	ClientSecret       string                           `json:"client_secret,omitempty"`
+	Properties         GoogleIdentityProviderProperties `json:"properties,omitempty"`
+	Scope              string                           `json:"scope,omitempty"`
+	CreateRegistration bool                             `json:"createRegistration"`
+	Enabled            bool                             `json:"enabled"`
+}
+
+type GoogleIdentityProviderProperties struct {
+	Api    string `json:"api,omitempty"`
+	Button string `json:"button,omitempty"`
 }
 
 func newIDPGoogle() *schema.Resource {
@@ -68,6 +75,26 @@ func newIDPGoogle() *schema.Resource {
 							Optional:    true,
 							Default:     false,
 							Description: "Determines if this identity provider is enabled for the Application specified by the applicationId key.",
+						},
+						"properties": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: "An object to hold configuration parameters for the Google Identity Services API.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"api": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "?",
+									},
+									"button": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "?",
+									},
+								},
+							},
 						},
 						"scope": {
 							Type:        schema.TypeString,
@@ -137,6 +164,40 @@ func newIDPGoogle() *schema.Resource {
 				}, false),
 				Description: "The login method to use for this Identity Provider.",
 			},
+			"properties": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				Description:      "An object to hold configuration parameters for the Google Identity Services API.",
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"api": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default: `# Omit the data- prefix
+auto_prompt=true
+auto_select=false
+cancel_on_tap_outside=false
+context=signin
+itp_support=true`,
+							Description: "Google Identity Services login API configuration in a properties file formatted String. Any attribute from Google's documentation can be added. Properties can be referenced in templates that support Google login to initialize the API via HTML or JavaScript. The properties specified in this field should not include the data- prefix on the property name. If the `login_method` is set to UsePopup and this value contains the conflicting ux_mode=redirect property, that single property will be replaced with ux_mode=popup.",
+						},
+						"button": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default: `# Omit the data- prefix
+logo_alignment=left
+shape=rectangular
+size=large
+text=signin_with
+theme=outline
+type=standard`,
+							Description: "Google Identity Services button configuration in a properties file formatted String. Any attribute from Google's documentation can be added. Properties can be referenced in templates that support Google login to render the login button via HTML or JavaScript. The properties specified in this field should not include the data- prefix on the property name.",
+						},
+					},
+				},
+			},
 			"scope": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -189,8 +250,12 @@ func buildIDPGoogle(data *schema.ResourceData) GoogleIdentityProviderBody {
 		},
 		ClientId:     data.Get("client_id").(string),
 		ClientSecret: data.Get("client_secret").(string),
-		Scope:        data.Get("scope").(string),
-		LoginMethod:  fusionauth.IdentityProviderLoginMethod(data.Get("login_method").(string)),
+		Properties: fusionauth.GoogleIdentityProviderProperties{
+			Api:    data.Get("properties.0.api").(string),
+			Button: data.Get("properties.0.button").(string),
+		},
+		Scope:       data.Get("scope").(string),
+		LoginMethod: fusionauth.IdentityProviderLoginMethod(data.Get("login_method").(string)),
 	}
 
 	o.ApplicationConfiguration = buildGoogleAppConfig("application_configuration", data)
@@ -209,17 +274,37 @@ func buildGoogleAppConfig(key string, data *schema.ResourceData) map[string]inte
 	for _, x := range l {
 		ac := x.(map[string]interface{})
 		aid := ac["application_id"].(string)
+		propertiesList := ac["properties"].([]interface{})
+		var properties GoogleIdentityProviderProperties
+		if len(propertiesList) > 0 {
+			prop := propertiesList[0].(map[string]interface{})
+			properties = GoogleIdentityProviderProperties{
+				Api:    getStringOrDefault(prop, "api", ""),
+				Button: getStringOrDefault(prop, "button", ""),
+			}
+		}
 		oc := GoogleAppConfig{
 			ButtonText:         ac["button_text"].(string),
 			CreateRegistration: ac["create_registration"].(bool),
 			Enabled:            ac["enabled"].(bool),
 			ClientID:           ac["client_id"].(string),
 			ClientSecret:       ac["client_secret"].(string),
+			Properties:         properties,
 			Scope:              ac["scope"].(string),
 		}
 		m[aid] = oc
 	}
 	return m
+}
+
+func getStringOrDefault(m map[string]interface{}, key string, defaultValue string) string {
+	log.Printf("TOMTEST: %v, %v, %v", m, key, defaultValue)
+	if v, ok := m[key]; ok && v != nil {
+		if s, ok := v.(string); ok {
+			return s
+		}
+	}
+	return defaultValue
 }
 
 func createIDPGoogle(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -278,6 +363,14 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	if err := data.Set("client_secret", o.ClientSecret); err != nil {
 		return diag.Errorf("idpGoogle.client_secret: %s", err.Error())
 	}
+	if err := data.Set("properties", []map[string]interface{}{
+		{
+			"api":         o.Properties.Api,
+			"button": o.Properties.Button,
+		},
+	}); err != nil {
+		return diag.Errorf("idpGoogle.properties: %s", err.Error())
+	}
 	if err := data.Set("scope", o.Scope); err != nil {
 		return diag.Errorf("idpGoogle.scope: %s", err.Error())
 	}
@@ -295,6 +388,13 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 
 	ac := make([]map[string]interface{}, 0, len(o.ApplicationConfiguration))
 	for k, v := range m {
+		properties := []map[string]interface{}{}
+		if v.Properties.Api != "" || v.Properties.Button != "" {
+			properties = append(properties, map[string]interface{}{
+				"api":         v.Properties.Api,
+				"button": v.Properties.Button,
+			})
+		}
 		ac = append(ac, map[string]interface{}{
 			"application_id":      k,
 			"button_text":         v.ButtonText,
@@ -302,6 +402,7 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 			"client_secret":       v.ClientSecret,
 			"create_registration": v.CreateRegistration,
 			"enabled":             v.Enabled,
+			"properties":          properties,
 			"scope":               v.Scope,
 		})
 	}
