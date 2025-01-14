@@ -181,6 +181,12 @@ func newIDPOpenIDConnect() *schema.Resource {
 				Default:     "email",
 				Description: "An optional configuration to modify the expected name of the claim returned by the IdP that contains the email address.",
 			},
+			"oauth2_email_verified_claim": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "email_verified",
+				Description: "An optional configuration to modify the expected name of the claim returned by the IdP that indicates if the email is verified.",
+			},
 			"oauth2_unique_id_claim": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -277,6 +283,7 @@ func buildOpenIDConnect(data *schema.ResourceData) OpenIDConnectIdentityProvider
 					"oauth2_client_authentication_method",
 				).(string)),
 			EmailClaim:       data.Get("oauth2_email_claim").(string),
+			EmailVerifiedClaim: data.Get("oauth2_email_verified_claim").(string),
 			Issuer:           data.Get("oauth2_issuer").(string),
 			Scope:            data.Get("oauth2_scope").(string),
 			TokenEndpoint:    data.Get("oauth2_token_endpoint").(string),
@@ -394,6 +401,9 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 	}
 	if err := data.Set("oauth2_email_claim", o.Oauth2.EmailClaim); err != nil {
 		return diag.Errorf("idpOpenIDConnect.oauth2_email_claim: %s", err.Error())
+	}
+	if err := data.Set("oauth2_email_verified_claim", o.Oauth2.EmailVerifiedClaim); err != nil {
+		return diag.Errorf("idpOpenIDConnect.oauth2_email_verified_claim: %s", err.Error())
 	}
 	if err := data.Set("oauth2_unique_id_claim", o.Oauth2.UniqueIdClaim); err != nil {
 		return diag.Errorf("idpOpenIDConnect.oauth2_unique_id_claim: %s", err.Error())

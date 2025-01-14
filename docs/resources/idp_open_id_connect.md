@@ -42,14 +42,14 @@ resource "fusionauth_idp_open_id_connect" "OpenID" {
 
 * `idp_id` - (Optional) The ID to use for the new identity provider. If not specified a secure random UUID will be generated.
 * `application_configuration` - (Optional) The configuration for each Application that the identity provider is enabled for.
-    - `application_id` - (Optional) ID of the Application to apply this configuration to.
-    - `button_image_url` - (Optional) This is an optional Application specific override for the top level button image URL.
-    - `button_text` - (Optional) This is an optional Application specific override for the top level button text.
-    - `oauth2_client_id` - (Optional) This is an optional Application specific override for the top level client id.
-    - `oauth2_client_secret` - (Optional) This is an optional Application specific override for the top level client secret.
-    - `create_registration` - (Optional) Determines if a UserRegistration is created for the User automatically or not. If a user doesn’t exist in FusionAuth and logs in through an identity provider, this boolean controls whether or not FusionAuth creates a registration for the User in the Application they are logging into.
-    - `enabled` - (Optional) Determines if this identity provider is enabled for the Application specified by the applicationId key.
-    - `oauth2_scope` - (Optional) This is an optional Application specific override for the top level scope.
+  * `application_id` - (Optional) ID of the Application to apply this configuration to.
+  * `button_image_url` - (Optional) This is an optional Application specific override for the top level button image URL.
+  * `button_text` - (Optional) This is an optional Application specific override for the top level button text.
+  * `oauth2_client_id` - (Optional) This is an optional Application specific override for the top level client id.
+  * `oauth2_client_secret` - (Optional) This is an optional Application specific override for the top level client secret.
+  * `create_registration` - (Optional) Determines if a UserRegistration is created for the User automatically or not. If a user doesn’t exist in FusionAuth and logs in through an identity provider, this boolean controls whether or not FusionAuth creates a registration for the User in the Application they are logging into.
+  * `enabled` - (Optional) Determines if this identity provider is enabled for the Application specified by the applicationId key.
+  * `oauth2_scope` - (Optional) This is an optional Application specific override for the top level scope.
 * `button_image_url` - (Optional) The top-level button image (URL) to use on the FusionAuth login page for this Identity Provider.
 * `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
 * `debug` - (Optional) Determines if debug is enabled for this provider. When enabled, each time this provider is invoked to reconcile a login an Event Log will be created.
@@ -61,8 +61,9 @@ resource "fusionauth_idp_open_id_connect" "OpenID" {
 * `oauth2_authorization_endpoint` - (Optional) The top-level authorization endpoint for the OpenID Connect identity provider. You can leave this blank if you provide the issuer field, which will be used to make a request to the OpenID Connect .well-known endpoint in order to dynamically resolve the authorization endpoint. If you provide an issuer then this field will be ignored.
 * `oauth2_client_id` - (Required) The top-level client id for your Application.
 * `oauth2_client_secret` - (Optional) The top-level client secret to use with the OpenID Connect identity provider.
-* `oauth2_client_authentication_method` - (Optional) The client authentication method to use with the OpenID Connect identity provider. 
+* `oauth2_client_authentication_method` - (Optional) The client authentication method to use with the OpenID Connect identity provider.
 * `oauth2_email_claim` - (Optional) An optional configuration to modify the expected name of the claim returned by the IdP that contains the email address.
+* `oauth2_email_verified_claim` - (Optional) An optional configuration to modify the expected name of the claim returned by the IdP that contains the email verified status.
 * `oauth2_unique_id_claim` - (Optional) An optional configuration to modify the expected name of the claim returned by the IdP that contains the user Id.
 * `oauth2_username_claim` - (Optional) An optional configuration to modify the expected name of the claim returned by the IdP that contains the username.
 * `oauth2_issuer` - (Optional) The top-level issuer URI for the OpenID Connect identity provider. If this is provided, the authorization endpoint, token endpoint and userinfo endpoint will all be resolved using the issuer URI plus /.well-known/openid-configuration.
@@ -71,6 +72,6 @@ resource "fusionauth_idp_open_id_connect" "OpenID" {
 * `oauth2_user_info_endpoint` - (Optional) The top-level userinfo endpoint for the OpenID Connect identity provider. You can leave this blank if you provide the issuer field, which will be used to make a request to the OpenID Connect .well-known endpoint in order to dynamically resolve the userinfo endpoint. If you provide an issuer then this field will be ignored.
 * `post_request` - (Optional) Set this value equal to true if you wish to use POST bindings with this OpenID Connect identity provider. The default value of false means that a redirect binding which uses a GET request will be used.
 * `tenant_configuration` - (Optional) The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.
-    - `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
-    - `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
-    - `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
+  * `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
+  * `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
+  * `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
