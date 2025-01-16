@@ -274,7 +274,7 @@ func buildIDPSAMLv2IdPInitiated(data *schema.ResourceData) SAMLIDPInitiatedIdent
 			},
 			EmailClaim:        data.Get("email_claim").(string),
 			KeyId:             data.Get("key_id").(string),
-			UniqueIdClaim:    data.Get("unique_id_claim").(string),
+			UniqueIdClaim:     data.Get("unique_id_claim").(string),
 			UseNameIdForEmail: data.Get("use_name_for_email").(bool),
 			UsernameClaim:     data.Get("username_claim").(string),
 		},
