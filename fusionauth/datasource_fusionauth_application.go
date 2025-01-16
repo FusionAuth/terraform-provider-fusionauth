@@ -75,8 +75,8 @@ func dataSourceApplicationRead(_ context.Context, data *schema.ResourceData, i i
 	// Properly structure WebAuthn configuration
 	webauthnConfig := []map[string]interface{}{
 		{
-			"bootstrap_workflow_enabled": app.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
-			"enabled": app.WebAuthnConfiguration.Enabled,
+			"bootstrap_workflow_enabled":        app.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
+			"enabled":                           app.WebAuthnConfiguration.Enabled,
 			"reauthentication_workflow_enabled": app.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
 		},
 	}

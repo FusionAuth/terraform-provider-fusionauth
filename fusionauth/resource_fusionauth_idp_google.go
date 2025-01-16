@@ -365,7 +365,7 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	}
 	if err := data.Set("properties", []map[string]interface{}{
 		{
-			"api":         o.Properties.Api,
+			"api":    o.Properties.Api,
 			"button": o.Properties.Button,
 		},
 	}); err != nil {
@@ -391,7 +391,7 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 		properties := []map[string]interface{}{}
 		if v.Properties.Api != "" || v.Properties.Button != "" {
 			properties = append(properties, map[string]interface{}{
-				"api":         v.Properties.Api,
+				"api":    v.Properties.Api,
 				"button": v.Properties.Button,
 			})
 		}

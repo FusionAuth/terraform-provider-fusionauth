@@ -185,9 +185,9 @@ func resourceAPIKey() *schema.Resource {
 				},
 			},
 			"expiration_instant": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Description:  "The expiration instant of this API key. Using an expired API key for API Authentication will result in a 401 response code.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "The expiration instant of this API key. Using an expired API key for API Authentication will result in a 401 response code.",
 			},
 		},
 		Importer: &schema.ResourceImporter{

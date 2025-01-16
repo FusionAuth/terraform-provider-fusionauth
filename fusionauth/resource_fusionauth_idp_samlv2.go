@@ -71,6 +71,47 @@ func resourceIDPSAMLv2() *schema.Resource {
 					},
 				},
 			},
+			"assertion_configuration": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				Description:      "The assertion configuration for the SAML v2 identity provider.",
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"destination": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: "The destination of the assertion.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"alternates": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "The array of URLs that FusionAuth will accept as SAML login destinations if the identityProvider.assertionConfiguration.destination.policy setting is AllowAlternates.",
+										DefaultFunc: func() (interface{}, error) {
+											return []interface{}{}, nil
+										},
+										Elem: &schema.Schema{Type: schema.TypeString},
+									},
+									"policy": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The policy to use when performing a destination assertion on the SAML login request. The possible values are: Enabled, Disabled and AllowAlternates.",
+										Default:     "Enabled",
+										ValidateFunc: validation.StringInSlice([]string{
+											"Enabled",
+											"Disabled",
+											"AllowAlternates",
+										}, false),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"button_image_url": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -119,6 +160,28 @@ func resourceIDPSAMLv2() *schema.Resource {
 				Optional:    true,
 				Description: "The SAML v2 login page of the identity provider.",
 			},
+			"idp_initiated_configuration": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				Description:      "The configuration for the IdP initiated login.",
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Determines if FusionAuth will accept IdP initiated login requests from this SAMLv2 Identity Provider.",
+						},
+						"issuer": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The EntityId (unique identifier) of the SAML v2 identity provider. This value should be provided to you. Required when `enabled` is true.",
+						},
+					},
+				},
+			},
 			"key_id": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -145,6 +208,29 @@ func resourceIDPSAMLv2() *schema.Resource {
 					"Unsupported",
 				}, false),
 				Description: "The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.",
+			},
+			"login_hint_configuration": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				Description:      "The configuration for the login hint.",
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When enabled and HTTP-Redirect bindings are used, FusionAuth will provide the username or email address when available to the IdP as a login hint using the configured parameter name set by the identityProvider.loginHintConfiguration.parameterName to initiate the AuthN request.",
+						},
+						"parameter_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "login_hint",
+							Description: "The name of the parameter used to pass the username or email as login hint to the IDP when enabled, and HTTP redirect bindings are used to initiate the AuthN request.",
+						},
+					},
+				},
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -288,8 +374,34 @@ func updateIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}
 	return nil
 }
 
+// * This is a workaround for the fact that the AssertionConfiguration.Destination.Alternates SDK field doesn't seem to handle empty slices correctly.
+func handleDestinationAlternates(alternates []interface{}) []string {
+	if len(alternates) == 0 {
+		return nil
+	}
+
+	result := make([]string, 0)
+	for _, alt := range alternates {
+		if str, ok := alt.(string); ok && str != "" {
+			result = append(result, str)
+		}
+	}
+
+	if len(result) == 0 {
+		return nil
+	}
+
+	return result
+}
+
 func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 	s := fusionauth.SAMLv2IdentityProvider{
+		AssertionConfiguration: fusionauth.SAMLv2AssertionConfiguration{
+			Destination: fusionauth.SAMLv2DestinationAssertionConfiguration{
+				Alternates: handleDestinationAlternates(data.Get("assertion_configuration.0.destination.0.alternates").([]interface{})),
+				Policy:     fusionauth.SAMLv2DestinationAssertionPolicy(data.Get("assertion_configuration.0.destination.0.policy").(string)),
+			},
+		},
 		ButtonImageURL: data.Get("button_image_url").(string),
 		ButtonText:     data.Get("button_text").(string),
 		BaseSAMLv2IdentityProvider: fusionauth.BaseSAMLv2IdentityProvider{
@@ -309,8 +421,16 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 			KeyId:             data.Get("key_id").(string),
 			UseNameIdForEmail: data.Get("use_name_for_email").(bool),
 		},
-		Domains:             handleStringSlice("domains", data),
-		IdpEndpoint:         data.Get("idp_endpoint").(string),
+		Domains:     handleStringSlice("domains", data),
+		IdpEndpoint: data.Get("idp_endpoint").(string),
+		IdpInitiatedConfiguration: fusionauth.SAMLv2IdpInitiatedConfiguration{
+			Enableable: buildEnableable("idp_initiated_configuration.0.enabled", data),
+			Issuer:     data.Get("idp_initiated_configuration.0.issuer").(string),
+		},
+		LoginHintConfiguration: fusionauth.LoginHintConfiguration{
+			Enableable:    buildEnableable("login_hint_configuration.0.enabled", data),
+			ParameterName: data.Get("login_hint_configuration.0.parameter_name").(string),
+		},
 		NameIdFormat:        data.Get("name_id_format").(string),
 		PostRequest:         data.Get("post_request").(bool),
 		RequestSigningKeyId: data.Get("request_signing_key").(string),
@@ -319,12 +439,26 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 			data.Get("xml_signature_canonicalization_method").(string),
 		),
 	}
+
 	s.ApplicationConfiguration = buildSAMLv2AppConfig("application_configuration", data)
 	s.TenantConfiguration = buildTenantConfiguration(data)
 
 	return SAMLIdentityProviderBody{IdentityProvider: s}
 }
 func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SAMLv2IdentityProvider) diag.Diagnostics {
+	if err := data.Set("assertion_configuration", []map[string]interface{}{
+		{
+			"destination": []map[string]interface{}{
+				{
+					"alternates": res.AssertionConfiguration.Destination.Alternates,
+					"policy":     res.AssertionConfiguration.Destination.Policy.String(),
+				},
+			},
+		},
+	}); err != nil {
+		return diag.Errorf("idpSAMLv2.assertion_configuration: %s", err.Error())
+	}
+
 	if err := data.Set("button_image_url", res.ButtonImageURL); err != nil {
 		return diag.Errorf("idpSAMLv2.button_image_url: %s", err.Error())
 	}
@@ -351,6 +485,14 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	}
 	if err := data.Set("idp_endpoint", res.IdpEndpoint); err != nil {
 		return diag.Errorf("idpSAMLv2.idp_endpoint: %s", err.Error())
+	}
+	if err := data.Set("idp_initiated_configuration", []map[string]interface{}{
+		{
+			"enabled": res.IdpInitiatedConfiguration.Enabled,
+			"issuer":  res.IdpInitiatedConfiguration.Issuer,
+		},
+	}); err != nil {
+		return diag.Errorf("idpSAMLv2.idp_initiated_configuration: %s", err.Error())
 	}
 	if err := data.Set("key_id", res.KeyId); err != nil {
 		return diag.Errorf("idpSAMLv2.key_id: %s", err.Error())
@@ -381,6 +523,14 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	}
 	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
 		return diag.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
+	}
+	if err := data.Set("login_hint_configuration", []map[string]interface{}{
+		{
+			"enabled":        res.LoginHintConfiguration.Enabled,
+			"parameter_name": res.LoginHintConfiguration.ParameterName,
+		},
+	}); err != nil {
+		return diag.Errorf("idpSAMLv2.login_hint_configuration: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

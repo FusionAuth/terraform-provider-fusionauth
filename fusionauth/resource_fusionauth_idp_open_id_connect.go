@@ -282,14 +282,14 @@ func buildOpenIDConnect(data *schema.ResourceData) OpenIDConnectIdentityProvider
 				data.Get(
 					"oauth2_client_authentication_method",
 				).(string)),
-			EmailClaim:       data.Get("oauth2_email_claim").(string),
+			EmailClaim:         data.Get("oauth2_email_claim").(string),
 			EmailVerifiedClaim: data.Get("oauth2_email_verified_claim").(string),
-			Issuer:           data.Get("oauth2_issuer").(string),
-			Scope:            data.Get("oauth2_scope").(string),
-			TokenEndpoint:    data.Get("oauth2_token_endpoint").(string),
-			UniqueIdClaim:    data.Get("oauth2_unique_id_claim").(string),
-			UserinfoEndpoint: data.Get("oauth2_user_info_endpoint").(string),
-			UsernameClaim:    data.Get("oauth2_username_claim").(string),
+			Issuer:             data.Get("oauth2_issuer").(string),
+			Scope:              data.Get("oauth2_scope").(string),
+			TokenEndpoint:      data.Get("oauth2_token_endpoint").(string),
+			UniqueIdClaim:      data.Get("oauth2_unique_id_claim").(string),
+			UserinfoEndpoint:   data.Get("oauth2_user_info_endpoint").(string),
+			UsernameClaim:      data.Get("oauth2_username_claim").(string),
 		},
 	}
 

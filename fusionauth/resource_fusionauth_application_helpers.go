@@ -280,9 +280,9 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"id_token_key_id":                 a.JwtConfiguration.IdTokenKeyId,
 			"refresh_token_expiration_policy": a.JwtConfiguration.RefreshTokenExpirationPolicy,
 			"refresh_token_sliding_window_maximum_ttl_in_minutes": a.JwtConfiguration.RefreshTokenSlidingWindowConfiguration.MaximumTimeToLiveInMinutes,
-			"refresh_token_ttl_minutes":                                    a.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
-			"refresh_token_usage_policy":                                   a.JwtConfiguration.RefreshTokenUsagePolicy,
-			"ttl_seconds":                                                  a.JwtConfiguration.TimeToLiveInSeconds,
+			"refresh_token_ttl_minutes":                           a.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
+			"refresh_token_usage_policy":                          a.JwtConfiguration.RefreshTokenUsagePolicy,
+			"ttl_seconds":                                         a.JwtConfiguration.TimeToLiveInSeconds,
 		},
 	})
 	if err != nil {

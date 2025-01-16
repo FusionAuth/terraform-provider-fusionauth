@@ -6,7 +6,6 @@ Optionally, this identity provider can define one or more domains it is associat
 
 FusionAuth will locate the user’s email address in the SAML assertion which will be used to create or lookup the existing user. Additional claims from the SAML response can be used to reconcile the User to FusionAuth by using a SAML v2 Reconcile Lambda. Unless you assign a reconcile lambda to this provider, on the email address will be used from the available assertions returned by the SAML v2 identity provider.
 
-
 [SAML v2 Connect Identity Providers API](https://fusionauth.io/docs/v1/tech/apis/identity-providers/samlv2/)
 
 ## Example Usage
@@ -35,21 +34,32 @@ resource "fusionauth_idp_saml_v2" "Saml" {
 
 * `idp_id` - (Optional) The ID to use for the new identity provider. If not specified a secure random UUID will be generated.
 * `application_configuration` - (Optional) The configuration for each Application that the identity provider is enabled for.
-    - `application_id` - (Optional) ID of the Application to apply this configuration to.
-    - `button_image_url` - (Optional) This is an optional Application specific override for the top level button image URL.
-    - `button_text` - (Optional) This is an optional Application specific override for the top level button text.
-    - `create_registration` - (Optional) Determines if a UserRegistration is created for the User automatically or not. If a user doesn’t exist in FusionAuth and logs in through an identity provider, this boolean controls whether or not FusionAuth creates a registration for the User in the Application they are logging into.
-    - `enabled` - (Optional) Determines if this identity provider is enabled for the Application specified by the applicationId key.
+  * `application_id` - (Optional) ID of the Application to apply this configuration to.
+  * `button_image_url` - (Optional) This is an optional Application specific override for the top level button image URL.
+  * `button_text` - (Optional) This is an optional Application specific override for the top level button text.
+  * `create_registration` - (Optional) Determines if a UserRegistration is created for the User automatically or not. If a user doesn’t exist in FusionAuth and logs in through an identity provider, this boolean controls whether or not FusionAuth creates a registration for the User in the Application they are logging into.
+  * `enabled` - (Optional) Determines if this identity provider is enabled for the Application specified by the applicationId key.
+* `assertion_configuration` - (Optional) The configuration for the SAML assertion.
+  * `destination` - (Optional) The array of URLs that FusionAuth will accept as SAML login destinations if the `policy` setting is AllowAlternates.
+    * `alternates` - (Optional) The alternate destinations of the assertion.
+    * `policy` - (Optional) The policy to use when performing a destination assertion on the SAML login request. The possible values are `Enabled`, `Disabled`, and `AllowAlternates`.
 * `button_image_url` - (Optional) The top-level button image (URL) to use on the FusionAuth login page for this Identity Provider.
 * `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
 * `debug` - (Optional) Determines if debug is enabled for this provider. When enabled, each time this provider is invoked to reconcile a login an Event Log will be created.
 * `domains` - (Optional) This is an optional list of domains that this OpenID Connect provider should be used for. This converts the FusionAuth login form to a domain-based login form. This type of form first asks the user for their email. FusionAuth then uses their email to determine if an OpenID Connect identity provider should be used. If an OpenID Connect provider should be used, the browser is redirected to the authorization endpoint of that identity provider. Otherwise, the password field is revealed on the form so that the user can login using FusionAuth.
 * `email_claim` - (Optional) The name of the email claim (Attribute in the Assertion element) in the SAML response that FusionAuth uses to uniquely identity the user. If this is not set, the `use_name_for_email` flag must be true.
+* `unique_id_claim` - (Optional) The name of the unique claim in the SAML response that FusionAuth uses to uniquely link the user. If this is not set, `the email_claim` will be used when linking user.
 * `username_claim` - (Optional) The name of the claim in the SAML response that FusionAuth uses to identify the username. If this is not set, the NameId value will be used to link a user. This property is required when linkingStrategy is set to LinkByUsername or LinkByUsernameForExistingUser.
 * `enabled` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
 * `idp_endpoint` - (Optional) The SAML v2 login page of the identity provider.
+* `idp_initiated_configuration` - (Optional) The configuration for the IdP initiated login.
+  * `enabled` - (Optional) Determines if FusionAuth will accept IdP initiated login requests from this SAMLv2 Identity Provider.
+  * `issuer` - (Optional)The EntityId (unique identifier) of the SAML v2 identity provider. This value should be provided to you. Required when `enabled` is true.
 * `key_id` - (Required) The id of the key stored in Key Master that is used to verify the SAML response sent back to FusionAuth from the identity provider. This key must be a verification only key or certificate (meaning that it only has a public key component).
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
+* `login_hint_configuration` - (Optional) The configuration for the login hint.
+  * `enabled` - (Optional) When enabled and HTTP-Redirect bindings are used, FusionAuth will provide the username or email address when available to the IdP as a login hint using the configured parameter name set by the `parameter_name` to initiate the AuthN request.
+  * `parameter_name` - (Optional) The name of the parameter used to pass the username or email as login hint to the IDP when enabled, and HTTP redirect bindings are used to initiate the AuthN request. The default value is `login_hint`. Required when `enabled` is true.
 * `name` - (Required) The name of this OpenID Connect identity provider. This is only used for display purposes.
 * `name_id_format` - (Optional) Either urn:oasis:names:tc:SAML:2.0:nameid-format:persistent or urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress depending on which NameId format you wish to use.
 * `post_request` - (Optional) When true the authentication request will use the HTTP POST binding with the identity provider instead of the default Redirect binding which uses the HTTP GET method.
@@ -60,7 +70,6 @@ resource "fusionauth_idp_saml_v2" "Saml" {
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.
 * `post_request` - (Optional) Set this value equal to true if you wish to use POST bindings with this OpenID Connect identity provider. The default value of false means that a redirect binding which uses a GET request will be used.
 * `tenant_configuration` - (Optional) The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.
-    - `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
-    - `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
-    - `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
-
+  * `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
+  * `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
+  * `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.

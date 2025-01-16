@@ -103,7 +103,7 @@ func newApplication() *schema.Resource {
 						"admin_registration_form_id": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							Computed:    true,
+							Computed:     true,
 							ValidateFunc: validation.IsUUID,
 							Description:  "The unique Id of the form to use for the Add and Edit User Registration form when used in the FusionAuth admin UI.",
 						},
@@ -430,9 +430,9 @@ func newApplication() *schema.Resource {
 				},
 			},
 			"webauthn_configuration": {
-				Type:       schema.TypeList,
-				MaxItems:   1,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				ConfigMode:       schema.SchemaConfigModeAttr,
 				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -466,17 +466,17 @@ func newSamlv2Configuration() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"assertion_encryption_configuration": {
-				Type:       schema.TypeList,
-				MaxItems:   1,
-				Optional:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				ConfigMode:       schema.SchemaConfigModeAttr,
 				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"digest_algorithm": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default: "SHA256",
+							Default:  "SHA256",
 							ValidateFunc: validation.StringInSlice([]string{
 								"SHA1",
 								"SHA256",
@@ -494,7 +494,7 @@ func newSamlv2Configuration() *schema.Resource {
 						"encryption_algorithm": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default: "AES256GCM",
+							Default:  "AES256GCM",
 							ValidateFunc: validation.StringInSlice([]string{
 								"AES128",
 								"AES192",
@@ -509,7 +509,7 @@ func newSamlv2Configuration() *schema.Resource {
 						"key_location": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default: "Child",
+							Default:  "Child",
 							ValidateFunc: validation.StringInSlice([]string{
 								"Child",
 								"Sibling",
@@ -519,7 +519,7 @@ func newSamlv2Configuration() *schema.Resource {
 						"key_transport_algorithm": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default: "RSA_OAEP",
+							Default:  "RSA_OAEP",
 							ValidateFunc: validation.StringInSlice([]string{
 								"RSAv15",
 								"RSA_OAEP",
@@ -536,7 +536,7 @@ func newSamlv2Configuration() *schema.Resource {
 						"mask_generation_function": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default: "MGF1_SHA1",
+							Default:  "MGF1_SHA1",
 							ValidateFunc: validation.StringInSlice([]string{
 								"MGF1_SHA1",
 								"MGF1_SHA224",
@@ -935,7 +935,7 @@ func newJWTConfiguration() *schema.Resource {
 			"access_token_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:   true,
+				Computed:    true,
 				Description: "The Id of the signing key used to sign the access token.",
 			},
 			"enabled": {
@@ -947,7 +947,7 @@ func newJWTConfiguration() *schema.Resource {
 			"id_token_key_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed: true,
+				Computed:    true,
 				Description: "The Id of the signing key used to sign the Id token.",
 			},
 			"refresh_token_ttl_minutes": {
