@@ -109,6 +109,28 @@ func resourceIDPSAMLv2() *schema.Resource {
 								},
 							},
 						},
+						"decryption": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: "The decryption configuration for the SAML v2 identity provider.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Determines if FusionAuth requires encrypted assertions in SAML responses from the identity provider. When true, SAML responses from the identity provider containing unencrypted assertions will be rejected by FusionAuth.",
+									},
+									"key_transport_decryption_key_id": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.IsUUID,
+										Description:  "The Id of the key stored in Key Master that is used to decrypt the symmetric key on the SAML response sent to FusionAuth from the identity provider. The selected Key must contain an RSA private key. Required when `'enabled` is true.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -405,6 +427,10 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 		ButtonImageURL: data.Get("button_image_url").(string),
 		ButtonText:     data.Get("button_text").(string),
 		BaseSAMLv2IdentityProvider: fusionauth.BaseSAMLv2IdentityProvider{
+			AssertionDecryptionConfiguration: fusionauth.SAMLv2AssertionDecryptionConfiguration{
+				Enableable:                  buildEnableable("assertion_configuration.0.decryption.0.enabled", data),
+				KeyTransportDecryptionKeyId: data.Get("assertion_configuration.0.decryption.0.key_transport_decryption_key_id").(string),
+			},
 			BaseIdentityProvider: fusionauth.BaseIdentityProvider{
 				Debug:      data.Get("debug").(bool),
 				Enableable: buildEnableable("enabled", data),
@@ -452,6 +478,12 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 				{
 					"alternates": res.AssertionConfiguration.Destination.Alternates,
 					"policy":     res.AssertionConfiguration.Destination.Policy.String(),
+				},
+			},
+			"decryption": []map[string]interface{}{
+				{
+					"enabled":                         res.AssertionDecryptionConfiguration.Enabled,
+					"key_transport_decryption_key_id": res.AssertionDecryptionConfiguration.KeyTransportDecryptionKeyId,
 				},
 			},
 		},

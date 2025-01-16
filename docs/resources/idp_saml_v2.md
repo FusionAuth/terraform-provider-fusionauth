@@ -43,6 +43,9 @@ resource "fusionauth_idp_saml_v2" "Saml" {
   * `destination` - (Optional) The array of URLs that FusionAuth will accept as SAML login destinations if the `policy` setting is AllowAlternates.
     * `alternates` - (Optional) The alternate destinations of the assertion.
     * `policy` - (Optional) The policy to use when performing a destination assertion on the SAML login request. The possible values are `Enabled`, `Disabled`, and `AllowAlternates`.
+  * `decryption` - (Optional) The configuration for the SAML assertion decryption.
+    * `enabled` - (Optional) Determines if FusionAuth requires encrypted assertions in SAML responses from the identity provider. When true, SAML responses from the identity provider containing unencrypted assertions will be rejected by FusionAuth.
+    * `key_transport_decryption_key_id` - (Optional) The Id of the key stored in Key Master that is used to decrypt the symmetric key on the SAML response sent to FusionAuth from the identity provider. The selected Key must contain an RSA private key. Required when `enabled` is true.
 * `button_image_url` - (Optional) The top-level button image (URL) to use on the FusionAuth login page for this Identity Provider.
 * `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
 * `debug` - (Optional) Determines if debug is enabled for this provider. When enabled, each time this provider is invoked to reconcile a login an Event Log will be created.
