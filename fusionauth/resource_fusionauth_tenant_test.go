@@ -392,12 +392,14 @@ func testAccTenantResourceBasicConfig(
 		accessTokenKey,
 		fusionauth.Algorithm_RS256,
 		2048,
+		"FusionAuth",
 	) +
 		testAccKeyResourceConfig(
 			"",
 			idTokenKey,
 			fusionauth.Algorithm_RS256,
 			2048,
+			"FusionAuth",
 		) +
 		testAccThemeResourceConfig(
 			themeKey,
