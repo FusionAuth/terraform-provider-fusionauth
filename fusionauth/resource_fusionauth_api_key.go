@@ -63,6 +63,7 @@ func resourceAPIKey() *schema.Resource {
 								"/api/application",
 								"/api/application/oauth-configuration",
 								"/api/application/role",
+								"/api/application/search",
 								"/api/cleanspeak/notify",
 								"/api/connector",
 								"/api/consent",
