@@ -173,10 +173,10 @@ func resourceSystemConfiguration() *schema.Resource {
 				Description: "The time zone used to adjust the stored UTC time when generating reports. Since reports are usually rolled up hourly, this timezone will be used for demarcating the hours.",
 			},
 			"trusted_proxy_configuration": {
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Optional:    true,
-				Description: "The trusted proxy configuration.",
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				Description:      "The trusted proxy configuration.",
 				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -184,7 +184,7 @@ func resourceSystemConfiguration() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "This setting is used to resolve the client IP address for use in logging, webhooks, and IP-based access control when an X-Forwarded-For header is provided. Because proxies are free to rewrite the X-Forwarded-For header, an untrusted proxy could write a value that allowed it to bypass IP-based ACLs, or cause an incorrect IP address to be logged or sent to a webhook. Valid values are: `All` or `OnlyConfigured`.",
-							Default:	 "All",
+							Default:     "All",
 						},
 						"trusted": {
 							Type:        schema.TypeList,
@@ -222,17 +222,17 @@ func resourceSystemConfiguration() *schema.Resource {
 				},
 			},
 			"usage_data_configuration": {
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Optional:    true,
-				Description: "The usage data configuration.",
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				Description:      "The usage data configuration.",
 				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Default: false,
+							Default:     false,
 							Description: "Whether or not FusionAuth collects and sends usage data to improve the product.",
 						},
 					},
