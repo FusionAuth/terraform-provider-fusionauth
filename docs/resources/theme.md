@@ -66,11 +66,13 @@ resource "fusionauth_theme" "mytheme" {
 
 ## Argument Reference
 
+* `theme_id` - (Optional) The Id to use for the new Theme. If not specified a secure random UUID will be generated.
 * `source_theme_id` - (Optional) The optional Id of an existing Theme to make a copy of. If present, the defaultMessages, localizedMessages, templates, and stylesheet from the source Theme will be copied to the new Theme.
-* `default_messages` - (Optional) A properties file formatted String containing at least all of the message keys defined in the FusionAuth shipped messages file. 
+* `default_messages` - (Optional) A properties file formatted String containing at least all of the message keys defined in the FusionAuth shipped messages file.
 
 ~> **Note:** `default_messages` Is Required if not copying an existing Theme.
 
+* `data` - (Optional) An object that can hold any information about the Theme that should be persisted.
 * `localized_messages` - (Optional) A Map of localized versions of the messages. The key is the Locale and the value is a properties file formatted String.
 * `name` - (Required) A unique name for the Theme.
 * `stylesheet` - (Optional) A CSS stylesheet used to style the templates.
@@ -122,5 +124,6 @@ resource "fusionauth_theme" "mytheme" {
 * `unauthorized` - (Optional) An optional FreeMarker template that contains the unauthorized page.
 
 ### Deprecated Theme Properties
+
 * `email_send` - (Optional) A FreeMarker template that is rendered when the user requests the /email/send page. This page is used after a user has asked for the verification email to be resent. This can happen if the URL in the email expired and the user clicked it. In this case, the user can provide their email address again and FusionAuth will resend the email. After the user submits their email and FusionAuth re-sends a verification email to them, the browser is redirected to this page.
 * `registration_send` - (Optional) A FreeMarker template that is rendered when the user requests the /registration/send page. This page is used after a user has asked for the application specific verification email to be resent. This can happen if the URL in the email expired and the user clicked it. In this case, the user can provide their email address again and FusionAuth will resend the email. After the user submits their email and FusionAuth re-sends a verification email to them, the browser is redirected to this page.

@@ -44,6 +44,7 @@ back-to-login=Return to Login
 cancel=Cancel
 captcha-google-branding=This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="https://policies.google.com/terms">Terms of Service</a> apply.
 created=Created
+customize=Customize
 authorized-not-registered=Registration is required to access this application and your account has not been registered for this application. Please complete your registration and try again.
 authorized-not-registered-title=Registration Required
 cancel-link=Cancel link request
@@ -60,6 +61,7 @@ completed-link=You have successfully linked your %s account.
 completed-links=You have successfully linked your %s and %s account.
 confirm=Confirm
 consent-required=Consent required
+consent-required-intro=<em>%s</em> would like to
 delete-webauthn-passkey=Delete passkey
 device-form-title=Device login
 device-login-complete=Successfully connected device
@@ -683,6 +685,7 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 
 
 [InvalidOrMissingCSRFToken]=You are not authorized to make this request. Ensure you complete this form in a browser.
+[RateLimitedException]=Your request has been rate limited. Please wait a few minutes before making another request.
 
 `, name)
 }
