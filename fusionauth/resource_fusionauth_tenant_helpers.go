@@ -128,10 +128,10 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 				"external_identifier_configuration.0.two_factor_trust_id_time_to_live_in_seconds",
 			).(int),
 			WebAuthnAuthenticationChallengeTimeToLiveInSeconds: data.Get(
-				"external_identifier_configuration.0.web_authn_authentication_challenge_time_to_live_in_seconds",
+				"external_identifier_configuration.0.webauthn_authentication_challenge_time_to_live_in_seconds",
 			).(int),
 			WebAuthnRegistrationChallengeTimeToLiveInSeconds: data.Get(
-				"external_identifier_configuration.0.web_authn_registration_challenge_time_to_live_in_seconds",
+				"external_identifier_configuration.0.webauthn_registration_challenge_time_to_live_in_seconds",
 			).(int),
 			EmailVerificationOneTimeCodeGenerator: fusionauth.SecureGeneratorConfiguration{
 				Length: data.Get("external_identifier_configuration.0.email_verification_one_time_code_generator.0.length").(int),
@@ -317,6 +317,9 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			Enableable:         buildEnableable("scim_server_configuration.0.enabled", data),
 			ServerEntityTypeId: data.Get("scim_server_configuration.0.server_entity_type_id").(string),
 		},
+		SsoConfiguration: fusionauth.TenantSSOConfiguration{
+			DeviceTrustTimeToLiveInSeconds: data.Get("sso_configuration.0.device_trust_time_to_live_in_seconds").(int),
+		},
 		ThemeId: data.Get("theme_id").(string),
 		UserDeletePolicy: fusionauth.TenantUserDeletePolicy{
 			Unverified: fusionauth.TimeBasedDeletePolicy{
@@ -331,6 +334,22 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 				Separator:      data.Get("username_configuration.0.unique.0.separator").(string),
 				Strategy:       fusionauth.UniqueUsernameStrategy(data.Get("username_configuration.0.unique.0.strategy").(string)),
 			},
+		},
+		WebAuthnConfiguration: fusionauth.TenantWebAuthnConfiguration{
+			Enableable: buildEnableable("webauthn_configuration.0.enabled", data),
+			BootstrapWorkflow: fusionauth.TenantWebAuthnWorkflowConfiguration{
+				Enableable:                        buildEnableable("webauthn_configuration.0.bootstrap_workflow.0.enabled", data),
+				AuthenticatorAttachmentPreference: fusionauth.AuthenticatorAttachmentPreference(data.Get("webauthn_configuration.0.bootstrap_workflow.0.authenticator_attachment_preference").(string)),
+				UserVerificationRequirement:       fusionauth.UserVerificationRequirement(data.Get("webauthn_configuration.0.bootstrap_workflow.0.user_verification_requirement").(string)),
+			},
+			Debug: data.Get("webauthn_configuration.0.debug").(bool),
+			ReauthenticationWorkflow: fusionauth.TenantWebAuthnWorkflowConfiguration{
+				Enableable:                        buildEnableable("webauthn_configuration.0.reauthentication_workflow.0.enabled", data),
+				AuthenticatorAttachmentPreference: fusionauth.AuthenticatorAttachmentPreference(data.Get("webauthn_configuration.0.reauthentication_workflow.0.authenticator_attachment_preference").(string)),
+				UserVerificationRequirement:       fusionauth.UserVerificationRequirement(data.Get("webauthn_configuration.0.reauthentication_workflow.0.user_verification_requirement").(string)),
+			},
+			RelyingPartyId:   data.Get("webauthn_configuration.0.relying_party_id").(string),
+			RelyingPartyName: data.Get("webauthn_configuration.0.relying_party_name").(string),
 		},
 	}
 
@@ -541,14 +560,14 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"length": t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type,
 			}},
-			"setup_password_id_time_to_live_in_seconds":                  t.ExternalIdentifierConfiguration.SetupPasswordIdTimeToLiveInSeconds,
-			"trust_token_time_to_live_in_seconds":                        t.ExternalIdentifierConfiguration.TrustTokenTimeToLiveInSeconds,
-			"pending_account_link_time_to_live_in_seconds":               t.ExternalIdentifierConfiguration.PendingAccountLinkTimeToLiveInSeconds,
-			"two_factor_id_time_to_live_in_seconds":                      t.ExternalIdentifierConfiguration.TwoFactorIdTimeToLiveInSeconds,
-			"two_factor_one_time_code_id_time_to_live_in_seconds":        t.ExternalIdentifierConfiguration.TwoFactorOneTimeCodeIdTimeToLiveInSeconds,
-			"two_factor_trust_id_time_to_live_in_seconds":                t.ExternalIdentifierConfiguration.TwoFactorTrustIdTimeToLiveInSeconds,
-			"web_authn_authentication_challenge_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.WebAuthnAuthenticationChallengeTimeToLiveInSeconds,
-			"web_authn_registration_challenge_time_to_live_in_seconds":   t.ExternalIdentifierConfiguration.WebAuthnRegistrationChallengeTimeToLiveInSeconds,
+			"setup_password_id_time_to_live_in_seconds":                 t.ExternalIdentifierConfiguration.SetupPasswordIdTimeToLiveInSeconds,
+			"trust_token_time_to_live_in_seconds":                       t.ExternalIdentifierConfiguration.TrustTokenTimeToLiveInSeconds,
+			"pending_account_link_time_to_live_in_seconds":              t.ExternalIdentifierConfiguration.PendingAccountLinkTimeToLiveInSeconds,
+			"two_factor_id_time_to_live_in_seconds":                     t.ExternalIdentifierConfiguration.TwoFactorIdTimeToLiveInSeconds,
+			"two_factor_one_time_code_id_time_to_live_in_seconds":       t.ExternalIdentifierConfiguration.TwoFactorOneTimeCodeIdTimeToLiveInSeconds,
+			"two_factor_trust_id_time_to_live_in_seconds":               t.ExternalIdentifierConfiguration.TwoFactorTrustIdTimeToLiveInSeconds,
+			"webauthn_authentication_challenge_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.WebAuthnAuthenticationChallengeTimeToLiveInSeconds,
+			"webauthn_registration_challenge_time_to_live_in_seconds":   t.ExternalIdentifierConfiguration.WebAuthnRegistrationChallengeTimeToLiveInSeconds,
 			"email_verification_one_time_code_generator": []map[string]interface{}{{
 				"length": t.ExternalIdentifierConfiguration.EmailVerificationOneTimeCodeGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.EmailVerificationOneTimeCodeGenerator.Type,
@@ -847,6 +866,15 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 		return diag.Errorf("tenant.scim_server_configuration: %s", err.Error())
 	}
 
+	err = data.Set("sso_configuration", []map[string]interface{}{
+		{
+			"device_trust_time_to_live_in_seconds": t.SsoConfiguration.DeviceTrustTimeToLiveInSeconds,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("tenant.sso_configuration: %s", err.Error())
+	}
+
 	if err := data.Set("theme_id", t.ThemeId); err != nil {
 		return diag.Errorf("tenant.theme_id: %s", err.Error())
 	}
@@ -873,6 +901,28 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 	})
 	if err != nil {
 		return diag.Errorf("tenant.username_configuration: %s", err.Error())
+	}
+
+	err = data.Set("webauthn_configuration", []map[string]interface{}{
+		{
+			"enabled": t.WebAuthnConfiguration.Enabled,
+			"bootstrap_workflow": []map[string]interface{}{{
+				"enabled":                             t.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
+				"authenticator_attachment_preference": t.WebAuthnConfiguration.BootstrapWorkflow.AuthenticatorAttachmentPreference,
+				"user_verification_requirement":       t.WebAuthnConfiguration.BootstrapWorkflow.UserVerificationRequirement,
+			}},
+			"debug": t.WebAuthnConfiguration.Debug,
+			"reauthentication_workflow": []map[string]interface{}{{
+				"enabled":                             t.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
+				"authenticator_attachment_preference": t.WebAuthnConfiguration.ReauthenticationWorkflow.AuthenticatorAttachmentPreference,
+				"user_verification_requirement":       t.WebAuthnConfiguration.ReauthenticationWorkflow.UserVerificationRequirement,
+			}},
+			"relying_party_id":   t.WebAuthnConfiguration.RelyingPartyId,
+			"relying_party_name": t.WebAuthnConfiguration.RelyingPartyName,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("tenant.webauthn_configuration: %s", err.Error())
 	}
 
 	e := make([]map[string]interface{}, 0, len(t.EventConfiguration.Events))

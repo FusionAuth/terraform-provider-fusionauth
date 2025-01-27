@@ -808,6 +808,22 @@ func newTenant() *schema.Resource {
 					},
 				},
 			},
+			"sso_configuration": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"device_trust_time_to_live_in_seconds": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     31536000,
+							Description: "The number of seconds before a trusted device is reset. When reset, a user is forced to complete captcha during login and complete two factor authentication if applicable.",
+						},
+					},
+				},
+			},
 			"theme_id": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -884,6 +900,13 @@ func newTenant() *schema.Resource {
 						},
 					},
 				},
+			},
+			"webauthn_configuration": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem:             newWebAuthnConfiguration(),
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -1360,14 +1383,14 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The time in seconds until an issued Two Factor trust Id is no longer valid and the User will be required to complete Two Factor authentication during the next authentication attempt. Value must be greater than 0.",
 			},
-			"web_authn_authentication_challenge_time_to_live_in_seconds": {
+			"webauthn_authentication_challenge_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      180,
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The time in seconds until a WebAuthn authentication challenge is no longer valid and the User will be required to restart the WebAuthn authentication ceremony by creating a new challenge. This value also controls the timeout for the client-side WebAuthn navigator.credentials.get API call. Value must be greater than 0. Note: A license is required to utilize WebAuthn. Defaults to 180.",
 			},
-			"web_authn_registration_challenge_time_to_live_in_seconds": {
+			"webauthn_registration_challenge_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      180,
@@ -1727,6 +1750,111 @@ func newPasswordValidationRules() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "When enabled the user’s password will be validated during login. If the password does not meet the currently configured validation rules the user will be required to change their password.",
+			},
+		},
+	}
+}
+
+func newWebAuthnConfiguration() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bootstrap_workflow": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"authenticator_attachment_preference": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "crossPlatform",
+							ValidateFunc: validation.StringInSlice([]string{
+								"any",
+								"crossPlatform",
+								"platform",
+							}, false),
+							Description: "Determines the authenticator attachment requirement for WebAuthn passkey registration when using the bootstrap workflow. The possible values are: Any, CrossPlatform and Platform. Note: A license is required to utilize WebAuthn and an Enterprise plan is required to utilize WebAuthn cross-platform authenticators.",
+						},
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether or not this tenant has the WebAuthn bootstrap workflow enabled. The bootstrap workflow is used when the user must \"bootstrap\" the authentication process by identifying themselves prior to the WebAuthn ceremony and can be used to authenticate from a new device using WebAuthn. Note: A license is required to utilize WebAuthn.",
+						},
+						"user_verification_requirement": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "required",
+							ValidateFunc: validation.StringInSlice([]string{
+								"discouraged",
+								"preferred",
+								"required",
+							}, false),
+							Description: "Determines the user verification requirement for WebAuthn passkey registration when using the bootstrap workflow. The possible values are: Discouraged, Preferred and Required. Note: A license is required to utilize WebAuthn.",
+						},
+					},
+				},
+			},
+			"debug": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Determines if debug should be enabled for this tenant to create an event log to assist in debugging WebAuthn errors. Note: A license is required to utilize WebAuthn.",
+			},
+			"enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Whether or not this tenant has WebAuthn enabled globally.. Note: A license is required to utilize WebAuthn.",
+			},
+			"reauthentication_workflow": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"authenticator_attachment_preference": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "crossPlatform",
+							ValidateFunc: validation.StringInSlice([]string{
+								"any",
+								"crossPlatform",
+								"platform",
+							}, false),
+							Description: "Determines the authenticator attachment requirement for WebAuthn passkey registration when using the reauthentication workflow. The possible values are:: Any, CrossPlatform and Platform. Note: A license is required to utilize WebAuthn and an Enterprise plan is required to utilize WebAuthn cross-platform authenticators.",
+						},
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether or not this tenant has the WebAuthn reauthentication workflow enabled. The reauthentication workflow will automatically prompt a user to authenticate using WebAuthn for repeated logins from the same device. Note: A license is required to utilize WebAuthn.",
+						},
+						"user_verification_requirement": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "required",
+							ValidateFunc: validation.StringInSlice([]string{
+								"discouraged",
+								"preferred",
+								"required",
+							}, false),
+							Description: "Determines the user verification requirement for WebAuthn passkey registration when using the bootstrap workflow. The possible values are: Discouraged, Preferred and Required. Note: A license is required to utilize WebAuthn.",
+						},
+					},
+				},
+			},
+			"relying_party_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The value this tenant will use for the Relying Party Id in WebAuthn ceremonies. Passkeys can only be used to authenticate on sites using the same Relying Party Id they were registered with. This value must match the browser origin or be a registrable domain suffix of the browser origin. For example, if your domain is auth.piedpiper.com, you could use auth.piedpiper.com or piedpiper.com but not m.auth.piedpiper.com or com. When this parameter is omitted, FusionAuth will use null for the Relying Party Id in passkey creation and request options. A null value in the WebAuthn JavaScript API will use the browser origin. Note: A license is required to utilize WebAuthn.",
+			},
+			"relying_party_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The value this tenant will use for the Relying Party name in WebAuthn ceremonies. This value may be displayed by browser or operating system dialogs during WebAuthn ceremonies. When this parameter is omitted, FusionAuth will use the tenant.issuer value. Note: A license is required to utilize WebAuthn.",
 			},
 		},
 	}
