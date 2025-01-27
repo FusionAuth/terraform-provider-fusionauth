@@ -79,6 +79,8 @@ func userSchemaV1() *schema.Resource {
 					"salted-pbkdf2-hmac-sha256",
 					"salted-pbkdf2-hmac-sha256-512",
 					"bcrypt",
+					"phpass-md5",
+					"phpass-sha512",
 				}, false),
 				Description: "The method for encrypting the User’s password.",
 			},
@@ -87,12 +89,11 @@ func userSchemaV1() *schema.Resource {
 				Optional:    true,
 				Description: "The expiration instant of the User’s account. An expired user is not permitted to login.",
 			},
-			// "factor": {
-			// 	Type:        schema.TypeString,
-			// 	Optional:    true,
-			// 	Computed:    true,
-			// 	Description: "The factor used by the password encryption scheme. If not provided, the PasswordEncryptor provides a default value. Generally this will be used as an iteration count to generate the hash. The actual use of this value is up to the PasswordEncryptor implementation.",
-			// },
+			"factor": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The factor used by the password encryption scheme. If not provided, the PasswordEncryptor provides a default value. Generally this will be used as an iteration count to generate the hash. The actual use of this value is up to the PasswordEncryptor implementation.",
+			},
 			"first_name": {
 				Type:        schema.TypeString,
 				Optional:    true,

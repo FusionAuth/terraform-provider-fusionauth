@@ -412,8 +412,8 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 		Data:            data.Get("data").(map[string]interface{}),
 		DefaultMessages: data.Get("default_messages").(string),
 		Id:              data.Get("theme_id").(string),
-		Name:       data.Get("name").(string),
-		Stylesheet: data.Get("stylesheet").(string),
+		Name:            data.Get("name").(string),
+		Stylesheet:      data.Get("stylesheet").(string),
 		Templates: fusionauth.Templates{
 			AccountEdit:                       data.Get("account_edit").(string),
 			AccountIndex:                      data.Get("account_index").(string),
