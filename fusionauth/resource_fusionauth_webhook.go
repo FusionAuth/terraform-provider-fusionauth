@@ -28,6 +28,11 @@ func newWebhook() *schema.Resource {
 				Required:    true,
 				Description: "The connection timeout in milliseconds used when FusionAuth sends events to the Webhook.",
 			},
+			"data": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "An object that can hold any information about the Webhook that should be persisted.",
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -297,12 +302,25 @@ func newWebhook() *schema.Resource {
 			"ssl_certificate": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Default:     "",
 				Description: "An SSL certificate in PEM format that is used to establish the a SSL (TLS specifically) connection to the Webhook.",
+			},
+			"ssl_certificate_key_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The Id of an existing Key. The X.509 certificate is used for client certificate authentication in requests to the Webhook.",
 			},
 			"url": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The fully qualified URL of the Webhook’s endpoint that will accept the event requests from FusionAuth.",
+			},
+			"webhook_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The Id of the Webhook.",
+				ForceNew:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -313,18 +331,22 @@ func newWebhook() *schema.Resource {
 
 func buildWebhook(data *schema.ResourceData) fusionauth.Webhook {
 	wh := fusionauth.Webhook{
-		TenantIds:      handleStringSlice("tenant_ids", data),
-		ConnectTimeout: data.Get("connect_timeout").(int),
-		Description:    data.Get("description").(string),
-		EventsEnabled:  buildEventsEnabled("events_enabled", data),
-		Global:         data.Get("global").(bool),
-		// Headers:                    data.Get("headers").(map[string]string),
+		TenantIds:                  handleStringSlice("tenant_ids", data),
+		ConnectTimeout:             data.Get("connect_timeout").(int),
+		Description:                data.Get("description").(string),
+		EventsEnabled:              buildEventsEnabled("events_enabled", data),
+		Global:                     data.Get("global").(bool),
 		HttpAuthenticationPassword: data.Get("http_authentication_password").(string),
 		HttpAuthenticationUsername: data.Get("http_authentication_username").(string),
 		ReadTimeout:                data.Get("read_timeout").(int),
 		SslCertificate:             data.Get("ssl_certificate").(string),
+		SslCertificateKeyId:        data.Get("ssl_certificate_key_id").(string),
 		Url:                        data.Get("url").(string),
 		SignatureConfiguration:     buildSignatureConfiguration(data),
+	}
+
+	if i, ok := data.GetOk("data"); ok {
+		wh.Data = i.(map[string]interface{})
 	}
 
 	if i, ok := data.GetOk("headers"); ok {
@@ -390,7 +412,8 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 func createWebhook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	l := buildWebhook(data)
-	resp, faErrs, err := client.FAClient.CreateWebhook("", fusionauth.WebhookRequest{
+	webhook_id := data.Get("webhook_id").(string)
+	resp, faErrs, err := client.FAClient.CreateWebhook(webhook_id, fusionauth.WebhookRequest{
 		Webhook: l,
 	})
 	if err != nil {
@@ -427,6 +450,9 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 	}
 	if err := data.Set("connect_timeout", l.ConnectTimeout); err != nil {
 		return diag.Errorf("webhook.connect_timeout: %s", err.Error())
+	}
+	if err := data.Set("data", l.Data); err != nil {
+		return diag.Errorf("webhook.data: %s", err.Error())
 	}
 	if err := data.Set("description", l.Description); err != nil {
 		return diag.Errorf("webhook.description: %s", err.Error())
@@ -497,6 +523,9 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 	}
 	if err := data.Set("ssl_certificate", l.SslCertificate); err != nil {
 		return diag.Errorf("webhook.ssl_certificate: %s", err.Error())
+	}
+	if err := data.Set("ssl_certificate_key_id", l.SslCertificateKeyId); err != nil {
+		return diag.Errorf("webhook.ssl_certificate_key_id: %s", err.Error())
 	}
 	if err := data.Set("url", l.Url); err != nil {
 		return diag.Errorf("webhook.url: %s", err.Error())
