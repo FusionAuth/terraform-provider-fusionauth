@@ -528,10 +528,6 @@ func updateTheme(_ context.Context, data *schema.ResourceData, i interface{}) di
 		Theme: buildTheme(data),
 	}
 
-	if srcTheme, ok := data.GetOk("source_theme_id"); ok {
-		req.SourceThemeId = srcTheme.(string)
-	}
-
 	resp, faErrs, err := client.FAClient.UpdateTheme(data.Id(), req)
 	if err != nil {
 		return diag.Errorf("UpdateTheme err: %v", err)
