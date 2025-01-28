@@ -108,10 +108,11 @@ func newApplication() *schema.Resource {
 							Description:  "The unique Id of the form to use for the Add and Edit User Registration form when used in the FusionAuth admin UI.",
 						},
 						"self_service_form_configuration": {
-							Type:       schema.TypeList,
-							MaxItems:   1,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:             schema.TypeList,
+							MaxItems:         1,
+							Optional:         true,
+							ConfigMode:       schema.SchemaConfigModeAttr,
+							DiffSuppressFunc: suppressBlockDiff,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"require_current_password_on_password_change": {
@@ -970,6 +971,7 @@ func newJWTConfiguration() *schema.Resource {
 			"refresh_token_sliding_window_maximum_ttl_in_minutes": {
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Default:      43200,
 				Description:  "The maximum lifetime of a refresh token when using a refresh token expiration policy of SlidingWindowWithMaximumLifetime. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
