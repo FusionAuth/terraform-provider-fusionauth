@@ -134,7 +134,7 @@ func userSchemaV1() *schema.Resource {
 				Optional:     true,
 				Sensitive:    true,
 				ValidateFunc: validation.StringLenBetween(8, 256),
-				Description:  "The User’s plain texts password. This password will be hashed and the provided value will never be stored and cannot be retrieved.",
+				Description:  "The User's plaintext password. This password will be hashed and the provided value will never be stored and cannot be retrieved.",
 			},
 			"password_change_required": {
 				Type:        schema.TypeBool,
