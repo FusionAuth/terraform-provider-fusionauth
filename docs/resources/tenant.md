@@ -538,7 +538,7 @@ resource "fusionauth_tenant" "example" {
   * `webauthn_authentication_challenge_time_to_live_in_seconds` - (Optional) The time in seconds until a WebAuthn authentication challenge is no longer valid and the User will be required to restart the WebAuthn authentication ceremony by creating a new challenge. This value also controls the timeout for the client-side WebAuthn navigator.credentials.get API call. Value must be greater than 0. Note: A license is required to utilize WebAuthn. Defaults to 180.
   * `webauthn_registration_challenge_time_to_live_in_seconds` - (Optional) The time in seconds until a WebAuthn registration challenge is no longer valid and the User will be required to restart the WebAuthn registration ceremony by creating a new challenge. This value also controls the timeout for the client-side WebAuthn navigator.credentials.create API call. Value must be greater than 0. Note: A license is required to utilize WebAuthn. Defaults to 180.
   * `two_factor_one_time_code_id_generator` - (Optional)
-    * `length` - (Optional) TThe length of the secure generator used for generating the the two factor code Id. Defaults to 6
+    * `length` - (Optional) The length of the secure generator used for generating the the two factor code Id. Defaults to 6
     * `type` - (Optional) The type of the secure generator used for generating the two factor one time code Id. Defaults to randomDigits.
 * `failed_authentication_configuration` - (Optional)
   * `action_duration` - (Required) The duration of the User Action. This value along with the actionDurationUnit will be used to set the duration of the User Action. Value must be greater than 0.
