@@ -86,6 +86,7 @@ func newLambda() *schema.Resource {
 					string(fusionauth.LambdaType_XboxReconcile),
 				}, false),
 				Description: "The lambda type.",
+				ForceNew:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
