@@ -3,7 +3,7 @@ module github.com/gpsinsight/terraform-provider-fusionauth
 go 1.20
 
 require (
-	github.com/FusionAuth/go-client v0.0.0-20240912225700-ce40548e5bef
+	github.com/FusionAuth/go-client v0.0.0-20241221155813-3c38fd514d84
 	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.34.0
