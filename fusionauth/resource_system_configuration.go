@@ -187,6 +187,23 @@ func resourceSystemConfiguration() *schema.Resource {
 					},
 				},
 			},
+			"usage_data_configuration": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether or not FusionAuth collects and sends usage data to improve the product.",
+						},
+					},
+				},
+			},
 			"webhook_event_log_configuration": {
 				Type:       schema.TypeList,
 				MaxItems:   1,
@@ -337,6 +354,10 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.UiConfiguration.MenuFontColor = v.(string)
 	}
 
+	if v, ok := data.GetOk("usage_data_configuration.0.enabled"); ok {
+		sc.SystemConfiguration.UsageDataConfiguration.Enabled = v.(bool)
+	}
+
 	if v, ok := data.GetOk("webhook_event_log_configuration.0.delete.0.enabled"); ok {
 		sc.SystemConfiguration.WebhookEventLogConfiguration.Delete.Enabled = v.(bool)
 	}
@@ -413,6 +434,15 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 	})
 	if err != nil {
 		return diag.Errorf("system_configuration.ui_configuration: %s", err.Error())
+	}
+
+	err = data.Set("usage_data_configuration", []map[string]interface{}{
+		{
+			"enabled": sc.UsageDataConfiguration.Enabled,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("system_configuration.usage_data_configuration: %s", err.Error())
 	}
 
 	err = data.Set("webhook_event_log_configuration", []map[string]interface{}{

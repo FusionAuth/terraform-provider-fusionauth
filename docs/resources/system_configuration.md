@@ -45,6 +45,8 @@ resource "fusionauth_system_configuration" "example" {
     - `header_color` - (Optional) A hexadecimal color to override the default menu color in the user interface.
     - `logo_url` - (Optional) A URL of a logo to override the default FusionAuth logo in the user interface.
     - `menu_font_color` - (Optional) A hexadecimal color to override the default menu font color in the user interface.
+* `usage_data_configuration` - (Optional)
+    - `enabled` - (Optional) Whether or not FusionAuth collects and sends usage data to improve the product.
 * `webhook_event_log_configuration` - (Optional)
     - `delete` - (Optional)
         * `enabled` - (Optional) Whether or not FusionAuth should delete the webhook event logs based upon this configuration. When true the webhookEventLogConfiguration.delete.numberOfDaysToRetain will be used to identify webhook event logs that are eligible for deletion. When this value is set to false webhook event logs will be preserved forever.
