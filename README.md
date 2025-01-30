@@ -2,7 +2,7 @@
 
 This provider is used for setting up [FusionAuth](https://fusionauth.io).
 
-For the rendered provider usage documentation, visit the [Terraform Registry](https://registry.terraform.io/providers/gpsinsight/fusionauth/latest/docs).
+For the rendered provider usage documentation, visit the [Terraform Registry](https://registry.terraform.io/providers/FusionAuth/fusionauth/latest/docs).
 
 ## Please Read 
 
