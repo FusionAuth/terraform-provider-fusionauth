@@ -91,6 +91,7 @@ func userSchemaV1() *schema.Resource {
 			},
 			"factor": {
 				Type:        schema.TypeInt,
+				Optional:    true,
 				Computed:    true,
 				Description: "The factor used by the password encryption scheme. If not provided, the PasswordEncryptor provides a default value. Generally this will be used as an iteration count to generate the hash. The actual use of this value is up to the PasswordEncryptor implementation.",
 			},

@@ -23,6 +23,7 @@ func Provider() *schema.Provider {
 			"fusionauth_api_key":                  resourceAPIKey(),
 			"fusionauth_application":              newApplication(),
 			"fusionauth_application_role":         newApplicationRole(),
+			"fusionauth_application_oauth_scope":  newApplicationOAuthScope(),
 			"fusionauth_email":                    newEmail(),
 			"fusionauth_entity":                   resourceEntity(),
 			"fusionauth_entity_grant":             resourceEntityGrant(),
@@ -54,6 +55,7 @@ func Provider() *schema.Provider {
 			"fusionauth_tenant":                   newTenant(),
 			"fusionauth_user":                     newUser(),
 			"fusionauth_user_action":              resourceUserAction(),
+			"fusionauth_user_group_membership":    newUserGroupMembership(),
 			"fusionauth_webhook":                  newWebhook(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
