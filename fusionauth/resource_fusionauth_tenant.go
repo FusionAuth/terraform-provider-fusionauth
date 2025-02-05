@@ -124,10 +124,11 @@ func newTenant() *schema.Resource {
 				Description: "An object that can hold any information about the Tenant that should be persisted.",
 			},
 			"email_configuration": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
-				Elem:     newEmailConfiguration(),
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem:             newEmailConfiguration(),
 			},
 			"event_configuration": {
 				Type:     schema.TypeSet,
@@ -260,12 +261,14 @@ func newTenant() *schema.Resource {
 			},
 			"issuer": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				Description: "The named issuer used to sign tokens, this is generally your public fully qualified domain.",
 			},
 			"jwt_configuration": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"access_token_key_id": {
@@ -333,7 +336,8 @@ func newTenant() *schema.Resource {
 						},
 						"refresh_token_time_to_live_in_minutes": {
 							Type:         schema.TypeInt,
-							Required:     true,
+							Optional:     true,
+							Default:      43200,
 							Description:  "The length of time in minutes a Refresh Token is valid from the time it was issued. Value must be greater than 0.",
 							ValidateFunc: validation.IntAtLeast(1),
 						},
@@ -349,7 +353,8 @@ func newTenant() *schema.Resource {
 						},
 						"time_to_live_in_seconds": {
 							Type:         schema.TypeInt,
-							Required:     true,
+							Optional:     true,
+							Default:      3600,
 							Description:  "The length of time in seconds this JWT is valid from the time it was issued. Value must be greater than 0.",
 							ValidateFunc: validation.IntAtLeast(1),
 						},
@@ -364,9 +369,10 @@ func newTenant() *schema.Resource {
 				Elem:             newLambdaConfiguration(),
 			},
 			"login_configuration": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"require_authentication": {
@@ -428,11 +434,10 @@ func newTenant() *schema.Resource {
 				},
 			},
 			"multi_factor_configuration": {
-				Type:       schema.TypeList,
-				MaxItems:   1,
-				Optional:   true,
-				Computed:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"login_policy": {
@@ -443,17 +448,16 @@ func newTenant() *schema.Resource {
 							Description:  "When set to Enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to Disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When the login policy is to Required, a two-factor challenge will be required during login. If a user does not have configured two-factor methods, they will not be able to log in.",
 						},
 						"authenticator": {
-							Type:       schema.TypeList,
-							MaxItems:   1,
-							Optional:   true,
-							Computed:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:             schema.TypeList,
+							MaxItems:         1,
+							Optional:         true,
+							DiffSuppressFunc: suppressBlockDiff,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Default:     true,
+										Computed:    true,
 										Description: "When enabled, users may utilize an authenticator application to complete a multi-factor authentication request. This method uses TOTP (Time-Based One-Time Password) as defined in RFC 6238 and often uses an native mobile app such as Google Authenticator.",
 									},
 								},
@@ -827,7 +831,8 @@ func newTenant() *schema.Resource {
 			},
 			"theme_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
 				Description:  "The unique Id of the theme to be used to style the login page and other end user templates.",
 				ValidateFunc: validation.IsUUID,
 			},
@@ -1447,7 +1452,8 @@ func newEmailConfiguration() *schema.Resource {
 			},
 			"host": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
+				Default:     "localhost",
 				Description: "The host name of the SMTP server that FusionAuth will use.",
 			},
 			"implicit_email_verification_allowed": {
@@ -1505,7 +1511,8 @@ func newEmailConfiguration() *schema.Resource {
 			},
 			"port": {
 				Type:        schema.TypeInt,
-				Required:    true,
+				Optional:    true,
+				Default:     25,
 				Description: "The port of the SMTP server that FusionAuth will use.",
 			},
 			"properties": {
@@ -1522,7 +1529,6 @@ func newEmailConfiguration() *schema.Resource {
 					"SSL",
 					"TLS",
 				}, false),
-				Default:     "NONE",
 				Description: "The type of security protocol FusionAuth will use when connecting to the SMTP server.",
 			},
 			"set_password_email_template_id": {
@@ -1584,7 +1590,6 @@ func newEmailConfiguration() *schema.Resource {
 			"verification_strategy": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "ClickableLink",
 				Description:  "The process by which the user will verify their email address.",
 				ValidateFunc: validation.StringInSlice([]string{"ClickableLink", "FormField"}, false),
 			},

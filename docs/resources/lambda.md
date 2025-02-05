@@ -22,10 +22,7 @@ function populate(jwt, user, registration) {
 
 ## Argument Reference
 
-* `lambda_id` - (Optional) The Id to use for the new lambda. If not specified a secure random UUID will be generated.
 * `body` - (Required) The lambda function body, a JavaScript function.
-* `debug` - (Optional) Whether or not debug event logging is enabled for this Lambda.
-* `engine_type` - (Optional) The JavaScript execution engine for the lambda.
 * `name` - (Required) The name of the lambda.
 * `type` - (Required) The lambda type. The possible values are:
   * `AppleReconcile`
@@ -54,3 +51,9 @@ function populate(jwt, user, registration) {
   * `TwitterReconcile`
   * `UserInfoPopulate`
   * `XboxReconcile`
+
+---
+
+* `debug` - (Optional) Whether or not debug event logging is enabled for this Lambda.
+* `engine_type` - (Optional) The JavaScript execution engine for the lambda.
+* `lambda_id` - (Optional) The Id to use for the new lambda. If not specified a secure random UUID will be generated.

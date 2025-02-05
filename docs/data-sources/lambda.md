@@ -15,8 +15,8 @@ data "fusionauth_lambda" "default_google_reconcile" {
 
 ## Argument Reference
 
-* `id`   - (Optional) The ID of the Lambda. At least one of `id` or `name` must be specified.
 * `name` - (Optional) The name of the Lambda. At least one of `id` or `name` must be specified.
+* `id`   - (Optional) The ID of the Lambda. At least one of `id` or `name` must be specified.
 * `type` - (Required) The Lambda type. The possible values are:
   * `AppleReconcile`
   * `ClientCredentialsJWTPopulate`

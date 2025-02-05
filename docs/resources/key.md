@@ -16,7 +16,6 @@ resource "fusionauth_key" "admin_id" {
 
 ## Argument Reference
 
-* `key_id` - (Optional) The Id to use for the new key. If not specified a secure random UUID will be generated.
 * `algorithm` - (Required) The algorithm used to encrypt the Key. The following values represent algorithms supported by FusionAuth:
   * `ES256` - ECDSA using P-256 curve and SHA-256 hash algorithm
   * `ES384` - ECDSA using P-384 curve and SHA-384 hash algorithm
@@ -27,8 +26,12 @@ resource "fusionauth_key" "admin_id" {
   * `HS256` - HMAC using SHA-256 hash algorithm
   * `HS384` - HMAC using SHA-384 hash algorithm
   * `HS512` - HMAC using SHA-512 hash algorithm
-* `issuer` - (Optional) The issuer of the RSA or EC certificate. If omitted, this value will default to the value of tenant issuer on the default tenant. For HMAC keys, this field does not apply and will be ignored if specified, and no default value will be set.
 * `name` - (Required) The name of the Key.
+
+---
+
+* `issuer` - (Optional) The issuer of the RSA or EC certificate. If omitted, this value will default to the value of tenant issuer on the default tenant. For HMAC keys, this field does not apply and will be ignored if specified, and no default value will be set.
+* `key_id` - (Optional) The Id to use for the new key. If not specified a secure random UUID will be generated.
 * `length` - (Optional)
 
 ## Attribute Reference

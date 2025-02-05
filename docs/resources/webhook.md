@@ -38,13 +38,14 @@ resource "fusionauth_webhook" "example" {
 
 ## Argument Reference
 
-* `tenant_ids` - (Optional) The Ids of the tenants that this Webhook should be associated with. If no Ids are specified and the global field is false, this Webhook will not be used.
 * `connect_timeout` - (Required) The connection timeout in milliseconds used when FusionAuth sends events to the Webhook.
+* `read_timeout` - (Required) The read timeout in milliseconds used when FusionAuth sends events to the Webhook.
+* `url` - (Required) The fully qualified URL of the Webhook’s endpoint that will accept the event requests from FusionAuth.
+
+---
+
 * `data` - (Optional) An object that can hold any information about the Webhook that should be persisted.
 * `description` - (Optional) A description of the Webhook. This is used for display purposes only.
-* `signature_configuration` - (Optional) Configuration for webhook signing
-  * `enabled` - (Optional) Wether or not webhook signing is enabled
-  * `signing_key_id` - (Optional) The UUID key used for signing the Webhook
 * `events_enabled` - (Optional) A mapping for the events that are enabled for this Webhook.
   * `audit_log_create` - (Optional) When an audit log is created
   * `event_log_create` - (Optional) When an event log is created
@@ -90,11 +91,13 @@ resource "fusionauth_webhook" "example" {
 * `headers` - (Optional) An object that contains headers that are sent as part of the HTTP request for the events.
 * `http_authentication_password` - (Optional) The HTTP basic authentication password that is sent as part of the HTTP request for the events.
 * `http_authentication_username` -(Optional) The HTTP basic authentication username that is sent as part of the HTTP request for the events.
-* `read_timeout` - (Required) The read timeout in milliseconds used when FusionAuth sends events to the Webhook.
 * `signature_configuration` - (Optional) Configuration for webhook signing.
   * `enabled` - (Optional) Whether or not webhook events are signed.
   * `signing_key_id` - (Optional) The Id of the key used to sign webhook events. Required when `signature_configuration` is set to true.
+* `signature_configuration` - (Optional) Configuration for webhook signing
+  * `enabled` - (Optional) Wether or not webhook signing is enabled
+  * `signing_key_id` - (Optional) The UUID key used for signing the Webhook
 * `ssl_certificate` - (Optional) An SSL certificate in PEM format that is used to establish the a SSL (TLS specifically) connection to the Webhook.
 * `ssl_certificate_key_id` - (Optional) The Id of an existing Key. The X.509 certificate is used for client certificate authentication in requests to the Webhook.
-* `url` - (Required) The fully qualified URL of the Webhook’s endpoint that will accept the event requests from FusionAuth.
+* `tenant_ids` - (Optional) The Ids of the tenants that this Webhook should be associated with. If no Ids are specified and the global field is false, this Webhook will not be used.
 * `webhook_id` - (Computed) The Id to use for the new Webhook. If not specified a secure random UUID will be generated.

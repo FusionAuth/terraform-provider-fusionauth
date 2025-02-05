@@ -34,7 +34,7 @@ func newApplicationOAuthScope() *schema.Resource {
 			"data": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "The data to associate with the scope.",
+				Description: "An object that can hold any information about the OAuth Scope that should be persisted.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"default_consent_detail": {
@@ -50,7 +50,7 @@ func newApplicationOAuthScope() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The description of the scope.",
+				Description: "A description of the OAuth Scope. This is used for display purposes only.",
 			},
 			"name": {
 				Type:        schema.TypeString,

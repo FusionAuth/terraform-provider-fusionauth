@@ -94,10 +94,11 @@ func newApplication() *schema.Resource {
 				Description: "An object that can hold any information about the Application that should be persisted.",
 			},
 			"form_configuration": {
-				Type:       schema.TypeList,
-				MaxItems:   1,
-				Optional:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				ConfigMode:       schema.SchemaConfigModeAttr,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"admin_registration_form_id": {
@@ -139,10 +140,11 @@ func newApplication() *schema.Resource {
 				Description: "The instant that the Application was added to the FusionAuth database.",
 			},
 			"jwt_configuration": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     newJWTConfiguration(),
-				Optional: true,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Elem:             newJWTConfiguration(),
+				DiffSuppressFunc: suppressBlockDiff,
+				Optional:         true,
 			},
 			"lambda_configuration": {
 				Type:       schema.TypeList,

@@ -59,17 +59,20 @@ resource "fusionauth_entity_permission" "file_lawsuit" {
 
 ## Argument Reference
 
-* `tenant_id` - (Optional) The unique ID of the tenant used to scope this API request.
-* `entity_id` - (Optional) The ID to use for the new Entity. If not specified a secure random UUID will be generated.
-* `data` - (Optional) An object that can hold any information about the Entity that should be persisted. Please review
-  the limits on data field types as you plan for and build your custom data schema. Must be a JSON serialised string.
+* `entity_type_id` - (Required) The ID of the Entity Type. Types are consulted for permission checks.
+* `name` - (Required) A descriptive name for the Entity (i.e. "Raviga" or "Email Service").
+
+---
+
 * `client_id` - (Optional) The OAuth 2.0 client ID. If you leave this blank on create, the value of the Entity ID will
   be used. Must be a UUID.
 * `client_secret` - (Optional) The OAuth 2.0 client secret. If you leave this blank on create, a secure secret will be
   generated for you. If you leave this blank during an update, the previous value will be maintained. For both create
   and update you can provide a value and it will be stored.
-* `name` - (Required) A descriptive name for the Entity (i.e. "Raviga" or "Email Service").
-* `entity_type_id` - (Required) The ID of the Entity Type. Types are consulted for permission checks.
+* `data` - (Optional) An object that can hold any information about the Entity that should be persisted. Please review
+  the limits on data field types as you plan for and build your custom data schema. Must be a JSON serialised string.
+* `entity_id` - (Optional) The ID to use for the new Entity. If not specified a secure random UUID will be generated.
+* `tenant_id` - (Optional) The unique ID of the tenant used to scope this API request.
 
 For more information see:
 [FusionAuth Entity Management API Overview](https://fusionauth.io/docs/v1/tech/apis/entity-management/)

@@ -15,7 +15,9 @@ resource "fusionauth_user_action" "example" {
 ## Argument Reference
 
 * `name` - (Required) The name of this User Action.
-* `user_action_id` - (Optional) The id of this User Action.
+
+---
+
 * `cancel_email_template_id` - (Optional) The Id of the Email Template that is used when User Actions are canceled.
 * `end_email_template_id` - (Optional) The Id of the Email Template that is used when User Actions expired automatically (end).
 * `include_email_in_event_json` - (Optional) Whether to include the email information in the JSON that is sent to the Webhook when a user action is taken.
@@ -28,5 +30,6 @@ resource "fusionauth_user_action" "example" {
 * `send_end_event` - (Optional) Whether or not FusionAuth will send events to any registered Webhooks when this User Action expires.
 * `start_email_template_id` - (Optional) The Id of the Email Template that is used when User Actions are started (created).
 * `temporal` - (Optional) Whether or not this User Action is time-based (temporal).
+* `user_action_id` - (Optional) The id of this User Action.
 * `user_emailing_enabled` - (Optional) Whether or not email is enabled for this User Action.
 * `user_notifications_enabled` - (Optional) Whether or not user notifications are enabled for this User Action.

@@ -19,7 +19,10 @@ resource "fusionauth_application_role" "my_app_admin_role" {
 ## Argument Reference
 
 * `application_id` - (Required) ID of the application that this role is for.
-* `description` - (Optional) A description for the role.
 * `name` - (Required) The name of the Role.
+
+---
+
+* `description` - (Optional) A description for the role.
 * `is_default` - (Optional) Whether or not the Role is a default role. A default role is automatically assigned to a user during registration if no roles are provided.
 * `is_super_role` - (Optional) Whether or not the Role is a considered to be a super user role. This is a marker to indicate that it supersedes all other roles. FusionAuth will attempt to enforce this contract when using the web UI, it is not enforced programmatically when using the API.

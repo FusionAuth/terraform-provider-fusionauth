@@ -22,6 +22,10 @@ resource "fusionauth_system_configuration" "example" {
 
 ## Argument Reference
 
+* `report_timezone` - (Required) The time zone used to adjust the stored UTC time when generating reports. Since reports are usually rolled up hourly, this timezone will be used for demarcating the hours.
+
+---
+
 * `audit_log_configuration` - (Optional)
   * `delete` - (Optional)
     * `enabled` - (Optional) Whether or not FusionAuth should delete the Audit Log based upon this configuration. When true the auditLogConfiguration.delete.numberOfDaysToRetain will be used to identify audit logs that are eligible for deletion. When this value is set to false audit logs will be preserved forever.
@@ -42,7 +46,6 @@ resource "fusionauth_system_configuration" "example" {
   * `delete` - (Optional)
     * `enabled` - (Optional) Whether or not FusionAuth should delete the login records based upon this configuration. When true the loginRecordConfiguration.delete.numberOfDaysToRetain will be used to identify login records that are eligible for deletion. When this value is set to false login records will be preserved forever.
     * `number_of_days_to_retain` - (Optional) The number of days to retain login records.
-* `report_timezone` - (Optional) The time zone used to adjust the stored UTC time when generating reports. Since reports are usually rolled up hourly, this timezone will be used for demarcating the hours.
 * `trusted_proxy_configuration` - (Optional)
   * `trust_policy` - (Optional) This setting is used to resolve the client IP address for use in logging, webhooks, and IP-based access control when an X-Forwarded-For header is provided. Because proxies are free to rewrite the X-Forwarded-For header, an untrusted proxy could write a value that allowed it to bypass IP-based ACLs, or cause an incorrect IP address to be logged or sent to a webhook. Valid values are `All` and `OnlyConfigured`.
   * `trusted` - (Optional) An array of IP addresses, representing the set of trusted upstream proxies. This value will be accepted but ignored when `trust_policy` is set to `All`. Values may be specified as IPv4, or IPv6 format, and ranges of addresses are also accepted in CIDR notation.

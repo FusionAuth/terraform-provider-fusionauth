@@ -24,16 +24,16 @@ resource "fusionauth_api_key" "example" {
 
 ## Argument Reference
 
-* `tenant_id` - (Optional) The unique Id of the Tenant. This value is required if the key is meant to be tenant scoped. Tenant scoped keys can only be used to access users and other tenant scoped objects for the specified tenant. This value is read-only once the key is created.
-* `key_id` - (Optional) The Id to use for the new Form. If not specified a secure random UUID will be generated.
-* `key` - (Optional) API key string. When you create an API key the key is defaulted to a secure random value but the API key is simply a string, so you may call it super-secret-key if you’d like. However a long and random value makes a good API key in that it is unique and difficult to guess.
 * `description` - (Optional) Description of the key.
+* `expiration_instant` - (Optional) The expiration instant of this API key. Using an expired API key for API Authentication will result in a 401 response code.
 * `ip_access_control_list_id` - (Optional) The Id of the IP Access Control List limiting access to this API key.
+* `key` - (Optional) API key string. When you create an API key the key is defaulted to a secure random value but the API key is simply a string, so you may call it super-secret-key if you’d like. However a long and random value makes a good API key in that it is unique and difficult to guess.
+* `key_id` - (Optional) The Id to use for the new Form. If not specified a secure random UUID will be generated.
 * `permissions_endpoints` - (Optional) Endpoint permissions for this key. Each key of the object is an endpoint, with the value being an array of the HTTP methods which can be used against the endpoint. An Empty permissions_endpoints object mean that this is a super key that authorizes this key for all the endpoints.
   * `endpoint` - (Optional)
-  * `delete` - (Optional) HTTP DELETE Verb.
-  * `get` - (Optional) HTTP GET Verb.
-  * `patch` - (Optional) HTTP PATCH Verb
-  * `post` - (Optional) HTTP POST Verb
-  * `put` - (Optional) HTTP PUT Verb
-* `expiration_instant` - (Optional) The expiration instant of this API key. Using an expired API key for API Authentication will result in a 401 response code.
+    * `delete` - (Optional) HTTP DELETE Verb.
+    * `get` - (Optional) HTTP GET Verb.
+    * `patch` - (Optional) HTTP PATCH Verb
+    * `post` - (Optional) HTTP POST Verb
+    * `put` - (Optional) HTTP PUT Verb
+* `tenant_id` - (Optional) The unique Id of the Tenant. This value is required if the key is meant to be tenant scoped. Tenant scoped keys can only be used to access users and other tenant scoped objects for the specified tenant. This value is read-only once the key is created.
