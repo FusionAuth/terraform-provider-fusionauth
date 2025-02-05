@@ -412,8 +412,8 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 func createWebhook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	l := buildWebhook(data)
-	webhook_id := data.Get("webhook_id").(string)
-	resp, faErrs, err := client.FAClient.CreateWebhook(webhook_id, fusionauth.WebhookRequest{
+	webhookID := data.Get("webhook_id").(string)
+	resp, faErrs, err := client.FAClient.CreateWebhook(webhookID, fusionauth.WebhookRequest{
 		Webhook: l,
 	})
 	if err != nil {

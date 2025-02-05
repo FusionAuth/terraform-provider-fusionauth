@@ -484,9 +484,9 @@ func createTheme(_ context.Context, data *schema.ResourceData, i interface{}) di
 		req.SourceThemeId = srcTheme.(string)
 	}
 
-	theme_id := data.Get("theme_id").(string)
+	themeID := data.Get("theme_id").(string)
 
-	resp, faErrs, err := client.FAClient.CreateTheme(theme_id, req)
+	resp, faErrs, err := client.FAClient.CreateTheme(themeID, req)
 
 	if err != nil {
 		return diag.Errorf("CreateTheme err: %v", err)

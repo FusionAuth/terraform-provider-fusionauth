@@ -26,7 +26,7 @@ type GoogleAppConfig struct {
 }
 
 type GoogleIdentityProviderProperties struct {
-	Api    string `json:"api,omitempty"`
+	API    string `json:"api,omitempty"`
 	Button string `json:"button,omitempty"`
 }
 
@@ -279,7 +279,7 @@ func buildGoogleAppConfig(key string, data *schema.ResourceData) map[string]inte
 		if len(propertiesList) > 0 {
 			prop := propertiesList[0].(map[string]interface{})
 			properties = GoogleIdentityProviderProperties{
-				Api:    getStringOrDefault(prop, "api", ""),
+				API:    getStringOrDefault(prop, "api", ""),
 				Button: getStringOrDefault(prop, "button", ""),
 			}
 		}
@@ -389,9 +389,9 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	ac := make([]map[string]interface{}, 0, len(o.ApplicationConfiguration))
 	for k, v := range m {
 		properties := []map[string]interface{}{}
-		if v.Properties.Api != "" || v.Properties.Button != "" {
+		if v.Properties.API != "" || v.Properties.Button != "" {
 			properties = append(properties, map[string]interface{}{
-				"api":    v.Properties.Api,
+				"api":    v.Properties.API,
 				"button": v.Properties.Button,
 			})
 		}

@@ -62,12 +62,14 @@ func dataSourceUserGroupMembershipRead(_ context.Context, data *schema.ResourceD
 	}
 
 	gmsresp := resp.Members
-	if resp.Total == 0 {
+	switch resp.Total {
+	case 0:
 		data.SetId("")
 		return nil
-	} else if resp.Total == 1 {
+	case 1:
 		data.SetId(gmsresp[0].Id)
-	} else {
+		return nil
+	default:
 		return diag.Errorf("Found %d memberships for user %s in group %s", resp.Total, data.Get("user_id").(string), data.Get("group_id").(string))
 	}
 

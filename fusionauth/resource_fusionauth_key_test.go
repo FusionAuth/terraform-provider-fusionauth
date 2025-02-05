@@ -126,7 +126,7 @@ func testKeyAccTestCheckFuncs(
 		testAccCheckFusionauthKeyExists(tfResourcePath),
 		resource.TestCheckResourceAttrSet(tfResourcePath, "key_id"),
 		resource.TestCheckResourceAttr(tfResourcePath, "name", fmt.Sprintf("test-acc %s", resourceName)),
-		resource.TestCheckResourceAttr(tfResourcePath, "issuer", string(issuer)),
+		resource.TestCheckResourceAttr(tfResourcePath, "issuer", issuer),
 		resource.TestCheckResourceAttr(tfResourcePath, "algorithm", string(algorithm)),
 		resource.TestCheckResourceAttr(tfResourcePath, "length", fmt.Sprintf("%d", length)),
 		resource.TestCheckResourceAttrSet(tfResourcePath, "kid"),

@@ -15,7 +15,7 @@ type SteamConnectIdentityProviderBody struct {
 }
 
 type SteamAppConfig struct {
-	ApiMode            string `json:"apiMode,omitempty"`
+	APIMode            string `json:"apiMode,omitempty"`
 	ButtonText         string `json:"buttonText,omitempty"`
 	ClientID           string `json:"client_id,omitempty"`
 	CreateRegistration bool   `json:"createRegistration"`
@@ -302,7 +302,7 @@ func buildResourceDataFromIDPSteam(data *schema.ResourceData, res fusionauth.Ste
 	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
 	for k, v := range m {
 		ac = append(ac, map[string]interface{}{
-			"api_mode":            v.ApiMode,
+			"api_mode":            v.APIMode,
 			"application_id":      k,
 			"button_text":         v.ButtonText,
 			"client_id":           v.ClientID,
@@ -336,7 +336,7 @@ func buildSteamAppConfig(key string, data *schema.ResourceData) map[string]inter
 		ac := x.(map[string]interface{})
 		aid := ac["application_id"].(string)
 		oc := SteamAppConfig{
-			ApiMode:            ac["api_mode"].(string),
+			APIMode:            ac["api_mode"].(string),
 			ButtonText:         ac["button_text"].(string),
 			ClientID:           ac["client_id"].(string),
 			CreateRegistration: ac["create_registration"].(bool),

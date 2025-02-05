@@ -186,7 +186,7 @@ func clientTenantIDOverride(client *Client, data *schema.ResourceData) (revert f
 	}
 }
 
-func suppressBlockDiff(k, old, new string, d *schema.ResourceData) bool {
+func suppressBlockDiff(_, old, new string, d *schema.ResourceData) bool {
 	if new == "0" && old == "1" {
 		return true
 	}

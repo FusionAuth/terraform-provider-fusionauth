@@ -102,12 +102,12 @@ func createApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i
 	client := i.(Client)
 	oas := buildApplicationOAuthScope(data)
 
-	var scope_id string
+	var scopeID string
 	if sid, ok := data.GetOk("scope_id"); ok {
-		scope_id = sid.(string)
+		scopeID = sid.(string)
 	}
 
-	resp, faErrs, err := client.FAClient.CreateOAuthScope(oas.Scope.ApplicationId, scope_id, oas)
+	resp, faErrs, err := client.FAClient.CreateOAuthScope(oas.Scope.ApplicationId, scopeID, oas)
 	if err != nil {
 		return diag.Errorf("CreateApplicationOAuthScope err: %v", err)
 	}

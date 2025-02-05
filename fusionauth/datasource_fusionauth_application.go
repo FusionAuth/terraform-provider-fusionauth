@@ -71,7 +71,10 @@ func dataSourceApplicationRead(_ context.Context, data *schema.ResourceData, i i
 		return diag.Errorf("couldn't find application %s", name)
 	}
 	data.SetId(app.Id)
-	data.Set("tenant_id", app.TenantId)
+	err = data.Set("tenant_id", app.TenantId)
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("error setting tenant_id: %v", err))
+	}
 	// Properly structure WebAuthn configuration
 	webauthnConfig := []map[string]interface{}{
 		{
