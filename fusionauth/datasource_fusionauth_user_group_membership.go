@@ -62,29 +62,25 @@ func dataSourceUserGroupMembershipRead(_ context.Context, data *schema.ResourceD
 	}
 
 	gmsresp := resp.Members
-	switch resp.Total {
-	case 0:
+	if resp.Total == 0 {
 		data.SetId("")
 		return nil
-	case 1:
+	}
+	if resp.Total == 1 {
 		data.SetId(gmsresp[0].Id)
+		if err := data.Set("data", gmsresp[0].Data); err != nil {
+			return diag.Errorf("Error setting data: %v", err)
+		}
+		if err := data.Set("group_id", gmsresp[0].GroupId); err != nil {
+			return diag.Errorf("Error setting group_id: %v", err)
+		}
+		if err := data.Set("membership_id", gmsresp[0].Id); err != nil {
+			return diag.Errorf("Error setting membership_id: %v", err)
+		}
+		if err := data.Set("user_id", gmsresp[0].UserId); err != nil {
+			return diag.Errorf("Error setting user_id: %v", err)
+		}
 		return nil
-	default:
-		return diag.Errorf("Found %d memberships for user %s in group %s", resp.Total, data.Get("user_id").(string), data.Get("group_id").(string))
 	}
-
-	if err := data.Set("data", gmsresp[0].Data); err != nil {
-		return diag.Errorf("Error setting data: %v", err)
-	}
-	if err := data.Set("group_id", gmsresp[0].GroupId); err != nil {
-		return diag.Errorf("Error setting group_id: %v", err)
-	}
-	if err := data.Set("membership_id", gmsresp[0].Id); err != nil {
-		return diag.Errorf("Error setting membership_id: %v", err)
-	}
-	if err := data.Set("user_id", gmsresp[0].UserId); err != nil {
-		return diag.Errorf("Error setting user_id: %v", err)
-	}
-
-	return nil
+	return diag.Errorf("Found %d memberships for user %s in group %s", resp.Total, data.Get("user_id").(string), data.Get("group_id").(string))
 }
