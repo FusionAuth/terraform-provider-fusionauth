@@ -171,6 +171,7 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 	return req, diags
 }
 
+//nolint:gocognit
 func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse) diag.Diagnostics {
 	data.SetId(resp.User.Id)
 
