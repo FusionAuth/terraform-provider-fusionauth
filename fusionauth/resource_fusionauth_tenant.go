@@ -1588,9 +1588,14 @@ func newEmailConfiguration() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"verification_strategy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "ClickableLink",
+				Type:     schema.TypeString,
+				Optional: true,
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if oldValue == "ClickableLink" && newValue == "" {
+						return true
+					}
+					return false
+				},
 				Description:  "The process by which the user will verify their email address.",
 				ValidateFunc: validation.StringInSlice([]string{"ClickableLink", "FormField"}, false),
 			},
