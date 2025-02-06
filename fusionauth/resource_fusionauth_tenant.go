@@ -1590,7 +1590,7 @@ func newEmailConfiguration() *schema.Resource {
 			"verification_strategy": {
 				Type:     schema.TypeString,
 				Optional: true,
-				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+				DiffSuppressFunc: func(_, oldValue, newValue string, _ *schema.ResourceData) bool {
 					if oldValue == "ClickableLink" && newValue == "" {
 						return true
 					}
