@@ -1590,6 +1590,7 @@ func newEmailConfiguration() *schema.Resource {
 			"verification_strategy": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Default:      "ClickableLink",
 				Description:  "The process by which the user will verify their email address.",
 				ValidateFunc: validation.StringInSlice([]string{"ClickableLink", "FormField"}, false),
 			},
