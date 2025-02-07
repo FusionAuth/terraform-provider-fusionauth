@@ -25,6 +25,7 @@ Please continue to use and provide feedback on this provider as you have in the 
 * API Key
 * application
 * application/{application_id}/role
+* application/{application_id}/scope
 * email
 * entity
 * entity grant
@@ -51,6 +52,7 @@ Please continue to use and provide feedback on this provider as you have in the 
 * themes
 * user
 * user action
+* user group membership
 * webhook
 * tenants
 
@@ -68,5 +70,6 @@ go test
 ## Known issues
 
 If you do not specify permissions when adding an API key, you will get a key created that has no permissions. See the following issues for more details.
+
 * <https://github.com/FusionAuth/terraform-provider-fusionauth/issues/126>
 * <https://github.com/FusionAuth/fusionauth-issues/issues/1675>
