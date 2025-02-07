@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/gpsinsight/terraform-provider-fusionauth/fusionauth/testdata"
+	"github.com/FusionAuth/terraform-provider-fusionauth/fusionauth/testdata"
 )
 
 func TestAccFusionauthTheme_basic(t *testing.T) {
