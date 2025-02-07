@@ -124,10 +124,11 @@ func newTenant() *schema.Resource {
 				Description: "An object that can hold any information about the Tenant that should be persisted.",
 			},
 			"email_configuration": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
-				Elem:     newEmailConfiguration(),
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem:             newEmailConfiguration(),
 			},
 			"event_configuration": {
 				Type:     schema.TypeSet,
@@ -215,10 +216,11 @@ func newTenant() *schema.Resource {
 				},
 			},
 			"external_identifier_configuration": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
-				Elem:     newExternalIdentifierConfiguration(),
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem:             newExternalIdentifierConfiguration(),
 			},
 			"failed_authentication_configuration": {
 				Type:     schema.TypeList,
@@ -259,12 +261,14 @@ func newTenant() *schema.Resource {
 			},
 			"issuer": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				Description: "The named issuer used to sign tokens, this is generally your public fully qualified domain.",
 			},
 			"jwt_configuration": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"access_token_key_id": {
@@ -292,25 +296,48 @@ func newTenant() *schema.Resource {
 							}, false),
 							Description: "The refresh token expiration policy.",
 						},
+						"refresh_token_one_time_use_configuration_grace_period_in_seconds": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      0,
+							Description:  "The length of time specified in seconds that a one-time use token can be reused. This value must be greater than 0 and less than 86400 which is equal to 24 hours. Setting this value to 0 effectively disables the grace period which means a one-time token may not be reused. For security reasons, you should keep this value as small as possible, and only increase past 0 to improve reliability for an asynchronous or clustered integration that may require a brief grace period. Defaults to 0.",
+							ValidateFunc: validation.IntBetween(0, 86400),
+						},
 						"refresh_token_revocation_policy_on_login_prevented": {
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Default:     false,
 							Description: "When enabled, the refresh token will be revoked when a user action, such as locking an account based on a number of failed login attempts, prevents user login.",
+						},
+						"refresh_token_revocation_policy_on_multi_factor_enable": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When enabled, all refresh tokens will be revoked when a user enables multi-factor authentication for the first time. This policy will not be applied when adding subsequent multi-factor methods to the user.",
+						},
+						"refresh_token_revocation_policy_on_one_time_token_reuse": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When enabled, if a one-time use refresh token is reused, the token will be revoked. This does not cause all refresh tokens to be revoked, only the reused token is revoked.",
 						},
 						"refresh_token_revocation_policy_on_password_change": {
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Default:     false,
 							Description: "When enabled, the refresh token will be revoked when a user changes their password.",
 						},
 						"refresh_token_sliding_window_maximum_time_to_live_in_minutes": {
 							Type:         schema.TypeInt,
 							Optional:     true,
+							Default:      43200,
 							Description:  "The maximum lifetime of a refresh token when using a refresh token expiration policy of SlidingWindowWithMaximumLifetime. Value must be greater than 0.",
 							ValidateFunc: validation.IntAtLeast(1),
 						},
 						"refresh_token_time_to_live_in_minutes": {
 							Type:         schema.TypeInt,
-							Required:     true,
+							Optional:     true,
+							Default:      43200,
 							Description:  "The length of time in minutes a Refresh Token is valid from the time it was issued. Value must be greater than 0.",
 							ValidateFunc: validation.IntAtLeast(1),
 						},
@@ -326,17 +353,26 @@ func newTenant() *schema.Resource {
 						},
 						"time_to_live_in_seconds": {
 							Type:         schema.TypeInt,
-							Required:     true,
+							Optional:     true,
+							Default:      3600,
 							Description:  "The length of time in seconds this JWT is valid from the time it was issued. Value must be greater than 0.",
 							ValidateFunc: validation.IntAtLeast(1),
 						},
 					},
 				},
 			},
+			"lambda_configuration": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem:             newLambdaConfiguration(),
+			},
 			"login_configuration": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"require_authentication": {
@@ -398,11 +434,10 @@ func newTenant() *schema.Resource {
 				},
 			},
 			"multi_factor_configuration": {
-				Type:       schema.TypeList,
-				MaxItems:   1,
-				Optional:   true,
-				Computed:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"login_policy": {
@@ -413,17 +448,16 @@ func newTenant() *schema.Resource {
 							Description:  "When set to Enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to Disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When the login policy is to Required, a two-factor challenge will be required during login. If a user does not have configured two-factor methods, they will not be able to log in.",
 						},
 						"authenticator": {
-							Type:       schema.TypeList,
-							MaxItems:   1,
-							Optional:   true,
-							Computed:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:             schema.TypeList,
+							MaxItems:         1,
+							Optional:         true,
+							DiffSuppressFunc: suppressBlockDiff,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Default:     true,
+										Computed:    true,
 										Description: "When enabled, users may utilize an authenticator application to complete a multi-factor authentication request. This method uses TOTP (Time-Based One-Time Password) as defined in RFC 6238 and often uses an native mobile app such as Google Authenticator.",
 									},
 								},
@@ -742,9 +776,63 @@ func newTenant() *schema.Resource {
 				Computed: true,
 				Elem:     newTenantRegistrationConfiguration(),
 			},
+			"scim_server_configuration": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"client_entity_type_id": {
+							Type:         schema.TypeString,
+							Required:     true,
+							Description:  "The Entity Type that will be used to represent SCIM Clients for this tenant. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether or not this tenant has the SCIM endpoints enabled. Note: An Enterprise plan is required to utilize SCIM.",
+						},
+						"schemas": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							// Default:          defaultScimSchemas,
+							Description:      "JSON formatted as a SCIM Schemas endpoint response. Because the SCIM lambdas may modify the JSON response, ensure the Schema's response matches that generated by the response lambdas. More about Schema definitions. When this parameter is not provided, it will default to EnterpriseUser, Group, and User schema definitions as defined by the SCIM core schemas spec. Note: An Enterprise plan is required to utilize SCIM.",
+							DiffSuppressFunc: diffSuppressJSON,
+							ValidateFunc:     validation.StringIsJSON,
+						},
+						"server_entity_type_id": {
+							Type:         schema.TypeString,
+							Required:     true,
+							Description:  "The Entity Type that will be used to represent SCIM Servers for this tenant. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
+							ValidateFunc: validation.IsUUID,
+						},
+					},
+				},
+			},
+			"sso_configuration": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"device_trust_time_to_live_in_seconds": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     31536000,
+							Description: "The number of seconds before a trusted device is reset. When reset, a user is forced to complete captcha during login and complete two factor authentication if applicable.",
+						},
+					},
+				},
+			},
 			"theme_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
 				Description:  "The unique Id of the theme to be used to style the login page and other end user templates.",
 				ValidateFunc: validation.IsUUID,
 			},
@@ -818,6 +906,13 @@ func newTenant() *schema.Resource {
 						},
 					},
 				},
+			},
+			"webauthn_configuration": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem:             newWebAuthnConfiguration(),
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -972,24 +1067,28 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"authorization_grant_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Default:      30,
 				Description:  "The time in seconds until a OAuth authorization code in no longer valid to be exchanged for an access token. This is essentially the time allowed between the start of an Authorization request during the Authorization code grant and when you request an access token using this authorization code on the Token endpoint.",
 				ValidateFunc: validation.IntBetween(1, 600),
 			},
 			"change_password_id_generator": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
+							Default:     32,
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomBytes),
 							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
 							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
@@ -998,30 +1097,35 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 			},
 			"change_password_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Default:      600,
 				Description:  "The time in seconds until a change password Id is no longer valid and cannot be used by the Change Password API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"device_code_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Default:      300,
 				Description:  "The time in seconds until a device code Id is no longer valid and cannot be used by the Token API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"device_user_code_id_generator": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
+							Default:     6,
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomAlphaNumeric),
 							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
 							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
@@ -1029,19 +1133,22 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				},
 			},
 			"email_verification_id_generator": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
+							Default:     32,
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomBytes),
 							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
 							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
@@ -1049,14 +1156,16 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				},
 			},
 			"email_verification_one_time_code_generator": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
+							Default:     6,
 							Description: "The length of the secure generator used for generating the email verification one time code.",
 						},
 						"type": {
@@ -1071,42 +1180,49 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 			},
 			"email_verification_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
 				Description:  "The time in seconds until a email verification Id is no longer valid and cannot be used by the Verify Email API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"external_authentication_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Default:      300,
 				Description:  "The time in seconds until an external authentication Id is no longer valid and cannot be used by the Token API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"login_intent_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Default:      1800,
 				Description:  "The number of seconds before the Login Timeout identifier is no longer valid to complete post-authentication steps in the OAuth workflow. Must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"one_time_password_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Default:      60,
 				Description:  "The time in seconds until a One Time Password is no longer valid and cannot be used by the Login API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"passwordless_login_generator": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
+							Default:     32,
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomBytes),
 							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
 							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
@@ -1115,24 +1231,28 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 			},
 			"passwordless_login_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Default:      180,
 				Description:  "The time in seconds until a passwordless code is no longer valid and cannot be used by the Passwordless API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"registration_verification_id_generator": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
+							Default:     32,
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomBytes),
 							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
 							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
@@ -1140,14 +1260,16 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				},
 			},
 			"registration_verification_one_time_code_generator": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
+							Default:     6,
 							Description: "The length of the secure generator used for generating the registration verification one time code.",
 						},
 						"type": {
@@ -1162,9 +1284,16 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 			},
 			"registration_verification_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
 				Description:  "The time in seconds until a registration verification Id is no longer valid and cannot be used by the Verify Registration API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
+			},
+			"remember_oauth_scope_consent_choice_time_to_live_in_seconds": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     2592000,
+				Description: "The time in seconds until remembered OAuth scope consent choices are no longer valid, and the User will be prompted to consent to requested OAuth scopes even if they have not changed. Applies only when application.oauthConfiguration.consentMode is set to RememberDecision. Value must be greater than 0. Note: An Essentials or Enterprise plan is required to utilize advanced OAuth scopes.",
 			},
 			"saml_v2_authn_request_id_ttl_seconds": {
 				Type:        schema.TypeInt,
@@ -1173,19 +1302,22 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				Description: "The time in seconds that a SAML AuthN request will be eligible for use to authenticate with FusionAuth.",
 			},
 			"setup_password_id_generator": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
+							Default:     32,
 							Description: "The length of the secure generator used for generating the change password Id.",
 						},
 						"type": {
 							Type:         schema.TypeString,
-							Required:     true,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomBytes),
 							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
 							Description:  "The type of the secure generator used for generating the change password Id.",
 						},
@@ -1194,7 +1326,8 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 			},
 			"setup_password_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The time in seconds until a setup password Id is no longer valid and cannot be used by the Change Password API. Value must be greater than 0.",
 			},
@@ -1213,20 +1346,22 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				Description:  "The number of seconds before the pending account link identifier is no longer valid to complete an account link request. Value must be greater than 0.",
 			},
 			"two_factor_one_time_code_id_generator": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
+							Default:     6,
 							Description: "The length of the secure generator used for generating the the two factor code Id.",
 						},
 						"type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							Default:      string(fusionauth.SecureGeneratorType_RandomAlphaNumeric),
+							Default:      string(fusionauth.SecureGeneratorType_RandomDigits),
 							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
 							Description:  "The type of the secure generator used for generating the two factor one time code Id.",
 						},
@@ -1235,21 +1370,38 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 			},
 			"two_factor_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Default:      300,
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The time in seconds until a two factor Id is no longer valid and cannot be used by the Two Factor Login API. Value must be greater than 0.",
 			},
 			"two_factor_one_time_code_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Default:      60,
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The number of seconds before the Two-Factor One Time Code used to enable or disable a two-factor method is no longer valid. Must be greater than 0.",
 			},
 			"two_factor_trust_id_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The time in seconds until an issued Two Factor trust Id is no longer valid and the User will be required to complete Two Factor authentication during the next authentication attempt. Value must be greater than 0.",
+			},
+			"webauthn_authentication_challenge_time_to_live_in_seconds": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      180,
+				ValidateFunc: validation.IntAtLeast(1),
+				Description:  "The time in seconds until a WebAuthn authentication challenge is no longer valid and the User will be required to restart the WebAuthn authentication ceremony by creating a new challenge. This value also controls the timeout for the client-side WebAuthn navigator.credentials.get API call. Value must be greater than 0. Note: A license is required to utilize WebAuthn. Defaults to 180.",
+			},
+			"webauthn_registration_challenge_time_to_live_in_seconds": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      180,
+				ValidateFunc: validation.IntAtLeast(1),
+				Description:  "The time in seconds until a WebAuthn registration challenge is no longer valid and the User will be required to restart the WebAuthn registration ceremony by creating a new challenge. This value also controls the timeout for the client-side WebAuthn navigator.credentials.create API call. Value must be greater than 0. Note: A license is required to utilize WebAuthn. Defaults to 180.",
 			},
 		},
 	}
@@ -1263,6 +1415,12 @@ func newEmailConfiguration() *schema.Resource {
 				Optional:    true,
 				Description: "The additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.",
 			},
+			"debug": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Determines if debug should be enabled to create an event log to assist in debugging SMTP errors.",
+			},
 			"default_from_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -1274,12 +1432,6 @@ func newEmailConfiguration() *schema.Resource {
 				Computed:    true, // Fusionauth defaults to `change-me@example.com` if not configured.
 				Description: "The default email address that emails will be sent from when a from address is not provided on an individual email template. This is the address part email address (i.e. Jared Dunn <jared@piedpiper.com>).",
 			},
-			// "email_verification_email_template_id": {
-			// 	Type:         schema.TypeString,
-			// 	Optional:     true,
-			// 	Description:  "The Id of the Email Template used to send emails to users to verify that their email address is valid.",
-			// 	ValidateFunc: validation.IsUUID,
-			// },
 			"email_update_email_template_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1300,7 +1452,8 @@ func newEmailConfiguration() *schema.Resource {
 			},
 			"host": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
+				Default:     "localhost",
 				Description: "The host name of the SMTP server that FusionAuth will use.",
 			},
 			"implicit_email_verification_allowed": {
@@ -1358,7 +1511,8 @@ func newEmailConfiguration() *schema.Resource {
 			},
 			"port": {
 				Type:        schema.TypeInt,
-				Required:    true,
+				Optional:    true,
+				Default:     25,
 				Description: "The port of the SMTP server that FusionAuth will use.",
 			},
 			"properties": {
@@ -1375,7 +1529,6 @@ func newEmailConfiguration() *schema.Resource {
 					"SSL",
 					"TLS",
 				}, false),
-				Default:     "NONE",
 				Description: "The type of security protocol FusionAuth will use when connecting to the SMTP server.",
 			},
 			"set_password_email_template_id": {
@@ -1435,9 +1588,14 @@ func newEmailConfiguration() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"verification_strategy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "ClickableLink",
+				Type:     schema.TypeString,
+				Optional: true,
+				DiffSuppressFunc: func(_, oldValue, newValue string, _ *schema.ResourceData) bool {
+					if oldValue == "ClickableLink" && newValue == "" {
+						return true
+					}
+					return false
+				},
 				Description:  "The process by which the user will verify their email address.",
 				ValidateFunc: validation.StringInSlice([]string{"ClickableLink", "FormField"}, false),
 			},
@@ -1452,6 +1610,55 @@ func newEmailConfiguration() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 				Description: "Whether the user’s email addresses are verified when the user changes them.",
+			},
+		},
+	}
+}
+
+func newLambdaConfiguration() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"login_validation_id": {
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  "The Id of the lambda that will be invoked at the end of a successful login request in order to extend custom validation of a login request.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"scim_enterprise_user_request_converter_id": {
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  "The Id of a SCIM User Request lambda that will be used to convert the SCIM Enterprise User request to a FusionAuth User. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"scim_enterprise_user_response_converter_id": {
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  "The Id of a SCIM User Response lambda that will be used to convert a FusionAuth Enterprise User to a SCIM Server response. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"scim_group_request_converter_id": {
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  "The Id of a SCIM Group Request lambda that will be used to convert the SCIM Group request to a FusionAuth Group. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"scim_group_response_converter_id": {
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  "The Id of a SCIM Group Response lambda that will be used to convert a FusionAuth Group to a SCIM Server response. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"scim_user_request_converter_id": {
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  "The Id of a SCIM User Request lambda that will be used to convert the SCIM User request to a FusionAuth User. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
+				ValidateFunc: validation.IsUUID,
+			},
+			"scim_user_response_converter_id": {
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  "The Id of a SCIM User Response lambda that will be used to convert a FusionAuth User to a SCIM Server response. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
+				ValidateFunc: validation.IsUUID,
 			},
 		},
 	}
@@ -1559,6 +1766,114 @@ func newPasswordValidationRules() *schema.Resource {
 		},
 	}
 }
+
+func newWebAuthnConfiguration() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bootstrap_workflow": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"authenticator_attachment_preference": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "any",
+							ValidateFunc: validation.StringInSlice([]string{
+								"any",
+								"crossPlatform",
+								"platform",
+							}, false),
+							Description: "Determines the authenticator attachment requirement for WebAuthn passkey registration when using the bootstrap workflow. The possible values are: Any, CrossPlatform and Platform. Note: A license is required to utilize WebAuthn and an Enterprise plan is required to utilize WebAuthn cross-platform authenticators.",
+						},
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether or not this tenant has the WebAuthn bootstrap workflow enabled. The bootstrap workflow is used when the user must \"bootstrap\" the authentication process by identifying themselves prior to the WebAuthn ceremony and can be used to authenticate from a new device using WebAuthn. Note: A license is required to utilize WebAuthn.",
+						},
+						"user_verification_requirement": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "required",
+							ValidateFunc: validation.StringInSlice([]string{
+								"discouraged",
+								"preferred",
+								"required",
+							}, false),
+							Description: "Determines the user verification requirement for WebAuthn passkey registration when using the bootstrap workflow. The possible values are: Discouraged, Preferred and Required. Note: A license is required to utilize WebAuthn.",
+						},
+					},
+				},
+			},
+			"debug": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Determines if debug should be enabled for this tenant to create an event log to assist in debugging WebAuthn errors. Note: A license is required to utilize WebAuthn.",
+			},
+			"enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Whether or not this tenant has WebAuthn enabled globally.. Note: A license is required to utilize WebAuthn.",
+			},
+			"reauthentication_workflow": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"authenticator_attachment_preference": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "platform",
+							ValidateFunc: validation.StringInSlice([]string{
+								"any",
+								"crossPlatform",
+								"platform",
+							}, false),
+							Description: "Determines the authenticator attachment requirement for WebAuthn passkey registration when using the reauthentication workflow. The possible values are:: Any, CrossPlatform and Platform. Note: A license is required to utilize WebAuthn and an Enterprise plan is required to utilize WebAuthn cross-platform authenticators.",
+						},
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether or not this tenant has the WebAuthn reauthentication workflow enabled. The reauthentication workflow will automatically prompt a user to authenticate using WebAuthn for repeated logins from the same device. Note: A license is required to utilize WebAuthn.",
+						},
+						"user_verification_requirement": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "required",
+							ValidateFunc: validation.StringInSlice([]string{
+								"discouraged",
+								"preferred",
+								"required",
+							}, false),
+							Description: "Determines the user verification requirement for WebAuthn passkey registration when using the bootstrap workflow. The possible values are: Discouraged, Preferred and Required. Note: A license is required to utilize WebAuthn.",
+						},
+					},
+				},
+			},
+			"relying_party_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The value this tenant will use for the Relying Party Id in WebAuthn ceremonies. Passkeys can only be used to authenticate on sites using the same Relying Party Id they were registered with. This value must match the browser origin or be a registrable domain suffix of the browser origin. For example, if your domain is auth.piedpiper.com, you could use auth.piedpiper.com or piedpiper.com but not m.auth.piedpiper.com or com. When this parameter is omitted, FusionAuth will use null for the Relying Party Id in passkey creation and request options. A null value in the WebAuthn JavaScript API will use the browser origin. Note: A license is required to utilize WebAuthn.",
+			},
+			"relying_party_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The value this tenant will use for the Relying Party name in WebAuthn ceremonies. This value may be displayed by browser or operating system dialogs during WebAuthn ceremonies. When this parameter is omitted, FusionAuth will use the tenant.issuer value. Note: A license is required to utilize WebAuthn.",
+			},
+		},
+	}
+}
+
+// Default SCIM schemas as a JSON string. Required to default the SCIM schemas value.
+// const defaultScimSchemas = `{"Resources":[{"attributes":[{"caseExact":false,"description":"Unique identifier for the User, typically used by the user to directly authenticate to the service provider. Each User MUST include a non-empty userName value. REQUIRED.","multiValued":false,"mutability":"readWrite","name":"userName","required":true,"returned":"default","type":"string","uniqueness":"server"},{"description":"A Boolean value indicating the User's administrative status.","multiValued":false,"mutability":"readWrite","name":"active","required":false,"returned":"default","type":"boolean"}],"description":"User Account","id":"urn:ietf:params:scim:schemas:core:2.0:User","meta":{"location":"${baseURL}/api/scim/resource/v2/Schemas/urn:ietf:params:scim:schemas:core:2.0:User","resourceType":"Schema"},"name":"User"},{"attributes":[{"caseExact":false,"description":"A human-readable name for the Group. REQUIRED.","multiValued":false,"mutability":"readWrite","name":"displayName","required":false,"returned":"default","type":"string","uniqueness":"none"},{"description":"A list of members of the Group.","multiValued":true,"mutability":"readWrite","name":"members","required":false,"returned":"default","subAttributes":[{"caseExact":false,"description":"Identifier of the member of this Group.","multiValued":false,"mutability":"immutable","name":"value","required":false,"returned":"default","type":"string","uniqueness":"none"},{"caseExact":false,"description":"The URI corresponding to a SCIM resource that is a member of this Group.","multiValued":false,"mutability":"immutable","name":"$ref","referenceTypes":["User","Group"],"required":false,"returned":"default","type":"reference","uniqueness":"none"}],"type":"complex"}],"description":"Group","id":"urn:ietf:params:scim:schemas:core:2.0:Group","meta":{"location":"${baseURL}/api/scim/resource/v2/Schemas/urn:ietf:params:scim:schemas:core:2.0:Group","resourceType":"Schema"},"name":"Group"},{"attributes":[],"description":"Enterprise User","id":"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User","meta":{"location":"${baseURL}/api/scim/resource/v2/Schemas/v2/Schemas/urn:ietf:params:scim:schemas:extension:enterprise:2.0:User","resourceType":"Schema"},"name":"EnterpriseUser"}]}`
 
 // secureGeneratorTypes returns a list of the valid secure generator types.
 func secureGeneratorTypes() []string {

@@ -15,9 +15,9 @@ type SteamConnectIdentityProviderBody struct {
 }
 
 type SteamAppConfig struct {
-	ButtonText string `json:"buttonText,omitempty"`
-	ClientID   string `json:"client_id,omitempty"`
-	// ClientSecret       string `json:"client_secret,omitempty"`
+	APIMode            string `json:"apiMode,omitempty"`
+	ButtonText         string `json:"buttonText,omitempty"`
+	ClientID           string `json:"client_id,omitempty"`
 	CreateRegistration bool   `json:"createRegistration"`
 	Enabled            bool   `json:"enabled"`
 	Scope              string `json:"scope,omitempty"`
@@ -38,12 +38,25 @@ func resourceIDPSteam() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 				ForceNew:     true,
 			},
+			"api_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "Determines which Steam API to utilize. The possible values are: `Partner` and `Public`",
+				Default:      "Public",
+				ValidateFunc: validation.StringInSlice([]string{"Partner", "Public"}, false),
+			},
 			"application_configuration": {
 				Optional:    true,
 				Type:        schema.TypeSet,
 				Description: "The configuration for each Application that the identity provider is enabled for.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"api_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "This is an optional Application specific override for the top level apiMode.",
+							ValidateFunc: validation.StringInSlice([]string{"Partner", "Public"}, false),
+						},
 						"application_id": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -59,11 +72,6 @@ func resourceIDPSteam() *schema.Resource {
 							Optional:    true,
 							Description: "This is an optional Application specific override for the top level client_id.",
 						},
-						// "client_secret": {
-						// 	Type:        schema.TypeString,
-						// 	Optional:    true,
-						// 	Description: "This is an optional Application specific override for the top level client_secret.",
-						// },
 						"create_registration": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -99,11 +107,6 @@ func resourceIDPSteam() *schema.Resource {
 				Required:    true,
 				Description: "The top-level Steam client id for your Application. This value is retrieved from the Steam developer website when you setup your Steam developer account.",
 			},
-			// "client_secret": {
-			// 	Type:        schema.TypeString,
-			// 	Required:    true,
-			// 	Description: "The top-level client secret to use with the Steam Identity Provider when retrieving the long-lived token. This value is retrieved from the Steam developer website when you setup your Steam developer account.",
-			// },
 			"debug": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -250,11 +253,11 @@ func buildIDPSteam(data *schema.ResourceData) SteamConnectIdentityProviderBody {
 			Type:            fusionauth.IdentityProviderType_Steam,
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 		},
+		ApiMode:    fusionauth.SteamAPIMode(data.Get("api_mode").(string)),
 		ButtonText: data.Get("button_text").(string),
 		ClientId:   data.Get("client_id").(string),
-		// ClientSecret: data.Get("client_secret").(string),
-		Scope:     data.Get("scope").(string),
-		WebAPIKey: data.Get("web_api_key").(string),
+		Scope:      data.Get("scope").(string),
+		WebAPIKey:  data.Get("web_api_key").(string),
 	}
 
 	o.ApplicationConfiguration = buildSteamAppConfig("application_configuration", data)
@@ -264,15 +267,16 @@ func buildIDPSteam(data *schema.ResourceData) SteamConnectIdentityProviderBody {
 }
 
 func buildResourceDataFromIDPSteam(data *schema.ResourceData, res fusionauth.SteamIdentityProvider) diag.Diagnostics {
+	if err := data.Set("api_mode", res.ApiMode.String()); err != nil {
+		return diag.Errorf("idpSteam.api_mode: %s", err.Error())
+	}
+
 	if err := data.Set("button_text", res.ButtonText); err != nil {
 		return diag.Errorf("idpSteam.button_text: %s", err.Error())
 	}
 	if err := data.Set("client_id", res.ClientId); err != nil {
 		return diag.Errorf("idpSteam.client_id: %s", err.Error())
 	}
-	// if err := data.Set("client_secret", res.ClientSecret); err != nil {
-	// 	return diag.Errorf("idpSteam.client_secret: %s", err.Error())
-	// }
 	if err := data.Set("debug", res.Debug); err != nil {
 		return diag.Errorf("idpSteam.debug: %s", err.Error())
 	}
@@ -298,10 +302,10 @@ func buildResourceDataFromIDPSteam(data *schema.ResourceData, res fusionauth.Ste
 	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
 	for k, v := range m {
 		ac = append(ac, map[string]interface{}{
-			"application_id": k,
-			"button_text":    v.ButtonText,
-			"client_id":      v.ClientID,
-			// "client_secret":       v.ClientSecret,
+			"api_mode":            v.APIMode,
+			"application_id":      k,
+			"button_text":         v.ButtonText,
+			"client_id":           v.ClientID,
 			"create_registration": v.CreateRegistration,
 			"enabled":             v.Enabled,
 			"scope":               v.Scope,
@@ -332,9 +336,9 @@ func buildSteamAppConfig(key string, data *schema.ResourceData) map[string]inter
 		ac := x.(map[string]interface{})
 		aid := ac["application_id"].(string)
 		oc := SteamAppConfig{
-			ButtonText: ac["button_text"].(string),
-			ClientID:   ac["client_id"].(string),
-			// ClientSecret:       ac["client_secret"].(string),
+			APIMode:            ac["api_mode"].(string),
+			ButtonText:         ac["button_text"].(string),
+			ClientID:           ac["client_id"].(string),
 			CreateRegistration: ac["create_registration"].(bool),
 			Enabled:            ac["enabled"].(bool),
 			Scope:              ac["scope"].(string),

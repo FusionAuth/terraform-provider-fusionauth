@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -17,6 +18,32 @@ func dataSourceApplication() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: "The name of the Application.",
+			},
+			"tenant_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the Tenant that owns the Application.",
+			},
+			"webauthn_configuration": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The WebAuthnConfiguration for the Application.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"bootstrap_workflow_enabled": {
+							Computed: true,
+							Type:     schema.TypeBool,
+						},
+						"enabled": {
+							Computed: true,
+							Type:     schema.TypeBool,
+						},
+						"reauthentication_workflow_enabled": {
+							Computed: true,
+							Type:     schema.TypeBool,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -44,5 +71,21 @@ func dataSourceApplicationRead(_ context.Context, data *schema.ResourceData, i i
 		return diag.Errorf("couldn't find application %s", name)
 	}
 	data.SetId(app.Id)
+	err = data.Set("tenant_id", app.TenantId)
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("error setting tenant_id: %v", err))
+	}
+	// Properly structure WebAuthn configuration
+	webauthnConfig := []map[string]interface{}{
+		{
+			"bootstrap_workflow_enabled":        app.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
+			"enabled":                           app.WebAuthnConfiguration.Enabled,
+			"reauthentication_workflow_enabled": app.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
+		},
+	}
+
+	if err := data.Set("webauthn_configuration", webauthnConfig); err != nil {
+		return diag.FromErr(fmt.Errorf("error setting webauthn_configuration: %v", err))
+	}
 	return nil
 }

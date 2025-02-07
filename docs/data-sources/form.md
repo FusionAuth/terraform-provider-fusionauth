@@ -23,12 +23,12 @@ All the argument attributes are also exported as result attributes.
 
 The following additional attributes are exported:
 
-* `id` - The unique Id of the Form.
 * `data` - An object that can hold any information about the Form that should be persisted.
+* `id` - The unique Id of the Form.
 * `name` - The unique name of the Form.
 * `steps` - An ordered list of objects containing one or more Form Fields.
 * `type` - The form type. The possible values are:
-    * `registration` - This form will be used for self service registration.
-    * `adminRegistration` - This form be used to customize the add and edit User Registration form in the FusionAuth UI.
-    * `adminUser` - This form can be used to customize the add and edit User form in the FusionAuth UI.
-    * `selfServiceUser` - This form will be used to for self service user management.
+  * `adminRegistration` - This form be used to customize the add and edit User Registration form in the FusionAuth UI.
+  * `adminUser` - This form can be used to customize the add and edit User form in the FusionAuth UI.
+  * `registration` - This form will be used for self service registration.
+  * `selfServiceUser` - This form will be used to for self service user management.

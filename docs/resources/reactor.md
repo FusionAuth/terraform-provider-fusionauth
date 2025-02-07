@@ -16,4 +16,7 @@ resource "fusionauth_reactor" "reactor" {
 ## Argument Reference
 
 * `license_id` - (Required) The license Id to activate.
+
+---
+
 * `license` - (Optional) The Base64 encoded license value. This value is necessary in an air gapped configuration where outbound network access is not available.

@@ -63,12 +63,16 @@ func resourceAPIKey() *schema.Resource {
 								"/api/application",
 								"/api/application/oauth-configuration",
 								"/api/application/role",
+								"/api/application/scope",
+								"/api/application/search",
 								"/api/cleanspeak/notify",
 								"/api/connector",
 								"/api/consent",
+								"/api/consent/search",
 								"/api/email/send",
 								"/api/email/template",
 								"/api/email/template/preview",
+								"/api/email/template/search",
 								"/api/entity",
 								"/api/entity/grant",
 								"/api/entity/grant/search",
@@ -79,22 +83,24 @@ func resourceAPIKey() *schema.Resource {
 								"/api/form",
 								"/api/form/field",
 								"/api/group",
-								"/api/group/search",
 								"/api/group/member",
 								"/api/group/member/search",
+								"/api/group/search",
 								"/api/identity-provider",
 								"/api/identity-provider/link",
+								"/api/identity-provider/link/pending",
+								"/api/identity-provider/search",
 								"/api/integration",
 								"/api/ip-acl",
 								"/api/ip-acl/search",
-								"/api/jwt/issue",
 								"/api/jwt/refresh",
-								"/api/jwt/validate",
 								"/api/jwt/vend",
 								"/api/key",
 								"/api/key/generate",
 								"/api/key/import",
+								"/api/key/search",
 								"/api/lambda",
+								"/api/lambda/search",
 								"/api/logger",
 								"/api/login",
 								"/api/message/template",
@@ -121,8 +127,13 @@ func resourceAPIKey() *schema.Resource {
 								"/api/system/login-record/search",
 								"/api/system/reindex",
 								"/api/system/version",
+								"/api/system/webhook-attempt-log",
+								"/api/system/webhook-event-log",
+								"/api/system/webhook-event-log/search",
 								"/api/tenant",
+								"/api/tenant/search",
 								"/api/theme",
+								"/api/theme/search",
 								"/api/two-factor/secret",
 								"/api/two-factor/send",
 								"/api/two-factor/start",
@@ -134,6 +145,7 @@ func resourceAPIKey() *schema.Resource {
 								"/api/user/bulk",
 								"/api/user/change-password",
 								"/api/user/comment",
+								"/api/user/comment/search",
 								"/api/user/consent",
 								"/api/user/family",
 								"/api/user/family/pending",
@@ -148,7 +160,13 @@ func resourceAPIKey() *schema.Resource {
 								"/api/user/two-factor/recovery-code",
 								"/api/user/verify-email",
 								"/api/user/verify-registration",
+								"/api/webauthn",
+								"/api/webauthn/import",
+								"/api/webauthn/register/start",
+								"/api/webauthn/start",
 								"/api/webhook",
+								"/api/webhook/search",
+								"/oauth2/device/user-code",
 							}, false),
 						},
 						"delete": {
@@ -183,6 +201,11 @@ func resourceAPIKey() *schema.Resource {
 						},
 					},
 				},
+			},
+			"expiration_instant": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "The expiration instant of this API key. Using an expired API key for API Authentication will result in a 401 response code.",
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -280,6 +303,7 @@ func buildAPIKey(data *schema.ResourceData) fusionauth.APIKey {
 				"description": data.Get("description").(string),
 			},
 		},
+		ExpirationInstant: int64(data.Get("expiration_instant").(int)),
 	}
 
 	m := make(map[string][]string)
@@ -360,6 +384,10 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 
 	if err := data.Set("permissions_endpoints", pe); err != nil {
 		return diag.Errorf("apiKey.permissions_endpoints: %s", err.Error())
+	}
+
+	if err := data.Set("expiration_instant", res.ExpirationInstant); err != nil {
+		return diag.Errorf("apiKey.expiration_instant: %s", err.Error())
 	}
 	return nil
 }

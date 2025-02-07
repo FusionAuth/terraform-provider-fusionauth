@@ -24,6 +24,11 @@ func newTheme() *schema.Resource {
 				Description:  "The optional Id of an existing Theme to make a copy of. If present, the defaultMessages, localizedMessages, templates, and stylesheet from the source Theme will be copied to the new Theme.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"data": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "An object that can hold any information about the Theme that should be persisted.",
+			},
 			"default_messages": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -47,6 +52,13 @@ func newTheme() *schema.Resource {
 				Computed:         true,
 				Description:      "A CSS stylesheet used to style the templates.",
 				DiffSuppressFunc: diffSuppressTemplate,
+			},
+			"theme_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The unique Id of the Theme.",
 			},
 			"account_edit": {
 				Type:             schema.TypeString,
@@ -397,10 +409,11 @@ func newTheme() *schema.Resource {
 
 func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 	t := fusionauth.Theme{
+		Data:            data.Get("data").(map[string]interface{}),
 		DefaultMessages: data.Get("default_messages").(string),
-		// LocalizedMessages: data.Get("localized_messages").(map[string]string),
-		Name:       data.Get("name").(string),
-		Stylesheet: data.Get("stylesheet").(string),
+		Id:              data.Get("theme_id").(string),
+		Name:            data.Get("name").(string),
+		Stylesheet:      data.Get("stylesheet").(string),
 		Templates: fusionauth.Templates{
 			AccountEdit:                       data.Get("account_edit").(string),
 			AccountIndex:                      data.Get("account_index").(string),
@@ -471,7 +484,9 @@ func createTheme(_ context.Context, data *schema.ResourceData, i interface{}) di
 		req.SourceThemeId = srcTheme.(string)
 	}
 
-	resp, faErrs, err := client.FAClient.CreateTheme("", req)
+	themeID := data.Get("theme_id").(string)
+
+	resp, faErrs, err := client.FAClient.CreateTheme(themeID, req)
 
 	if err != nil {
 		return diag.Errorf("CreateTheme err: %v", err)
@@ -513,10 +528,6 @@ func updateTheme(_ context.Context, data *schema.ResourceData, i interface{}) di
 		Theme: buildTheme(data),
 	}
 
-	if srcTheme, ok := data.GetOk("source_theme_id"); ok {
-		req.SourceThemeId = srcTheme.(string)
-	}
-
 	resp, faErrs, err := client.FAClient.UpdateTheme(data.Id(), req)
 	if err != nil {
 		return diag.Errorf("UpdateTheme err: %v", err)
@@ -547,6 +558,9 @@ func deleteTheme(_ context.Context, data *schema.ResourceData, i interface{}) di
 }
 
 func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) diag.Diagnostics { //nolint:gocognit,gocyclo
+	if err := data.Set("data", t.Data); err != nil {
+		return diag.Errorf("theme.data: %s", err.Error())
+	}
 	if err := data.Set("default_messages", t.DefaultMessages); err != nil {
 		return diag.Errorf("theme.default_messages: %s", err.Error())
 	}
@@ -586,6 +600,7 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) d
 	if err := data.Set("account_webauthn_index", t.Templates.AccountWebAuthnIndex); err != nil {
 		return diag.Errorf("theme.account_webauthn_index: %s", err.Error())
 	}
+
 	if err := data.Set("email_complete", t.Templates.EmailComplete); err != nil {
 		return diag.Errorf("theme.email_complete: %s", err.Error())
 	}

@@ -59,6 +59,39 @@ func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 					},
 				},
 			},
+			"assertion_configuration": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				Description:      "The assertion configuration for the SAML v2 identity provider.",
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"decryption": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: "The decryption configuration for the SAML v2 identity provider.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Determines if FusionAuth requires encrypted assertions in SAML responses from the identity provider. When true, SAML responses from the identity provider containing unencrypted assertions will be rejected by FusionAuth.",
+									},
+									"key_transport_decryption_key_id": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.IsUUID,
+										Description:  "The Id of the key stored in Key Master that is used to decrypt the symmetric key on the SAML response sent to FusionAuth from the identity provider. The selected Key must contain an RSA private key. Required when `'enabled` is true.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"debug": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -114,11 +147,21 @@ func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 				Required:    true,
 				Description: "The name of this SAML v2 identity provider. This is only used for display purposes.",
 			},
+			"unique_id_claim": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the unique claim in the SAML response that FusionAuth uses to uniquely link the user. If this is not set, the `email_claim` will be used when linking user.",
+			},
 			"use_name_for_email": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
 				Description: "Whether or not FusionAuth will use the NameID element value as the email address of the user for reconciliation processing. If this is false, then the `email_claim` property must be set.",
+			},
+			"username_claim": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the claim in the SAML response that FusionAuth uses to identity the username. If this is not set, the NameID value will be used to link a user. This property is required when `linking_stategy` is set to LinkByUsername or LinkByUsernameForExistingUser",
 			},
 			"tenant_configuration": {
 				Optional:    true,
@@ -225,9 +268,15 @@ func buildIDPSAMLv2IdPInitiated(data *schema.ResourceData) SAMLIDPInitiatedIdent
 				Type:            fusionauth.IdentityProviderType_SAMLv2IdPInitiated,
 				LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 			},
+			AssertionDecryptionConfiguration: fusionauth.SAMLv2AssertionDecryptionConfiguration{
+				Enableable:                  buildEnableable("assertion_configuration.0.decryption.0.enabled", data),
+				KeyTransportDecryptionKeyId: data.Get("assertion_configuration.0.decryption.0.key_transport_decryption_key_id").(string),
+			},
 			EmailClaim:        data.Get("email_claim").(string),
 			KeyId:             data.Get("key_id").(string),
+			UniqueIdClaim:     data.Get("unique_id_claim").(string),
 			UseNameIdForEmail: data.Get("use_name_for_email").(bool),
+			UsernameClaim:     data.Get("username_claim").(string),
 		},
 		Issuer: data.Get("issuer").(string),
 	}
@@ -238,6 +287,19 @@ func buildIDPSAMLv2IdPInitiated(data *schema.ResourceData) SAMLIDPInitiatedIdent
 }
 
 func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res fusionauth.SAMLv2IdPInitiatedIdentityProvider) diag.Diagnostics {
+	if err := data.Set("assertion_configuration", []map[string]interface{}{
+		{
+			"decryption": []map[string]interface{}{
+				{
+					"enabled":                         res.AssertionDecryptionConfiguration.Enabled,
+					"key_transport_decryption_key_id": res.AssertionDecryptionConfiguration.KeyTransportDecryptionKeyId,
+				},
+			},
+		},
+	}); err != nil {
+		return diag.Errorf("idpSAMLv2.assertion_configuration: %s", err.Error())
+	}
+
 	if err := data.Set("debug", res.Debug); err != nil {
 		return diag.Errorf("idpSAMLv2IdpInitiated.debug: %s", err.Error())
 	}
@@ -259,8 +321,14 @@ func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res f
 	if err := data.Set("name", res.Name); err != nil {
 		return diag.Errorf("idpSAMLv2IdpInitiated.name: %s", err.Error())
 	}
+	if err := data.Set("unique_id_claim", res.UniqueIdClaim); err != nil {
+		return diag.Errorf("idpSAMLv2IdpInitiated.unique_id_claim: %s", err.Error())
+	}
 	if err := data.Set("use_name_for_email", res.UseNameIdForEmail); err != nil {
 		return diag.Errorf("idpSAMLv2IdpInitiated.use_name_for_email: %s", err.Error())
+	}
+	if err := data.Set("username_claim", res.UsernameClaim); err != nil {
+		return diag.Errorf("idpSAMLv2IdpInitiated.username_claim: %s", err.Error())
 	}
 	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
 		return diag.Errorf("idpSAMLv2IdpInitiated.linking_strategy: %s", err.Error())

@@ -44,6 +44,13 @@ func newKey() *schema.Resource {
 				}, false),
 				Description: "The algorithm used to encrypt the Key.",
 			},
+			"issuer": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The issuer of the RSA or EC certificate. If omitted, this value will default to the value of tenant issuer on the default tenant. For HMAC keys, this field does not apply and will be ignored if specified, and no default value will be set.",
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -70,6 +77,7 @@ func newKey() *schema.Resource {
 func buildKey(data *schema.ResourceData) fusionauth.Key {
 	l := fusionauth.Key{
 		Algorithm: fusionauth.KeyAlgorithm(data.Get("algorithm").(string)),
+		Issuer:    data.Get("issuer").(string),
 		Name:      data.Get("name").(string),
 		Length:    data.Get("length").(int),
 	}
@@ -105,6 +113,9 @@ func buildResourceDataFromKey(data *schema.ResourceData, res fusionauth.Key) dia
 	}
 	if err := data.Set("algorithm", res.Algorithm); err != nil {
 		return diag.Errorf("key.algorithm: %s", err.Error())
+	}
+	if err := data.Set("issuer", res.Issuer); err != nil {
+		return diag.Errorf("key.issuer: %s", err.Error())
 	}
 	if err := data.Set("name", res.Name); err != nil {
 		return diag.Errorf("key.name: %s", err.Error())

@@ -15,33 +15,39 @@ data "fusionauth_lambda" "default_google_reconcile" {
 
 ## Argument Reference
 
-* `id`   - (Optional) The ID of the Lambda. At least one of `id` or `name` must be specified.
 * `name` - (Optional) The name of the Lambda. At least one of `id` or `name` must be specified.
+* `id`   - (Optional) The ID of the Lambda. At least one of `id` or `name` must be specified.
 * `type` - (Required) The Lambda type. The possible values are:
-    - `JWTPopulate`
-    - `OpenIDReconcile`
-    - `SAMLv2Reconcile`
-    - `SAMLv2Populate`
-    - `AppleReconcile`
-    - `ExternalJWTReconcile`
-    - `FacebookReconcile`
-    - `GoogleReconcile`
-    - `HYPRReconcile`
-    - `TwitterReconcile`
-    - `LDAPConnectorReconcile`
-    - `LinkedInReconcile`
-    - `EpicGamesReconcile`
-    - `NintendoReconcile`
-    - `SonyPSNReconcile`
-    - `SteamReconcile`
-    - `TwitchReconcile`
-    - `XboxReconcile`
-    - `SelfServiceRegistrationValidation`
-    - `ClientCredentialsJWTPopulate`
+  * `AppleReconcile`
+  * `ClientCredentialsJWTPopulate`
+  * `EpicGamesReconcile`
+  * `ExternalJWTReconcile`
+  * `FacebookReconcile`
+  * `GoogleReconcile`
+  * `HYPRReconcile`
+  * `JWTPopulate`
+  * `LDAPConnectorReconcile`
+  * `LinkedInReconcile`
+  * `LoginValidation`
+  * `NintendoReconcile`
+  * `OpenIDReconcile`
+  * `SAMLv2Populate`
+  * `SAMLv2Reconcile`
+  * `SCIMServerGroupRequestConverter`
+  * `SCIMServerGroupResponseConverter`
+  * `SCIMServerUserRequestConverter`
+  * `SCIMServerUserResponseConverter`
+  * `SelfServiceRegistrationValidation`
+  * `SonyPSNReconcile`
+  * `SteamReconcile`
+  * `TwitchReconcile`
+  * `TwitterReconcile`
+  * `UserInfoPopulate`
+  * `XboxReconcile`
 
 ## Attributes Reference
 
-All of the argument attributes are also exported as result attributes. 
+All of the argument attributes are also exported as result attributes.
 
 The following additional attributes are exported:
 

@@ -23,13 +23,13 @@ All the argument attributes are also exported as result attributes.
 
 The following additional attributes are exported:
 
-- `id` - The unique Id of the Form Field.
 - `confirm` - Determines if the user input should be confirmed by requiring the value to be entered twice.
 - consent_id
 - control
 - `data` - An object that can hold any information about the Form Field that should be persisted.
 - description
 - key
+- `id` - The unique Id of the Form Field.
 - `name` - The unique name of the Form Field.
 - `options` - A list of options that are applied to checkbox, radio, or select controls.
 - `required` - Determines if a value is required to complete the form.

@@ -83,6 +83,12 @@ func resourceSystemConfiguration() *schema.Resource {
 							Optional:    true,
 							Description: "The Access-Control-Allow-Origin response header values as described by MDN Access-Control-Allow-Origin. If the wildcard * is specified, no additional domains may be specified.",
 						},
+						"debug": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether or not FusionAuth will log debug messages to the event log. This is primarily useful for identifying why the FusionAuth CORS filter is rejecting a request and returning an HTTP response status code of 403.",
+						},
 						"enabled": {
 							Type:        schema.TypeBool,
 							Default:     true,
@@ -104,6 +110,11 @@ func resourceSystemConfiguration() *schema.Resource {
 						},
 					},
 				},
+			},
+			"data": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "An object that can hold any information about the Form that should be persisted.",
 			},
 			"event_log_configuration": {
 				Type:       schema.TypeList,
@@ -161,6 +172,29 @@ func resourceSystemConfiguration() *schema.Resource {
 				Default:     "America/Denver",
 				Description: "The time zone used to adjust the stored UTC time when generating reports. Since reports are usually rolled up hourly, this timezone will be used for demarcating the hours.",
 			},
+			"trusted_proxy_configuration": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				Description:      "The trusted proxy configuration.",
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"trust_policy": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "This setting is used to resolve the client IP address for use in logging, webhooks, and IP-based access control when an X-Forwarded-For header is provided. Because proxies are free to rewrite the X-Forwarded-For header, an untrusted proxy could write a value that allowed it to bypass IP-based ACLs, or cause an incorrect IP address to be logged or sent to a webhook. Valid values are: `All` or `OnlyConfigured`.",
+							Default:     "All",
+						},
+						"trusted": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "An array of IP addresses, representing the set of trusted upstream proxies. This value will be accepted but ignored when systemConfiguration.trustedProxyConfiguration.trustPolicy is set to All. Values may be specified as IPv4, or IPv6 format, and ranges of addresses are also accepted in CIDR notation.",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 			"ui_configuration": {
 				Type:       schema.TypeList,
 				MaxItems:   1,
@@ -183,6 +217,23 @@ func resourceSystemConfiguration() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "A hexadecimal color to override the default menu font color in the user interface.",
+						},
+					},
+				},
+			},
+			"usage_data_configuration": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				Description:      "The usage data configuration.",
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether or not FusionAuth collects and sends usage data to improve the product.",
 						},
 					},
 				},
@@ -269,6 +320,25 @@ func updateSysCfg(req fusionauth.SystemConfigurationRequest, client Client) diag
 	return nil
 }
 
+func handleTrustProxyConfigurationTrusted(trusted []interface{}) []string {
+	if len(trusted) == 0 {
+		return nil
+	}
+
+	result := make([]string, 0)
+	for _, alt := range trusted {
+		if str, ok := alt.(string); ok && str != "" {
+			result = append(result, str)
+		}
+	}
+
+	if len(result) == 0 {
+		return nil
+	}
+
+	return result
+}
+
 func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.SystemConfigurationRequest {
 	sc := getDefaultSystemConfigurationRequest()
 	if v, ok := data.GetOk("audit_log_configuration.0.delete.0.enabled"); ok {
@@ -300,6 +370,10 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.CorsConfiguration.AllowedOrigins = handleStringSlice("cors_configuration.0.allowed_origins", data)
 	}
 
+	if v, ok := data.GetOk("cors_configuration.0.debug"); ok {
+		sc.SystemConfiguration.CorsConfiguration.Debug = v.(bool)
+	}
+
 	if v, ok := data.GetOk("cors_configuration.0.enabled"); ok {
 		sc.SystemConfiguration.CorsConfiguration.Enabled = v.(bool)
 	}
@@ -310,6 +384,10 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 
 	if v, ok := data.GetOk("cors_configuration.0.preflight_max_age_in_seconds"); ok {
 		sc.SystemConfiguration.CorsConfiguration.PreflightMaxAgeInSeconds = v.(int)
+	}
+
+	if _, ok := data.GetOk("data"); ok {
+		sc.SystemConfiguration.Data = data.Get("data").(map[string]interface{})
 	}
 
 	if v, ok := data.GetOk("event_log_configuration.0.number_to_retain"); ok {
@@ -323,7 +401,17 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.LoginRecordConfiguration.Delete.NumberOfDaysToRetain = v.(int)
 	}
 
-	sc.SystemConfiguration.ReportTimezone = data.Get("report_timezone").(string)
+	if v, ok := data.GetOk("report_timezone"); ok {
+		sc.SystemConfiguration.ReportTimezone = v.(string)
+	}
+
+	if v, ok := data.GetOk("trusted_proxy_configuration.0.trust_policy"); ok {
+		sc.SystemConfiguration.TrustedProxyConfiguration.TrustPolicy = fusionauth.SystemTrustedProxyConfigurationPolicy(v.(string))
+	}
+
+	if _, ok := data.GetOk("trusted_proxy_configuration.0.trusted"); ok {
+		sc.SystemConfiguration.TrustedProxyConfiguration.Trusted = handleTrustProxyConfigurationTrusted(data.Get("trusted_proxy_configuration.0.trusted").([]interface{}))
+	}
 
 	if v, ok := data.GetOk("ui_configuration.0.header_color"); ok {
 		sc.SystemConfiguration.UiConfiguration.HeaderColor = v.(string)
@@ -335,6 +423,10 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 
 	if v, ok := data.GetOk("ui_configuration.0.menu_font_color"); ok {
 		sc.SystemConfiguration.UiConfiguration.MenuFontColor = v.(string)
+	}
+
+	if v, ok := data.GetOk("usage_data_configuration.0.enabled"); ok {
+		sc.SystemConfiguration.UsageDataConfiguration.Enabled = v.(bool)
 	}
 
 	if v, ok := data.GetOk("webhook_event_log_configuration.0.delete.0.enabled"); ok {
@@ -368,6 +460,7 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 			"allowed_headers":              sc.CorsConfiguration.AllowedHeaders,
 			"allowed_methods":              sc.CorsConfiguration.AllowedMethods,
 			"allowed_origins":              sc.CorsConfiguration.AllowedOrigins,
+			"debug":                        sc.CorsConfiguration.Debug,
 			"enabled":                      sc.CorsConfiguration.Enabled,
 			"exposed_headers":              sc.CorsConfiguration.ExposedHeaders,
 			"preflight_max_age_in_seconds": sc.CorsConfiguration.PreflightMaxAgeInSeconds,
@@ -375,6 +468,10 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 	})
 	if err != nil {
 		return diag.Errorf("system_configuration.cors_configuration: %s", err.Error())
+	}
+
+	if err := data.Set("data", sc.Data); err != nil {
+		return diag.Errorf("system_configuration.data: %s", err.Error())
 	}
 
 	err = data.Set("event_log_configuration", []map[string]interface{}{
@@ -404,6 +501,16 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		return diag.Errorf("system_configuration.report_timezone: %s", err.Error())
 	}
 
+	err = data.Set("trusted_proxy_configuration", []map[string]interface{}{
+		{
+			"trust_policy": sc.TrustedProxyConfiguration.TrustPolicy,
+			"trusted":      sc.TrustedProxyConfiguration.Trusted,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("system_configuration.trusted_proxy_configuration: %s", err.Error())
+	}
+
 	err = data.Set("ui_configuration", []map[string]interface{}{
 		{
 			"header_color":    sc.UiConfiguration.HeaderColor,
@@ -413,6 +520,14 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 	})
 	if err != nil {
 		return diag.Errorf("system_configuration.ui_configuration: %s", err.Error())
+	}
+
+	if err := data.Set("usage_data_configuration", []map[string]interface{}{
+		{
+			"enabled": sc.UsageDataConfiguration.Enabled,
+		},
+	}); err != nil {
+		return diag.Errorf("system_configuration.usage_data_configuration: %s", err.Error())
 	}
 
 	err = data.Set("webhook_event_log_configuration", []map[string]interface{}{
@@ -466,6 +581,7 @@ func getDefaultSystemConfigurationRequest() fusionauth.SystemConfigurationReques
 					"Access-Control-Allow-Origin",
 					"Access-Control-Allow-Credentials",
 				},
+				Debug:                    false,
 				PreflightMaxAgeInSeconds: 1800,
 			},
 			EventLogConfiguration: fusionauth.EventLogConfiguration{
@@ -479,6 +595,10 @@ func getDefaultSystemConfigurationRequest() fusionauth.SystemConfigurationReques
 				},
 			},
 			ReportTimezone: "America/Denver",
+			TrustedProxyConfiguration: fusionauth.SystemTrustedProxyConfiguration{
+				TrustPolicy: fusionauth.SystemTrustedProxyConfigurationPolicy_All,
+				Trusted:     []string{},
+			},
 			WebhookEventLogConfiguration: fusionauth.WebhookEventLogConfiguration{
 				Delete: fusionauth.DeleteConfiguration{
 					Enableable: fusionauth.Enableable{

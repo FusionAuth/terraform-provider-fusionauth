@@ -27,25 +27,34 @@ resource "fusionauth_idp_google" "google" {
 
 ## Argument Reference
 
-* `application_configuration` - (Optional) The configuration for each Application that the identity provider is enabled for.
-    - `application_id` - (Optional) ID of the Application to apply this configuration to.
-    - `button_text` - (Optional) This is an optional Application specific override for the top level button text.
-    - `client_id` - (Optional) This is an optional Application specific override for the top level client id.
-    - `client_secret` - (Optional) This is an optional Application specific override for the top level client secret.
-    - `create_registration` - (Optional) Determines if a UserRegistration is created for the User automatically or not. If a user doesn’t exist in FusionAuth and logs in through an identity provider, this boolean controls whether or not FusionAuth creates a registration for the User in the Application they are logging into.
-    - `enabled` - (Optional) Determines if this identity provider is enabled for the Application specified by the applicationId key.
-    - `scope` - (Optional) This is an optional Application specific override for for the top level scope.
 * `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
 * `client_id` - (Required) The top-level Google client id for your Application. This value is retrieved from the Google developer website when you setup your Google developer account.
+
+---
+
+* `application_configuration` - (Optional) The configuration for each Application that the identity provider is enabled for.
+  * `application_id` - (Optional) ID of the Application to apply this configuration to.
+  * `button_text` - (Optional) This is an optional Application specific override for the top level button text.
+  * `client_id` - (Optional) This is an optional Application specific override for the top level client id.
+  * `client_secret` - (Optional) This is an optional Application specific override for the top level client secret.
+  * `create_registration` - (Optional) Determines if a UserRegistration is created for the User automatically or not. If a user doesn’t exist in FusionAuth and logs in through an identity provider, this boolean controls whether or not FusionAuth creates a registration for the User in the Application they are logging into.
+  * `enabled` - (Optional) Determines if this identity provider is enabled for the Application specified by the applicationId key.
+  * `properties` - (Optional) This is an optional Application specific override for the top level properties.
+    * `api` - (Optional) This is an optional Application specific override for the top level properties.api . If this `login_method` is set to UsePopup, or the Application configuration is unset and the top level loginMethod is set to UsePopup, and this value contains the conflicting ux_mode=redirect property, that single property will be replaced with ux_mode=popup.
+    * `button` - (Optional) This is an optional Application specific override for the top level `button`.
+  * `scope` - (Optional) This is an optional Application specific override for for the top level scope.
 * `client_secret` - (Optional) The top-level client secret to use with the Google Identity Provider when retrieving the long-lived token. This value is retrieved from the Google developer website when you setup your Google developer account.
 * `debug` - (Optional) Determines if debug is enabled for this provider. When enabled, each time this provider is invoked to reconcile a login an Event Log will be created.
 * `domains` - (Optional) This is an optional list of domains that this OpenID Connect provider should be used for. This converts the FusionAuth login form to a domain-based login form. This type of form first asks the user for their email. FusionAuth then uses their email to determine if an OpenID Connect identity provider should be used. If an OpenID Connect provider should be used, the browser is redirected to the authorization endpoint of that identity provider. Otherwise, the password field is revealed on the form so that the user can login using FusionAuth.
 * `enabled` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
-* `scope` - (Optional) The top-level scope that you are requesting from Google.
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.
 * `login_method` - (Optional) The login method to use for this Identity Provider.
+* `properties` - (Optional) An object to hold configuration parameters for the Google Identity Services API.
+  * `api` - (Optional) Google Identity Services login API configuration in a properties file formatted String. Any attribute from Google's documentation can be added. Properties can be referenced in templates that support Google login to initialize the API via HTML or JavaScript. The properties specified in this field should not include the data- prefix on the property name. If the `login_method` is set to UsePopup and this value contains the conflicting ux_mode=redirect property, that single property will be replaced with ux_mode=popup.
+  * `button` - (Optional) Google Identity Services button configuration in a properties file formatted String. Any attribute from Google's documentation can be added. Properties can be referenced in templates that support Google login to render the login button via HTML or JavaScript. The properties specified in this field should not include the data- prefix on the property name.
+* `scope` - (Optional) The top-level scope that you are requesting from Google.
 * `tenant_configuration` - (Optional) The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.
-    - `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
-    - `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
-    - `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
+  * `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
+    * `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
+    * `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.

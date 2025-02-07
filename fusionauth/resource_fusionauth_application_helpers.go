@@ -25,7 +25,10 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		Data: data.Get("data").(map[string]interface{}),
 		FormConfiguration: fusionauth.ApplicationFormConfiguration{
 			AdminRegistrationFormId: data.Get("form_configuration.0.admin_registration_form_id").(string),
-			SelfServiceFormId:       data.Get("form_configuration.0.self_service_form_id").(string),
+			SelfServiceFormConfiguration: fusionauth.SelfServiceFormConfiguration{
+				RequireCurrentPasswordOnPasswordChange: data.Get("form_configuration.0.self_service_form_configuration.0.require_current_password_on_password_change").(bool),
+			},
+			SelfServiceFormId: data.Get("form_configuration.0.self_service_form_id").(string),
 		},
 		JwtConfiguration: fusionauth.JWTConfiguration{
 			Enableable:                      buildEnableable("jwt_configuration.0.enabled", data),
@@ -36,7 +39,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			RefreshTokenExpirationPolicy:    fusionauth.RefreshTokenExpirationPolicy(data.Get("jwt_configuration.0.refresh_token_expiration_policy").(string)),
 			RefreshTokenUsagePolicy:         fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
 			RefreshTokenSlidingWindowConfiguration: fusionauth.RefreshTokenSlidingWindowConfiguration{
-				MaximumTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_sliding_window_maximum_time_to_live_in_minutes").(int),
+				MaximumTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_sliding_window_maximum_ttl_in_minutes").(int),
 			},
 		},
 		LambdaConfiguration: fusionauth.LambdaConfiguration{
@@ -112,15 +115,32 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			},
 		},
 		Samlv2Configuration: fusionauth.SAMLv2Configuration{
+			AssertionEncryptionConfiguration: fusionauth.SAMLv2AssertionEncryptionConfiguration{
+				DigestAlgorithm:             data.Get("samlv2_configuration.0.assertion_encryption_configuration.0.digest_algorithm").(string),
+				Enableable:                  buildEnableable("samlv2_configuration.0.assertion_encryption_configuration.0.enabled", data),
+				EncryptionAlgorithm:         data.Get("samlv2_configuration.0.assertion_encryption_configuration.0.encryption_algorithm").(string),
+				KeyLocation:                 data.Get("samlv2_configuration.0.assertion_encryption_configuration.0.key_location").(string),
+				KeyTransportAlgorithm:       data.Get("samlv2_configuration.0.assertion_encryption_configuration.0.key_transport_algorithm").(string),
+				KeyTransportEncryptionKeyId: data.Get("samlv2_configuration.0.assertion_encryption_configuration.0.key_transport_encryption_key_id").(string),
+				MaskGenerationFunction:      data.Get("samlv2_configuration.0.assertion_encryption_configuration.0.mask_generation_function").(string),
+			},
 			Enableable:               buildEnableable("samlv2_configuration.0.enabled", data),
 			Audience:                 data.Get("samlv2_configuration.0.audience").(string),
 			AuthorizedRedirectURLs:   handleStringSliceFromList(data.Get("samlv2_configuration.0.authorized_redirect_urls").([]interface{})),
 			CallbackURL:              data.Get("samlv2_configuration.0.callback_url").(string),
 			Debug:                    data.Get("samlv2_configuration.0.debug").(bool),
 			DefaultVerificationKeyId: data.Get("samlv2_configuration.0.default_verification_key_id").(string),
-			Issuer:                   data.Get("samlv2_configuration.0.issuer").(string),
-			KeyId:                    data.Get("samlv2_configuration.0.key_id").(string),
-			LogoutURL:                data.Get("samlv2_configuration.0.logout_url").(string),
+			InitiatedLogin: fusionauth.SAMLv2IdPInitiatedLoginConfiguration{
+				Enableable:   buildEnableable("samlv2_configuration.0.initiated_login.0.enabled", data),
+				NameIdFormat: data.Get("samlv2_configuration.0.initiated_login.0.name_id_format").(string),
+			},
+			Issuer: data.Get("samlv2_configuration.0.issuer").(string),
+			KeyId:  data.Get("samlv2_configuration.0.key_id").(string),
+			LoginHintConfiguration: fusionauth.LoginHintConfiguration{
+				Enableable:    buildEnableable("samlv2_configuration.0.login_hint_configuration.0.enabled", data),
+				ParameterName: data.Get("samlv2_configuration.0.login_hint_configuration.0.parameter_name").(string),
+			},
+			LogoutURL: data.Get("samlv2_configuration.0.logout_url").(string),
 			Logout: fusionauth.SAMLv2Logout{
 				Behavior:                 fusionauth.SAMLLogoutBehavior(data.Get("samlv2_configuration.0.logout.0.behavior").(string)),
 				DefaultVerificationKeyId: data.Get("samlv2_configuration.0.logout.0.default_verification_key_id").(string),
@@ -165,6 +185,15 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			SetPasswordEmailTemplateId:           data.Get("email_configuration.0.set_password_email_template_id").(string),
 			TwoFactorMethodAddEmailTemplateId:    data.Get("email_configuration.0.two_factor_method_add_template_id").(string),
 			TwoFactorMethodRemoveEmailTemplateId: data.Get("email_configuration.0.two_factor_method_remove_template_id").(string),
+		},
+		WebAuthnConfiguration: fusionauth.ApplicationWebAuthnConfiguration{
+			BootstrapWorkflow: fusionauth.ApplicationWebAuthnWorkflowConfiguration{
+				Enableable: buildEnableable("webauthn_configuration.0.bootstrap_workflow_enabled", data),
+			},
+			Enableable: buildEnableable("webauthn_configuration.0.enabled", data),
+			ReauthenticationWorkflow: fusionauth.ApplicationWebAuthnWorkflowConfiguration{
+				Enableable: buildEnableable("webauthn_configuration.0.reauthentication_workflow_enabled", data),
+			},
 		},
 	}
 
@@ -232,7 +261,12 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 	err = data.Set("form_configuration", []map[string]interface{}{
 		{
 			"admin_registration_form_id": a.FormConfiguration.AdminRegistrationFormId,
-			"self_service_form_id":       a.FormConfiguration.SelfServiceFormId,
+			"self_service_form_configuration": []map[string]interface{}{
+				{
+					"require_current_password_on_password_change": a.FormConfiguration.SelfServiceFormConfiguration.RequireCurrentPasswordOnPasswordChange,
+				},
+			},
+			"self_service_form_id": a.FormConfiguration.SelfServiceFormId,
 		},
 	})
 	if err != nil {
@@ -245,14 +279,22 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"access_token_id":                 a.JwtConfiguration.AccessTokenKeyId,
 			"id_token_key_id":                 a.JwtConfiguration.IdTokenKeyId,
 			"refresh_token_expiration_policy": a.JwtConfiguration.RefreshTokenExpirationPolicy,
-			"refresh_token_sliding_window_maximum_time_to_live_in_minutes": a.JwtConfiguration.RefreshTokenSlidingWindowConfiguration.MaximumTimeToLiveInMinutes,
-			"refresh_token_ttl_minutes":                                    a.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
-			"refresh_token_usage_policy":                                   a.JwtConfiguration.RefreshTokenUsagePolicy,
-			"ttl_seconds":                                                  a.JwtConfiguration.TimeToLiveInSeconds,
+			"refresh_token_sliding_window_maximum_ttl_in_minutes": a.JwtConfiguration.RefreshTokenSlidingWindowConfiguration.MaximumTimeToLiveInMinutes,
+			"refresh_token_ttl_minutes":                           a.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
+			"refresh_token_usage_policy":                          a.JwtConfiguration.RefreshTokenUsagePolicy,
+			"ttl_seconds":                                         a.JwtConfiguration.TimeToLiveInSeconds,
 		},
 	})
 	if err != nil {
 		return diag.Errorf("application.jwt_configuration: %s", err.Error())
+	}
+
+	if err := data.Set("last_update_instant", a.LastUpdateInstant); err != nil {
+		return diag.Errorf("application.last_update_instant: %s", err.Error())
+	}
+
+	if err := data.Set("insert_instant", a.InsertInstant); err != nil {
+		return diag.Errorf("application.insert_instant: %s", err.Error())
 	}
 
 	err = data.Set("lambda_configuration", []map[string]interface{}{
@@ -421,14 +463,37 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	err = data.Set("samlv2_configuration", []map[string]interface{}{
 		{
+			"assertion_encryption_configuration": []map[string]interface{}{
+				{
+					"digest_algorithm":                a.Samlv2Configuration.AssertionEncryptionConfiguration.DigestAlgorithm,
+					"enabled":                         a.Samlv2Configuration.AssertionEncryptionConfiguration.Enabled,
+					"encryption_algorithm":            a.Samlv2Configuration.AssertionEncryptionConfiguration.EncryptionAlgorithm,
+					"key_location":                    a.Samlv2Configuration.AssertionEncryptionConfiguration.KeyLocation,
+					"key_transport_algorithm":         a.Samlv2Configuration.AssertionEncryptionConfiguration.KeyTransportAlgorithm,
+					"key_transport_encryption_key_id": a.Samlv2Configuration.AssertionEncryptionConfiguration.KeyTransportEncryptionKeyId,
+					"mask_generation_function":        a.Samlv2Configuration.AssertionEncryptionConfiguration.MaskGenerationFunction,
+				},
+			},
 			"enabled":                     a.Samlv2Configuration.Enabled,
 			"audience":                    a.Samlv2Configuration.Audience,
 			"authorized_redirect_urls":    a.Samlv2Configuration.AuthorizedRedirectURLs,
 			"callback_url":                a.Samlv2Configuration.CallbackURL,
 			"debug":                       a.Samlv2Configuration.Debug,
 			"default_verification_key_id": a.Samlv2Configuration.DefaultVerificationKeyId,
-			"issuer":                      a.Samlv2Configuration.Issuer,
-			"key_id":                      a.Samlv2Configuration.KeyId,
+			"initiated_login": []map[string]interface{}{
+				{
+					"enabled":        a.Samlv2Configuration.InitiatedLogin.Enabled,
+					"name_id_format": a.Samlv2Configuration.InitiatedLogin.NameIdFormat,
+				},
+			},
+			"issuer": a.Samlv2Configuration.Issuer,
+			"key_id": a.Samlv2Configuration.KeyId,
+			"login_hint_configuration": []map[string]interface{}{
+				{
+					"enabled":        a.Samlv2Configuration.LoginHintConfiguration.Enabled,
+					"parameter_name": a.Samlv2Configuration.LoginHintConfiguration.ParameterName,
+				},
+			},
 			"logout": []map[string]interface{}{
 				{
 					"behavior":                    a.Samlv2Configuration.Logout.Behavior,
@@ -490,6 +555,17 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 	})
 	if err != nil {
 		return diag.Errorf("application.email_configuration: %s", err.Error())
+	}
+
+	err = data.Set("webauthn_configuration", []map[string]interface{}{
+		{
+			"bootstrap_workflow_enabled":        a.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
+			"enabled":                           a.WebAuthnConfiguration.Enabled,
+			"reauthentication_workflow_enabled": a.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("application.webauthn_configuration: %s", err.Error())
 	}
 
 	return nil

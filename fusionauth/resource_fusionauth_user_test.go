@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/gpsinsight/terraform-provider-fusionauth/fusionauth/testdata"
+	"github.com/FusionAuth/terraform-provider-fusionauth/fusionauth/testdata"
 )
 
 func TestAccFusionauthUser_basic(t *testing.T) {
@@ -27,7 +27,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
   testString = "Hello world!"
   testInt    = 1
   testFloat  = 1.23
-  testArray  = [ 
+  testArray  = [
     "test:urn:permission1",
   ]
   test = {
@@ -42,7 +42,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
   testStr = "Bonjour le monde!"
   testInt    = 2
   testFloat  = 3.21
-  testArray  = [ 
+  testArray  = [
     "test:urn:permission2",
   ]
   test = {
@@ -81,7 +81,8 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 `
 
 	startEmail, endEmail := "john.s@example.com", "jon.snow@example.com"
-	startEncryptionScheme, endEncryptionScheme := "salted-md5", "bcrypt"
+	startEncryptionScheme, endEncryptionScheme := "bcrypt", "salted-md5"
+	startFactor, endFactor := 12, 14
 	startExpiry, endExpiry := "7955114522000", "43017447783000"
 	startFirstName, endFirstName := "John", "Jon"
 	startFullName, endFullName := "test-acc John Smith", "test-acc Jon Snow"
@@ -116,6 +117,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					startDataHCL,
 					startEmail,
 					startEncryptionScheme,
+					startFactor,
 					startExpiry,
 					startFirstName,
 					startFullName,
@@ -142,6 +144,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					startDataJSON,
 					startEmail,
 					startEncryptionScheme,
+					startFactor,
 					startExpiry,
 					startFirstName,
 					startFullName,
@@ -171,6 +174,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					endDataHCL,
 					endEmail,
 					endEncryptionScheme,
+					endFactor,
 					endExpiry,
 					endFirstName,
 					endFullName,
@@ -197,6 +201,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					endDataJSON,
 					endEmail,
 					endEncryptionScheme,
+					endFactor,
 					endExpiry,
 					endFirstName,
 					endFullName,
@@ -247,6 +252,7 @@ func testUserBasicAccCheckFuncs(
 	data string,
 	email string,
 	encryptionScheme string,
+	factor int,
 	expiry string,
 	firstName string,
 	fullName string,
@@ -277,6 +283,7 @@ func testUserBasicAccCheckFuncs(
 		testCheckResourceAttrJSON(tfResourcePath, "data", data),
 		resource.TestCheckResourceAttr(tfResourcePath, "email", email),
 		resource.TestCheckResourceAttr(tfResourcePath, "encryption_scheme", encryptionScheme),
+		resource.TestCheckResourceAttr(tfResourcePath, "factor", fmt.Sprintf("%d", factor)),
 		resource.TestCheckResourceAttr(tfResourcePath, "expiry", expiry),
 		resource.TestCheckResourceAttr(tfResourcePath, "first_name", firstName),
 		resource.TestCheckResourceAttr(tfResourcePath, "full_name", fullName),
@@ -409,6 +416,7 @@ func testAccUserResource(
 	data string,
 	email string,
 	encryptionScheme string,
+	factor int,
 	expiry string,
 	firstName string,
 	fullName string,
@@ -436,7 +444,7 @@ func testAccUserResource(
 		mfaAuthenticator = fmt.Sprintf(`
   two_factor_methods {
     method                    = "authenticator"
-    authenticator_algorithm   = "HmacSHA1"  # With the current implementation, this will always be HmacSHA1. 
+    authenticator_algorithm   = "HmacSHA1"  # With the current implementation, this will always be HmacSHA1.
     authenticator_code_length = 6           # With the current implementation, this will always be 6.
     authenticator_time_step   = 30          # With the current implementation, this will always be 30.
     secret                    = "%s"
@@ -475,23 +483,24 @@ resource "fusionauth_user" "test_%[1]s" {
   data                     = jsonencode(%[5]s)
   email                    = "%[6]s"
   encryption_scheme        = "%[7]s"
-  expiry                   = %[8]s
-  first_name               = "%[9]s" 
-  full_name                = "%[10]s" 
-  image_url                = "%[11]s" 
-  last_name                = "%[12]s" 
-  middle_name              = "%[13]s" 
-  mobile_phone             = "%[14]s" 
-  parent_email             = "%[15]s" 
-  password                 = "%[16]s" 
-  password_change_required = %[17]t 
-  preferred_languages      = %[18]s 
-  timezone                 = "%[19]s"
+  factor 				   = %[8]d
+  expiry                   = %[9]s
+  first_name               = "%[10]s"
+  full_name                = "%[11]s"
+  image_url                = "%[12]s"
+  last_name                = "%[13]s"
+  middle_name              = "%[14]s"
+  mobile_phone             = "%[15]s"
+  parent_email             = "%[16]s"
+  password                 = "%[17]s"
+  password_change_required = %[18]t
+  preferred_languages      = %[19]s
+  timezone                 = "%[20]s"
 
-  # Two Factor Methods%[20]s%[21]s%[22]s
+  # Two Factor Methods%[21]s%[22]s%[23]s
 
-  username        = "%[23]s"
-  username_status = "%[24]s"
+  username        = "%[24]s"
+  username_status = "%[25]s"
 }
 `,
 			resourceName,
@@ -501,6 +510,7 @@ resource "fusionauth_user" "test_%[1]s" {
 			data,
 			email,
 			encryptionScheme,
+			factor,
 			expiry,
 			firstName,
 			fullName,

@@ -66,14 +66,10 @@ resource "fusionauth_theme" "mytheme" {
 
 ## Argument Reference
 
-* `source_theme_id` - (Optional) The optional Id of an existing Theme to make a copy of. If present, the defaultMessages, localizedMessages, templates, and stylesheet from the source Theme will be copied to the new Theme.
-* `default_messages` - (Optional) A properties file formatted String containing at least all of the message keys defined in the FusionAuth shipped messages file. 
-
-~> **Note:** `default_messages` Is Required if not copying an existing Theme.
-
-* `localized_messages` - (Optional) A Map of localized versions of the messages. The key is the Locale and the value is a properties file formatted String.
 * `name` - (Required) A unique name for the Theme.
-* `stylesheet` - (Optional) A CSS stylesheet used to style the templates.
+
+---
+
 * `account_edit` - (Optional) A FreeMarker template that is rendered when the user requests the /account/edit path. This page contains a form that enables authenticated users to update their profile.
 * `account_index` - (Optional) A FreeMarker template that is rendered when the user requests the /account path. This is the self-service account landing page. An authenticated user may use this as a starting point for operations such as updating their profile or configuring multi-factor authentication.
 * `account_two_factor_disable` - (Optional) A FreeMarker template that is rendered when the user requests the /account/two-factor/disable path. This page contains a form that accepts a verification code used to disable a multi-factor authentication method.
@@ -83,12 +79,18 @@ resource "fusionauth_theme" "mytheme" {
 * `account_webauthn_delete` - (Optional) A FreeMarker template that is rendered when the user requests the /account/webauthn/delete path. This page contains a form that allows a user to delete a WebAuthn passkey.
 * `account_webauthn_index` - (Optional) A FreeMarker template that is rendered when the user requests the /account/webauthn/ path. This page displays an authenticated user’s registered WebAuthn passkeys. Additionally, it provides links to delete an existing passkey and register a new passkey.
 * `confirmation_required` - (Optional) A FreeMarker template that is rendered when the user requests the /confirmation-required path. This page is displayed when a user attempts to complete an email based workflow that did not begin in the same browser. For example, if the user starts a forgot password workflow, and then opens the link in a separate browser the user will be shown this panel.
+* `data` - (Optional) An object that can hold any information about the Theme that should be persisted.
+* `default_messages` - (Optional) A properties file formatted String containing at least all of the message keys defined in the FusionAuth shipped messages file.
+
+~> **Note:** `default_messages` Is Required if not copying an existing Theme.
+
 * `email_complete` - (Optional) A FreeMarker template that is rendered when the user requests the /email/complete path. This page is used after a user has verified their email address by clicking the URL in the email. After FusionAuth has updated their user object to indicate that their email was verified, the browser is redirected to this page.
 * `email_sent` - (Optional) A FreeMarker template that is rendered when the user requests the /email/sent path. This page is used after a user has asked for the verification email to be resent. This can happen if the URL in the email expired and the user clicked it. In this case, the user can provide their email address again and FusionAuth will resend the email. After the user submits their email and FusionAuth re-sends a verification email to them, the browser is redirected to this page.
 * `email_verification_required` - (Optional) A FreeMarker template that is rendered when the user requests the /email/verification-required path. This page is rendered when a user is required to verify their email address prior to being allowed to proceed with login. This occurs when Unverified behavior is set to Gated in email verification settings on the Tenant.
 * `email_verify` - (Optional) A FreeMarker template that is rendered when the user requests the /email/verify path. This page is rendered when a user clicks the URL from the verification email and the verificationId has expired. FusionAuth expires verificationId after a period of time (which is configurable). If the user has a URL from the verification email that has expired, this page will be rendered and the error will be displayed to the user.
 * `helpers` - (Optional) A FreeMarker template that contains all of the macros and templates used by the rest of the login Theme FreeMarker templates. This allows you to configure the general layout of your UI configuration and login theme without having to copy and paste HTML into each of the templates.
 * `index` - (Optional) A FreeMarker template that is rendered when the user requests the / path. This is the root landing page. This page is available to unauthenticated users and will be displayed whenever someone navigates to the FusionAuth host’s root page. Prior to version 1.27.0, navigating to this URL would redirect to /admin and would subsequently render the FusionAuth admin login page.
+* `localized_messages` - (Optional) A Map of localized versions of the messages. The key is the Locale and the value is a properties file formatted String.
 * `oauth2_authorize` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/authorize path. This is the main login page for FusionAuth and is used for all interactive OAuth2 and OpenID Connect workflows.
 * `oauth2_authorized_not_registered` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/authorized-not-registered path. This page is rendered when a user is not registered and the Application configuration requires registration before FusionAuth will complete the redirect.
 * `oauth2_child_registration_not_allowed` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/child-registration-not-allowed path. This page contains a form where a child must provide their parent’s email address to ask their parent to create an account for them in a Consent workflow.
@@ -103,9 +105,9 @@ resource "fusionauth_theme" "mytheme" {
 * `oauth2_register` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/register path. This page is used to register or sign up the user for the application when self-service registration is enabled.
 * `oauth2_start_idp_link` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/start-idp-link path. This page is used if the Identity Provider is configured to have a pending link. The user is presented with the option to link their account with an existing FusionAuth user account.
 * `oauth2_two_factor` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/two-factor path. This page is used if the user has two-factor authentication enabled and they need to type in their code again. FusionAuth will properly handle the processing on the back end. This page contains the form that the user will put their code into.
-* `oauth2_two_factor_methods` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/two-factor-methods path. This page contains a form providing a user with their configured multi-factor authentication options that they may use to complete the authentication challenge.
 * `oauth2_two_factor_enable` - (Optional) A FreeMarker template that contains the OAuth2 two-factor enable form.
 * `oauth2_two_factor_enable_complete` - (Optional) A FreeMarker template that contains the OAuth2 two-factor enable complete form.
+* `oauth2_two_factor_methods` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/two-factor-methods path. This page contains a form providing a user with their configured multi-factor authentication options that they may use to complete the authentication challenge.
 * `oauth2_wait` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/wait path. This page is rendered when FusionAuth is waiting for an external provider to complete an out of band authentication request. For example, during a HYPR login this page will be displayed until the user completes authentication.
 * `oauth2_webauthn` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/webauthn path. This page contains a form where a user can enter their loginId (username or email address) to authenticate with one of their registered WebAuthn passkeys. This page uses the WebAuthn bootstrap workflow.
 * `oauth2_webauthn_reauth` - (Optional) A FreeMarker template that is rendered when the user requests the /oauth2/webauthn-reauth path. This page contains a form that lists the WebAuthn passkeys currently available for re-authentication. A user can select one of the listed passkeys to authenticate using the corresponding passkey and user account.
@@ -119,8 +121,11 @@ resource "fusionauth_theme" "mytheme" {
 * `registration_verification_required` - (Optional) A FreeMarker template that is rendered when the user requests the /registration/verification-required path. This page is rendered when a user is required to verify their registration prior to being allowed to proceed with the registration flow. This occurs when Unverified behavior is set to Gated in registration verification settings on the Application.
 * `registration_verify` - (Optional) A FreeMarker template that is rendered when the user requests the /registration/verify path. This page is used when a user clicks the URL from the application specific verification email and the verificationId has expired. FusionAuth expires verificationId after a period of time (which is configurable). If the user has a URL from the verification email that has expired, this page will be rendered and the error will be displayed to the user.
 * `samlv2_logout` - (Optional) A FreeMarker template that is rendered when the user requests the /samlv2/logout path. This page is used if the user initiates a SAML logout. This page causes the user to be logged out of all associated applications via a front-channel mechanism before being redirected.
+* `stylesheet` - (Optional) A CSS stylesheet used to style the templates.
+* `theme_id` - (Optional) The Id to use for the new Theme. If not specified a secure random UUID will be generated.
 * `unauthorized` - (Optional) An optional FreeMarker template that contains the unauthorized page.
 
 ### Deprecated Theme Properties
+
 * `email_send` - (Optional) A FreeMarker template that is rendered when the user requests the /email/send page. This page is used after a user has asked for the verification email to be resent. This can happen if the URL in the email expired and the user clicked it. In this case, the user can provide their email address again and FusionAuth will resend the email. After the user submits their email and FusionAuth re-sends a verification email to them, the browser is redirected to this page.
 * `registration_send` - (Optional) A FreeMarker template that is rendered when the user requests the /registration/send page. This page is used after a user has asked for the application specific verification email to be resent. This can happen if the URL in the email expired and the user clicked it. In this case, the user can provide their email address again and FusionAuth will resend the email. After the user submits their email and FusionAuth re-sends a verification email to them, the browser is redirected to this page.

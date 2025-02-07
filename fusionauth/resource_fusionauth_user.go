@@ -153,6 +153,7 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 			SecureIdentity: fusionauth.SecureIdentity{
 				Id:                     userID,
 				EncryptionScheme:       data.Get("encryption_scheme").(string),
+				Factor:                 data.Get("factor").(int),
 				Password:               data.Get("password").(string),
 				PasswordChangeRequired: data.Get("password_change_required").(bool),
 				Username:               data.Get("username").(string),
@@ -170,6 +171,7 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 	return req, diags
 }
 
+//nolint:gocognit
 func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse) diag.Diagnostics {
 	data.SetId(resp.User.Id)
 
@@ -218,6 +220,24 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 	}
 	if err := data.Set("timezone", resp.User.Timezone); err != nil {
 		return diag.Errorf("user.timezone: %s", err.Error())
+	}
+	if resp.User.SecureIdentity.EncryptionScheme != "" {
+		if err := data.Set("encryption_scheme", resp.User.SecureIdentity.EncryptionScheme); err != nil {
+			return diag.Errorf("user.encryption_scheme: %s", err.Error())
+		}
+	} else {
+		if err := data.Set("encryption_scheme", data.Get("encryption_scheme")); err != nil {
+			return diag.Errorf("user.encryption_scheme: %s", err.Error())
+		}
+	}
+	if resp.User.SecureIdentity.Factor != 0 {
+		if err := data.Set("factor", resp.User.SecureIdentity.Factor); err != nil {
+			return diag.Errorf("user.factor: %s", err.Error())
+		}
+	} else {
+		if err := data.Set("factor", data.Get("factor")); err != nil {
+			return diag.Errorf("user.factor: %s", err.Error())
+		}
 	}
 	if err := data.Set("username", resp.User.Username); err != nil {
 		return diag.Errorf("user.username: %s", err.Error())

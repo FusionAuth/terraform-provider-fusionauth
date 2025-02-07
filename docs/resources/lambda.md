@@ -7,7 +7,7 @@ Lambdas are user defined JavaScript functions that may be executed at runtime to
 ## Example Usage
 
 ```hcl
-resource "fusionauth_lambda" "Preferred Username" {
+resource "fusionauth_lambda" "preferred_username" {
   name    = "Preferred Username"
   type    = "JWTPopulate"
   enabled = true
@@ -22,29 +22,38 @@ function populate(jwt, user, registration) {
 
 ## Argument Reference
 
-* `lambda_id` - (Optional) The Id to use for the new lambda. If not specified a secure random UUID will be generated.
 * `body` - (Required) The lambda function body, a JavaScript function.
-* `debug` - (Optional) Whether or not debug event logging is enabled for this Lambda.
-* `engine_type` - (Optional) The JavaScript execution engine for the lambda.
 * `name` - (Required) The name of the lambda.
 * `type` - (Required) The lambda type. The possible values are:
-    - `JWTPopulate`
-    - `OpenIDReconcile`
-    - `SAMLv2Reconcile`
-    - `SAMLv2Populate`
-    - `AppleReconcile`
-    - `ExternalJWTReconcile`
-    - `FacebookReconcile`
-    - `GoogleReconcile`
-    - `HYPRReconcile`
-    - `TwitterReconcile`
-    - `LDAPConnectorReconcile`
-    - `LinkedInReconcile`
-    - `EpicGamesReconcile`
-    - `NintendoReconcile`
-    - `SonyPSNReconcile`
-    - `SteamReconcile`
-    - `TwitchReconcile`
-    - `XboxReconcile`
-    - `SelfServiceRegistrationValidation`
-    - `ClientCredentialsJWTPopulate`
+  * `AppleReconcile`
+  * `ClientCredentialsJWTPopulate`
+  * `EpicGamesReconcile`
+  * `ExternalJWTReconcile`
+  * `FacebookReconcile`
+  * `GoogleReconcile`
+  * `HYPRReconcile`
+  * `JWTPopulate`
+  * `LDAPConnectorReconcile`
+  * `LinkedInReconcile`
+  * `LoginValidation`
+  * `NintendoReconcile`
+  * `OpenIDReconcile`
+  * `SAMLv2Populate`
+  * `SAMLv2Reconcile`
+  * `SCIMServerGroupRequestConverter`
+  * `SCIMServerGroupResponseConverter`
+  * `SCIMServerUserRequestConverter`
+  * `SCIMServerUserResponseConverter`
+  * `SelfServiceRegistrationValidation`
+  * `SonyPSNReconcile`
+  * `SteamReconcile`
+  * `TwitchReconcile`
+  * `TwitterReconcile`
+  * `UserInfoPopulate`
+  * `XboxReconcile`
+
+---
+
+* `debug` - (Optional) Whether or not debug event logging is enabled for this Lambda.
+* `engine_type` - (Optional) The JavaScript execution engine for the lambda.
+* `lambda_id` - (Optional) The Id to use for the new lambda. If not specified a secure random UUID will be generated.

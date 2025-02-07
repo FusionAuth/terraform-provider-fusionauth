@@ -20,12 +20,12 @@ data "fusionauth_email" "default_breached_password" {
 
 All the argument attributes are also exported as result attributes.
 
-* `id` - The Id of the Email Template.
 * `default_from_name` - The default From Name used when sending emails.
 * `default_html_template` - The default HTML Email Template.
 * `default_subject` - The default Subject used when sending emails.
 * `default_text_template` - The default Text Email Template.
 * `from_email` - The email address that this email will be sent from.
+* `id` - The Id of the Email Template.
 * `localized_from_names` - The From Name used when sending emails to users who speak other languages.
 * `localized_html_templates` - The HTML Email Template used when sending emails to users who speak other languages.
 * `localized_subjects` - The Subject used when sending emails to users who speak other languages.

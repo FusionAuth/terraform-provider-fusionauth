@@ -18,7 +18,7 @@ func WarnStringInSlice(valid []string, ignoreCase bool) schema.SchemaValidateDia
 	return func(i interface{}, path cty.Path) (diags diag.Diagnostics) {
 		value, ok := i.(string)
 		if !ok {
-			return diag.Diagnostics{{
+			return diag.Diagnostics{diag.Diagnostic{
 				Severity:      diag.Error,
 				Summary:       "expected type of string",
 				Detail:        fmt.Sprintf("expected string, got: %+#v instead", value),
@@ -32,7 +32,7 @@ func WarnStringInSlice(valid []string, ignoreCase bool) schema.SchemaValidateDia
 			}
 		}
 
-		return diag.Diagnostics{{
+		return diag.Diagnostics{diag.Diagnostic{
 			Severity:      diag.Warning,
 			Summary:       "provided value not in expected list (may be expected)",
 			Detail:        fmt.Sprintf("expected the provided value to be one of %s, got %s", valid, value),

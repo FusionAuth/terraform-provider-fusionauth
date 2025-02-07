@@ -22,13 +22,17 @@ resource "fusionauth_generic_connector" "example" {
 ```
 
 ## Argument Reference
+
 * `authentication_url` - (Required) The fully qualified URL used to send an HTTP request to authenticate the user.
 * `connect_timeout` - (Required) The connect timeout for the HTTP connection, in milliseconds. Value must be greater than 0.
+* `name` - (Required) The unique Connector name.
+* `read_timeout` - (Required) The read timeout in milliseconds used when FusionAuth sends events to the Webhook.
+
+---
+
 * `data` - (Optional) An object that can hold any information about the Connector that should be persisted.
 * `debug` - (Optional) Determines if debug should be enabled to create an event log to assist in debugging integration errors. Defaults to false.
 * `headers` - (Optional) An object that can hold HTTPHeader key and value pairs.
 * `http_authentication_password` - (Optional) The HTTP basic authentication password that is sent as part of the HTTP request for the events.
 * `http_authentication_username` -(Optional) The HTTP basic authentication username that is sent as part of the HTTP request for the events.
-* `name` - (Required) The unique Connector name.
-* `read_timeout` - (Required) The read timeout in milliseconds used when FusionAuth sends events to the Webhook.
 * `ssl_certificate_key_id` - (Optional) The Id of an existing [Key](https://fusionauth.io/docs/v1/tech/apis/keys/). The X509 certificate is used for client certificate authentication in requests to the Connector.

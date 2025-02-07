@@ -61,6 +61,14 @@ func newRegistration() *schema.Resource {
 				Optional:    true,
 				Description: "An array of locale strings that give, in order, the User’s preferred languages for this registration. These are important for email templates and other localizable text.",
 			},
+			"registration_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				Description:  "The Id of this registration. If not specified a secure random UUID will be generated.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"roles": {
 				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -95,6 +103,7 @@ func buildRegistration(data *schema.ResourceData) fusionauth.RegistrationRequest
 		Registration: fusionauth.UserRegistration{
 			ApplicationId:      data.Get("application_id").(string),
 			Data:               data.Get("data").(map[string]interface{}),
+			Id:                 data.Get("registration_id").(string),
 			PreferredLanguages: handleStringSlice("preferred_languages", data),
 			Roles:              handleStringSlice("roles", data),
 			Timezone:           data.Get("timezone").(string),
@@ -114,6 +123,7 @@ func createRegistration(_ context.Context, data *schema.ResourceData, i interfac
 			ApplicationId:       data.Get("application_id").(string),
 			AuthenticationToken: data.Get("authentication_token").(string),
 			Data:                data.Get("data").(map[string]interface{}),
+			Id:                  data.Get("registration_id").(string),
 			PreferredLanguages:  handleStringSlice("preferred_languages", data),
 			Roles:               handleStringSlice("roles", data),
 			Timezone:            data.Get("timezone").(string),
@@ -132,6 +142,7 @@ func createRegistration(_ context.Context, data *schema.ResourceData, i interfac
 	_ = json.Unmarshal(b, &reg)
 
 	data.SetId(reg.Registration.Id)
+
 	return buildResourceDataFromRegistration(reg.Registration, data)
 }
 
@@ -195,6 +206,9 @@ func buildResourceDataFromRegistration(r fusionauth.UserRegistration, data *sche
 	}
 	if err := data.Set("data", r.Data); err != nil {
 		return diag.Errorf("registration.data: %s", err.Error())
+	}
+	if err := data.Set("registration_id", r.Id); err != nil {
+		return diag.Errorf("registration.id: %s", err.Error())
 	}
 	if err := data.Set("preferred_languages", r.PreferredLanguages); err != nil {
 		return diag.Errorf("registration.preferred_languages: %s", err.Error())
