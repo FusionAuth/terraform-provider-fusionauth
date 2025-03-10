@@ -568,6 +568,7 @@ resource "fusionauth_tenant" "example" {
   * `access_token_key_id` - (Optional) The unique id of the signing key used to sign the access token. Required prior to `1.30.0`.
   * `id_token_key_id` - (Optional) The unique id of the signing key used to sign the Id token. Required prior to `1.30.0`.
   * `refresh_token_expiration_policy` - (Optional) The refresh token expiration policy.
+  * `refresh_token_one_time_use_configuration_grace_period_in_seconds` - (Optional) The length of time specified in seconds that a one-time use token can be reused. This value must be greater than 0 and less than 86400 which is equal to 24 hours. Setting this value to 0 effectively disables the grace period which means a one-time token may not be reused. Defaults to 0.
   * `refresh_token_revocation_policy_on_login_prevented` - (Optional) When enabled, the refresh token will be revoked when a user action, such as locking an account based on a number of failed login attempts, prevents user login.
   * `refresh_token_revocation_policy_on_multi_factor_enable` - (Optional) When enabled, all refresh tokens will be revoked when a user enables multi-factor authentication for the first time. This policy will not be applied when adding subsequent multi-factor methods to the user.
   * `refresh_token_revocation_policy_on_one_time_token_reuse` - (Optional) When enabled, if a one-time use refresh token is reused, the token will be revoked. This does not cause all refresh tokens to be revoked, only the reused token is revoked.

@@ -186,18 +186,21 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			AccessTokenKeyId:             data.Get("jwt_configuration.0.access_token_key_id").(string),
 			IdTokenKeyId:                 data.Get("jwt_configuration.0.id_token_key_id").(string),
 			RefreshTokenExpirationPolicy: fusionauth.RefreshTokenExpirationPolicy(data.Get("jwt_configuration.0.refresh_token_expiration_policy").(string)),
+			RefreshTokenOneTimeUseConfiguration: fusionauth.RefreshTokenOneTimeUseConfiguration{
+				GracePeriodInSeconds: data.Get("jwt_configuration.0.refresh_token_one_time_use_configuration_grace_period_in_seconds").(int),
+			},
 			RefreshTokenRevocationPolicy: fusionauth.RefreshTokenRevocationPolicy{
 				OnLoginPrevented:    data.Get("jwt_configuration.0.refresh_token_revocation_policy_on_login_prevented").(bool),
 				OnMultiFactorEnable: data.Get("jwt_configuration.0.refresh_token_revocation_policy_on_multi_factor_enable").(bool),
 				OnOneTimeTokenReuse: data.Get("jwt_configuration.0.refresh_token_revocation_policy_on_one_time_token_reuse").(bool),
 				OnPasswordChanged:   data.Get("jwt_configuration.0.refresh_token_revocation_policy_on_password_change").(bool),
 			},
-			RefreshTokenTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_time_to_live_in_minutes").(int),
-			RefreshTokenUsagePolicy:         fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
-			TimeToLiveInSeconds:             data.Get("jwt_configuration.0.time_to_live_in_seconds").(int),
 			RefreshTokenSlidingWindowConfiguration: fusionauth.RefreshTokenSlidingWindowConfiguration{
 				MaximumTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_sliding_window_maximum_time_to_live_in_minutes").(int),
 			},
+			RefreshTokenTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_time_to_live_in_minutes").(int),
+			RefreshTokenUsagePolicy:         fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
+			TimeToLiveInSeconds:             data.Get("jwt_configuration.0.time_to_live_in_seconds").(int),
 		},
 		LambdaConfiguration: fusionauth.TenantLambdaConfiguration{
 			LoginValidationId:                     data.Get("lambda_configuration.0.login_validation_id").(string),
