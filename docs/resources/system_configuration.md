@@ -1,6 +1,6 @@
 # System Configuration Resource
 
-A registration is the association between a User and an Application that they log into.
+Settings that control various aspects of the system's behavior.
 
 [System Configuration API](https://fusionauth.io/docs/v1/tech/apis/system)
 
