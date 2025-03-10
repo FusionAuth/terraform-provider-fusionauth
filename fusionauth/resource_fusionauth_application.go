@@ -337,6 +337,16 @@ func newApplication() *schema.Resource {
 				Default:     false,
 				Description: "Whether or not registrations to this Application may be verified. When this is set to true the verificationEmailTemplateId parameter is also required.",
 			},
+			"unverified_behavior": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "Allow",
+				Description: "The behavior of the application when a user attempts to login with an unverified registration.",
+				ValidateFunc: validation.StringInSlice([]string{
+					"Allow",
+					"Gated",
+				}, false),
+			},
 			"email_configuration": {
 				Type:       schema.TypeList,
 				MaxItems:   1,

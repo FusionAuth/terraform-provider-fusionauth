@@ -170,6 +170,9 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		VerificationEmailTemplateId: data.Get("verification_email_template_id").(string),
 		VerificationStrategy:        fusionauth.VerificationStrategy(data.Get("verification_strategy").(string)),
 		VerifyRegistration:          data.Get("verify_registration").(bool),
+		Unverified: fusionauth.RegistrationUnverifiedOptions{
+			Behavior: fusionauth.UnverifiedBehavior(data.Get("unverified_behavior").(string)),
+		},
 		EmailConfiguration: fusionauth.ApplicationEmailConfiguration{
 			EmailVerificationEmailTemplateId:     data.Get("email_configuration.0.email_verification_template_id").(string),
 			EmailUpdateEmailTemplateId:           data.Get("email_configuration.0.email_update_template_id").(string),
@@ -533,6 +536,10 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	if err := data.Set("verify_registration", a.VerifyRegistration); err != nil {
 		return diag.Errorf("application.verify_registration: %s", err.Error())
+	}
+
+	if err := data.Set("unverified_behavior", a.Unverified.Behavior); err != nil {
+		return diag.Errorf("application.unverified_behavior: %s", err.Error())
 	}
 
 	err = data.Set("email_configuration", []map[string]interface{}{
