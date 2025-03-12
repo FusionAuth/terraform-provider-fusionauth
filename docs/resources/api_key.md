@@ -1,6 +1,6 @@
 # API Key
 
-The FusionAuth APIs are primarily secured using API keys. This API can only be accessed using an API key that is set as a keyManager. In order to retrieve, update or delete an API key, an API key with equal or greater permissions must be used. A "tenant-scoped" API key can retrieve, create, update or delete an API key for the same tenant. This page describes APIs that are used to manage API keys.
+The FusionAuth APIs are primarily secured using API keys. In order to retrieve, create, update, or delete an API key, an API key set as a keyManager with equal or greater permissions than the API to be created must be used. A "tenant-scoped" API key can retrieve, create, update or delete an API key for the same tenant. This page describes APIs that are used to manage API keys.
 
 [API Key](https://fusionauth.io/docs/v1/tech/apis/api-keys/)
 
