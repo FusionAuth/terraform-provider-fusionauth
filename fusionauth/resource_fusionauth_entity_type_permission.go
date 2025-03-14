@@ -2,7 +2,9 @@ package fusionauth
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -18,7 +20,7 @@ func resourceEntityTypePermission() *schema.Resource {
 		UpdateContext: updateEntityTypePermission,
 		DeleteContext: deleteEntityTypePermission,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: importEntityTypePermission,
 		},
 		Schema: map[string]*schema.Schema{
 			"entity_type_id": {
@@ -81,6 +83,34 @@ func createEntityTypePermission(_ context.Context, data *schema.ResourceData, i 
 	}
 
 	return entityTypePermissionResponseToData(data, entityTypeID, res)
+}
+
+func importEntityTypePermission(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	// Support importing in the format "entity_type_id:permission_id"
+	parts := strings.SplitN(d.Id(), ":", 2)
+
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		return nil, fmt.Errorf("invalid import format, expected 'entity_type_id:permission_id'")
+	}
+
+	entityTypeId := parts[0]
+	permissionId := parts[1]
+
+	// Set the entity_type_id in state
+	if err := d.Set("entity_type_id", entityTypeId); err != nil {
+		return nil, err
+	}
+
+	// Set the permission ID as the resource ID
+	d.SetId(permissionId)
+
+	// Read the resource to populate the state
+	diags := readEntityTypePermission(ctx, d, m)
+	if diags.HasError() {
+		return nil, fmt.Errorf("failed to read imported entity type permission: %v", diags[0].Summary)
+	}
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func readEntityTypePermission(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {

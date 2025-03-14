@@ -30,3 +30,19 @@ resource "fusionauth_entity_type_permission" "file_lawsuit" {
 * `description` - (Optional) The description of the Permission.
 * `is_default` - (Optional) Whether or not the Permission is a default permission. A default permission is automatically granted to an entity of this type if no permissions are provided in a grant request.
 * `permission_id` - (Optional) The ID to use for the new permission. If not specified a secure random UUID will be generated.
+
+## Import
+
+In Terraform v1.5.0 and later, use an `import` block to import entity type permission resources using the entity type ID and entity type permission ID, separated by a colon. For example:
+
+```hcl
+import {
+  to = fusionauth_entity_type_permission.name
+  id = "entity_type_id:entity_type_permission_id"
+}
+```
+
+Using terraform import, import entity resources using the entity type ID and entity type permission id. For example:
+
+```shell
+terraform import fusionauth_entity_type_permission.name entity_type_id:entity_type_permission_id
