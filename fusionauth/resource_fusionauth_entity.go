@@ -2,7 +2,9 @@ package fusionauth
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -18,7 +20,7 @@ func resourceEntity() *schema.Resource {
 		UpdateContext: updateEntity,
 		DeleteContext: deleteEntity,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: importEntity,
 		},
 		Schema: map[string]*schema.Schema{
 			"tenant_id": {
@@ -93,6 +95,28 @@ func createEntity(_ context.Context, data *schema.ResourceData, i interface{}) (
 	}
 
 	return entityResponseToData(data, res)
+}
+
+func importEntity(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	// Support importing in the format "tenant_id:entity_id"
+	parts := strings.SplitN(d.Id(), ":", 2)
+
+	entityId := parts[1]
+	d.SetId(entityId)
+
+	// If tenantId was provided in the import string, set it in the state
+	if len(parts) == 2 && parts[1] != "" {
+		if err := d.Set("tenant_id", parts[0]); err != nil {
+			return nil, err
+		}
+	}
+
+	diags := readEntity(ctx, d, m)
+	if diags.HasError() {
+		return nil, fmt.Errorf("failed to read imported entity: %v", diags[0].Summary)
+	}
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func readEntity(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {

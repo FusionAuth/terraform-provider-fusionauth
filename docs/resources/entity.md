@@ -76,3 +76,20 @@ resource "fusionauth_entity_permission" "file_lawsuit" {
 
 For more information see:
 [FusionAuth Entity Management API Overview](https://fusionauth.io/docs/v1/tech/apis/entity-management/)
+
+## Import
+
+In Terraform v1.5.0 and later, use an `import` block to import entity resources using the tenant ID and entity ID, separated by a colon. For example:
+
+```hcl
+import {
+  to = fusionauth_entity.name
+  id = "tenant_id:entity_id"
+}
+```
+
+Using terraform import, import entity resources using the tenant ID and entity ID. For example:
+
+```shell
+terraform import fusionauth_entity.name tenant_id:entity_id
+```
