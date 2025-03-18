@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
@@ -25,9 +26,11 @@ func newTheme() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the Theme that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the Theme that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"default_messages": {
 				Type:             schema.TypeString,
@@ -404,12 +407,21 @@ func newTheme() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceThemeV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceThemeUpgradeV0,
+				Version: 0,
+			},
+		},
 	}
 }
 
 func buildTheme(data *schema.ResourceData) fusionauth.Theme {
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
 	t := fusionauth.Theme{
-		Data:            data.Get("data").(map[string]interface{}),
+		Data:            resourceData,
 		DefaultMessages: data.Get("default_messages").(string),
 		Id:              data.Get("theme_id").(string),
 		Name:            data.Get("name").(string),
@@ -558,7 +570,11 @@ func deleteTheme(_ context.Context, data *schema.ResourceData, i interface{}) di
 }
 
 func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) diag.Diagnostics { //nolint:gocognit,gocyclo
-	if err := data.Set("data", t.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(t.Data)
+	if diags != nil {
+		return diags
+	}
+	if err := data.Set("data", dataJSON); err != nil {
 		return diag.Errorf("theme.data: %s", err.Error())
 	}
 	if err := data.Set("default_messages", t.DefaultMessages); err != nil {
@@ -721,4 +737,31 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) d
 	}
 
 	return nil
+}
+
+func resourceThemeV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"data": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func resourceThemeUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	if v, ok := rawState["data"]; ok {
+		if dataMap, ok := v.(map[string]interface{}); ok {
+			jsonBytes, err := json.Marshal(dataMap)
+			if err != nil {
+				return nil, err
+			}
+
+			rawState["data"] = string(jsonBytes)
+		}
+	}
+
+	return rawState, nil
 }

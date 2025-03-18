@@ -30,7 +30,7 @@ resource "fusionauth_generic_connector" "example" {
 
 ---
 
-* `data` - (Optional) An object that can hold any information about the Connector that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the Connector that should be persisted.
 * `debug` - (Optional) Determines if debug should be enabled to create an event log to assist in debugging integration errors. Defaults to false.
 * `headers` - (Optional) An object that can hold HTTPHeader key and value pairs.
 * `http_authentication_password` - (Optional) The HTTP basic authentication password that is sent as part of the HTTP request for the events.

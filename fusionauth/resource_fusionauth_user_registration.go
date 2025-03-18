@@ -51,9 +51,11 @@ func newRegistration() *schema.Resource {
 				ForceNew:     true,
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the User for this registration that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the User Registration that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"preferred_languages": {
 				Type:        schema.TypeSet,
@@ -95,14 +97,23 @@ func newRegistration() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceUserRegistrationV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceUserRegistrationUpgradeV0,
+				Version: 0,
+			},
+		},
 	}
 }
 
 func buildRegistration(data *schema.ResourceData) fusionauth.RegistrationRequest {
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
 	return fusionauth.RegistrationRequest{
 		Registration: fusionauth.UserRegistration{
 			ApplicationId:      data.Get("application_id").(string),
-			Data:               data.Get("data").(map[string]interface{}),
+			Data:               resourceData,
 			Id:                 data.Get("registration_id").(string),
 			PreferredLanguages: handleStringSlice("preferred_languages", data),
 			Roles:              handleStringSlice("roles", data),
@@ -115,6 +126,7 @@ func buildRegistration(data *schema.ResourceData) fusionauth.RegistrationRequest
 }
 
 func createRegistration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
 	reg := struct {
 		Registration                 fusionauth.UserRegistration `json:"registration,omitempty"`
 		SkipRegistrationVerification bool                        `json:"skipRegistrationVerification"`
@@ -122,7 +134,7 @@ func createRegistration(_ context.Context, data *schema.ResourceData, i interfac
 		Registration: fusionauth.UserRegistration{
 			ApplicationId:       data.Get("application_id").(string),
 			AuthenticationToken: data.Get("authentication_token").(string),
-			Data:                data.Get("data").(map[string]interface{}),
+			Data:                resourceData,
 			Id:                  data.Get("registration_id").(string),
 			PreferredLanguages:  handleStringSlice("preferred_languages", data),
 			Roles:               handleStringSlice("roles", data),
@@ -204,7 +216,11 @@ func buildResourceDataFromRegistration(r fusionauth.UserRegistration, data *sche
 	if err := data.Set("application_id", r.ApplicationId); err != nil {
 		return diag.Errorf("registration.application_id: %s", err.Error())
 	}
-	if err := data.Set("data", r.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(r.Data)
+	if diags != nil {
+		return diags
+	}
+	if err := data.Set("data", dataJSON); err != nil {
 		return diag.Errorf("registration.data: %s", err.Error())
 	}
 	if err := data.Set("registration_id", r.Id); err != nil {
@@ -254,4 +270,31 @@ func deleteRegistration(_ context.Context, data *schema.ResourceData, i interfac
 		return diag.FromErr(err)
 	}
 	return nil
+}
+
+func resourceUserRegistrationV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"data": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func resourceUserRegistrationUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	if v, ok := rawState["data"]; ok {
+		if dataMap, ok := v.(map[string]interface{}); ok {
+			jsonBytes, err := json.Marshal(dataMap)
+			if err != nil {
+				return nil, err
+			}
+
+			rawState["data"] = string(jsonBytes)
+		}
+	}
+
+	return rawState, nil
 }

@@ -457,7 +457,7 @@ resource "fusionauth_tenant" "example" {
   * `connector_id` - (Optional) The identifier of the Connector to which this policy refers.
   * `domains` - (Optional) A list of email domains to which this connector should apply. A value of ["*"] indicates this connector applies to all users.
   * `migrate` - (Optional) If true, the user’s data will be migrated to FusionAuth at first successful authentication; subsequent authentications will occur against the FusionAuth datastore. If false, the Connector’s source will be treated as authoritative.
-* `data` - (Optional) An object that can hold any information about the Tenant that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the Tenant that should be persisted.
 * `email_configuration` - (Optional) The email configuration for the tenant.
   * `additional_headers` - (Optional) The additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.
   * `debug` - (Optional) Determines if debug should be enabled to create an event log to assist in debugging SMTP errors.

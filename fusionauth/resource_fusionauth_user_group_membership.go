@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
@@ -18,10 +19,11 @@ func newUserGroupMembership() *schema.Resource {
 		DeleteContext: deleteUserGroupMembership,
 		Schema: map[string]*schema.Schema{
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the User for this membership that should be persisted.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the User Group Membership that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"group_id": {
 				Type:         schema.TypeString,
@@ -47,15 +49,24 @@ func newUserGroupMembership() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceUserGroupMembershipV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceUserGroupMembershipUpgradeV0,
+				Version: 0,
+			},
+		},
 	}
 }
 
 func buildUserGroupMembership(data *schema.ResourceData) fusionauth.MemberRequest {
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
 	mr := fusionauth.MemberRequest{
 		Members: map[string][]fusionauth.GroupMember{
 			data.Get("group_id").(string): {
 				{
-					Data:    data.Get("data").(map[string]interface{}),
+					Data:    resourceData,
 					GroupId: data.Get("group_id").(string),
 					Id:      data.Get("membership_id").(string),
 					UserId:  data.Get("user_id").(string),
@@ -118,7 +129,12 @@ func readUserGroupMembership(_ context.Context, data *schema.ResourceData, i int
 		return diag.Errorf("Found %d memberships for user %s in group %s", resp.Total, data.Get("user_id").(string), data.Get("group_id").(string))
 	}
 
-	if err := data.Set("data", gmsresp[0].Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(gmsresp[0].Data)
+	if diags != nil {
+		return diags
+	}
+	err = data.Set("data", dataJSON)
+	if err != nil {
 		return diag.Errorf("Error setting data: %v", err)
 	}
 	if err := data.Set("group_id", gmsresp[0].GroupId); err != nil {
@@ -167,4 +183,31 @@ func deleteUserGroupMembership(_ context.Context, data *schema.ResourceData, i i
 	}
 
 	return nil
+}
+
+func resourceUserGroupMembershipV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"data": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func resourceUserGroupMembershipUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	if v, ok := rawState["data"]; ok {
+		if dataMap, ok := v.(map[string]interface{}); ok {
+			jsonBytes, err := json.Marshal(dataMap)
+			if err != nil {
+				return nil, err
+			}
+
+			rawState["data"] = string(jsonBytes)
+		}
+	}
+
+	return rawState, nil
 }

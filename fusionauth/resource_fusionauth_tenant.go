@@ -119,9 +119,11 @@ func newTenant() *schema.Resource {
 				},
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the Tenant that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the Tenant that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"email_configuration": {
 				Type:             schema.TypeList,
@@ -917,6 +919,14 @@ func newTenant() *schema.Resource {
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceTenantV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceTenantUpgradeV0,
+				Version: 0,
+			},
 		},
 	}
 }

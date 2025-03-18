@@ -126,7 +126,7 @@ resource "fusionauth_application" "Forum" {
   * `username_moderation` - (Optional)
     * `application_id` - (Optional) The Id of the CleanSpeak application that usernames are sent to for moderation.
     * `enabled` - (Optional) True if CleanSpeak username moderation is enabled.
-* `data` - (Optional) An object that can hold any information about the Application that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the Application that should be persisted.
 * `email_configuration` - (Optional)
   * `email_update_template_id` - (Optional) The Id of the Email Template used to send emails to users when their email address is updated. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
   * `email_verification_template_id` - (Optional) The Id of the Email Template used to send emails to users to verify that their email address is valid. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.

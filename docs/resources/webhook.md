@@ -44,7 +44,7 @@ resource "fusionauth_webhook" "example" {
 
 ---
 
-* `data` - (Optional) An object that can hold any information about the Webhook that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the Webhook that should be persisted.
 * `description` - (Optional) A description of the Webhook. This is used for display purposes only.
 * `events_enabled` - (Optional) A mapping for the events that are enabled for this Webhook.
   * `audit_log_create` - (Optional) When an audit log is created

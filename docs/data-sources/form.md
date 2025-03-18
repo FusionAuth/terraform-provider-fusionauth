@@ -23,7 +23,7 @@ All the argument attributes are also exported as result attributes.
 
 The following additional attributes are exported:
 
-* `data` - An object that can hold any information about the Form that should be persisted.
+* `data` - A JSON string that can hold any information about the Form that should be persisted.
 * `id` - The unique Id of the Form.
 * `name` - The unique name of the Form.
 * `steps` - An ordered list of objects containing one or more Form Fields.

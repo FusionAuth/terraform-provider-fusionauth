@@ -29,7 +29,7 @@ resource "fusionauth_form_field" "field" {
 * `confirm` - (Optional) Determines if the user input should be confirmed by requiring the value to be entered twice. If true, a confirmation field is included.
 * `consent_id` - (Optional) The Id of an existing Consent. This field will be required when the type is set to consent.
 * `control` - (Optional) The Form Field control
-* `data` - (Optional) An object that can hold any information about the Form Field that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the Form Field that should be persisted.
 * `description` - (Optional) A description of the Form Field.
 * `form_field_id` - (Optional) The Id to use for the new Form Field. If not specified a secure random UUID will be generated.
 * `options` - (Optional) A list of options that are applied to checkbox, radio, or select controls.

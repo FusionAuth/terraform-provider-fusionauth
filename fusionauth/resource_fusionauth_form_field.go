@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -54,10 +55,13 @@ func resourceFormField() *schema.Resource {
 				}, false),
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the Form Field that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the Form Field that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
+
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -127,6 +131,14 @@ func resourceFormField() *schema.Resource {
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceFormFieldV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceFormFieldUpgradeV0,
+				Version: 0,
+			},
 		},
 	}
 }
@@ -200,11 +212,13 @@ func deleteFormField(_ context.Context, data *schema.ResourceData, i interface{}
 }
 
 func buildFormField(data *schema.ResourceData) fusionauth.FormField {
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
+
 	return fusionauth.FormField{
 		Confirm:     data.Get("confirm").(bool),
 		ConsentId:   data.Get("consent_id").(string),
 		Control:     fusionauth.FormControl(data.Get("control").(string)),
-		Data:        data.Get("data").(map[string]interface{}),
+		Data:        resourceData,
 		Description: data.Get("description").(string),
 		Key:         data.Get("key").(string),
 		Name:        data.Get("name").(string),
@@ -220,34 +234,38 @@ func buildFormField(data *schema.ResourceData) fusionauth.FormField {
 
 func buildResourceDataFromFormField(data *schema.ResourceData, f fusionauth.FormField) diag.Diagnostics {
 	if err := data.Set("confirm", f.Confirm); err != nil {
-		return diag.Errorf("webhook.confirm: %s", err.Error())
+		return diag.Errorf("form_field.confirm: %s", err.Error())
 	}
 	if err := data.Set("consent_id", f.ConsentId); err != nil {
-		return diag.Errorf("webhook.consent_id: %s", err.Error())
+		return diag.Errorf("form_field.consent_id: %s", err.Error())
 	}
 	if err := data.Set("control", f.Control); err != nil {
-		return diag.Errorf("webhook.control: %s", err.Error())
+		return diag.Errorf("form_field.control: %s", err.Error())
 	}
-	if err := data.Set("data", f.Data); err != nil {
-		return diag.Errorf("webhook.data: %s", err.Error())
+	dataJSON, diags := mapStringInterfaceToJSONString(f.Data)
+	if diags != nil {
+		return diags
+	}
+	if err := data.Set("data", dataJSON); err != nil {
+		return diag.Errorf("form_field.data: %s", err.Error())
 	}
 	if err := data.Set("description", f.Description); err != nil {
-		return diag.Errorf("webhook.description: %s", err.Error())
+		return diag.Errorf("form_field.description: %s", err.Error())
 	}
 	if err := data.Set("key", f.Key); err != nil {
-		return diag.Errorf("webhook.key: %s", err.Error())
+		return diag.Errorf("form_field.key: %s", err.Error())
 	}
 	if err := data.Set("name", f.Name); err != nil {
-		return diag.Errorf("webhook.name: %s", err.Error())
+		return diag.Errorf("form_field.name: %s", err.Error())
 	}
 	if err := data.Set("options", f.Options); err != nil {
-		return diag.Errorf("webhook.options: %s", err.Error())
+		return diag.Errorf("form_field.options: %s", err.Error())
 	}
 	if err := data.Set("required", f.Required); err != nil {
-		return diag.Errorf("webhook.required: %s", err.Error())
+		return diag.Errorf("form_field.required: %s", err.Error())
 	}
 	if err := data.Set("type", f.Type); err != nil {
-		return diag.Errorf("webhook.type: %s", err.Error())
+		return diag.Errorf("form_field.type: %s", err.Error())
 	}
 
 	err := data.Set("validator", []map[string]interface{}{
@@ -336,4 +354,31 @@ func validateRegex(i interface{}, k string) (warnings []string, errors []error) 
 		return warnings, append(errors, err)
 	}
 	return warnings, errors
+}
+
+func resourceFormFieldV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"data": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func resourceFormFieldUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	if v, ok := rawState["data"]; ok {
+		if dataMap, ok := v.(map[string]interface{}); ok {
+			jsonBytes, err := json.Marshal(dataMap)
+			if err != nil {
+				return nil, err
+			}
+
+			rawState["data"] = string(jsonBytes)
+		}
+	}
+
+	return rawState, nil
 }

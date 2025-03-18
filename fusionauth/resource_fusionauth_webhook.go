@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
@@ -29,9 +30,11 @@ func newWebhook() *schema.Resource {
 				Description: "The connection timeout in milliseconds used when FusionAuth sends events to the Webhook.",
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the Webhook that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the Webhook that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -326,6 +329,14 @@ func newWebhook() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceWebhookV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceWebhookUpgradeV0,
+				Version: 0,
+			},
+		},
 	}
 }
 
@@ -346,7 +357,8 @@ func buildWebhook(data *schema.ResourceData) fusionauth.Webhook {
 	}
 
 	if i, ok := data.GetOk("data"); ok {
-		wh.Data = i.(map[string]interface{})
+		resourceData, _ := jsonStringToMapStringInterface(i.(string))
+		wh.Data = resourceData
 	}
 
 	if i, ok := data.GetOk("headers"); ok {
@@ -451,7 +463,12 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 	if err := data.Set("connect_timeout", l.ConnectTimeout); err != nil {
 		return diag.Errorf("webhook.connect_timeout: %s", err.Error())
 	}
-	if err := data.Set("data", l.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(l.Data)
+	if diags != nil {
+		return diags
+	}
+	err = data.Set("data", dataJSON)
+	if err != nil {
 		return diag.Errorf("webhook.data: %s", err.Error())
 	}
 	if err := data.Set("description", l.Description); err != nil {
@@ -565,4 +582,31 @@ func deleteWebhook(_ context.Context, data *schema.ResourceData, i interface{}) 
 	}
 
 	return nil
+}
+
+func resourceWebhookV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"data": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func resourceWebhookUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	if v, ok := rawState["data"]; ok {
+		if dataMap, ok := v.(map[string]interface{}); ok {
+			jsonBytes, err := json.Marshal(dataMap)
+			if err != nil {
+				return nil, err
+			}
+
+			rawState["data"] = string(jsonBytes)
+		}
+	}
+
+	return rawState, nil
 }

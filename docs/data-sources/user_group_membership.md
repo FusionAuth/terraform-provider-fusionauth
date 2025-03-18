@@ -22,5 +22,5 @@ All of the argument attributes are also exported as result attributes.
 
 The following additional attributes are exported:
 
-* `data` - (Optional) An object that can hold any information about the User for this membership that should be persisted.
-* `membership_id` - (Optional) The Id of the User Group Membership. If not provided, a random UUID will be generated.
+* `data` - A JSON string that can hold any information about the User for this membership that should be persisted.
+* `membership_id` - The Id of the User Group Membership. If not provided, a random UUID will be generated.

@@ -7,6 +7,7 @@ import (
 )
 
 func buildApplication(data *schema.ResourceData) fusionauth.Application {
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
 	a := fusionauth.Application{
 		TenantId: data.Get("tenant_id").(string),
 		AuthenticationTokenConfiguration: fusionauth.AuthenticationTokenConfiguration{
@@ -22,7 +23,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 				Enableable:    buildEnableable("clean_speak_configuration.0.username_moderation.0.enabled", data),
 			},
 		},
-		Data: data.Get("data").(map[string]interface{}),
+		Data: resourceData,
 		FormConfiguration: fusionauth.ApplicationFormConfiguration{
 			AdminRegistrationFormId: data.Get("form_configuration.0.admin_registration_form_id").(string),
 			SelfServiceFormConfiguration: fusionauth.SelfServiceFormConfiguration{
@@ -257,7 +258,12 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.clean_speak_configuration: %s", err.Error())
 	}
 
-	if err := data.Set("data", a.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(a.Data)
+	if diags != nil {
+		return diags
+	}
+	err = data.Set("data", dataJSON)
+	if err != nil {
 		return diag.Errorf("application.data: %s", err.Error())
 	}
 

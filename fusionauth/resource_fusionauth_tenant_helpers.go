@@ -10,8 +10,9 @@ import (
 )
 
 func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics) {
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
 	tenant := fusionauth.Tenant{
-		Data: data.Get("data").(map[string]interface{}),
+		Data: resourceData,
 		EmailConfiguration: fusionauth.EmailConfiguration{
 			Debug:                                data.Get("email_configuration.0.debug").(bool),
 			EmailUpdateEmailTemplateId:           data.Get("email_configuration.0.email_update_email_template_id").(string),
@@ -470,7 +471,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.tenant_id: %s", err.Error())
 	}
 
-	if err := data.Set("data", t.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(t.Data)
+	if diags != nil {
+		return diags
+	}
+	if err := data.Set("data", dataJSON); err != nil {
 		return diag.Errorf("tenant.data: %s", err.Error())
 	}
 

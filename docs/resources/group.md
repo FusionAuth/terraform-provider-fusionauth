@@ -25,6 +25,6 @@ resource "fusionauth_group" "my_group" {
 
 ---
 
-* `data` - (Optional) An object that can hold any information about the Group that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the Group that should be persisted.
 * `group_id` - (Optional) The Id to use for the new Group. If not specified a secure random UUID will be generated.
 * `role_ids` - (Optional) The Application Roles to assign to this group.

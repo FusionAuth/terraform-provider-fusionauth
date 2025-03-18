@@ -24,9 +24,9 @@ All of the argument attributes are also exported as result attributes.
 
 The following additional attributes are exported:
 
-* `data` - (Optional) An object that can hold any information about the OAuth Scope that should be persisted.
-* `default_consent_detail` - (Optional) "The default detail to display on the OAuth consent screen if one cannot be found in the theme.
-* `default_consent_message` - (Optional) The default message to display on the OAuth consent screen if one cannot be found in the theme.
-* `description` - (Optional) A description of the OAuth Scope. This is used for display purposes only.
-* `required` - (Optional) Determines if the OAuth Scope is required when requested in an OAuth workflow.
-* `scope_id` - (Optional) The Id to use for the new OAuth Scope. If not specified a secure random UUID will be generated.
+* `data` - A JSON string that can hold any information about the OAuth Scope that should be persisted.
+* `default_consent_detail` - The default detail to display on the OAuth consent screen if one cannot be found in the theme.
+* `default_consent_message` - The default message to display on the OAuth consent screen if one cannot be found in the theme.
+* `description` - A description of the OAuth Scope. This is used for display purposes only.
+* `required` - Determines if the OAuth Scope is required when requested in an OAuth workflow.
+* `scope_id` - he Id to use for the new OAuth Scope. If not specified a secure random UUID will be generated.

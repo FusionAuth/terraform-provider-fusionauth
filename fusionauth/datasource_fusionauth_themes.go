@@ -42,7 +42,7 @@ func dataSourceTheme() *schema.Resource {
 			},
 			// Data Source Attributes
 			"data": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "An object that can hold any information about the Theme that should be persisted.",
 			},

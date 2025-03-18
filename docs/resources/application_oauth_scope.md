@@ -29,7 +29,7 @@ resource "fusionauth_application_oauth_scope" "this" {
 
 ---
 
-* `data` - (Optional) An object that can hold any information about the OAuth Scope that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the OAuth Scope that should be persisted.
 * `default_consent_detail` - (Optional) "The default detail to display on the OAuth consent screen if one cannot be found in the theme.
 * `default_consent_message` - (Optional) The default message to display on the OAuth consent screen if one cannot be found in the theme.
 * `description` - (Optional) A description of the OAuth Scope. This is used for display purposes only.

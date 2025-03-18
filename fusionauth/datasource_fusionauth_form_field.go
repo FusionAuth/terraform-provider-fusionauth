@@ -50,7 +50,7 @@ func dataSourceFormField() *schema.Resource {
 				}, false),
 			},
 			"data": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "An object that can hold any information about the Form Field that should be persisted.",
 			},

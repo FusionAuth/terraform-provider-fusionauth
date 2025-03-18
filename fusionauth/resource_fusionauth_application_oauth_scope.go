@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
@@ -32,10 +33,11 @@ func newApplicationOAuthScope() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the OAuth Scope that should be persisted.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the Application OAuth Scope that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"default_consent_detail": {
 				Type:        schema.TypeString,
@@ -65,6 +67,14 @@ func newApplicationOAuthScope() *schema.Resource {
 				Description: "Determines if the OAuth Scope is required when requested in an OAuth workflow.",
 			},
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceApplicationOAuthScopeV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceApplicationOAuthScopeUpgradeV0,
+				Version: 0,
+			},
+		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -82,11 +92,13 @@ func buildApplicationOAuthScope(data *schema.ResourceData) fusionauth.Applicatio
 		sid = si
 	}
 
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
+
 	oas := fusionauth.ApplicationOAuthScopeRequest{
 		Scope: fusionauth.ApplicationOAuthScope{
 			ApplicationId:         aid,
 			Id:                    sid,
-			Data:                  data.Get("data").(map[string]interface{}),
+			Data:                  resourceData,
 			DefaultConsentMessage: data.Get("default_consent_message").(string),
 			DefaultConsentDetail:  data.Get("default_consent_detail").(string),
 			Description:           data.Get("description").(string),
@@ -148,6 +160,14 @@ func readApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i i
 	if err := data.Set("data", oas.Data); err != nil {
 		return diag.Errorf("scope.data: %s", err.Error())
 	}
+	dataJSON, diags := mapStringInterfaceToJSONString(oas.Data)
+	if diags != nil {
+		return diags
+	}
+	err = data.Set("data", dataJSON)
+	if err != nil {
+		return diag.Errorf("scope.data: %s", err.Error())
+	}
 	if err := data.Set("default_consent_detail", oas.DefaultConsentDetail); err != nil {
 		return diag.Errorf("scope.default_consent_detail: %s", err.Error())
 	}
@@ -199,4 +219,31 @@ func deleteApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i
 	}
 
 	return nil
+}
+
+func resourceApplicationOAuthScopeV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"data": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func resourceApplicationOAuthScopeUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	if v, ok := rawState["data"]; ok {
+		if dataMap, ok := v.(map[string]interface{}); ok {
+			jsonBytes, err := json.Marshal(dataMap)
+			if err != nil {
+				return nil, err
+			}
+
+			rawState["data"] = string(jsonBytes)
+		}
+	}
+
+	return rawState, nil
 }

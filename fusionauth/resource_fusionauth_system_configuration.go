@@ -2,11 +2,13 @@ package fusionauth
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSystemConfiguration() *schema.Resource {
@@ -112,9 +114,11 @@ func resourceSystemConfiguration() *schema.Resource {
 				},
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the Form that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the System Configuration that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"event_log_configuration": {
 				Type:       schema.TypeList,
@@ -272,6 +276,17 @@ func resourceSystemConfiguration() *schema.Resource {
 				},
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceSystemConfigurationV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceSystemConfigurationUpgradeV0,
+				Version: 0,
+			},
+		},
 	}
 }
 
@@ -387,7 +402,7 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 	}
 
 	if _, ok := data.GetOk("data"); ok {
-		sc.SystemConfiguration.Data = data.Get("data").(map[string]interface{})
+		sc.SystemConfiguration.Data, _ = jsonStringToMapStringInterface(data.Get("data").(string))
 	}
 
 	if v, ok := data.GetOk("event_log_configuration.0.number_to_retain"); ok {
@@ -470,7 +485,12 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		return diag.Errorf("system_configuration.cors_configuration: %s", err.Error())
 	}
 
-	if err := data.Set("data", sc.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(sc.Data)
+	if diags != nil {
+		return diags
+	}
+	err = data.Set("data", dataJSON)
+	if err != nil {
 		return diag.Errorf("system_configuration.data: %s", err.Error())
 	}
 
@@ -608,4 +628,31 @@ func getDefaultSystemConfigurationRequest() fusionauth.SystemConfigurationReques
 			},
 		},
 	}
+}
+
+func resourceSystemConfigurationV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"data": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func resourceSystemConfigurationUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	if v, ok := rawState["data"]; ok {
+		if dataMap, ok := v.(map[string]interface{}); ok {
+			jsonBytes, err := json.Marshal(dataMap)
+			if err != nil {
+				return nil, err
+			}
+
+			rawState["data"] = string(jsonBytes)
+		}
+	}
+
+	return rawState, nil
 }

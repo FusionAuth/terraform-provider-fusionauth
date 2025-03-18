@@ -14,10 +14,9 @@ func dataSourceUserGroupMembership() *schema.Resource {
 		ReadContext: dataSourceUserGroupMembershipRead,
 		Schema: map[string]*schema.Schema{
 			"data": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "An object that can hold any information about the User for this membership that should be persisted.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"group_id": {
 				Type:        schema.TypeString,
@@ -68,7 +67,12 @@ func dataSourceUserGroupMembershipRead(_ context.Context, data *schema.ResourceD
 	}
 	if resp.Total == 1 {
 		data.SetId(gmsresp[0].Id)
-		if err := data.Set("data", gmsresp[0].Data); err != nil {
+		dataJSON, diags := mapStringInterfaceToJSONString(gmsresp[0].Data)
+		if diags != nil {
+			return diags
+		}
+		err = data.Set("data", dataJSON)
+		if err != nil {
 			return diag.Errorf("Error setting data: %v", err)
 		}
 		if err := data.Set("group_id", gmsresp[0].GroupId); err != nil {

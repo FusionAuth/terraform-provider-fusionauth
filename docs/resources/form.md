@@ -29,6 +29,6 @@ resource "fusionauth_form" "form" {
 
 ---
 
-* `data` - (Optional) An object that can hold any information about the Form Field that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the Form Field that should be persisted.
 * `form_id` - (Optional) The Id to use for the new Form. If not specified a secure random UUID will be generated.
 * `type` - (Optional) The type of form being created, a form type cannot be changed after the form has been created.

@@ -39,7 +39,7 @@ resource "fusionauth_system_configuration" "example" {
   * `enabled` - (Optional) Whether the FusionAuth CORS filter will process requests made to FusionAuth.
   * `exposed_headers` - (Optional) The Access-Control-Expose-Headers response header values as described by MDN Access-Control-Expose-Headers.
   * `preflight_max_age_in_seconds` - (Optional) The Access-Control-Max-Age response header values as described by MDN Access-Control-Max-Age.
-* `data` - (Optional) An object that can hold any information about the System that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the System that should be persisted.
 * `event_log_configuration` - (Optional)
   * `number_to_retain` - (Optional) The number of events to retain. Once the the number of event logs exceeds this configured value they will be deleted starting with the oldest event logs.
 * `login_record_configuration` - (Optional)

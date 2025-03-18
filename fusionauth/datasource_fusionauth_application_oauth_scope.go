@@ -29,10 +29,9 @@ func dataSourceApplicationOAuthScope() *schema.Resource {
 				Description: "The Id to use for the new OAuth Scope. If not specified a secure random UUID will be generated.",
 			},
 			"data": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The data to associate with the scope.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"default_consent_detail": {
 				Type:        schema.TypeString,
@@ -88,7 +87,12 @@ func dataSourceApplicationOAuthScopeRead(_ context.Context, data *schema.Resourc
 	if err := data.Set("scope_id", scope.Id); err != nil {
 		return diag.Errorf("scope.scope_id: %s", err.Error())
 	}
-	if err := data.Set("data", scope.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(scope.Data)
+	if diags != nil {
+		return diags
+	}
+	err = data.Set("data", dataJSON)
+	if err != nil {
 		return diag.Errorf("scope.data: %s", err.Error())
 	}
 	if err := data.Set("default_consent_detail", scope.DefaultConsentDetail); err != nil {
