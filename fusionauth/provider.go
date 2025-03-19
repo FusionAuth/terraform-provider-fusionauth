@@ -48,6 +48,7 @@ func Provider() *schema.Provider {
 			"fusionauth_imported_key":             resourceImportedKey(),
 			"fusionauth_key":                      newKey(),
 			"fusionauth_lambda":                   newLambda(),
+			"fusionauth_ldap_connector":           newLDAPConnector(),
 			"fusionauth_reactor":                  newReactor(),
 			"fusionauth_registration":             newRegistration(),
 			"fusionauth_system_configuration":     resourceSystemConfiguration(),
