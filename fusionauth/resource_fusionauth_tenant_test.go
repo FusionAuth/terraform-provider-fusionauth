@@ -103,8 +103,7 @@ func testTenantAccTestCheckFuncs(
 		testAccCheckConnectorPolicies(tfResourcePath, genericConnectorIncluded),
 
 		// user data
-		resource.TestCheckResourceAttr(tfResourcePath, "data.user", "data"),
-		resource.TestCheckResourceAttr(tfResourcePath, "data.lives", "here"),
+		testCheckResourceAttrJSON(tfResourcePath, "data", `{"user":"data","lives":"here"}`),
 
 		// email_configuration
 		testAccCheckEmailConfigurationAdditionalHeaders(tfResourcePath),
@@ -481,10 +480,10 @@ resource "fusionauth_tenant" "test_%[1]s" {
   #source_tenant_id = "UUID"
   #tenant_id        = "UUID"
   # connector policies %[6]s
-  data = {
-    user  = "data"
-    lives = "here"
-  }
+  data = jsonencode({
+	user  = "data"
+	lives = "here"
+  })
   email_configuration {
     default_from_name  = "noreply"
     additional_headers = {
