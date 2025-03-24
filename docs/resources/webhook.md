@@ -100,4 +100,7 @@ resource "fusionauth_webhook" "example" {
 * `ssl_certificate` - (Optional) An SSL certificate in PEM format that is used to establish the a SSL (TLS specifically) connection to the Webhook.
 * `ssl_certificate_key_id` - (Optional) The Id of an existing Key. The X.509 certificate is used for client certificate authentication in requests to the Webhook.
 * `tenant_ids` - (Optional) The Ids of the tenants that this Webhook should be associated with. If no Ids are specified and the global field is false, this Webhook will not be used.
-* `webhook_id` - (Computed) The Id to use for the new Webhook. If not specified a secure random UUID will be generated.
+
+> **Note on webhook-tenant relationships**: When managing webhooks with Terraform, it's recommended to use this `tenant_ids` parameter to associate webhooks with tenants rather than using the `webhook_ids` parameter in the tenant resource. Only use the tenant's `webhook_ids` parameter if you need to reference webhooks that aren't being deployed via Terraform (e.g., pre-existing webhooks). Using the `tenant_ids` parameter here avoids unnecessary diffs in the Terraform plan when both resources are managed by Terraform.
+
+* `webhook_id` - (Optional) The Id to use for the new Webhook. If not specified a secure random UUID will be generated.
