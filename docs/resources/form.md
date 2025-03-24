@@ -8,9 +8,9 @@ A FusionAuth Form is a customizable object that contains one-to-many ordered ste
 
 ```hcl
 resource "fusionauth_form" "form" {
-  data = {
-    "description" : "This form customizes the registration experience."
-  }
+  data = jsonencode({
+    createdBy = "jared@fusionauth.io"
+  })
   name = "Custom Registration Form"
   steps {
     fields = ["91909721-7d4f-b110-8f21-cfdee2a1edb8"]

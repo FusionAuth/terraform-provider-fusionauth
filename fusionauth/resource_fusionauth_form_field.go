@@ -69,8 +69,9 @@ func resourceFormField() *schema.Resource {
 			},
 			"key": {
 				Type:         schema.TypeString,
-				Required:     true,
-				Description:  "The key is the path to the value in the user or registration object.",
+				Computed:     true,
+				Optional:     true,
+				Description:  "The key is the path to the value in the user or registration object. Not required when type is 'consent'.",
 				ValidateFunc: validateKey,
 				ForceNew:     true,
 			},
@@ -144,6 +145,13 @@ func resourceFormField() *schema.Resource {
 }
 
 func createFormField(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+	// Validate key is provided for non-consent types
+	formType := data.Get("type").(string)
+	key := data.Get("key").(string)
+	if formType != "consent" && key == "" {
+		return diag.Errorf("key is required for form fields of type other than 'consent'")
+	}
+
 	client := i.(Client)
 	f := buildFormField(data)
 	var fid string
@@ -284,6 +292,10 @@ func validateKey(i interface{}, k string) (warnings []string, errors []error) {
 	v, ok := i.(string)
 	if !ok {
 		errors = append(errors, fmt.Errorf("expected type of %q to be string", k))
+		return warnings, errors
+	}
+	// If the key is empty, return no warnings or errors
+	if v == "" {
 		return warnings, errors
 	}
 

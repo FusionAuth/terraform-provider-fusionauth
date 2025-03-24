@@ -9,10 +9,9 @@ The Application OAuth Scope resource allows you to define the scopes that an app
 ```hcl
 resource "fusionauth_application_oauth_scope" "this" {
   application_id = fusionauth_application.this.id
-  data = {
-    "addedBy" = "Tom",
-    "addedOn" = "2025-02-05"
-  }
+  data = jsonencode({
+    createdBy = "jared@fusionauth.io"
+  })
   default_consent_detail  = "This will provide the requesting application read-only access to your data"
   default_consent_message = "View your data"
   description             = "Provides an application read-only access to a user's data"
