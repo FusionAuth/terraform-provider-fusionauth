@@ -61,7 +61,6 @@ func resourceFormField() *schema.Resource {
 				DiffSuppressFunc: diffSuppressJSON,
 				ValidateFunc:     validation.StringIsJSON,
 			},
-
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
