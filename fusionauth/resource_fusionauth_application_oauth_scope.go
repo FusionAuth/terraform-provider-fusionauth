@@ -233,7 +233,7 @@ func resourceApplicationOAuthScopeV0() *schema.Resource {
 	}
 }
 
-func resourceApplicationOAuthScopeUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceApplicationOAuthScopeUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	if v, ok := rawState["data"]; ok {
 		if dataMap, ok := v.(map[string]interface{}); ok {
 			jsonBytes, err := json.Marshal(dataMap)

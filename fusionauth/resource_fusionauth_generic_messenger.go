@@ -107,7 +107,7 @@ func buildGenericMessenger(data *schema.ResourceData) fusionauth.GenericMessenge
 
 	if i, ok := data.GetOk("data"); ok {
 		resourceData, _ := jsonStringToMapStringInterface(i.(string))
-		messenger.BaseMessengerConfiguration.Data = resourceData
+		messenger.Data = resourceData
 	}
 
 	if i, ok := data.GetOk("headers"); ok {

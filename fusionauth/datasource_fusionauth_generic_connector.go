@@ -106,9 +106,11 @@ func dataSourceGenericConnectorRead(ctx context.Context, data *schema.ResourceDa
 	}
 
 	var connector fusionauth.GenericConnectorConfiguration
-	if resp.Connector.Id != "" {
+	switch {
+	case resp.Connector.Id != "":
 		connector = resp.Connector
-	} else if len(resp.Connectors) > 0 {
+
+	case len(resp.Connectors) > 0:
 		found := false
 		for _, c := range resp.Connectors {
 			if c.Name == searchTerm && c.Type == "Generic" {
@@ -120,7 +122,8 @@ func dataSourceGenericConnectorRead(ctx context.Context, data *schema.ResourceDa
 		if !found {
 			return diag.Errorf("Couldn't find Generic Connector with name '%s'", searchTerm)
 		}
-	} else {
+
+	default:
 		return diag.Errorf("No Generic Connectors found matching '%s'", searchTerm)
 	}
 

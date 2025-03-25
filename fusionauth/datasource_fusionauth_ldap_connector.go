@@ -138,9 +138,10 @@ func dataSourceLDAPConnectorRead(ctx context.Context, data *schema.ResourceData,
 	}
 
 	var connector fusionauth.LDAPConnectorConfiguration
-	if resp.Connector.Id != "" {
+	switch {
+	case resp.Connector.Id != "":
 		connector = resp.Connector
-	} else if len(resp.Connectors) > 0 {
+	case len(resp.Connectors) > 0:
 		found := false
 		for _, c := range resp.Connectors {
 			if c.Name == searchTerm && c.Type == "LDAP" {
@@ -152,7 +153,7 @@ func dataSourceLDAPConnectorRead(ctx context.Context, data *schema.ResourceData,
 		if !found {
 			return diag.Errorf("Couldn't find LDAP Connector with name '%s'", searchTerm)
 		}
-	} else {
+	default:
 		return diag.Errorf("No LDAP Connectors found matching '%s'", searchTerm)
 	}
 

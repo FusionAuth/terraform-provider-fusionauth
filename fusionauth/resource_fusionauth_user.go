@@ -221,8 +221,8 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 	if err := data.Set("timezone", resp.User.Timezone); err != nil {
 		return diag.Errorf("user.timezone: %s", err.Error())
 	}
-	if resp.User.SecureIdentity.EncryptionScheme != "" {
-		if err := data.Set("encryption_scheme", resp.User.SecureIdentity.EncryptionScheme); err != nil {
+	if resp.User.EncryptionScheme != "" {
+		if err := data.Set("encryption_scheme", resp.User.EncryptionScheme); err != nil {
 			return diag.Errorf("user.encryption_scheme: %s", err.Error())
 		}
 	} else {
@@ -230,8 +230,8 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 			return diag.Errorf("user.encryption_scheme: %s", err.Error())
 		}
 	}
-	if resp.User.SecureIdentity.Factor != 0 {
-		if err := data.Set("factor", resp.User.SecureIdentity.Factor); err != nil {
+	if resp.User.Factor != 0 {
+		if err := data.Set("factor", resp.User.Factor); err != nil {
 			return diag.Errorf("user.factor: %s", err.Error())
 		}
 	} else {

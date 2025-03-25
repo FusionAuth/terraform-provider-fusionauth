@@ -81,7 +81,6 @@ func testAccConsentBasicConfig(
 	data string,
 	values []string,
 	withEmailPlus bool) string {
-
 	valuesStr := ""
 	for _, v := range values {
 		valuesStr += fmt.Sprintf(`"%s", `, v)
@@ -136,7 +135,6 @@ func testConsentAccTestCheckFuncs(
 	multipleValues,
 	data string,
 	valuesCount int) resource.TestCheckFunc {
-
 	return resource.ComposeTestCheckFunc(
 		testAccCheckConsentExists(tfResourcePath),
 		resource.TestCheckResourceAttr(tfResourcePath, "name", name),

@@ -284,7 +284,7 @@ func resourceUserRegistrationV0() *schema.Resource {
 	}
 }
 
-func resourceUserRegistrationUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceUserRegistrationUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	if v, ok := rawState["data"]; ok {
 		if dataMap, ok := v.(map[string]interface{}); ok {
 			jsonBytes, err := json.Marshal(dataMap)

@@ -596,7 +596,7 @@ func resourceWebhookV0() *schema.Resource {
 	}
 }
 
-func resourceWebhookUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceWebhookUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	if v, ok := rawState["data"]; ok {
 		if dataMap, ok := v.(map[string]interface{}); ok {
 			jsonBytes, err := json.Marshal(dataMap)

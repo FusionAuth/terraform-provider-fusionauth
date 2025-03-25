@@ -101,8 +101,8 @@ func importEntity(ctx context.Context, d *schema.ResourceData, m interface{}) ([
 	// Support importing in the format "tenant_id:entity_id"
 	parts := strings.SplitN(d.Id(), ":", 2)
 
-	entityId := parts[1]
-	d.SetId(entityId)
+	entityID := parts[1]
+	d.SetId(entityID)
 
 	// If tenantId was provided in the import string, set it in the state
 	if len(parts) == 2 && parts[1] != "" {

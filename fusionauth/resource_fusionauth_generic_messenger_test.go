@@ -17,8 +17,8 @@ func TestAccGenericMessenger(t *testing.T) {
 
 	startURL, endURL := "http://example-start.com", "http://example-end.com"
 	startConnectTimeout, endConnectTimeout := "2048", "4096"
-	startHttpAuthenticationPassword, endHttpAuthenticationPassword := "super-secret-start", "super-secret-end"
-	startHttpAuthenticationUsername, endHttpAuthenticationUsername := "me", "me-too"
+	startHTTPAuthenticationPassword, endHTTPAuthenticationPassword := "super-secret-start", "super-secret-end"
+	startHTTPAuthenticationUsername, endHTTPAuthenticationUsername := "me", "me-too"
 	startName, endName := "my-test-messenger", "my-new-test-messenger"
 	startReadTimeout, endReadTimeout := "1111", "2222"
 
@@ -31,8 +31,8 @@ func TestAccGenericMessenger(t *testing.T) {
 					resourceName,
 					startURL,
 					startConnectTimeout,
-					startHttpAuthenticationPassword,
-					startHttpAuthenticationUsername,
+					startHTTPAuthenticationPassword,
+					startHTTPAuthenticationUsername,
 					startName,
 					startReadTimeout,
 				),
@@ -40,8 +40,8 @@ func TestAccGenericMessenger(t *testing.T) {
 					tfResourcePath,
 					startURL,
 					startConnectTimeout,
-					startHttpAuthenticationPassword,
-					startHttpAuthenticationUsername,
+					startHTTPAuthenticationPassword,
+					startHTTPAuthenticationUsername,
 					startName,
 					startReadTimeout,
 				),
@@ -51,8 +51,8 @@ func TestAccGenericMessenger(t *testing.T) {
 					resourceName,
 					endURL,
 					endConnectTimeout,
-					endHttpAuthenticationPassword,
-					endHttpAuthenticationUsername,
+					endHTTPAuthenticationPassword,
+					endHTTPAuthenticationUsername,
 					endName,
 					endReadTimeout,
 				),
@@ -60,8 +60,8 @@ func TestAccGenericMessenger(t *testing.T) {
 					tfResourcePath,
 					endURL,
 					endConnectTimeout,
-					endHttpAuthenticationPassword,
-					endHttpAuthenticationUsername,
+					endHTTPAuthenticationPassword,
+					endHTTPAuthenticationUsername,
 					endName,
 					endReadTimeout,
 				),

@@ -93,16 +93,16 @@ func importEntityTypePermission(ctx context.Context, d *schema.ResourceData, m i
 		return nil, fmt.Errorf("invalid import format, expected 'entity_type_id:permission_id'")
 	}
 
-	entityTypeId := parts[0]
-	permissionId := parts[1]
+	entityTypeID := parts[0]
+	permissionID := parts[1]
 
 	// Set the entity_type_id in state
-	if err := d.Set("entity_type_id", entityTypeId); err != nil {
+	if err := d.Set("entity_type_id", entityTypeID); err != nil {
 		return nil, err
 	}
 
 	// Set the permission ID as the resource ID
-	d.SetId(permissionId)
+	d.SetId(permissionID)
 
 	// Read the resource to populate the state
 	diags := readEntityTypePermission(ctx, d, m)

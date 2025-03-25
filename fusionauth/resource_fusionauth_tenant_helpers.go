@@ -374,7 +374,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 
 	// If the multi_factor_configuration block is not set then default authenticator to enabled
 	if _, ok := data.GetOk("multi_factor_configuration"); !ok {
-		tenant.MultiFactorConfiguration.Authenticator.Enableable.Enabled = true
+		tenant.MultiFactorConfiguration.Authenticator.Enabled = true
 	}
 
 	return tenant, append(connectorDiags, emailDiags...)

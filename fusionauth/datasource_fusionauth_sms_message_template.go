@@ -80,9 +80,11 @@ func dataSourceSMSMessageTemplateRead(ctx context.Context, data *schema.Resource
 	}
 
 	var template fusionauth.SMSMessageTemplate
-	if resp.MessageTemplate.Id != "" {
+	switch {
+	case resp.MessageTemplate.Id != "":
 		template = resp.MessageTemplate
-	} else if len(resp.MessageTemplates) > 0 {
+
+	case len(resp.MessageTemplates) > 0:
 		found := false
 		for _, t := range resp.MessageTemplates {
 			if t.Name == searchTerm && t.Type == fusionauth.MessageType_SMS {
@@ -94,7 +96,8 @@ func dataSourceSMSMessageTemplateRead(ctx context.Context, data *schema.Resource
 		if !found {
 			return diag.Errorf("Couldn't find SMS Message Template with name '%s'", searchTerm)
 		}
-	} else {
+
+	default:
 		return diag.Errorf("No SMS Message Templates found matching '%s'", searchTerm)
 	}
 

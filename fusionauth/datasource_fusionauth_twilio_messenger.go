@@ -96,9 +96,10 @@ func dataSourceTwilioMessengerRead(ctx context.Context, data *schema.ResourceDat
 	}
 
 	var messenger fusionauth.TwilioMessengerConfiguration
-	if resp.Messenger.Id != "" {
+	switch {
+	case resp.Messenger.Id != "":
 		messenger = resp.Messenger
-	} else if len(resp.Messengers) > 0 {
+	case len(resp.Messengers) > 0:
 		found := false
 		for _, m := range resp.Messengers {
 			if m.Name == searchTerm && m.Type == fusionauth.MessengerType_Twilio {
@@ -110,7 +111,7 @@ func dataSourceTwilioMessengerRead(ctx context.Context, data *schema.ResourceDat
 		if !found {
 			return diag.Errorf("Couldn't find Twilio Messenger with name '%s'", searchTerm)
 		}
-	} else {
+	default:
 		return diag.Errorf("No Twilio Messengers found matching '%s'", searchTerm)
 	}
 

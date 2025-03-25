@@ -71,7 +71,7 @@ func buildSMSMessageTemplate(data *schema.ResourceData) fusionauth.SMSMessageTem
 
 	if i, ok := data.GetOk("data"); ok {
 		resourceData, _ := jsonStringToMapStringInterface(i.(string))
-		template.MessageTemplate.Data = resourceData
+		template.Data = resourceData
 	}
 
 	if i, ok := data.GetOk("localized_templates"); ok {

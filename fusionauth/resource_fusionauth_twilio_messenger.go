@@ -92,7 +92,7 @@ func buildTwilioMessenger(data *schema.ResourceData) fusionauth.TwilioMessengerC
 
 	if i, ok := data.GetOk("data"); ok {
 		resourceData, _ := jsonStringToMapStringInterface(i.(string))
-		messenger.BaseMessengerConfiguration.Data = resourceData
+		messenger.Data = resourceData
 	}
 
 	return messenger

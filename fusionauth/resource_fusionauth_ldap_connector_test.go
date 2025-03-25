@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+// #nosec G101 - This test file contains fake credentials for testing purposes
 func TestAccLDAPConnector(t *testing.T) {
 	resourceName := randString10()
 	tfResourcePath := fmt.Sprintf("fusionauth_ldap_connector.test_%s", resourceName)
@@ -19,7 +20,7 @@ func TestAccLDAPConnector(t *testing.T) {
 	startBaseStructure, endBaseStructure := "dc=example,dc=start,dc=com", "dc=example,dc=end,dc=com"
 	startConnectTimeout, endConnectTimeout := "2048", "4096"
 	startIdentifyingAttribute, endIdentifyingAttribute := "uid", "cn"
-	startLoginIdAttribute, endLoginIdAttribute := "mail", "emailAddress"
+	startLoginIDAttribute, endLoginIDAttribute := "mail", "emailAddress"
 	startName, endName := "my-test-ldap-connector", "my-new-test-ldap-connector"
 	startReadTimeout, endReadTimeout := "1111", "2222"
 	startSystemAccountDN, endSystemAccountDN := "cn=admin,dc=example,dc=start,dc=com", "cn=admin,dc=example,dc=end,dc=com"
@@ -37,7 +38,7 @@ func TestAccLDAPConnector(t *testing.T) {
 					startBaseStructure,
 					startConnectTimeout,
 					startIdentifyingAttribute,
-					startLoginIdAttribute,
+					startLoginIDAttribute,
 					startName,
 					startReadTimeout,
 					startSecurityMethod,
@@ -50,7 +51,7 @@ func TestAccLDAPConnector(t *testing.T) {
 					startBaseStructure,
 					startConnectTimeout,
 					startIdentifyingAttribute,
-					startLoginIdAttribute,
+					startLoginIDAttribute,
 					startName,
 					startReadTimeout,
 					startSecurityMethod,
@@ -65,7 +66,7 @@ func TestAccLDAPConnector(t *testing.T) {
 					endBaseStructure,
 					endConnectTimeout,
 					endIdentifyingAttribute,
-					endLoginIdAttribute,
+					endLoginIDAttribute,
 					endName,
 					endReadTimeout,
 					endSecurityMethod,
@@ -78,7 +79,7 @@ func TestAccLDAPConnector(t *testing.T) {
 					endBaseStructure,
 					endConnectTimeout,
 					endIdentifyingAttribute,
-					endLoginIdAttribute,
+					endLoginIDAttribute,
 					endName,
 					endReadTimeout,
 					endSecurityMethod,
@@ -96,13 +97,12 @@ func testAccLDAPConnectorBasicConfig(
 	baseStructure,
 	connectTimeout,
 	identifyingAttribute,
-	loginIdAttribute,
+	loginIDAttribute,
 	name,
 	readTimeout,
 	securityMethod,
 	systemAccountDN,
 	systemAccountPassword string) string {
-
 	return fmt.Sprintf(`
 	resource "fusionauth_lambda" "test_%[1]s" {
 		name    = "test_%[1]s"
@@ -135,7 +135,7 @@ func testAccLDAPConnectorBasicConfig(
         system_account_dn      = "%[10]s"
         system_account_password = "%[11]s"
     }
-    `, resourceName, authenticationURL, baseStructure, connectTimeout, identifyingAttribute, loginIdAttribute, name, readTimeout, securityMethod, systemAccountDN, systemAccountPassword)
+    `, resourceName, authenticationURL, baseStructure, connectTimeout, identifyingAttribute, loginIDAttribute, name, readTimeout, securityMethod, systemAccountDN, systemAccountPassword)
 }
 
 func testLDAPConnectorAccTestCheckFuncs(
@@ -144,13 +144,12 @@ func testLDAPConnectorAccTestCheckFuncs(
 	baseStructure,
 	connectTimeout,
 	identifyingAttribute,
-	loginIdAttribute,
+	loginIDAttribute,
 	name,
 	readTimeout,
 	securityMethod,
 	systemAccountDN,
 	systemAccountPassword string) resource.TestCheckFunc {
-
 	return resource.ComposeTestCheckFunc(
 		testAccCheckLDAPConnectorExists(tfResourcePath),
 		resource.TestCheckResourceAttr(tfResourcePath, "authentication_url", authenticationURL),
@@ -158,7 +157,7 @@ func testLDAPConnectorAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "connect_timeout", connectTimeout),
 		resource.TestCheckResourceAttr(tfResourcePath, "debug", "false"),
 		resource.TestCheckResourceAttr(tfResourcePath, "identifying_attribute", identifyingAttribute),
-		resource.TestCheckResourceAttr(tfResourcePath, "login_id_attribute", loginIdAttribute),
+		resource.TestCheckResourceAttr(tfResourcePath, "login_id_attribute", loginIDAttribute),
 		resource.TestCheckResourceAttr(tfResourcePath, "name", name),
 		resource.TestCheckResourceAttr(tfResourcePath, "read_timeout", readTimeout),
 		resource.TestCheckResourceAttr(tfResourcePath, "security_method", securityMethod),

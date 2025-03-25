@@ -107,9 +107,10 @@ func dataSourceGenericMessengerRead(ctx context.Context, data *schema.ResourceDa
 	}
 
 	var messenger fusionauth.GenericMessengerConfiguration
-	if resp.Messenger.Id != "" {
+	switch {
+	case resp.Messenger.Id != "":
 		messenger = resp.Messenger
-	} else if len(resp.Messengers) > 0 {
+	case len(resp.Messengers) > 0:
 		found := false
 		for _, m := range resp.Messengers {
 			if m.Name == searchTerm && m.Type == fusionauth.MessengerType_Generic {
@@ -121,7 +122,7 @@ func dataSourceGenericMessengerRead(ctx context.Context, data *schema.ResourceDa
 		if !found {
 			return diag.Errorf("Couldn't find Generic Messenger with name '%s'", searchTerm)
 		}
-	} else {
+	default:
 		return diag.Errorf("No Generic Messengers found matching '%s'", searchTerm)
 	}
 

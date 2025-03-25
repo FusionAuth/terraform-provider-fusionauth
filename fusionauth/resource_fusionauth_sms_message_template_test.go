@@ -72,7 +72,6 @@ func testAccSMSMessageTemplateBasicConfig(
 	defaultTemplate,
 	localizedFR,
 	localizedES string) string {
-
 	return fmt.Sprintf(`
     resource "fusionauth_sms_message_template" "test_%[1]s" {
         name             = "%[2]s"
@@ -92,7 +91,6 @@ func testSMSMessageTemplateAccTestCheckFuncs(
 	defaultTemplate,
 	localizedFR,
 	localizedES string) resource.TestCheckFunc {
-
 	// Replace $$ with $ to avoid escaping in the test.
 	defaultTemplate = strings.ReplaceAll(defaultTemplate, "$$", "$")
 	localizedFR = strings.ReplaceAll(localizedFR, "$$", "$")

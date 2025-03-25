@@ -83,7 +83,7 @@ func createApplicationRole(_ context.Context, data *schema.ResourceData, i inter
 	return applicationRoleToData(data, aid, resp)
 }
 
-func importApplicationRole(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func importApplicationRole(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	// Split the import ID on :
 	idParts := strings.Split(d.Id(), ":")
 	if len(idParts) != 2 {

@@ -100,102 +100,132 @@ func dataSourceConsent() *schema.Resource {
 	}
 }
 
-func dataSourceConsentRead(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceConsentRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
-	var resp *fusionauth.ConsentResponse
-	var retrieveError error
+	// Retrieve consent based on provided identifiers
+	consent, diags := retrieveConsent(client, data)
+	if diags != nil {
+		return diags
+	}
 
+	// Set the resource ID
+	data.SetId(consent.Id)
+
+	// Set all the consent properties
+	return setConsentProperties(data, consent)
+}
+
+// retrieveConsent gets a consent using either ID or name
+func retrieveConsent(client Client, data *schema.ResourceData) (*fusionauth.Consent, diag.Diagnostics) {
 	if id, ok := data.GetOk("consent_id"); ok {
-		resp, retrieveError = client.FAClient.RetrieveConsent(id.(string))
-		if retrieveError != nil {
-			return diag.Errorf("Error retrieving consent with id %s: %s", id, retrieveError)
-		}
-	} else if name, ok := data.GetOk("name"); ok {
-		// Retrieve all consents and find the one with matching name
-		searchName := name.(string)
-		consentsResp, retrieveError := client.FAClient.RetrieveConsents()
-		if retrieveError != nil {
-			return diag.Errorf("Error retrieving consents: %s", retrieveError)
-		}
+		return retrieveConsentByID(client, id.(string))
+	}
 
-		if err := checkResponse(consentsResp.StatusCode, nil); err != nil {
-			return diag.FromErr(err)
-		}
+	if name, ok := data.GetOk("name"); ok {
+		return retrieveConsentByName(client, name.(string))
+	}
 
-		// Find consent with matching name
-		found := false
-		for _, c := range consentsResp.Consents {
-			if c.Name == searchName {
-				// Once found, get the full consent details
-				resp, retrieveError = client.FAClient.RetrieveConsent(c.Id)
-				if retrieveError != nil {
-					return diag.Errorf("Error retrieving consent with id %s: %s", c.Id, retrieveError)
-				}
-				found = true
-				break
-			}
-		}
+	return nil, diag.Errorf("Either 'consent_id' or 'name' must be specified")
+}
 
-		if !found {
-			return diag.Errorf("Couldn't find Consent with name '%s'", searchName)
-		}
-	} else {
-		return diag.Errorf("Either 'consent_id' or 'name' must be specified")
+// retrieveConsentByID retrieves a consent using its ID
+func retrieveConsentByID(client Client, id string) (*fusionauth.Consent, diag.Diagnostics) {
+	resp, err := client.FAClient.RetrieveConsent(id)
+	if err != nil {
+		return nil, diag.Errorf("Error retrieving consent with id %s: %s", id, err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		return diag.Errorf("Consent not found")
+		return nil, diag.Errorf("Consent not found")
 	}
 
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
-		return diag.FromErr(err)
+		return nil, diag.FromErr(err)
 	}
 
-	consent := resp.Consent
-	data.SetId(consent.Id)
+	return &resp.Consent, nil
+}
 
-	if err := data.Set("name", consent.Name); err != nil {
-		return diag.Errorf("error setting consent.name: %s", err.Error())
+// retrieveConsentByName retrieves a consent using its name
+func retrieveConsentByName(client Client, name string) (*fusionauth.Consent, diag.Diagnostics) {
+	consentsResp, err := client.FAClient.RetrieveConsents()
+	if err != nil {
+		return nil, diag.Errorf("Error retrieving consents: %s", err)
 	}
 
-	if err := data.Set("consent_email_template_id", consent.ConsentEmailTemplateId); err != nil {
-		return diag.Errorf("error setting consent.consent_email_template_id: %s", err.Error())
+	if err := checkResponse(consentsResp.StatusCode, nil); err != nil {
+		return nil, diag.FromErr(err)
 	}
 
-	if err := data.Set("country_minimum_age_for_self_consent", consent.CountryMinimumAgeForSelfConsent); err != nil {
-		return diag.Errorf("error setting consent.country_minimum_age_for_self_consent: %s", err.Error())
+	// Find consent with matching name
+	for _, c := range consentsResp.Consents {
+		if c.Name == name {
+			// Once found, get the full consent details
+			return retrieveConsentByID(client, c.Id)
+		}
 	}
 
-	if err := data.Set("default_minimum_age_for_self_consent", consent.DefaultMinimumAgeForSelfConsent); err != nil {
-		return diag.Errorf("error setting consent.default_minimum_age_for_self_consent: %s", err.Error())
+	return nil, diag.Errorf("Couldn't find Consent with name '%s'", name)
+}
+
+// setConsentProperties sets all properties from the consent to the resource data
+func setConsentProperties(data *schema.ResourceData, consent *fusionauth.Consent) diag.Diagnostics {
+	// Helper function to reduce repeated error handling code
+	setField := func(key string, value interface{}) diag.Diagnostics {
+		if err := data.Set(key, value); err != nil {
+			return diag.Errorf("error setting consent.%s: %s", key, err.Error())
+		}
+		return nil
 	}
 
-	if err := data.Set("multiple_values_allowed", consent.MultipleValuesAllowed); err != nil {
-		return diag.Errorf("error setting consent.multiple_values_allowed: %s", err.Error())
+	// Set all fields
+	if diags := setField("name", consent.Name); diags != nil {
+		return diags
 	}
 
-	if err := data.Set("values", consent.Values); err != nil {
-		return diag.Errorf("error setting consent.values: %s", err.Error())
+	if diags := setField("consent_email_template_id", consent.ConsentEmailTemplateId); diags != nil {
+		return diags
 	}
 
+	if diags := setField("country_minimum_age_for_self_consent", consent.CountryMinimumAgeForSelfConsent); diags != nil {
+		return diags
+	}
+
+	if diags := setField("default_minimum_age_for_self_consent", consent.DefaultMinimumAgeForSelfConsent); diags != nil {
+		return diags
+	}
+
+	if diags := setField("multiple_values_allowed", consent.MultipleValuesAllowed); diags != nil {
+		return diags
+	}
+
+	if diags := setField("values", consent.Values); diags != nil {
+		return diags
+	}
+
+	// Handle the JSON data conversion
 	dataJSON, diags := mapStringInterfaceToJSONString(consent.Data)
 	if diags != nil {
 		return diags
 	}
-	if err := data.Set("data", dataJSON); err != nil {
-		return diag.Errorf("error setting consent.data: %s", err.Error())
+
+	if diags := setField("data", dataJSON); diags != nil {
+		return diags
 	}
 
-	if err := data.Set("email_plus", []interface{}{
+	// Set the email_plus nested object
+	emailPlus := []interface{}{
 		map[string]interface{}{
 			"email_template_id":                   consent.EmailPlus.EmailTemplateId,
 			"enabled":                             consent.EmailPlus.Enabled,
 			"maximum_time_to_send_email_in_hours": consent.EmailPlus.MaximumTimeToSendEmailInHours,
 			"minimum_time_to_send_email_in_hours": consent.EmailPlus.MinimumTimeToSendEmailInHours,
 		},
-	}); err != nil {
-		return diag.Errorf("error setting consent.email_plus: %s", err.Error())
+	}
+
+	if diags := setField("email_plus", emailPlus); diags != nil {
+		return diags
 	}
 
 	return nil

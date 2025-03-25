@@ -66,6 +66,8 @@ func testAccPreCheck(t *testing.T) {
 
 // testCheckResourceAttrJSON compares the specified resource's JSON serialized
 // attribute data against the expected data.
+//
+//nolint:unparam
 func testCheckResourceAttrJSON(resourceName, attributeName, expectedData string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
