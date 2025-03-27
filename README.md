@@ -25,7 +25,8 @@ Please continue to use and provide feedback on this provider as you have in the 
 * API Key
 * application
 * application/{application_id}/role
-* application/{application_id}/scope
+* application/{application_id}/oauth/scope
+* consent
 * email
 * entity
 * entity grant
@@ -35,26 +36,35 @@ Please continue to use and provide feedback on this provider as you have in the 
 * form field
 * group
 * generic connector
+* generic messenger
 * key
 * imported key
 * lambda
+* LDAP connector
 * identity provider
   * OpenID Connect
   * Google
   * Apple
   * External JWT
   * Facebook
+  * LinkedIn
   * SAML v2
+  * SAML v2 IdP Initiated
   * Sony PSN
   * Steam
   * Twitch
   * Xbox
+* reactor
+* registration
+* SMS message template
+* system configuration
 * themes
+* Twilio messenger
+* tenant
 * user
 * user action
 * user group membership
 * webhook
-* tenants
 
 ## Testing
 
