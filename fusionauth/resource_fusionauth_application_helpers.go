@@ -38,7 +38,10 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			RefreshTokenTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_ttl_minutes").(int),
 			TimeToLiveInSeconds:             data.Get("jwt_configuration.0.ttl_seconds").(int),
 			RefreshTokenExpirationPolicy:    fusionauth.RefreshTokenExpirationPolicy(data.Get("jwt_configuration.0.refresh_token_expiration_policy").(string)),
-			RefreshTokenUsagePolicy:         fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
+			RefreshTokenOneTimeUseConfiguration: fusionauth.RefreshTokenOneTimeUseConfiguration{
+				GracePeriodInSeconds: data.Get("jwt_configuration.0.refresh_token_one_time_use_grace_period_in_seconds").(int),
+			},
+			RefreshTokenUsagePolicy: fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
 			RefreshTokenSlidingWindowConfiguration: fusionauth.RefreshTokenSlidingWindowConfiguration{
 				MaximumTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_sliding_window_maximum_ttl_in_minutes").(int),
 			},
@@ -288,6 +291,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"access_token_id":                 a.JwtConfiguration.AccessTokenKeyId,
 			"id_token_key_id":                 a.JwtConfiguration.IdTokenKeyId,
 			"refresh_token_expiration_policy": a.JwtConfiguration.RefreshTokenExpirationPolicy,
+			"refresh_token_one_time_use_grace_period_in_seconds":  a.JwtConfiguration.RefreshTokenOneTimeUseConfiguration.GracePeriodInSeconds,
 			"refresh_token_sliding_window_maximum_ttl_in_minutes": a.JwtConfiguration.RefreshTokenSlidingWindowConfiguration.MaximumTimeToLiveInMinutes,
 			"refresh_token_ttl_minutes":                           a.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
 			"refresh_token_usage_policy":                          a.JwtConfiguration.RefreshTokenUsagePolicy,
