@@ -822,6 +822,12 @@ func newTenant() *schema.Resource {
 				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"allow_access_token_bootstrap": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When enabled, an SSO session can be created after login by providing an access token as a bearer token in a request to the OAuth2 Authorize endpoint.",
+						},
 						"device_trust_time_to_live_in_seconds": {
 							Type:        schema.TypeInt,
 							Optional:    true,

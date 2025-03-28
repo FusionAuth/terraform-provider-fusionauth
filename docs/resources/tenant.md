@@ -660,6 +660,7 @@ resource "fusionauth_tenant" "example" {
   * `server_entity_type_id` - (Required) The Entity Type that will be used to represent SCIM Servers for this tenant. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.
 * `source_tenant_id` - (Optional) The optional Id of an existing Tenant to make a copy of. If present, the tenant.id and tenant.name values of the request body will be applied to the new Tenant, all other values will be copied from the source Tenant to the new Tenant.
 * `sso_configuration` - (Optional)
+  * `allow_access_token_bootstrap` - (Optional) When enabled, an SSO session can be created after login by providing an access token as a bearer token in a request to the OAuth2 Authorize endpoint. Defaults to `false`.
   * `device_trust_time_to_live_in_seconds` - (Optional) The number of seconds before a trusted device is reset. When reset, a user is forced to complete captcha during login and complete two factor authentication if applicable.
 * `tenant_id` - (Optional) The Id to use for the new Tenant. If not specified a secure random UUID will be generated.
 * `theme_id` - (Optional) The unique Id of the theme to be used to style the login page and other end user templates.

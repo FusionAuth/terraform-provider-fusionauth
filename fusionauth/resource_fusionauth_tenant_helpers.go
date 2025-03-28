@@ -322,6 +322,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			ServerEntityTypeId: data.Get("scim_server_configuration.0.server_entity_type_id").(string),
 		},
 		SsoConfiguration: fusionauth.TenantSSOConfiguration{
+			AllowAccessTokenBootstrap:      data.Get("sso_configuration.0.allow_access_token_bootstrap").(bool),
 			DeviceTrustTimeToLiveInSeconds: data.Get("sso_configuration.0.device_trust_time_to_live_in_seconds").(int),
 		},
 		ThemeId: data.Get("theme_id").(string),
@@ -882,6 +883,7 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 
 	err = data.Set("sso_configuration", []map[string]interface{}{
 		{
+			"allow_access_token_bootstrap":         t.SsoConfiguration.AllowAccessTokenBootstrap,
 			"device_trust_time_to_live_in_seconds": t.SsoConfiguration.DeviceTrustTimeToLiveInSeconds,
 		},
 	})
