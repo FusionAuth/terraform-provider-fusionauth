@@ -21,7 +21,7 @@ func newWebhook() *schema.Resource {
 			"tenant_ids": {
 				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
+				Computed:    true,
 				Description: "The Ids of the Tenants that this Webhook should be associated with. If no Ids are specified and the global field is false, this Webhook will not be used.",
 			},
 			"connect_timeout": {
