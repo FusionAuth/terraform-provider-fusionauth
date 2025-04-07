@@ -207,9 +207,7 @@ func makeMessageTemplateRequest(ctx context.Context, client fusionauth.FusionAut
 
 	restClient := client.Start(&resp, &errors)
 
-	/* Pattern elsewhere is to include an empty Request object for GET requests:
-	   With the /api/message/template/{id} endpoint, this causes a 400 error.
-	*/
+	// Set the request body only if the method is not GET
 	if method != http.MethodGet {
 		restClient.WithJSONBody(request)
 	}
