@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.23.7
 
 require (
-	github.com/FusionAuth/go-client v0.0.0-20250306234804-548642b6b786
+	github.com/FusionAuth/go-client v0.0.0-20250407195615-3d43b821c30d
 	github.com/hashicorp/go-cty v1.4.1
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.36.1

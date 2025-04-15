@@ -235,7 +235,6 @@ func makeTwilioMessengerRequest(ctx context.Context, client fusionauth.FusionAut
 
 	err := restClient.WithUri("/api/messenger").
 		WithUriSegment(messengerID).
-		WithJSONBody(request).
 		WithMethod(method).
 		Do(ctx)
 	if restClient.ErrorRef == nil {

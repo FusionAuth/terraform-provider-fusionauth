@@ -263,7 +263,6 @@ func makeConnectorRequest(ctx context.Context, client fusionauth.FusionAuthClien
 
 	err := restClient.WithUri("/api/connector").
 		WithUriSegment(connectorID).
-		WithJSONBody(request).
 		WithMethod(method).
 		Do(ctx)
 	if restClient.ErrorRef == nil {

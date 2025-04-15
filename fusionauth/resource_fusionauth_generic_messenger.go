@@ -260,7 +260,6 @@ func makeMessengerRequest(ctx context.Context, client fusionauth.FusionAuthClien
 
 	err := restClient.WithUri("/api/messenger").
 		WithUriSegment(messengerID).
-		WithJSONBody(request).
 		WithMethod(method).
 		Do(ctx)
 	if restClient.ErrorRef == nil {
