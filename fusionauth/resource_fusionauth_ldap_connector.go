@@ -316,7 +316,6 @@ func makeLDAPConnectorRequest(ctx context.Context, client fusionauth.FusionAuthC
 
 	err := restClient.WithUri("/api/connector").
 		WithUriSegment(connectorID).
-		WithJSONBody(request).
 		WithMethod(method).
 		Do(ctx)
 	if restClient.ErrorRef == nil {
