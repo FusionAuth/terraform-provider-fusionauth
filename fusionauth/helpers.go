@@ -20,7 +20,9 @@ func handleStringSliceFromList(list []interface{}) []string {
 	s := make([]string, 0, len(list))
 
 	for _, x := range list {
-		s = append(s, x.(string))
+		if x != nil {
+			s = append(s, x.(string))
+		}
 	}
 
 	return s

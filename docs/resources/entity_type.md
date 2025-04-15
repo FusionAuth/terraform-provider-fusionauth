@@ -26,7 +26,7 @@ resource "fusionauth_entity_type" "company" {
 
 ---
 
-* `data` - (Optional) An object that can hold any information about the Entity Type that should be persisted. Must be aJSON string.
+* `data` - (Optional) A JSON string that can hold any information about the Entity Type that should be persisted. Must be aJSON string.
 * `entity_type_id` - (Optional) The ID to use for the new Entity Type. If not specified a secure random UUID will be generated.
 * `jwt_configuration` - (Optional) A block to configure JSON Web Token (JWT) options.
   * `enabled` - (Optional) Indicates if this application is using the JWT configuration defined here or the global JWT

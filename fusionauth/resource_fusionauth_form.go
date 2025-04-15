@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
@@ -24,9 +25,11 @@ func resourceForm() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the Form that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the Form that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -66,6 +69,14 @@ func resourceForm() *schema.Resource {
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceFormV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceFormUpgradeV0,
+				Version: 0,
+			},
 		},
 	}
 }
@@ -154,8 +165,10 @@ func buildForm(data *schema.ResourceData) fusionauth.Form {
 		})
 	}
 
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
+
 	return fusionauth.Form{
-		Data:  data.Get("data").(map[string]interface{}),
+		Data:  resourceData,
 		Name:  data.Get("name").(string),
 		Steps: steps,
 		Type:  fusionauth.FormType(data.Get("type").(string)),
@@ -163,9 +176,14 @@ func buildForm(data *schema.ResourceData) fusionauth.Form {
 }
 
 func buildResourceDataFromForm(data *schema.ResourceData, f fusionauth.Form) diag.Diagnostics {
-	if err := data.Set("data", f.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(f.Data)
+	if diags != nil {
+		return diags
+	}
+	if err := data.Set("data", dataJSON); err != nil {
 		return diag.Errorf("form.data: %s", err.Error())
 	}
+
 	if err := data.Set("name", f.Name); err != nil {
 		return diag.Errorf("form.name: %s", err.Error())
 	}
@@ -185,4 +203,31 @@ func buildResourceDataFromForm(data *schema.ResourceData, f fusionauth.Form) dia
 	}
 
 	return nil
+}
+
+func resourceFormV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"data": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func resourceFormUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+	if v, ok := rawState["data"]; ok {
+		if dataMap, ok := v.(map[string]interface{}); ok {
+			jsonBytes, err := json.Marshal(dataMap)
+			if err != nil {
+				return nil, err
+			}
+
+			rawState["data"] = string(jsonBytes)
+		}
+	}
+
+	return rawState, nil
 }

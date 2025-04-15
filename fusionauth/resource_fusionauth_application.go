@@ -15,6 +15,14 @@ func newApplication() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceApplicationV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceApplicationUpgradeV0,
+				Version: 0,
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"application_id": {
 				Type:         schema.TypeString,
@@ -89,9 +97,11 @@ func newApplication() *schema.Resource {
 				},
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the Application that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the Application that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"form_configuration": {
 				Type:             schema.TypeList,
@@ -336,6 +346,16 @@ func newApplication() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 				Description: "Whether or not registrations to this Application may be verified. When this is set to true the verificationEmailTemplateId parameter is also required.",
+			},
+			"unverified_behavior": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "Allow",
+				Description: "The behavior of the application when a user attempts to login with an unverified registration.",
+				ValidateFunc: validation.StringInSlice([]string{
+					"Allow",
+					"Gated",
+				}, false),
 			},
 			"email_configuration": {
 				Type:       schema.TypeList,
@@ -899,7 +919,7 @@ func newOAuthConfiguration() *schema.Resource {
 			"require_client_authentication": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     true,
+				Computed:    true,
 				Deprecated:  "In version 1.28.0 and beyond, client authentication can be managed via oauth_configuration.client_authentication_policy.",
 				Description: "Determines if the OAuth 2.0 Token endpoint requires client authentication. If this is enabled, the client must provide client credentials when using the Token endpoint. The client_id and client_secret may be provided using a Basic Authorization HTTP header, or by sending these parameters in the request body using POST data.",
 			},
@@ -953,12 +973,6 @@ func newJWTConfiguration() *schema.Resource {
 				Computed:    true,
 				Description: "The Id of the signing key used to sign the Id token.",
 			},
-			"refresh_token_ttl_minutes": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     43200,
-				Description: "The length of time in minutes the JWT refresh token will live before it is expired and is not able to be exchanged for a JWT.",
-			},
 			"refresh_token_expiration_policy": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -970,12 +984,25 @@ func newJWTConfiguration() *schema.Resource {
 					fusionauth.RefreshTokenExpirationPolicy_SlidingWindowWithMaximumLifetime.String(),
 				}, false),
 			},
+			"refresh_token_one_time_use_grace_period_in_seconds": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      0,
+				Description:  "The length of time specified in seconds that a one-time use token can be re-used. This value must be greater than `0` and less than `86,400` which is equal to 24 hours. Setting this value to 0 effectively disables the grace period which means a one-time token may not be reused. ",
+				ValidateFunc: validation.IntAtLeast(0),
+			},
 			"refresh_token_sliding_window_maximum_ttl_in_minutes": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      43200,
 				Description:  "The maximum lifetime of a refresh token when using a refresh token expiration policy of SlidingWindowWithMaximumLifetime. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
+			},
+			"refresh_token_ttl_minutes": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     43200,
+				Description: "The length of time in minutes the JWT refresh token will live before it is expired and is not able to be exchanged for a JWT.",
 			},
 			"refresh_token_usage_policy": {
 				Type:        schema.TypeString,

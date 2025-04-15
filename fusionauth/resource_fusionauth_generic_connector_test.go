@@ -76,7 +76,7 @@ func testAccGenericConnectorBasicConfig(resourceName, authenticationURL, connect
 	resource "fusionauth_generic_connector" "test_%[1]s" {
 		authentication_url           = "%[2]s"
 		connect_timeout              = %[3]s
-		data                         = { "important-key" : "important-value" }
+		data                         = jsonencode({ "important-key" : "important-value" })
 		debug                        = false
 		headers                      = { "header-key-1" : "one", "header-key-2" : "two" }
 		http_authentication_password = "%[4]s"
@@ -92,7 +92,7 @@ func testGenericConnectorAccTestCheckFuncs(tfResourcePath, authenticationURL, co
 		testAccCheckGenericConnectorExists(tfResourcePath),
 		resource.TestCheckResourceAttr(tfResourcePath, "authentication_url", authenticationURL),
 		resource.TestCheckResourceAttr(tfResourcePath, "connect_timeout", connectTimeout),
-		resource.TestCheckResourceAttr(tfResourcePath, "data.important-key", "important-value"),
+		testCheckResourceAttrJSON(tfResourcePath, "data", `{"important-key":"important-value"}`),
 		resource.TestCheckResourceAttr(tfResourcePath, "debug", "false"),
 		resource.TestCheckResourceAttr(tfResourcePath, "headers.header-key-1", "one"),
 		resource.TestCheckResourceAttr(tfResourcePath, "headers.header-key-2", "two"),

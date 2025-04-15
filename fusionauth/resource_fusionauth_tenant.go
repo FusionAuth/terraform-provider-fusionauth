@@ -119,9 +119,11 @@ func newTenant() *schema.Resource {
 				},
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the Tenant that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the Tenant that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"email_configuration": {
 				Type:             schema.TypeList,
@@ -820,6 +822,12 @@ func newTenant() *schema.Resource {
 				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"allow_access_token_bootstrap": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "When enabled, an SSO session can be created after login by providing an access token as a bearer token in a request to the OAuth2 Authorize endpoint.",
+						},
 						"device_trust_time_to_live_in_seconds": {
 							Type:        schema.TypeInt,
 							Optional:    true,
@@ -917,6 +925,14 @@ func newTenant() *schema.Resource {
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceTenantV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceTenantUpgradeV0,
+				Version: 0,
+			},
 		},
 	}
 }
@@ -1620,43 +1636,43 @@ func newLambdaConfiguration() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"login_validation_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				Description:  "The Id of the lambda that will be invoked at the end of a successful login request in order to extend custom validation of a login request.",
 				ValidateFunc: validation.IsUUID,
 			},
 			"scim_enterprise_user_request_converter_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				Description:  "The Id of a SCIM User Request lambda that will be used to convert the SCIM Enterprise User request to a FusionAuth User. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
 				ValidateFunc: validation.IsUUID,
 			},
 			"scim_enterprise_user_response_converter_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				Description:  "The Id of a SCIM User Response lambda that will be used to convert a FusionAuth Enterprise User to a SCIM Server response. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
 				ValidateFunc: validation.IsUUID,
 			},
 			"scim_group_request_converter_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				Description:  "The Id of a SCIM Group Request lambda that will be used to convert the SCIM Group request to a FusionAuth Group. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
 				ValidateFunc: validation.IsUUID,
 			},
 			"scim_group_response_converter_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				Description:  "The Id of a SCIM Group Response lambda that will be used to convert a FusionAuth Group to a SCIM Server response. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
 				ValidateFunc: validation.IsUUID,
 			},
 			"scim_user_request_converter_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				Description:  "The Id of a SCIM User Request lambda that will be used to convert the SCIM User request to a FusionAuth User. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
 				ValidateFunc: validation.IsUUID,
 			},
 			"scim_user_response_converter_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				Description:  "The Id of a SCIM User Response lambda that will be used to convert a FusionAuth User to a SCIM Server response. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.",
 				ValidateFunc: validation.IsUUID,
 			},

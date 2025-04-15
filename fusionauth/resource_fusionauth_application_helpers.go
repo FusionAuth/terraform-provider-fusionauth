@@ -7,6 +7,7 @@ import (
 )
 
 func buildApplication(data *schema.ResourceData) fusionauth.Application {
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
 	a := fusionauth.Application{
 		TenantId: data.Get("tenant_id").(string),
 		AuthenticationTokenConfiguration: fusionauth.AuthenticationTokenConfiguration{
@@ -22,7 +23,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 				Enableable:    buildEnableable("clean_speak_configuration.0.username_moderation.0.enabled", data),
 			},
 		},
-		Data: data.Get("data").(map[string]interface{}),
+		Data: resourceData,
 		FormConfiguration: fusionauth.ApplicationFormConfiguration{
 			AdminRegistrationFormId: data.Get("form_configuration.0.admin_registration_form_id").(string),
 			SelfServiceFormConfiguration: fusionauth.SelfServiceFormConfiguration{
@@ -37,7 +38,10 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			RefreshTokenTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_ttl_minutes").(int),
 			TimeToLiveInSeconds:             data.Get("jwt_configuration.0.ttl_seconds").(int),
 			RefreshTokenExpirationPolicy:    fusionauth.RefreshTokenExpirationPolicy(data.Get("jwt_configuration.0.refresh_token_expiration_policy").(string)),
-			RefreshTokenUsagePolicy:         fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
+			RefreshTokenOneTimeUseConfiguration: fusionauth.RefreshTokenOneTimeUseConfiguration{
+				GracePeriodInSeconds: data.Get("jwt_configuration.0.refresh_token_one_time_use_grace_period_in_seconds").(int),
+			},
+			RefreshTokenUsagePolicy: fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
 			RefreshTokenSlidingWindowConfiguration: fusionauth.RefreshTokenSlidingWindowConfiguration{
 				MaximumTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_sliding_window_maximum_ttl_in_minutes").(int),
 			},
@@ -170,6 +174,9 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		VerificationEmailTemplateId: data.Get("verification_email_template_id").(string),
 		VerificationStrategy:        fusionauth.VerificationStrategy(data.Get("verification_strategy").(string)),
 		VerifyRegistration:          data.Get("verify_registration").(bool),
+		Unverified: fusionauth.RegistrationUnverifiedOptions{
+			Behavior: fusionauth.UnverifiedBehavior(data.Get("unverified_behavior").(string)),
+		},
 		EmailConfiguration: fusionauth.ApplicationEmailConfiguration{
 			EmailVerificationEmailTemplateId:     data.Get("email_configuration.0.email_verification_template_id").(string),
 			EmailUpdateEmailTemplateId:           data.Get("email_configuration.0.email_update_template_id").(string),
@@ -254,7 +261,12 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.clean_speak_configuration: %s", err.Error())
 	}
 
-	if err := data.Set("data", a.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(a.Data)
+	if diags != nil {
+		return diags
+	}
+	err = data.Set("data", dataJSON)
+	if err != nil {
 		return diag.Errorf("application.data: %s", err.Error())
 	}
 
@@ -279,6 +291,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"access_token_id":                 a.JwtConfiguration.AccessTokenKeyId,
 			"id_token_key_id":                 a.JwtConfiguration.IdTokenKeyId,
 			"refresh_token_expiration_policy": a.JwtConfiguration.RefreshTokenExpirationPolicy,
+			"refresh_token_one_time_use_grace_period_in_seconds":  a.JwtConfiguration.RefreshTokenOneTimeUseConfiguration.GracePeriodInSeconds,
 			"refresh_token_sliding_window_maximum_ttl_in_minutes": a.JwtConfiguration.RefreshTokenSlidingWindowConfiguration.MaximumTimeToLiveInMinutes,
 			"refresh_token_ttl_minutes":                           a.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
 			"refresh_token_usage_policy":                          a.JwtConfiguration.RefreshTokenUsagePolicy,
@@ -533,6 +546,10 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	if err := data.Set("verify_registration", a.VerifyRegistration); err != nil {
 		return diag.Errorf("application.verify_registration: %s", err.Error())
+	}
+
+	if err := data.Set("unverified_behavior", a.Unverified.Behavior); err != nil {
+		return diag.Errorf("application.unverified_behavior: %s", err.Error())
 	}
 
 	err = data.Set("email_configuration", []map[string]interface{}{

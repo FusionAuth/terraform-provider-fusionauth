@@ -44,7 +44,7 @@ resource "fusionauth_webhook" "example" {
 
 ---
 
-* `data` - (Optional) An object that can hold any information about the Webhook that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the Webhook that should be persisted.
 * `description` - (Optional) A description of the Webhook. This is used for display purposes only.
 * `events_enabled` - (Optional) A mapping for the events that are enabled for this Webhook.
   * `audit_log_create` - (Optional) When an audit log is created
@@ -99,5 +99,8 @@ resource "fusionauth_webhook" "example" {
   * `signing_key_id` - (Optional) The UUID key used for signing the Webhook
 * `ssl_certificate` - (Optional) An SSL certificate in PEM format that is used to establish the a SSL (TLS specifically) connection to the Webhook.
 * `ssl_certificate_key_id` - (Optional) The Id of an existing Key. The X.509 certificate is used for client certificate authentication in requests to the Webhook.
-* `tenant_ids` - (Optional) The Ids of the tenants that this Webhook should be associated with. If no Ids are specified and the global field is false, this Webhook will not be used.
-* `webhook_id` - (Computed) The Id to use for the new Webhook. If not specified a secure random UUID will be generated.
+* `webhook_id` - (Optional) The Id to use for the new Webhook. If not specified a secure random UUID will be generated.
+
+## Attributes Reference
+
+* `tenant_ids` - The list of tenant ids that this Webhook is associated with.

@@ -39,7 +39,7 @@ resource "fusionauth_user" "example" {
 
 * `application_id` (Optional) An optional Application Id. When this value is provided, it will be used to resolve an application specific email template if you have configured transactional emails such as setup password, email verification and others.
 * `birth_date` - (Optional) An ISO-8601 formatted date of the User’s birthdate such as YYYY-MM-DD.
-* `data` - (Optional) An object that can hold any information about a User that should be persisted. Must be a JSON serialised string.
+* `data` - (Optional) A JSON string that can hold any information about a User that should be persisted. Must be a JSON serialised string.
 * `disable_domain_block` - (Optional) A tenant has the option to configure one or more email domains to be blocked in order to restrict email domains during user create or update. Setting this property equal to true will override the tenant configuration. See `registration_configuration.blocked_domains` in the Tenant resource.
 * `email` - (Optional) The User’s email address. An email address is a unique in FusionAuth and stored in lower case.
 * `encryption_scheme` - (Optional) The method for encrypting the User’s password.

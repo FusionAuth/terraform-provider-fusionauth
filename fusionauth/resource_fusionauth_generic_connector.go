@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
@@ -35,9 +36,11 @@ func newGenericConnector() *schema.Resource {
 				Description: "The connect timeout for the HTTP connection, in milliseconds. Value must be greater than 0.",
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the Connector that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the Generic Connector that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"debug": {
 				Type:        schema.TypeBool,
@@ -81,15 +84,24 @@ func newGenericConnector() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceGenericConnectorV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceGenericConnectorUpgradeV0,
+				Version: 0,
+			},
+		},
 	}
 }
 
 func buildGenericConnector(data *schema.ResourceData) fusionauth.GenericConnectorConfiguration {
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
 	connector := fusionauth.GenericConnectorConfiguration{
 		AuthenticationURL: data.Get("authentication_url").(string),
 		BaseConnectorConfiguration: fusionauth.BaseConnectorConfiguration{
 			Id:    data.Get("id").(string),
-			Data:  data.Get("data").(map[string]interface{}),
+			Data:  resourceData,
 			Debug: data.Get("debug").(bool),
 			Name:  data.Get("name").(string),
 			Type:  fusionauth.ConnectorType_Generic,
@@ -147,7 +159,12 @@ func readGenericConnector(ctx context.Context, data *schema.ResourceData, i inte
 	if err := data.Set("connect_timeout", connector.ConnectTimeout); err != nil {
 		return diag.Errorf("connector.connect_timeout: %s", err.Error())
 	}
-	if err := data.Set("data", connector.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(connector.Data)
+	if diags != nil {
+		return diags
+	}
+	err = data.Set("data", dataJSON)
+	if err != nil {
 		return diag.Errorf("connector.data: %s", err.Error())
 	}
 	if err := data.Set("debug", connector.Debug); err != nil {
@@ -238,13 +255,45 @@ func makeConnectorRequest(ctx context.Context, client fusionauth.FusionAuthClien
 	var errors fusionauth.Errors
 
 	restClient := client.Start(&resp, &errors)
+
+	// Set the request body only if the method is not GET
+	if method != http.MethodGet {
+		restClient.WithJSONBody(request)
+	}
+
 	err := restClient.WithUri("/api/connector").
 		WithUriSegment(connectorID).
-		WithJSONBody(request).
 		WithMethod(method).
 		Do(ctx)
 	if restClient.ErrorRef == nil {
 		return &resp, nil, err
 	}
 	return &resp, &errors, err
+}
+
+func resourceGenericConnectorV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"data": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func resourceGenericConnectorUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+	if v, ok := rawState["data"]; ok {
+		if dataMap, ok := v.(map[string]interface{}); ok {
+			jsonBytes, err := json.Marshal(dataMap)
+			if err != nil {
+				return nil, err
+			}
+
+			rawState["data"] = string(jsonBytes)
+		}
+	}
+
+	return rawState, nil
 }

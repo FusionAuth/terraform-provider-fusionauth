@@ -27,7 +27,7 @@ The following additional attributes are exported:
 
 * `active` - True if the user is active. False if the user has been deactivated. Deactivated users will not be able to login.
 * `birth_date` - An ISO-8601 formatted date of the user’s birthdate such as YYYY-MM-DD.
-* `data` - A JSON serialised string that can hold any information about the user.
+* `data` - A JSON string that can hold any information about the user.
 * `email` - The user’s email address.
 * `expiry` - The expiration instant of the user’s account. An expired user is not permitted to login.
 * `first_name` - The first name of the user.

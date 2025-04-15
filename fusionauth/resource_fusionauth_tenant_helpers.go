@@ -10,8 +10,9 @@ import (
 )
 
 func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics) {
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
 	tenant := fusionauth.Tenant{
-		Data: data.Get("data").(map[string]interface{}),
+		Data: resourceData,
 		EmailConfiguration: fusionauth.EmailConfiguration{
 			Debug:                                data.Get("email_configuration.0.debug").(bool),
 			EmailUpdateEmailTemplateId:           data.Get("email_configuration.0.email_update_email_template_id").(string),
@@ -186,18 +187,21 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			AccessTokenKeyId:             data.Get("jwt_configuration.0.access_token_key_id").(string),
 			IdTokenKeyId:                 data.Get("jwt_configuration.0.id_token_key_id").(string),
 			RefreshTokenExpirationPolicy: fusionauth.RefreshTokenExpirationPolicy(data.Get("jwt_configuration.0.refresh_token_expiration_policy").(string)),
+			RefreshTokenOneTimeUseConfiguration: fusionauth.RefreshTokenOneTimeUseConfiguration{
+				GracePeriodInSeconds: data.Get("jwt_configuration.0.refresh_token_one_time_use_configuration_grace_period_in_seconds").(int),
+			},
 			RefreshTokenRevocationPolicy: fusionauth.RefreshTokenRevocationPolicy{
 				OnLoginPrevented:    data.Get("jwt_configuration.0.refresh_token_revocation_policy_on_login_prevented").(bool),
 				OnMultiFactorEnable: data.Get("jwt_configuration.0.refresh_token_revocation_policy_on_multi_factor_enable").(bool),
 				OnOneTimeTokenReuse: data.Get("jwt_configuration.0.refresh_token_revocation_policy_on_one_time_token_reuse").(bool),
 				OnPasswordChanged:   data.Get("jwt_configuration.0.refresh_token_revocation_policy_on_password_change").(bool),
 			},
-			RefreshTokenTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_time_to_live_in_minutes").(int),
-			RefreshTokenUsagePolicy:         fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
-			TimeToLiveInSeconds:             data.Get("jwt_configuration.0.time_to_live_in_seconds").(int),
 			RefreshTokenSlidingWindowConfiguration: fusionauth.RefreshTokenSlidingWindowConfiguration{
 				MaximumTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_sliding_window_maximum_time_to_live_in_minutes").(int),
 			},
+			RefreshTokenTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_time_to_live_in_minutes").(int),
+			RefreshTokenUsagePolicy:         fusionauth.RefreshTokenUsagePolicy(data.Get("jwt_configuration.0.refresh_token_usage_policy").(string)),
+			TimeToLiveInSeconds:             data.Get("jwt_configuration.0.time_to_live_in_seconds").(int),
 		},
 		LambdaConfiguration: fusionauth.TenantLambdaConfiguration{
 			LoginValidationId:                     data.Get("lambda_configuration.0.login_validation_id").(string),
@@ -318,6 +322,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			ServerEntityTypeId: data.Get("scim_server_configuration.0.server_entity_type_id").(string),
 		},
 		SsoConfiguration: fusionauth.TenantSSOConfiguration{
+			AllowAccessTokenBootstrap:      data.Get("sso_configuration.0.allow_access_token_bootstrap").(bool),
 			DeviceTrustTimeToLiveInSeconds: data.Get("sso_configuration.0.device_trust_time_to_live_in_seconds").(int),
 		},
 		ThemeId: data.Get("theme_id").(string),
@@ -370,7 +375,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 
 	// If the multi_factor_configuration block is not set then default authenticator to enabled
 	if _, ok := data.GetOk("multi_factor_configuration"); !ok {
-		tenant.MultiFactorConfiguration.Authenticator.Enableable.Enabled = true
+		tenant.MultiFactorConfiguration.Authenticator.Enabled = true
 	}
 
 	return tenant, append(connectorDiags, emailDiags...)
@@ -467,7 +472,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.tenant_id: %s", err.Error())
 	}
 
-	if err := data.Set("data", t.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(t.Data)
+	if diags != nil {
+		return diags
+	}
+	if err := data.Set("data", dataJSON); err != nil {
 		return diag.Errorf("tenant.data: %s", err.Error())
 	}
 
@@ -643,17 +652,18 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	err = data.Set("jwt_configuration", []map[string]interface{}{
 		{
-			"access_token_key_id":                                          t.JwtConfiguration.AccessTokenKeyId,
-			"id_token_key_id":                                              t.JwtConfiguration.IdTokenKeyId,
-			"refresh_token_expiration_policy":                              t.JwtConfiguration.RefreshTokenExpirationPolicy,
-			"refresh_token_revocation_policy_on_login_prevented":           t.JwtConfiguration.RefreshTokenRevocationPolicy.OnLoginPrevented,
-			"refresh_token_revocation_policy_on_multi_factor_enable":       t.JwtConfiguration.RefreshTokenRevocationPolicy.OnMultiFactorEnable,
-			"refresh_token_revocation_policy_on_one_time_token_reuse":      t.JwtConfiguration.RefreshTokenRevocationPolicy.OnOneTimeTokenReuse,
-			"refresh_token_revocation_policy_on_password_change":           t.JwtConfiguration.RefreshTokenRevocationPolicy.OnPasswordChanged,
-			"refresh_token_usage_policy":                                   t.JwtConfiguration.RefreshTokenUsagePolicy,
-			"refresh_token_time_to_live_in_minutes":                        t.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
-			"time_to_live_in_seconds":                                      t.JwtConfiguration.TimeToLiveInSeconds,
-			"refresh_token_sliding_window_maximum_time_to_live_in_minutes": t.JwtConfiguration.RefreshTokenSlidingWindowConfiguration.MaximumTimeToLiveInMinutes,
+			"access_token_key_id":             t.JwtConfiguration.AccessTokenKeyId,
+			"id_token_key_id":                 t.JwtConfiguration.IdTokenKeyId,
+			"refresh_token_expiration_policy": t.JwtConfiguration.RefreshTokenExpirationPolicy,
+			"refresh_token_one_time_use_configuration_grace_period_in_seconds": t.JwtConfiguration.RefreshTokenOneTimeUseConfiguration.GracePeriodInSeconds,
+			"refresh_token_revocation_policy_on_login_prevented":               t.JwtConfiguration.RefreshTokenRevocationPolicy.OnLoginPrevented,
+			"refresh_token_revocation_policy_on_multi_factor_enable":           t.JwtConfiguration.RefreshTokenRevocationPolicy.OnMultiFactorEnable,
+			"refresh_token_revocation_policy_on_one_time_token_reuse":          t.JwtConfiguration.RefreshTokenRevocationPolicy.OnOneTimeTokenReuse,
+			"refresh_token_revocation_policy_on_password_change":               t.JwtConfiguration.RefreshTokenRevocationPolicy.OnPasswordChanged,
+			"refresh_token_usage_policy":                                       t.JwtConfiguration.RefreshTokenUsagePolicy,
+			"refresh_token_time_to_live_in_minutes":                            t.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
+			"time_to_live_in_seconds":                                          t.JwtConfiguration.TimeToLiveInSeconds,
+			"refresh_token_sliding_window_maximum_time_to_live_in_minutes":     t.JwtConfiguration.RefreshTokenSlidingWindowConfiguration.MaximumTimeToLiveInMinutes,
 		},
 	})
 	if err != nil {
@@ -873,6 +883,7 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 
 	err = data.Set("sso_configuration", []map[string]interface{}{
 		{
+			"allow_access_token_bootstrap":         t.SsoConfiguration.AllowAccessTokenBootstrap,
 			"device_trust_time_to_live_in_seconds": t.SsoConfiguration.DeviceTrustTimeToLiveInSeconds,
 		},
 	})

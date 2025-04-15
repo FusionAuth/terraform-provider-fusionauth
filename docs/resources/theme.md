@@ -79,7 +79,7 @@ resource "fusionauth_theme" "mytheme" {
 * `account_webauthn_delete` - (Optional) A FreeMarker template that is rendered when the user requests the /account/webauthn/delete path. This page contains a form that allows a user to delete a WebAuthn passkey.
 * `account_webauthn_index` - (Optional) A FreeMarker template that is rendered when the user requests the /account/webauthn/ path. This page displays an authenticated user’s registered WebAuthn passkeys. Additionally, it provides links to delete an existing passkey and register a new passkey.
 * `confirmation_required` - (Optional) A FreeMarker template that is rendered when the user requests the /confirmation-required path. This page is displayed when a user attempts to complete an email based workflow that did not begin in the same browser. For example, if the user starts a forgot password workflow, and then opens the link in a separate browser the user will be shown this panel.
-* `data` - (Optional) An object that can hold any information about the Theme that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the Theme that should be persisted.
 * `default_messages` - (Optional) A properties file formatted String containing at least all of the message keys defined in the FusionAuth shipped messages file.
 
 ~> **Note:** `default_messages` Is Required if not copying an existing Theme.

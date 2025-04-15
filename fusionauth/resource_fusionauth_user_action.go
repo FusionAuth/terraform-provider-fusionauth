@@ -97,6 +97,19 @@ func resourceUserAction() *schema.Resource {
 				Optional:    true,
 				Description: "Whether or not this User Action is time-based (temporal).",
 			},
+			"transaction_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "None",
+				Description: "The transaction type of this User Action.",
+				ValidateFunc: validation.StringInSlice([]string{
+					"None",
+					"Any",
+					"SimpleMajority",
+					"SuperMajority",
+					"AbsoluteMajority",
+				}, false),
+			},
 			"user_emailing_enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -151,6 +164,9 @@ func buildUserAction(data *schema.ResourceData) fusionauth.UserAction {
 	}
 	if d, ok := data.GetOk("temporal"); ok {
 		ua.Temporal = d.(bool)
+	}
+	if d, ok := data.GetOk("transaction_type"); ok {
+		ua.TransactionType = fusionauth.TransactionType(d.(string))
 	}
 	if d, ok := data.GetOk("user_emailing_enabled"); ok {
 		ua.UserEmailingEnabled = d.(bool)
@@ -239,6 +255,9 @@ func readUserAction(_ context.Context, data *schema.ResourceData, i interface{})
 	}
 	if err := data.Set("temporal", resp.UserAction.Temporal); err != nil {
 		return diag.Errorf("user_action.temporal: %s", err.Error())
+	}
+	if err := data.Set("transaction_type", resp.UserAction.TransactionType); err != nil {
+		return diag.Errorf("user_action.transaction_type: %s", err.Error())
 	}
 	if err := data.Set("user_emailing_enabled", resp.UserAction.UserEmailingEnabled); err != nil {
 		return diag.Errorf("user_action.user_emailing_enabled: %s", err.Error())

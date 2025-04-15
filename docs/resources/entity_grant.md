@@ -55,7 +55,7 @@ resource "fusionauth_entity_grant" "raviga" {
 
 ---
 
-* `data` - (Optional) An object that can hold any information about the Grant that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema.  Must be a JSON string.
+* `data` - (Optional) A JSON string that can hold any information about the Grant that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema.  Must be a JSON string.
 * `permissions` - (Optional) The set of permissions of this Grant.
 * `recipient_entity_id` - (Optional) The Entity Id for which access is granted. If `recipient_entity_id` is not provided, then the `user_id` will be required.
 * `tenant_id` - (Optional) The unique Id of the tenant used to scope this API request.

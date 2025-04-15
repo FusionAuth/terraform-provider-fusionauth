@@ -23,7 +23,7 @@ func dataSourceForm() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"data": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "An object that can hold any information about the Form that should be persisted.",
 			},

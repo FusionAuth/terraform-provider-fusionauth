@@ -50,6 +50,11 @@ func resourceAPIKey() *schema.Resource {
 				Optional:    true,
 				Description: "Description of the key.",
 			},
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the API key.",
+			},
 			"permissions_endpoints": {
 				Optional:    true,
 				Type:        schema.TypeSet,
@@ -202,6 +207,13 @@ func resourceAPIKey() *schema.Resource {
 					},
 				},
 			},
+			"retrievable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				ForceNew:    true,
+				Description: "Whether the API key is retrievable. If set to false, the API key will not be retrievable after creation.",
+			},
 			"expiration_instant": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -304,6 +316,8 @@ func buildAPIKey(data *schema.ResourceData) fusionauth.APIKey {
 			},
 		},
 		ExpirationInstant: int64(data.Get("expiration_instant").(int)),
+		Name:              data.Get("name").(string),
+		Retrievable:       data.Get("retrievable").(bool),
 	}
 
 	m := make(map[string][]string)
@@ -388,6 +402,13 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 
 	if err := data.Set("expiration_instant", res.ExpirationInstant); err != nil {
 		return diag.Errorf("apiKey.expiration_instant: %s", err.Error())
+	}
+
+	if err := data.Set("name", res.Name); err != nil {
+		return diag.Errorf("apiKey.name: %s", err.Error())
+	}
+	if err := data.Set("retrievable", res.Retrievable); err != nil {
+		return diag.Errorf("apiKey.retrievable: %s", err.Error())
 	}
 	return nil
 }

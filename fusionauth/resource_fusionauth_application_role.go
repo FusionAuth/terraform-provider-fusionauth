@@ -2,7 +2,9 @@ package fusionauth
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -46,7 +48,7 @@ func newApplicationRole() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: importApplicationRole,
 		},
 	}
 }
@@ -79,6 +81,24 @@ func createApplicationRole(_ context.Context, data *schema.ResourceData, i inter
 	}
 
 	return applicationRoleToData(data, aid, resp)
+}
+
+func importApplicationRole(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	// Split the import ID on :
+	idParts := strings.Split(d.Id(), ":")
+	if len(idParts) != 2 {
+		return nil, fmt.Errorf("unexpected format of ID (%q), expected application_id:role_id", d.Id())
+	}
+
+	applicationID := idParts[0]
+	roleID := idParts[1]
+
+	d.SetId(roleID)
+	if err := d.Set("application_id", applicationID); err != nil {
+		return nil, err
+	}
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func readApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {

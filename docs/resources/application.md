@@ -126,7 +126,7 @@ resource "fusionauth_application" "Forum" {
   * `username_moderation` - (Optional)
     * `application_id` - (Optional) The Id of the CleanSpeak application that usernames are sent to for moderation.
     * `enabled` - (Optional) True if CleanSpeak username moderation is enabled.
-* `data` - (Optional) An object that can hold any information about the Application that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the Application that should be persisted.
 * `email_configuration` - (Optional)
   * `email_update_template_id` - (Optional) The Id of the Email Template used to send emails to users when their email address is updated. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
   * `email_verification_template_id` - (Optional) The Id of the Email Template used to send emails to users to verify that their email address is valid. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
@@ -283,10 +283,11 @@ resource "fusionauth_application" "Forum" {
   * `xml_signature_canonicalization_method` - (Optional) The XML signature canonicalization method used when digesting and signing the SAML response. Unfortunately, many service providers do not correctly implement the XML signature specifications and force a specific canonicalization method. This setting allows you to change the canonicalization method to match the service provider. Often, service providers don’t even document their required method. You might need to contact enterprise support at the service provider to figure out what method they use.
   * `xml_signature_location` - (Optional) The location to place the XML signature when signing a successful SAML response.
 * `theme_id` - (Optional) The unique Id of the theme to be used to style the login page and other end user templates.
-* `verification_email_template_id` - (Optional) The Id of the Email Template that is used to send the Registration Verification emails to users. If the verifyRegistration field is true this field is required.
+* `verification_email_template_id` - (Optional) The Id of the Email Template that is used to send the Registration Verification emails to users. If the `verify_registration` field is true this field is required.
 * `verification_strategy` - (Optional) The process by which the user will verify their email address. Possible values are `ClickableLink` or `FormField`
-* `verify_registration` - (Optional) Whether or not registrations to this Application may be verified. When this is set to true the verificationEmailTemplateId parameter is also required.
+* `verify_registration` - (Optional) Whether or not registrations to this Application may be verified. When this is set to true the `verification_email_template_id` parameter is also required.
+* `unverified_behavior` - (Optional) The behavior of the application when a user is not verified. Possible values are `Allow` or  `Gated`. The default value is `Allow`.
 * `webauthn_configuration` - (Optional)
   * `bootstrap_workflow_enabled` - (Optional) Indicates if this application enables WebAuthn workflows based on the configuration defined here or the Tenant WebAuthn configuration. If this is false, WebAuthn workflows will be enabled based on the Tenant configuration. If true, WebAuthn workflows will be enabled according to the configuration of this application.
-  * `enabled` - (Optional) Whether the WebAuthn bootstrap workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.
-  * `reauthentication_workflow_enabled` - (Optional) Whether the WebAuthn reauthentication workflow is enabled for this application. This overrides the tenant configuration. Has no effect if application.webAuthnConfiguration.enabled is false.
+  * `enabled` - (Optional) Whether the WebAuthn bootstrap workflow is enabled for this application. This overrides the tenant configuration. Has no effect if `webauthn_configuration.enabled` is false.
+  * `reauthentication_workflow_enabled` - (Optional) Whether the WebAuthn reauthentication workflow is enabled for this application. This overrides the tenant configuration. Has no effect if `webauthn_configuration.enabled` is false.

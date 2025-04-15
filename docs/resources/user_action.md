@@ -30,6 +30,7 @@ resource "fusionauth_user_action" "example" {
 * `send_end_event` - (Optional) Whether or not FusionAuth will send events to any registered Webhooks when this User Action expires.
 * `start_email_template_id` - (Optional) The Id of the Email Template that is used when User Actions are started (created).
 * `temporal` - (Optional) Whether or not this User Action is time-based (temporal).
+* `transaction_type` - (Optional) Specifies how FusionAuth will manage notifying Webhooks before this action is committed. The options are: `None`, `Any`, `SimpleMajority`, `SuperMajority` or `AbsoluteMajority`. The default is `None`.
 * `user_action_id` - (Optional) The id of this User Action.
 * `user_emailing_enabled` - (Optional) Whether or not email is enabled for this User Action.
 * `user_notifications_enabled` - (Optional) Whether or not user notifications are enabled for this User Action.

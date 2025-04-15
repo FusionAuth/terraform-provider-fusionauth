@@ -457,7 +457,7 @@ resource "fusionauth_tenant" "example" {
   * `connector_id` - (Optional) The identifier of the Connector to which this policy refers.
   * `domains` - (Optional) A list of email domains to which this connector should apply. A value of ["*"] indicates this connector applies to all users.
   * `migrate` - (Optional) If true, the user’s data will be migrated to FusionAuth at first successful authentication; subsequent authentications will occur against the FusionAuth datastore. If false, the Connector’s source will be treated as authoritative.
-* `data` - (Optional) An object that can hold any information about the Tenant that should be persisted.
+* `data` - (Optional) A JSON string that can hold any information about the Tenant that should be persisted.
 * `email_configuration` - (Optional) The email configuration for the tenant.
   * `additional_headers` - (Optional) The additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.
   * `debug` - (Optional) Determines if debug should be enabled to create an event log to assist in debugging SMTP errors.
@@ -568,6 +568,7 @@ resource "fusionauth_tenant" "example" {
   * `access_token_key_id` - (Optional) The unique id of the signing key used to sign the access token. Required prior to `1.30.0`.
   * `id_token_key_id` - (Optional) The unique id of the signing key used to sign the Id token. Required prior to `1.30.0`.
   * `refresh_token_expiration_policy` - (Optional) The refresh token expiration policy.
+  * `refresh_token_one_time_use_configuration_grace_period_in_seconds` - (Optional) The length of time specified in seconds that a one-time use token can be reused. This value must be greater than 0 and less than 86400 which is equal to 24 hours. Setting this value to 0 effectively disables the grace period which means a one-time token may not be reused. Defaults to 0.
   * `refresh_token_revocation_policy_on_login_prevented` - (Optional) When enabled, the refresh token will be revoked when a user action, such as locking an account based on a number of failed login attempts, prevents user login.
   * `refresh_token_revocation_policy_on_multi_factor_enable` - (Optional) When enabled, all refresh tokens will be revoked when a user enables multi-factor authentication for the first time. This policy will not be applied when adding subsequent multi-factor methods to the user.
   * `refresh_token_revocation_policy_on_one_time_token_reuse` - (Optional) When enabled, if a one-time use refresh token is reused, the token will be revoked. This does not cause all refresh tokens to be revoked, only the reused token is revoked.
@@ -659,6 +660,7 @@ resource "fusionauth_tenant" "example" {
   * `server_entity_type_id` - (Required) The Entity Type that will be used to represent SCIM Servers for this tenant. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.
 * `source_tenant_id` - (Optional) The optional Id of an existing Tenant to make a copy of. If present, the tenant.id and tenant.name values of the request body will be applied to the new Tenant, all other values will be copied from the source Tenant to the new Tenant.
 * `sso_configuration` - (Optional)
+  * `allow_access_token_bootstrap` - (Optional) When enabled, an SSO session can be created after login by providing an access token as a bearer token in a request to the OAuth2 Authorize endpoint. Defaults to `false`.
   * `device_trust_time_to_live_in_seconds` - (Optional) The number of seconds before a trusted device is reset. When reset, a user is forced to complete captcha during login and complete two factor authentication if applicable.
 * `tenant_id` - (Optional) The Id to use for the new Tenant. If not specified a secure random UUID will be generated.
 * `theme_id` - (Optional) The unique Id of the theme to be used to style the login page and other end user templates.

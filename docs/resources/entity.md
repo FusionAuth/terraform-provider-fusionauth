@@ -69,10 +69,27 @@ resource "fusionauth_entity_permission" "file_lawsuit" {
 * `client_secret` - (Optional) The OAuth 2.0 client secret. If you leave this blank on create, a secure secret will be
   generated for you. If you leave this blank during an update, the previous value will be maintained. For both create
   and update you can provide a value and it will be stored.
-* `data` - (Optional) An object that can hold any information about the Entity that should be persisted. Please review
+* `data` - (Optional) A JSON string that can hold any information about the Entity that should be persisted. Please review
   the limits on data field types as you plan for and build your custom data schema. Must be a JSON serialised string.
 * `entity_id` - (Optional) The ID to use for the new Entity. If not specified a secure random UUID will be generated.
 * `tenant_id` - (Optional) The unique ID of the tenant used to scope this API request.
 
 For more information see:
 [FusionAuth Entity Management API Overview](https://fusionauth.io/docs/v1/tech/apis/entity-management/)
+
+## Import
+
+In Terraform v1.5.0 and later, use an `import` block to import entity resources using the tenant ID and entity ID, separated by a colon. For example:
+
+```hcl
+import {
+  to = fusionauth_entity.name
+  id = "tenant_id:entity_id"
+}
+```
+
+Using terraform import, import entity resources using the tenant ID and entity ID. For example:
+
+```shell
+terraform import fusionauth_entity.name tenant_id:entity_id
+```

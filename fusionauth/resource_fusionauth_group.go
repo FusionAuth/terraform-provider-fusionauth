@@ -2,6 +2,7 @@ package fusionauth
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
@@ -26,9 +27,11 @@ func newGroup() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"data": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "An object that can hold any information about the Group that should be persisted.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "An object that can hold any information about the Group that should be persisted. Please review the limits on data field types as you plan for and build your custom data schema. Must be a JSON string.",
+				DiffSuppressFunc: diffSuppressJSON,
+				ValidateFunc:     validation.StringIsJSON,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -51,6 +54,14 @@ func newGroup() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceGroupV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceGroupUpgradeV0,
+				Version: 0,
+			},
+		},
 	}
 }
 
@@ -60,10 +71,12 @@ func buildGroup(data *schema.ResourceData) fusionauth.GroupRequest {
 		gid = gi
 	}
 
+	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
+
 	g := fusionauth.GroupRequest{
 		Group: fusionauth.Group{
 			Id:       gid,
-			Data:     data.Get("data").(map[string]interface{}),
+			Data:     resourceData,
 			Name:     data.Get("name").(string),
 			TenantId: data.Get("tenant_id").(string),
 		},
@@ -118,7 +131,12 @@ func readGroup(_ context.Context, data *schema.ResourceData, i interface{}) diag
 	if err := data.Set("tenant_id", t.TenantId); err != nil {
 		return diag.Errorf("group.tenant_id: %s", err.Error())
 	}
-	if err := data.Set("data", t.Data); err != nil {
+	dataJSON, diags := mapStringInterfaceToJSONString(t.Data)
+	if diags != nil {
+		return diags
+	}
+	err = data.Set("data", dataJSON)
+	if err != nil {
 		return diag.Errorf("group.data: %s", err.Error())
 	}
 
@@ -171,4 +189,31 @@ func deleteGroup(_ context.Context, data *schema.ResourceData, i interface{}) di
 	}
 
 	return nil
+}
+
+func resourceGroupV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"data": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func resourceGroupUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+	if v, ok := rawState["data"]; ok {
+		if dataMap, ok := v.(map[string]interface{}); ok {
+			jsonBytes, err := json.Marshal(dataMap)
+			if err != nil {
+				return nil, err
+			}
+
+			rawState["data"] = string(jsonBytes)
+		}
+	}
+
+	return rawState, nil
 }
