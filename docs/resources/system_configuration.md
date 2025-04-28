@@ -22,13 +22,9 @@ resource "fusionauth_system_configuration" "example" {
 
 ## Argument Reference
 
-* `report_timezone` - (Required) The time zone used to adjust the stored UTC time when generating reports. Since reports are usually rolled up hourly, this timezone will be used for demarcating the hours.
-
----
-
 * `audit_log_configuration` - (Optional)
   * `delete` - (Optional)
-    * `enabled` - (Optional) Whether or not FusionAuth should delete the Audit Log based upon this configuration. When true the auditLogConfiguration.delete.numberOfDaysToRetain will be used to identify audit logs that are eligible for deletion. When this value is set to false audit logs will be preserved forever.
+    * `enabled` - (Optional) Whether or not FusionAuth should delete the Audit Log based upon this configuration. When `true` the audit_log_configuration.delete.number_of_days_to_retain will be used to identify audit logs that are eligible for deletion. When this value is set to false audit logs will be preserved forever.
     * `number_of_days_to_retain` - (Optional) The number of days to retain the Audit Log.
 * `cors_configuration` - (Optional)
   * `allow_credentials` - (Optional) The Access-Control-Allow-Credentials response header values as described by MDN Access-Control-Allow-Credentials.
@@ -44,8 +40,9 @@ resource "fusionauth_system_configuration" "example" {
   * `number_to_retain` - (Optional) The number of events to retain. Once the the number of event logs exceeds this configured value they will be deleted starting with the oldest event logs.
 * `login_record_configuration` - (Optional)
   * `delete` - (Optional)
-    * `enabled` - (Optional) Whether or not FusionAuth should delete the login records based upon this configuration. When true the loginRecordConfiguration.delete.numberOfDaysToRetain will be used to identify login records that are eligible for deletion. When this value is set to false login records will be preserved forever.
+    * `enabled` - (Optional) Whether or not FusionAuth should delete the login records based upon this configuration. When `true` the login_record_configuration.delete.number_of_days_to_retain will be used to identify login records that are eligible for deletion. When this value is set to false login records will be preserved forever.
     * `number_of_days_to_retain` - (Optional) The number of days to retain login records.
+* `report_timezone` - (Optional) The time zone used to adjust the stored UTC time when generating reports. Since reports are usually rolled up hourly, this timezone will be used for demarcating the hours.
 * `trusted_proxy_configuration` - (Optional)
   * `trust_policy` - (Optional) This setting is used to resolve the client IP address for use in logging, webhooks, and IP-based access control when an X-Forwarded-For header is provided. Because proxies are free to rewrite the X-Forwarded-For header, an untrusted proxy could write a value that allowed it to bypass IP-based ACLs, or cause an incorrect IP address to be logged or sent to a webhook. Valid values are `All` and `OnlyConfigured`.
   * `trusted` - (Optional) An array of IP addresses, representing the set of trusted upstream proxies. This value will be accepted but ignored when `trust_policy` is set to `All`. Values may be specified as IPv4, or IPv6 format, and ranges of addresses are also accepted in CIDR notation.
@@ -56,6 +53,7 @@ resource "fusionauth_system_configuration" "example" {
 * `usage_data_configuration` - (Optional)
   * `enabled` - (Optional) Whether or not FusionAuth collects and sends usage data to improve the product.
 * `webhook_event_log_configuration` - (Optional)
+  * `enabled` - (Optional) Whether or not FusionAuth should create Webhook Event Logs. When `true` FusionAuth will create an event log for each webhook event and an attempt log for each attempt at sending the event to a webhook.
   * `delete` - (Optional)
-    * `enabled` - (Optional) Whether or not FusionAuth should delete the webhook event logs based upon this configuration. When true the webhookEventLogConfiguration.delete.numberOfDaysToRetain will be used to identify webhook event logs that are eligible for deletion. When this value is set to false webhook event logs will be preserved forever.
+    * `enabled` - (Optional) Whether or not FusionAuth should delete the webhook event logs based upon this configuration. When `true` the webhook_event_log_configuration.delete.number_of_days_to_retain will be used to identify webhook event logs that are eligible for deletion. When this value is set to false webhook event logs will be preserved forever.
     * `number_of_days_to_retain` - (Optional) The number of days to retain webhook event logs.
