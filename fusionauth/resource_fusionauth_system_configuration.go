@@ -363,15 +363,15 @@ func handleTrustProxyConfigurationTrusted(trusted []interface{}) []string {
 func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.SystemConfigurationRequest {
 	sc := getDefaultSystemConfigurationRequest()
 
-	if _, ok := data.GetOkExists("audit_log_configuration.0.delete.0.enabled"); ok {
-		sc.SystemConfiguration.AuditLogConfiguration.Delete.Enabled = data.Get("audit_log_configuration.0.delete.0.enabled").(bool)
+	if val, isSet := getBoolAndIsSet(data, "audit_log_configuration.0.delete.0.enabled"); isSet {
+		sc.SystemConfiguration.AuditLogConfiguration.Delete.Enabled = val
 	}
 	if v, ok := data.GetOk("audit_log_configuration.0.delete.0.number_of_days_to_retain"); ok {
 		sc.SystemConfiguration.AuditLogConfiguration.Delete.NumberOfDaysToRetain = v.(int)
 	}
 
-	if _, ok := data.GetOkExists("cors_configuration.0.allow_credentials"); ok {
-		sc.SystemConfiguration.CorsConfiguration.AllowCredentials = data.Get("cors_configuration.0.allow_credentials").(bool)
+	if val, isSet := getBoolAndIsSet(data, "cors_configuration.0.allow_credentials"); isSet {
+		sc.SystemConfiguration.CorsConfiguration.AllowCredentials = val
 	}
 
 	if _, ok := data.GetOk("cors_configuration.0.allowed_headers"); ok {
@@ -392,12 +392,12 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.CorsConfiguration.AllowedOrigins = handleStringSlice("cors_configuration.0.allowed_origins", data)
 	}
 
-	if _, ok := data.GetOkExists("cors_configuration.0.debug"); ok {
-		sc.SystemConfiguration.CorsConfiguration.Debug = data.Get("cors_configuration.0.debug").(bool)
+	if val, isSet := getBoolAndIsSet(data, "cors_configuration.0.debug"); isSet {
+		sc.SystemConfiguration.CorsConfiguration.Debug = val
 	}
 
-	if _, ok := data.GetOkExists("cors_configuration.0.enabled"); ok {
-		sc.SystemConfiguration.CorsConfiguration.Enabled = data.Get("cors_configuration.0.enabled").(bool)
+	if val, isSet := getBoolAndIsSet(data, "cors_configuration.0.enabled"); isSet {
+		sc.SystemConfiguration.CorsConfiguration.Enabled = val
 	}
 
 	if _, ok := data.GetOk("cors_configuration.0.exposed_headers"); ok {
@@ -416,8 +416,8 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.EventLogConfiguration.NumberToRetain = v.(int)
 	}
 
-	if _, ok := data.GetOkExists("login_record_configuration.0.delete.0.enabled"); ok {
-		sc.SystemConfiguration.LoginRecordConfiguration.Delete.Enabled = data.Get("login_record_configuration.0.delete.0.enabled").(bool)
+	if val, isSet := getBoolAndIsSet(data, "login_record_configuration.0.delete.0.enabled"); isSet {
+		sc.SystemConfiguration.LoginRecordConfiguration.Delete.Enabled = val
 	}
 
 	if v, ok := data.GetOk("login_record_configuration.0.delete.0.number_of_days_to_retain"); ok {
@@ -448,16 +448,16 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.UiConfiguration.MenuFontColor = v.(string)
 	}
 
-	if _, ok := data.GetOkExists("usage_data_configuration.0.enabled"); ok {
-		sc.SystemConfiguration.UsageDataConfiguration.Enabled = data.Get("usage_data_configuration.0.enabled").(bool)
+	if val, isSet := getBoolAndIsSet(data, "usage_data_configuration.0.enabled"); isSet {
+		sc.SystemConfiguration.UsageDataConfiguration.Enabled = val
 	}
 
-	if _, ok := data.GetOkExists("webhook_event_log_configuration.0.enabled"); ok {
-		sc.SystemConfiguration.WebhookEventLogConfiguration.Enabled = data.Get("webhook_event_log_configuration.0.enabled").(bool)
+	if val, isSet := getBoolAndIsSet(data, "webhook_event_log_configuration.0.enabled"); isSet {
+		sc.SystemConfiguration.WebhookEventLogConfiguration.Enabled = val
 	}
 
-	if _, ok := data.GetOkExists("webhook_event_log_configuration.0.delete.0.enabled"); ok {
-		sc.SystemConfiguration.WebhookEventLogConfiguration.Delete.Enabled = data.Get("webhook_event_log_configuration.0.delete.0.enabled").(bool)
+	if val, isSet := getBoolAndIsSet(data, "webhook_event_log_configuration.0.delete.0.enabled"); isSet {
+		sc.SystemConfiguration.WebhookEventLogConfiguration.Delete.Enabled = val
 	}
 
 	if v, ok := data.GetOk("webhook_event_log_configuration.0.delete.0.number_of_days_to_retain"); ok {
