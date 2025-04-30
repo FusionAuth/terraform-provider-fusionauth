@@ -236,7 +236,7 @@ func resourceSystemConfiguration() *schema.Resource {
 						"enabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Default:     false,
+							Default:     true,
 							Description: "Whether or not FusionAuth collects and sends usage data to improve the product.",
 						},
 					},
@@ -253,7 +253,7 @@ func resourceSystemConfiguration() *schema.Resource {
 						"enabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Default:     false,
+							Default:     true,
 							Description: "Whether or not FusionAuth should create Webhook Event Logs. When `true` FusionAuth will create an event log for each webhook event and an attempt log for each attempt at sending the event to a webhook.",
 						},
 						"delete": {
@@ -266,7 +266,7 @@ func resourceSystemConfiguration() *schema.Resource {
 									"enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Default:     false,
+										Default:     true,
 										Description: "Whether or not FusionAuth should delete the webhook event logs based upon this configuration. When `true` the webhook_event_log_configuration.delete.number_of_days_to_retain will be used to identify webhook event logs that are eligible for deletion. When this value is set to false webhook event logs will be preserved forever.",
 									},
 									"number_of_days_to_retain": {
@@ -635,17 +635,18 @@ func getDefaultSystemConfigurationRequest() fusionauth.SystemConfigurationReques
 			},
 			UsageDataConfiguration: fusionauth.UsageDataConfiguration{
 				Enableable: fusionauth.Enableable{
-					Enabled: false,
+					Enabled: true,
 				},
 			},
 			WebhookEventLogConfiguration: fusionauth.WebhookEventLogConfiguration{
 				Enableable: fusionauth.Enableable{
-					Enabled: false,
+					Enabled: true,
 				},
 				Delete: fusionauth.DeleteConfiguration{
 					Enableable: fusionauth.Enableable{
-						Enabled: false,
+						Enabled: true,
 					},
+					NumberOfDaysToRetain: 30,
 				},
 			},
 		},

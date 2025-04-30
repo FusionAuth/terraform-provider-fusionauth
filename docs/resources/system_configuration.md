@@ -50,7 +50,7 @@ resource "fusionauth_system_configuration" "example" {
   * `header_color` - (Optional) A hexadecimal color to override the default menu color in the user interface.
   * `logo_url` - (Optional) A URL of a logo to override the default FusionAuth logo in the user interface.
   * `menu_font_color` - (Optional) A hexadecimal color to override the default menu font color in the user interface.
-* `usage_data_configuration` - (Optional)
+* `usage_data_configuration` - (Optional) **Note:** This field is only configurable in self-hosted FusionAuth deployments.
   * `enabled` - (Optional) Whether or not FusionAuth collects and sends usage data to improve the product.
 * `webhook_event_log_configuration` - (Optional)
   * `enabled` - (Optional) Whether or not FusionAuth should create Webhook Event Logs. When `true` FusionAuth will create an event log for each webhook event and an attempt log for each attempt at sending the event to a webhook.
