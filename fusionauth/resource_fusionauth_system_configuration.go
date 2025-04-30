@@ -236,7 +236,7 @@ func resourceSystemConfiguration() *schema.Resource {
 						"enabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Default:     true,
+							Default:     false,
 							Description: "Whether or not FusionAuth collects and sends usage data to improve the product.",
 						},
 					},
@@ -253,7 +253,7 @@ func resourceSystemConfiguration() *schema.Resource {
 						"enabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Default:     true,
+							Default:     false,
 							Description: "Whether or not FusionAuth should create Webhook Event Logs. When `true` FusionAuth will create an event log for each webhook event and an attempt log for each attempt at sending the event to a webhook.",
 						},
 						"delete": {
@@ -635,12 +635,12 @@ func getDefaultSystemConfigurationRequest() fusionauth.SystemConfigurationReques
 			},
 			UsageDataConfiguration: fusionauth.UsageDataConfiguration{
 				Enableable: fusionauth.Enableable{
-					Enabled: true,
+					Enabled: false,
 				},
 			},
 			WebhookEventLogConfiguration: fusionauth.WebhookEventLogConfiguration{
 				Enableable: fusionauth.Enableable{
-					Enabled: true,
+					Enabled: false,
 				},
 				Delete: fusionauth.DeleteConfiguration{
 					Enableable: fusionauth.Enableable{
