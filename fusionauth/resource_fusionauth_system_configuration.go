@@ -37,7 +37,7 @@ func resourceSystemConfiguration() *schema.Resource {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Default:     false,
-										Description: "Whether or not FusionAuth should delete the Audit Log based upon this configuration. When true the auditLogConfiguration.delete.numberOfDaysToRetain will be used to identify audit logs that are eligible for deletion. When this value is set to false audit logs will be preserved forever.",
+										Description: "Whether or not FusionAuth should delete the Audit Log based upon this configuration. When `true` the audit_log_configuration.delete.number_of_days_to_retain will be used to identify audit logs that are eligible for deletion. When this value is set to false audit logs will be preserved forever.",
 									},
 									"number_of_days_to_retain": {
 										Type:        schema.TypeInt,
@@ -156,7 +156,7 @@ func resourceSystemConfiguration() *schema.Resource {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Default:     false,
-										Description: "Whether or not FusionAuth should delete the login records based upon this configuration. When true the loginRecordConfiguration.delete.numberOfDaysToRetain will be used to identify login records that are eligible for deletion. When this value is set to false login records will be preserved forever.",
+										Description: "Whether or not FusionAuth should delete the login records based upon this configuration. When `true` the login_record_configuration.delete.number_of_days_to_retain will be used to identify login records that are eligible for deletion. When this value is set to false login records will be preserved forever.",
 									},
 									"number_of_days_to_retain": {
 										Type:        schema.TypeInt,
@@ -236,20 +236,26 @@ func resourceSystemConfiguration() *schema.Resource {
 						"enabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Default:     false,
+							Default:     true,
 							Description: "Whether or not FusionAuth collects and sends usage data to improve the product.",
 						},
 					},
 				},
 			},
 			"webhook_event_log_configuration": {
-				Type:       schema.TypeList,
-				MaxItems:   1,
-				Optional:   true,
-				Computed:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				Description:      "The webhook event log configuration.",
+				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Whether or not FusionAuth should create Webhook Event Logs. When `true` FusionAuth will create an event log for each webhook event and an attempt log for each attempt at sending the event to a webhook.",
+						},
 						"delete": {
 							Type:       schema.TypeList,
 							MaxItems:   1,
@@ -260,13 +266,13 @@ func resourceSystemConfiguration() *schema.Resource {
 									"enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Default:     false,
-										Description: "Whether or not FusionAuth should delete the webhook event logs based upon this configuration. When true the webhookEventLogConfiguration.delete.numberOfDaysToRetain will be used to identify webhook event logs that are eligible for deletion. When this value is set to false webhook event logs will be preserved forever.",
+										Default:     true,
+										Description: "Whether or not FusionAuth should delete the webhook event logs based upon this configuration. When `true` the webhook_event_log_configuration.delete.number_of_days_to_retain will be used to identify webhook event logs that are eligible for deletion. When this value is set to false webhook event logs will be preserved forever.",
 									},
 									"number_of_days_to_retain": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										Default:     365,
+										Default:     30,
 										Description: "The number of days to retain webhook event logs.",
 									},
 								},
@@ -356,15 +362,16 @@ func handleTrustProxyConfigurationTrusted(trusted []interface{}) []string {
 
 func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.SystemConfigurationRequest {
 	sc := getDefaultSystemConfigurationRequest()
-	if v, ok := data.GetOk("audit_log_configuration.0.delete.0.enabled"); ok {
-		sc.SystemConfiguration.AuditLogConfiguration.Delete.Enabled = v.(bool)
+
+	if val, isSet := getBoolAndIsSet(data, "audit_log_configuration.0.delete.0.enabled"); isSet {
+		sc.SystemConfiguration.AuditLogConfiguration.Delete.Enabled = val
 	}
 	if v, ok := data.GetOk("audit_log_configuration.0.delete.0.number_of_days_to_retain"); ok {
 		sc.SystemConfiguration.AuditLogConfiguration.Delete.NumberOfDaysToRetain = v.(int)
 	}
 
-	if v, ok := data.GetOk("cors_configuration.0.allow_credentials"); ok {
-		sc.SystemConfiguration.CorsConfiguration.AllowCredentials = v.(bool)
+	if val, isSet := getBoolAndIsSet(data, "cors_configuration.0.allow_credentials"); isSet {
+		sc.SystemConfiguration.CorsConfiguration.AllowCredentials = val
 	}
 
 	if _, ok := data.GetOk("cors_configuration.0.allowed_headers"); ok {
@@ -385,12 +392,12 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.CorsConfiguration.AllowedOrigins = handleStringSlice("cors_configuration.0.allowed_origins", data)
 	}
 
-	if v, ok := data.GetOk("cors_configuration.0.debug"); ok {
-		sc.SystemConfiguration.CorsConfiguration.Debug = v.(bool)
+	if val, isSet := getBoolAndIsSet(data, "cors_configuration.0.debug"); isSet {
+		sc.SystemConfiguration.CorsConfiguration.Debug = val
 	}
 
-	if v, ok := data.GetOk("cors_configuration.0.enabled"); ok {
-		sc.SystemConfiguration.CorsConfiguration.Enabled = v.(bool)
+	if val, isSet := getBoolAndIsSet(data, "cors_configuration.0.enabled"); isSet {
+		sc.SystemConfiguration.CorsConfiguration.Enabled = val
 	}
 
 	if _, ok := data.GetOk("cors_configuration.0.exposed_headers"); ok {
@@ -409,9 +416,10 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.EventLogConfiguration.NumberToRetain = v.(int)
 	}
 
-	if v, ok := data.GetOk("login_record_configuration.0.delete.0.enabled"); ok {
-		sc.SystemConfiguration.LoginRecordConfiguration.Delete.Enabled = v.(bool)
+	if val, isSet := getBoolAndIsSet(data, "login_record_configuration.0.delete.0.enabled"); isSet {
+		sc.SystemConfiguration.LoginRecordConfiguration.Delete.Enabled = val
 	}
+
 	if v, ok := data.GetOk("login_record_configuration.0.delete.0.number_of_days_to_retain"); ok {
 		sc.SystemConfiguration.LoginRecordConfiguration.Delete.NumberOfDaysToRetain = v.(int)
 	}
@@ -440,13 +448,18 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.UiConfiguration.MenuFontColor = v.(string)
 	}
 
-	if v, ok := data.GetOk("usage_data_configuration.0.enabled"); ok {
-		sc.SystemConfiguration.UsageDataConfiguration.Enabled = v.(bool)
+	if val, isSet := getBoolAndIsSet(data, "usage_data_configuration.0.enabled"); isSet {
+		sc.SystemConfiguration.UsageDataConfiguration.Enabled = val
 	}
 
-	if v, ok := data.GetOk("webhook_event_log_configuration.0.delete.0.enabled"); ok {
-		sc.SystemConfiguration.WebhookEventLogConfiguration.Delete.Enabled = v.(bool)
+	if val, isSet := getBoolAndIsSet(data, "webhook_event_log_configuration.0.enabled"); isSet {
+		sc.SystemConfiguration.WebhookEventLogConfiguration.Enabled = val
 	}
+
+	if val, isSet := getBoolAndIsSet(data, "webhook_event_log_configuration.0.delete.0.enabled"); isSet {
+		sc.SystemConfiguration.WebhookEventLogConfiguration.Delete.Enabled = val
+	}
+
 	if v, ok := data.GetOk("webhook_event_log_configuration.0.delete.0.number_of_days_to_retain"); ok {
 		sc.SystemConfiguration.WebhookEventLogConfiguration.Delete.NumberOfDaysToRetain = v.(int)
 	}
@@ -552,6 +565,7 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 
 	err = data.Set("webhook_event_log_configuration", []map[string]interface{}{
 		{
+			"enabled": sc.WebhookEventLogConfiguration.Enabled,
 			"delete": []map[string]interface{}{
 				{
 					"enabled":                  sc.WebhookEventLogConfiguration.Delete.Enabled,
@@ -619,11 +633,20 @@ func getDefaultSystemConfigurationRequest() fusionauth.SystemConfigurationReques
 				TrustPolicy: fusionauth.SystemTrustedProxyConfigurationPolicy_All,
 				Trusted:     []string{},
 			},
+			UsageDataConfiguration: fusionauth.UsageDataConfiguration{
+				Enableable: fusionauth.Enableable{
+					Enabled: true,
+				},
+			},
 			WebhookEventLogConfiguration: fusionauth.WebhookEventLogConfiguration{
+				Enableable: fusionauth.Enableable{
+					Enabled: true,
+				},
 				Delete: fusionauth.DeleteConfiguration{
 					Enableable: fusionauth.Enableable{
-						Enabled: false,
+						Enabled: true,
 					},
+					NumberOfDaysToRetain: 30,
 				},
 			},
 		},
