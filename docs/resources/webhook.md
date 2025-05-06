@@ -43,46 +43,58 @@ resource "fusionauth_webhook" "example" {
 * `data` - (Optional) A JSON string that can hold any information about the Webhook that should be persisted.
 * `description` - (Optional) A description of the Webhook. This is used for display purposes only.
 * `events_enabled` - (Optional) A mapping for the events that are enabled for this Webhook.
-  * `audit_log_create` - (Optional) When an audit log is created
-  * `event_log_create` - (Optional) When an event log is created
-  * `jwt_public_key_update` - (Optional) When a JWT RSA Public / Private keypair may have been changed
-  * `jwt_refresh` - (Optional) When an access token is refreshed using a refresh token
-  * `jwt_refresh_token_revoke` - (Optional) When a JWT Refresh Token is revoked
-  * `kickstart_success` - (Optional) When kickstart has successfully completed
-  * `user_action` - (Optional) When a user action is triggered
-  * `user_bulk_create` - (Optional) When multiple users are created in bulk (i.e. during an import)
-  * `user_create` - (Optional) When a user is created
-  * `user_create_complete` - (Optional) When a user create transaction has completed
-  * `user_deactivate` - (Optional) When a user is deactivated
-  * `user_delete` - (Optional) When a user is deleted
-  * `user_delete_complete` - (Optional) When a user delete transaction has completed
-  * `user_email_update` - (Optional) When a user updates their email address
-  * `user_email_verified` - (Optional) When a user verifies their email address
-  * `user_identity_provider_link` - (Optional) When a user is linked to an identity provider
-  * `user_identity_provider_unlink` - (Optional) When a link to an identity provider is removed
-  * `user_login_id_duplicate_create` - (Optional) When a request to create a user with a login Id (email or username) which is already in use has been received
-  * `user_login_id_duplicate_update` - (Optional) When a request to update a user and change their login Id (email or username) to one that is already in use has been received
-  * `user_login_failed` - (Optional) When a user fails a login request
-  * `user_login_new_device` - (Optional) When a user begins a login request with a new device
-  * `user_login_success` - (Optional) When a user completes a login request
-  * `user_login_suspicious` - (Optional) When a user logs in and is considered to be a potential threat
-  * `user_password_breach` - (Optional) When Reactor detects a user is using a potentially breached password (requires an activated license)
-  * `user_password_reset_send` - (Optional) When a forgot password email has been sent to a user
-  * `user_password_reset_start` - (Optional) When the process to reset a user password has started
-  * `user_password_reset_success` - (Optional) When a user has successfully reset their password
-  * `user_password_update` - (Optional) When a user has updated their password
-  * `user_reactivate` - (Optional) When a user is reactivated
-  * `user_registration_create` - (Optional) When a user registration is created
-  * `user_registration_create_complete` - (Optional) When a user registration create transaction has completed
-  * `user_registration_delete` - (Optional) When a user registration is deleted
-  * `user_registration_delete_complete` - (Optional) When a user registration delete transaction has completed
-  * `user_registration_update` - (Optional) When a user registration is updated
-  * `user_registration_update_complete` - (Optional) When a user registration update transaction has completed
-  * `user_registration_verified` - (Optional) When a user completes registration verification
-  * `user_two_factor_method_add` - (Optional) When a user has added a two-factor method
-  * `user_two_factor_method_remove` - (Optional) When a user has removed a two-factor method
-  * `user_update` - (Optional) When a user is updated
-  * `user_update_complete` - (Optional) When a user update transaction has completed
+  * `audit_log_create` - (Optional) An audit log was created
+  * `event_log_create` - (Optional) An event log was created
+  * `group_create` - (Optional) A group is being created
+  * `group_create_complete` - (Optional) A create group request completed
+  * `group_delete` - (Optional) A group is being deleted
+  * `group_delete_complete` - (Optional) A group delete request completed
+  * `group_member_add` - (Optional) A user is being added to a group
+  * `group_member_add_complete` - (Optional) A user add request has completed
+  * `group_member_remove` - (Optional) A user is being removed from a group
+  * `group_member_remove_complete` - (Optional) A user remove request has completed
+  * `group_member_update` - (Optional) A groups membership is being updated
+  * `group_member_update_complete` - (Optional) A group member update request has completed
+  * `group_update` - (Optional) A group is being updated
+  * `group_update_complete` - (Optional) A request to update a group has completed
+  * `jwt_public_key_update` - (Optional) A configuration occurred that may affect public keys used to verify a JWT signed by FusionAuth
+  * `jwt_refresh` - (Optional) A JWT was refreshed using a refresh token
+  * `jwt_refresh_token_revoke` - (Optional) One or more refresh tokens were revoked
+  * `kickstart_success` - (Optional) Kickstart completed successfully the system is ready for use
+  * `user_action` - (Optional) An action was taken on a user, or an existing event may be changing states if the action is time based
+  * `user_bulk_create` - (Optional) One or more users were created using the Bulk create API
+  * `user_create` - (Optional) A user is being created
+  * `user_create_complete` - (Optional) A create user request completed
+  * `user_deactivate` - (Optional) A user is being de-activated, this is synonymous with a soft-delete when using the API
+  * `user_delete` - (Optional) A user is being deleted
+  * `user_delete_complete` - (Optional) A user delete request has completed
+  * `user_email_update` - (Optional) A user updated their email address
+  * `user_email_verified` - (Optional) A user has verified their email address
+  * `user_identity_provider_link` - (Optional) A link has been established between a user and an identity provider
+  * `user_identity_provider_unlink` - (Optional) An existing link has been removed between a user and an identify provider
+  * `user_login_id_duplicate_create` - (Optional) A user attempted to register using an email address or username of an existing user
+  * `user_login_id_duplicate_update` - (Optional) A user attempted to modify their email address or username to that of an existing user
+  * `user_login_failed` - (Optional) A login request has failed
+  * `user_login_new_device` - (Optional) A user has logged in from a new device
+  * `user_login_success` - (Optional) A login request has succeeded
+  * `user_login_suspicious` - (Optional) A suspicious login request has succeeded. This may be due to an impossible travel calculation, or other indicators
+  * `user_password_breach` - (Optional) A user's password has been identified as vulnerable due to being found in one or more breached data sets
+  * `user_password_reset_send` - (Optional) A user has been sent an email as part of a password reset workflow
+  * `user_password_reset_start` - (Optional) A user has started a password reset workflow
+  * `user_password_reset_success` - (Optional) A user has completed a password reset workflow
+  * `user_password_update` - (Optional) A user has updated their password
+  * `user_reactivate` - (Optional) A user has been re-activated
+  * `user_registration_create` - (Optional) A user registration is being created
+  * `user_registration_create_complete` - (Optional) A user registration has been created
+  * `user_registration_delete` - (Optional) A user registration has been deleted
+  * `user_registration_delete_complete` - (Optional) A user registration delete request has completed
+  * `user_registration_update` - (Optional) A user registration is being updated
+  * `user_registration_update_complete` - (Optional) A user registration update request has completed
+  * `user_registration_verified` - (Optional) A user registration has been verified
+  * `user_two_factor_method_add` - (Optional) A user has added a two-factor method
+  * `user_two_factor_method_remove` - (Optional) A user has removed a two-factor method
+  * `user_update` - (Optional) A user is being updated
+  * `user_update_complete` - (Optional) A user update request has completed
 * `global` - (Optional) Whether or not this Webhook is used for all events or just for specific Applications.
 * `headers` - (Optional) An object that contains headers that are sent as part of the HTTP request for the events.
 * `http_authentication_password` - (Optional) The HTTP basic authentication password that is sent as part of the HTTP request for the events.
