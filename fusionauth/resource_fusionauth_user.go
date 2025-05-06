@@ -285,6 +285,53 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 		return diag.Errorf("user.two_factor_methods: %s", err.Error())
 	}
 
+	// Attributes
+	if resp.VerificationIds != nil {
+		verification_ids := make([]map[string]interface{}, len(resp.VerificationIds))
+		for i, verification_id := range resp.VerificationIds {
+			verification_ids[i] = map[string]interface{}{
+				"verification_id": verification_id.Id,
+				"one_time_code":   verification_id.OneTimeCode,
+				"type":            verification_id.Type,
+				"value":           verification_id.Value,
+			}
+		}
+		if err := data.Set("verification_ids", verification_ids); err != nil {
+			return diag.Errorf("user.verification_ids: %s", err.Error())
+		}
+	} else {
+		// If VerificationIds is nil in the response, set it as an empty list in the state.
+		if err := data.Set("verification_ids", []map[string]interface{}{}); err != nil {
+			return diag.Errorf("user.verification_ids: %s", err.Error())
+		}
+	}
+
+	if resp.User.Identities != nil {
+		identities := make([]map[string]interface{}, len(resp.User.Identities))
+		for i, identity := range resp.User.Identities {
+			identities[i] = map[string]interface{}{
+				"display_value":       identity.DisplayValue,
+				"insert_instant":      identity.InsertInstant,
+				"last_login_instant":  identity.LastLoginInstant,
+				"last_update_instant": identity.LastUpdateInstant,
+				"moderation_status":   identity.ModerationStatus,
+				"type":                identity.Type,
+				"value":               identity.Value,
+				"verified":            identity.Verified,
+				"verified_instant":    identity.VerifiedInstant,
+				"verified_reason":     identity.VerifiedReason,
+			}
+		}
+		if err := data.Set("identities", identities); err != nil {
+			return diag.Errorf("user.identities: %s", err.Error())
+		}
+	} else {
+		// If Identities is nil in the response, set it as an empty list in the state.
+		if err := data.Set("identities", []map[string]interface{}{}); err != nil {
+			return diag.Errorf("user.identities: %s", err.Error())
+		}
+	}
+
 	return nil
 }
 
