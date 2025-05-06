@@ -1085,6 +1085,7 @@ func newRegistrationConfiguration() *schema.Resource {
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"email",
+					"phoneNumber",
 					"username",
 				}, false),
 				Default:     "email",
