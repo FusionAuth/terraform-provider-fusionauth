@@ -101,6 +101,11 @@ func dataSourceUser() *schema.Resource {
 				Computed:    true,
 				Description: "Indicates that the User’s password needs to be changed during their next login attempt.",
 			},
+			"phone_number": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The User’s phone number.",
+			},
 			"preferred_languages": {
 				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -205,6 +210,9 @@ func dataSourceUserRead(_ context.Context, data *schema.ResourceData, i interfac
 	}
 	if err := data.Set("password_change_required", resp.User.PasswordChangeRequired); err != nil {
 		return diag.Errorf("user.password_change_required: %s", err.Error())
+	}
+	if err := data.Set("phone_number", resp.User.PhoneNumber); err != nil {
+		return diag.Errorf("user.phone_number: %s", err.Error())
 	}
 	if err := data.Set("preferred_languages", resp.User.PreferredLanguages); err != nil {
 		return diag.Errorf("user.preferred_languages: %s", err.Error())

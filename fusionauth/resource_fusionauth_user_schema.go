@@ -65,7 +65,7 @@ func userSchemaV1() *schema.Resource {
 			"email": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"username", "email"},
+				AtLeastOneOf: []string{"email", "phone_number", "username"},
 				Description:  "The User’s email address. An email address is a unique in FusionAuth and stored in lower case.",
 			},
 			"encryption_scheme": {
@@ -142,6 +142,12 @@ func userSchemaV1() *schema.Resource {
 				Default:     false,
 				Optional:    true,
 				Description: "Indicates that the User’s password needs to be changed during their next login attempt.",
+			},
+			"phone_number": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"email", "phone_number", "username"},
+				Description:  "The phone number of the User. The phone number is stored and returned in E.164 canonical format, however a phone number is considered unique regardless of the format. 303-555-1212 is considered equal to +13035551212 so either version of this phone number can be used whenever providing it as input to an API. If phone_number is not provided, then email or username will be required.",
 			},
 			"preferred_languages": {
 				Type:        schema.TypeSet,
@@ -226,7 +232,7 @@ func userSchemaV1() *schema.Resource {
 			"username": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"username", "email"},
+				AtLeastOneOf: []string{"email", "phone_number", "username"},
 				Description:  "The username of the User. The username is stored and returned as a case sensitive value, however a username is considered unique regardless of the case. bob is considered equal to BoB so either version of this username can be used whenever providing it as input to an API.",
 			},
 			"username_status": {

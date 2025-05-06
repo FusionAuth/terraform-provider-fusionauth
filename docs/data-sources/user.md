@@ -38,6 +38,7 @@ The following additional attributes are exported:
 * `mobile_phone` - The user’s mobile phone number.
 * `parent_email` - The email address of the user’s parent or guardian.
 * `password_change_required` - Indicates that the user’s password needs to be changed during their next login attempt.
+* `phone_number` - The user’s phone number.
 * `preferred_languages` - An array of locale strings that give, in order, the user’s preferred languages.
 * `timezone` - The user’s preferred timezone.
 * `username_status` - The current status of the username. This is used if you are moderating usernames via CleanSpeak.
