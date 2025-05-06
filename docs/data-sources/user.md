@@ -16,8 +16,9 @@ data "fusionauth_user" "example" {
 ## Argument Reference
 
 * `tenant_id` - (Optional) The Id of the tenant used to scope this API request.
-* `user_id` - (Optional) The Id of the user. Either `user_id` or `username` must be specified.
-* `username` - (Optional) The username of the user. Either `user_id` or `username` must be specified.
+* `email` - (Optional) The email address of the user. Either `email`, `'username` or `user_id` must be specified.
+* `user_id` - (Optional) The Id of the user. Either `email`, `'username` or `user_id` must be specified.
+* `username` - (Optional) The username of the user. Either `email`, `'username` or `user_id` must be specified.
 
 ## Attributes Reference
 
@@ -28,7 +29,6 @@ The following additional attributes are exported:
 * `active` - True if the user is active. False if the user has been deactivated. Deactivated users will not be able to login.
 * `birth_date` - An ISO-8601 formatted date of the user’s birthdate such as YYYY-MM-DD.
 * `data` - A JSON string that can hold any information about the user.
-* `email` - The user’s email address.
 * `expiry` - The expiration instant of the user’s account. An expired user is not permitted to login.
 * `first_name` - The first name of the user.
 * `full_name` - The user’s full name.
