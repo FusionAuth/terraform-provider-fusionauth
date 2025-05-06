@@ -230,7 +230,7 @@ resource "fusionauth_application" "Forum" {
   * `last_name` - (Optional)
     * `enabled` - (Optional)
     * `required` - (Optional)
-  * `login_id_type` - (Optional) The unique login Id that will be collected during registration, this value can be email or username. Leaving the default value of email is preferred because an email address is globally unique.
+  * `login_id_type` - (Optional) The unique login Id that will be collected during registration. A value of `email` or `phoneNumber` is preferred because they are globally unique. The possible values are: `email`, `phoneNumber` or `username`.
   * `middle_name` - (Optional)
     * `enabled` - (Optional)
     * `required` - (Optional)
