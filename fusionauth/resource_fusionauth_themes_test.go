@@ -115,6 +115,10 @@ func testThemeAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "password_complete", templates.PasswordComplete),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_forgot", templates.PasswordForgot),
 		resource.TestCheckResourceAttr(tfResourcePath, "password_sent", templates.PasswordSent),
+		resource.TestCheckResourceAttr(tfResourcePath, "phone_complete", templates.PhoneComplete),
+		resource.TestCheckResourceAttr(tfResourcePath, "phone_sent", templates.PhoneSent),
+		resource.TestCheckResourceAttr(tfResourcePath, "phone_verification_required", templates.PhoneVerificationRequired),
+		resource.TestCheckResourceAttr(tfResourcePath, "phone_verify", templates.PhoneVerify),
 		resource.TestCheckResourceAttr(tfResourcePath, "registration_complete", templates.RegistrationComplete),
 		// resource.TestCheckResourceAttr(tfResourcePath, "registration_send", templates.RegistrationSend), // DEPRECATED
 		resource.TestCheckResourceAttr(tfResourcePath, "registration_sent", templates.RegistrationSent),
@@ -226,6 +230,10 @@ func generateFusionAuthTemplate() fusionauth.Templates {
 		PasswordComplete:                          randString20(),
 		PasswordForgot:                            randString20(),
 		PasswordSent:                              randString20(),
+		PhoneComplete:                             randString20(),
+		PhoneSent:                                 randString20(),
+		PhoneVerificationRequired:                 randString20(),
+		PhoneVerify:                               randString20(),
 		RegistrationComplete:                      randString20(),
 		RegistrationSent:                          randString20(),
 		RegistrationVerificationRequired:          randString20(),
@@ -294,16 +302,20 @@ resource "fusionauth_theme" "test_%[1]s" {
   password_complete                              = "%[41]s"
   password_forgot                                = "%[42]s"
   password_sent                                  = "%[43]s"
-  registration_complete                          = "%[44]s"
-  registration_sent                              = "%[45]s"
-  registration_verification_required             = "%[46]s"
-  registration_verify                            = "%[47]s"
-  samlv2_logout                                  = "%[48]s"
-  unauthorized                                   = "%[49]s"
+  phone_complete                                 = "%[44]s"
+  phone_sent                                     = "%[45]s"
+  phone_verification_required                    = "%[46]s"
+  phone_verify                                   = "%[47]s"
+  registration_complete                          = "%[48]s"
+  registration_sent                              = "%[49]s"
+  registration_verification_required             = "%[50]s"
+  registration_verify                            = "%[51]s"
+  samlv2_logout                                  = "%[52]s"
+  unauthorized                                   = "%[53]s"
 
   # Deprecated Properties
-  email_send                                     = "%[50]s"
-  registration_send                              = "%[51]s"
+  email_send                                     = "%[54]s"
+  registration_send                              = "%[55]s"
 }
 `,
 		resourceName,
@@ -349,6 +361,10 @@ resource "fusionauth_theme" "test_%[1]s" {
 		templates.PasswordComplete,
 		templates.PasswordForgot,
 		templates.PasswordSent,
+		templates.PhoneComplete,
+		templates.PhoneSent,
+		templates.PhoneVerificationRequired,
+		templates.PhoneVerify,
 		templates.RegistrationComplete,
 		templates.RegistrationSent,
 		templates.RegistrationVerificationRequired,

@@ -261,6 +261,26 @@ func dataSourceTheme() *schema.Resource {
 				Computed:    true,
 				Description: "A FreeMarker template that is rendered when the user requests the /password/sent path. This page is used when a user has submitted the forgot password form with their email. FusionAuth does not indicate back to the user if their email address was valid in order to prevent malicious activity that could reveal valid email addresses. Therefore, this page should indicate to the user that if their email was valid, they will receive an email shortly with a link to reset their password.",
 			},
+			"phone_complete": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A FreeMarker template that is rendered when the user requests the /phone/complete path. This page is used after a user has verified their phone number by clicking the URL in the message. After FusionAuth has updated their user object to indicate that their phone number was verified, the browser is redirected to this page.",
+			},
+			"phone_sent": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A FreeMarker template that is rendered when the user requests the /phone/sent path. This page is used after a user has asked for the verification message to be resent. This can happen if the URL in the message expired and the user clicked it. In this case, the user can provide their phone number again and FusionAuth will resend the message. After the user submits their phone number and FusionAuth re-sends a verification message to them, the browser is redirected to this page.",
+			},
+			"phone_verification_required": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A FreeMarker template that is rendered when the user requests the /phone/verification-required path. This page is rendered when a user is required to verify their phone number prior to being allowed to proceed with login. This occurs when Unverified behavior is set to Gated in identities/phone verification settings on the Tenant.",
+			},
+			"phone_verify": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A FreeMarker template that is rendered when the user requests the /phone/verify path. This page is rendered when a user clicks the URL from the verification message and the verificationId has expired. FusionAuth expires verificationId after a period of time (which is configurable). If the user has a URL from the verification message that has expired, this page will be rendered and the error will be displayed to the user.",
+			},
 			"registration_complete": {
 				Type:        schema.TypeString,
 				Computed:    true,
