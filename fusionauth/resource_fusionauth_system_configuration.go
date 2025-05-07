@@ -363,23 +363,23 @@ func handleTrustProxyConfigurationTrusted(trusted []interface{}) []string {
 func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.SystemConfigurationRequest {
 	sc := getDefaultSystemConfigurationRequest()
 
-	if val, isSet := getBoolAndIsSet(data, "audit_log_configuration.0.delete.0.enabled"); isSet {
+	if val, isSet := getValueAndIsSet[bool](data, "audit_log_configuration.0.delete.0.enabled"); isSet {
 		sc.SystemConfiguration.AuditLogConfiguration.Delete.Enabled = val
 	}
-	if v, ok := data.GetOk("audit_log_configuration.0.delete.0.number_of_days_to_retain"); ok {
-		sc.SystemConfiguration.AuditLogConfiguration.Delete.NumberOfDaysToRetain = v.(int)
+	if val, isSet := getValueAndIsSet[int](data, "audit_log_configuration.0.delete.0.number_of_days_to_retain"); isSet {
+		sc.SystemConfiguration.AuditLogConfiguration.Delete.NumberOfDaysToRetain = val
 	}
 
-	if val, isSet := getBoolAndIsSet(data, "cors_configuration.0.allow_credentials"); isSet {
+	if val, isSet := getValueAndIsSet[bool](data, "cors_configuration.0.allow_credentials"); isSet {
 		sc.SystemConfiguration.CorsConfiguration.AllowCredentials = val
 	}
 
-	if _, ok := data.GetOk("cors_configuration.0.allowed_headers"); ok {
+	if _, isSet := getValueAndIsSet[[]string](data, "cors_configuration.0.allowed_headers"); isSet {
 		sc.SystemConfiguration.CorsConfiguration.AllowedHeaders = handleStringSlice("cors_configuration.0.allowed_headers", data)
 	}
 
-	if v, ok := data.GetOk("cors_configuration.0.allowed_methods"); ok {
-		set := v.(*schema.Set)
+	if _, isSet := getValueAndIsSet[[]string](data, "cors_configuration.0.allowed_methods"); isSet {
+		set := data.Get("cors_configuration.0.allowed_methods").(*schema.Set)
 		l := set.List()
 		s := make([]fusionauth.HTTPMethod, 0, len(l))
 		for _, x := range l {
@@ -388,80 +388,80 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.CorsConfiguration.AllowedMethods = s
 	}
 
-	if _, ok := data.GetOk("cors_configuration.0.allowed_origins"); ok {
+	if _, isSet := getValueAndIsSet[[]string](data, "cors_configuration.0.allowed_origins"); isSet {
 		sc.SystemConfiguration.CorsConfiguration.AllowedOrigins = handleStringSlice("cors_configuration.0.allowed_origins", data)
 	}
 
-	if val, isSet := getBoolAndIsSet(data, "cors_configuration.0.debug"); isSet {
+	if val, isSet := getValueAndIsSet[bool](data, "cors_configuration.0.debug"); isSet {
 		sc.SystemConfiguration.CorsConfiguration.Debug = val
 	}
 
-	if val, isSet := getBoolAndIsSet(data, "cors_configuration.0.enabled"); isSet {
+	if val, isSet := getValueAndIsSet[bool](data, "cors_configuration.0.enabled"); isSet {
 		sc.SystemConfiguration.CorsConfiguration.Enabled = val
 	}
 
-	if _, ok := data.GetOk("cors_configuration.0.exposed_headers"); ok {
+	if _, isSet := getValueAndIsSet[[]string](data, "cors_configuration.0.exposed_headers"); isSet {
 		sc.SystemConfiguration.CorsConfiguration.ExposedHeaders = handleStringSlice("cors_configuration.0.exposed_headers", data)
 	}
 
-	if v, ok := data.GetOk("cors_configuration.0.preflight_max_age_in_seconds"); ok {
-		sc.SystemConfiguration.CorsConfiguration.PreflightMaxAgeInSeconds = v.(int)
+	if val, isSet := getValueAndIsSet[int](data, "cors_configuration.0.preflight_max_age_in_seconds"); isSet {
+		sc.SystemConfiguration.CorsConfiguration.PreflightMaxAgeInSeconds = val
 	}
 
-	if _, ok := data.GetOk("data"); ok {
-		sc.SystemConfiguration.Data, _ = jsonStringToMapStringInterface(data.Get("data").(string))
+	if val, isSet := getValueAndIsSet[string](data, "data"); isSet {
+		sc.SystemConfiguration.Data, _ = jsonStringToMapStringInterface(val)
 	}
 
-	if v, ok := data.GetOk("event_log_configuration.0.number_to_retain"); ok {
-		sc.SystemConfiguration.EventLogConfiguration.NumberToRetain = v.(int)
+	if val, isSet := getValueAndIsSet[int](data, "event_log_configuration.0.number_to_retain"); isSet {
+		sc.SystemConfiguration.EventLogConfiguration.NumberToRetain = val
 	}
 
-	if val, isSet := getBoolAndIsSet(data, "login_record_configuration.0.delete.0.enabled"); isSet {
+	if val, isSet := getValueAndIsSet[bool](data, "login_record_configuration.0.delete.0.enabled"); isSet {
 		sc.SystemConfiguration.LoginRecordConfiguration.Delete.Enabled = val
 	}
 
-	if v, ok := data.GetOk("login_record_configuration.0.delete.0.number_of_days_to_retain"); ok {
-		sc.SystemConfiguration.LoginRecordConfiguration.Delete.NumberOfDaysToRetain = v.(int)
+	if val, isSet := getValueAndIsSet[int](data, "login_record_configuration.0.delete.0.number_of_days_to_retain"); isSet {
+		sc.SystemConfiguration.LoginRecordConfiguration.Delete.NumberOfDaysToRetain = val
 	}
 
-	if v, ok := data.GetOk("report_timezone"); ok {
-		sc.SystemConfiguration.ReportTimezone = v.(string)
+	if val, isSet := getValueAndIsSet[string](data, "report_timezone"); isSet {
+		sc.SystemConfiguration.ReportTimezone = val
 	}
 
-	if v, ok := data.GetOk("trusted_proxy_configuration.0.trust_policy"); ok {
-		sc.SystemConfiguration.TrustedProxyConfiguration.TrustPolicy = fusionauth.SystemTrustedProxyConfigurationPolicy(v.(string))
+	if val, isSet := getValueAndIsSet[string](data, "trusted_proxy_configuration.0.trust_policy"); isSet {
+		sc.SystemConfiguration.TrustedProxyConfiguration.TrustPolicy = fusionauth.SystemTrustedProxyConfigurationPolicy(val)
 	}
 
-	if _, ok := data.GetOk("trusted_proxy_configuration.0.trusted"); ok {
+	if _, isSet := getValueAndIsSet[[]string](data, "trusted_proxy_configuration.0.trusted"); isSet {
 		sc.SystemConfiguration.TrustedProxyConfiguration.Trusted = handleTrustProxyConfigurationTrusted(data.Get("trusted_proxy_configuration.0.trusted").([]interface{}))
 	}
 
-	if v, ok := data.GetOk("ui_configuration.0.header_color"); ok {
-		sc.SystemConfiguration.UiConfiguration.HeaderColor = v.(string)
+	if val, isSet := getValueAndIsSet[string](data, "ui_configuration.0.header_color"); isSet {
+		sc.SystemConfiguration.UiConfiguration.HeaderColor = val
 	}
 
-	if v, ok := data.GetOk("ui_configuration.0.logo_url"); ok {
-		sc.SystemConfiguration.UiConfiguration.LogoURL = v.(string)
+	if val, isSet := getValueAndIsSet[string](data, "ui_configuration.0.logo_url"); isSet {
+		sc.SystemConfiguration.UiConfiguration.LogoURL = val
 	}
 
-	if v, ok := data.GetOk("ui_configuration.0.menu_font_color"); ok {
-		sc.SystemConfiguration.UiConfiguration.MenuFontColor = v.(string)
+	if val, isSet := getValueAndIsSet[string](data, "ui_configuration.0.menu_font_color"); isSet {
+		sc.SystemConfiguration.UiConfiguration.MenuFontColor = val
 	}
 
-	if val, isSet := getBoolAndIsSet(data, "usage_data_configuration.0.enabled"); isSet {
+	if val, isSet := getValueAndIsSet[bool](data, "usage_data_configuration.0.enabled"); isSet {
 		sc.SystemConfiguration.UsageDataConfiguration.Enabled = val
 	}
 
-	if val, isSet := getBoolAndIsSet(data, "webhook_event_log_configuration.0.enabled"); isSet {
+	if val, isSet := getValueAndIsSet[bool](data, "webhook_event_log_configuration.0.enabled"); isSet {
 		sc.SystemConfiguration.WebhookEventLogConfiguration.Enabled = val
 	}
 
-	if val, isSet := getBoolAndIsSet(data, "webhook_event_log_configuration.0.delete.0.enabled"); isSet {
+	if val, isSet := getValueAndIsSet[bool](data, "webhook_event_log_configuration.0.delete.0.enabled"); isSet {
 		sc.SystemConfiguration.WebhookEventLogConfiguration.Delete.Enabled = val
 	}
 
-	if v, ok := data.GetOk("webhook_event_log_configuration.0.delete.0.number_of_days_to_retain"); ok {
-		sc.SystemConfiguration.WebhookEventLogConfiguration.Delete.NumberOfDaysToRetain = v.(int)
+	if val, isSet := getValueAndIsSet[int](data, "webhook_event_log_configuration.0.delete.0.number_of_days_to_retain"); isSet {
+		sc.SystemConfiguration.WebhookEventLogConfiguration.Delete.NumberOfDaysToRetain = val
 	}
 
 	return sc

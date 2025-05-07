@@ -196,22 +196,51 @@ func suppressBlockDiff(_, oldVal, newVal string, _ *schema.ResourceData) bool {
 	return false
 }
 
-// getBoolAndIsSet checks if the key exists in the schema resource data.
+// getValueAndIsSet function checks if the key exists in the schema resource data.
 // If it does, it returns the value and true. If it doesn't, it checks if the
 // key exists in the state attributes. If it does, it returns false and true.
-// If it doesn't, it returns false and false.
+// If it doesn't, it returns [default-value] and false.
 // This is useful for checking if a boolean value is set in the schema resource
 // data or if it is set to false in the state attributes.
-func getBoolAndIsSet(d *schema.ResourceData, key string) (bool, bool) {
-	if val, ok := d.GetOk(key); ok {
-		return val.(bool), true
-	}
+func getValueAndIsSet[T any](d *schema.ResourceData, key string) (T, bool) {
+	var defaultVal T
 
-	for k := range d.State().Attributes {
-		if k == key {
-			return false, true
+	if val, ok := d.GetOk(key); ok {
+		switch any(defaultVal).(type) {
+		case bool:
+			return any(val.(bool)).(T), true
+		case int:
+			return any(val.(int)).(T), true
+		case string:
+			return any(val.(string)).(T), true
+		case []string:
+			// Handle both []interface{} and *schema.Set
+			switch v := val.(type) {
+			case []interface{}:
+				return any(handleStringSliceFromList(v)).(T), true
+			case *schema.Set:
+				return any(handleStringSliceFromSet(v)).(T), true
+			default:
+				// Handle unexpected type
+				return defaultVal, false
+			}
+		default:
+			// For other types, we'd need to add specific handling
+			return defaultVal, false
 		}
 	}
 
-	return false, false
+	// Check if the key exists in state attributes
+	for k := range d.State().Attributes {
+		_, isStringSlice := any(defaultVal).([]string)
+		if k == key || (isStringSlice && (strings.HasPrefix(k, key+".") || k == key)) {
+			// Key exists but value is not set
+			if isStringSlice {
+				return any([]string{}).(T), true
+			}
+			return defaultVal, true
+		}
+	}
+
+	return defaultVal, false
 }
