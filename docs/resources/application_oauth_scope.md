@@ -34,3 +34,19 @@ resource "fusionauth_application_oauth_scope" "this" {
 * `description` - (Optional) A description of the OAuth Scope. This is used for display purposes only.
 * `required` - (Optional) Determines if the OAuth Scope is required when requested in an OAuth workflow.
 * `scope_id` - (Optional) The Id to use for the new OAuth Scope. If not specified a secure random UUID will be generated.
+
+## Import
+
+In Terraform v1.5.0 and later, use an `import` block to import application scopes using the application ID and scope ID, separated by a colon. For example:
+
+```hcl
+import {
+  to = fusionauth_application_oauth_scope.name
+  id = "application_id:scope_id"
+}
+```
+
+Using terraform import, import application roles using the application ID and scope ID. For example:
+
+```shell
+terraform import fusionauth_application_role.name application_id:scope_id
