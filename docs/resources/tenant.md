@@ -519,6 +519,13 @@ resource "fusionauth_tenant" "example" {
     * `type` - (Optional) The type of the secure generator used for generating the change password Id. Defaults to randomBytes.
   * `passwordless_login_time_to_live_in_seconds` - (Optional) The time in seconds until a passwordless code is no longer valid and cannot be used by the Passwordless API. Value must be greater than 0. Defaults to 180.
   * `pending_account_link_time_to_live_in_seconds` - (Optional) The number of seconds before the pending account link identifier is no longer valid to complete an account link request. Value must be greater than 0. Defaults to 3600
+  * `phone_verification_id_generator` - (Optional)
+    * `length` - (Optional) The length of the secure generator used for generating the the phone verification Id. Defaults to 32
+    * `type` - (Optional) The type of the secure generator used for generating the phone verification Id. Defaults to randomBytes.
+  * `phone_verification_id_time_to_live_in_seconds` - (Optional) The time in seconds until a phone verification Id is no longer valid and cannot be used by the Verify Phone API. Value must be greater than 0. Defaults to 86400.
+  * `phone_verification_one_time_code_generator` - (Optional)
+    * `length` - (Optional) The length of the secure generator used for generating the phone verification one time code.. Defaults to 6
+    * `type` - (Optional) The type of the secure generator used for generating the phone verification one time code. Defaults to randomAlphaNumeric.
   * `registration_verification_id_generator` - (Optional)
     * `length` - (Optional) The length of the secure generator used for generating the change password Id. Defaults to 32
     * `type` - (Optional) The type of the secure generator used for generating the change password Id. Defaults to randomBytes.
@@ -607,6 +614,7 @@ resource "fusionauth_tenant" "example" {
     * `template_id` - (Optional) The Id of the SMS template that is used when notifying a user to complete a multi-factor authentication request.
 * `oauth_configuration` - (Optional)
   * `client_credentials_access_token_populate_lambda_id` - (Optional) The Id of a lambda that will be called to populate the JWT during a client credentials grant. **Note:** A paid edition of FusionAuth is required to utilize client credentials grant.
+* `password_enabled` - (Optional) Indicates whether the password is enabled for this tenant. This value is used to determine if the password is required when registering a new user or updating an existing user. Defaults to `true`.
 * `password_encryption_configuration` - (Optional)
   * `encryption_scheme` - (Optional) The default method for encrypting the User’s password.
   * `encryption_scheme_factor` - (Optional) The factor used by the password encryption scheme. If not provided, the PasswordEncryptor provides a default value. Generally this will be used as an iteration count to generate the hash. The actual use of this value is up to the PasswordEncryptor implementation.
@@ -626,6 +634,15 @@ resource "fusionauth_tenant" "example" {
   * `require_non_alpha` - (Optional) Whether to force the user to use at least one non-alphanumeric character.
   * `require_number` - (Optional) Whether to force the user to use at least one number.
   * `validate_on_login` - (Optional) When enabled the user’s password will be validated during login. If the password does not meet the currently configured validation rules the user will be required to change their password.
+* `phone_configuration` - (Optional)
+  * `messenger_id` - (Optional) The messenger that is used to deliver SMS messages for phone number verification and passwordless logins. This field is required when any of `tenant.phone_configuration.passwordless_template_id` , `tenant.phone_configuration.verification_complete_template_id` , or `tenant.phone_configuration.verification_template_id` is set.
+  * `passwordless_template_id` - (Optional) The Id of the Passwordless Message Template, sent to users when they start a passwordless login.
+  * `unverified` - (Optional)
+    * `behavior` - (Optional) The desired behavior during login for a user that does not have a verified phone number. The possible values are: `Allow` and `Gated`. Defaults to `Allow`.
+  * `verification_complete_template_id` - (Optional) The Id of the Message Template used to notify a user that their phone number has been verified.
+  * `verification_strategy` - (Optional) The process by which the user will verify their phone number. The possible values are: `ClickableLink` and `FormField`. Defaults to `ClickableLink`.
+  * `verification_template_id` - (Optional) The Id of the Message Template used to send SMS messages to users to verify that their phone number is valid.
+  * `verify_phone_number` - (Optional) Whether a user’s phone number is verified when they register with your application. Defaults to `false`.
 * `rate_limit_configuration` - (Optional)
   * `failed_login` - (Optional)
     * `enabled` -  (Optional) Whether rate limiting is enabled for failed login.
@@ -643,6 +660,10 @@ resource "fusionauth_tenant" "example" {
     * `enabled` - (Optional) Whether rate limiting is enabled for send passwordless.
     * `limit` - (Optional) The number of times a user can request a passwordless login email within the configured `time_period_in_seconds` duration.
     * `time_period_in_seconds` - (Optional) The duration for the number of times a user can request a passwordless login email before being rate limited.
+  * `send_phone_verification` - (Optional)
+    * `enabled` - (Optional) Whether rate limiting is enabled for send phone verification.
+    * `limit` - (Optional) The number of times a user can request a phone verification message within the configured `time_period_in_seconds` duration. Value must be greater than 0.
+    * `time_period_in_seconds` - (Optional) The duration for the number of times a user can request a phone verification message before being rate limited. Value must be greater than 0.
   * `send_registration_verification` - (Optional)
     * `enabled` - (Optional) Whether rate limiting is enabled for send registration verification.
     * `limit` - (Optional) The number of times a user can request a registration verification email within the configured `time_period_in_seconds` duration.

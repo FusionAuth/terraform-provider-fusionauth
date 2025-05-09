@@ -539,6 +539,12 @@ func newTenant() *schema.Resource {
 					},
 				},
 			},
+			"password_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Indicates whether the password is enabled for this tenant. This value is used to determine if the password is required when registering a new user or updating an existing user.",
+			},
 			"password_encryption_configuration": {
 				Optional: true,
 				Computed: true,
@@ -580,6 +586,75 @@ func newTenant() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				Elem:     newPasswordValidationRules(),
+			},
+			"phone_configuration": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"messenger_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The messenger that is used to deliver SMS messages for phone number verification and passwordless logins. This field is required when any of tenant.phone_configuration.passwordless_template_id , tenant.phone_configuration.verification_complete_template_id , or tenant.phone_configuration.verification_template_id is set.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"passwordless_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Passwordless Message Template, sent to users when they start a passwordless login.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"unverified": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"behavior": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Default:  "Allow",
+										ValidateFunc: validation.StringInSlice([]string{
+											"Allow",
+											"Gated",
+										}, false),
+										Description: "The desired behavior during login for a user that does not have a verified phone number. The possible values are: `Allow` and `Gated`. Defaults to `Allow`.",
+									},
+								},
+							},
+						},
+						"verification_complete_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to notify a user that their phone number has been verified.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"verification_strategy": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "ClickableLink",
+							ValidateFunc: validation.StringInSlice([]string{
+								"ClickableLink",
+								"FormField",
+							}, false),
+							Description: "The process by which the user will verify their phone number. The possible values are: `ClickableLink` and `FormField`. Defaults to `ClickableLink`.",
+						},
+						"verification_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send SMS messages to users to verify that their phone number is valid.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"verify_phone_number": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether a user’s phone number is verified when they register with your application.",
+						},
+					},
+				},
 			},
 			"rate_limit_configuration": {
 				Optional: true,
@@ -703,6 +778,36 @@ func newTenant() *schema.Resource {
 										Optional:     true,
 										Default:      60,
 										Description:  "The duration for the number of times a user can request a passwordless login email before being rate limited. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
+						"send_phone_verification": {
+							Optional: true,
+							Computed: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether rate limiting is enabled for send phone verification.",
+									},
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      5,
+										Description:  "The number of times a user can request a phone verification message within the configured time_period_in_seconds duration. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"time_period_in_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      60,
+										Description:  "The duration for the number of times a user can request a phone verification message before being rate limited. Value must be greater than 0.",
 										ValidateFunc: validation.IntAtLeast(1),
 									},
 								},
@@ -1251,6 +1356,59 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				Default:      180,
 				Description:  "The time in seconds until a passwordless code is no longer valid and cannot be used by the Passwordless API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
+			},
+			"phone_verification_id_generator": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"length": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     32,
+							Description: "The length of the secure generator used for generating the the phone verification Id.",
+						},
+						"type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomBytes),
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the phone verification Id.",
+						},
+					},
+				},
+			},
+			"phone_verification_id_time_to_live_in_seconds": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      86400,
+				Description:  "The time in seconds until a phone verification Id is no longer valid and cannot be used by the Verify Phone API. Value must be greater than 0.",
+				ValidateFunc: validation.IntAtLeast(1),
+			},
+			"phone_verification_one_time_code_generator": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"length": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     6,
+							Description: "The length of the secure generator used for generating the phone verification one time code.",
+						},
+						"type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomAlphaNumeric),
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the phone verification one time code.",
+						},
+					},
+				},
 			},
 			"registration_verification_id_generator": {
 				Type:             schema.TypeList,
