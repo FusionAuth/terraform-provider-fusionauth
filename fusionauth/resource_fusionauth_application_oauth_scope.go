@@ -3,7 +3,9 @@ package fusionauth
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -76,7 +78,7 @@ func newApplicationOAuthScope() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: importApplicationOAuthScope,
 		},
 	}
 }
@@ -132,6 +134,24 @@ func createApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i
 	return nil
 }
 
+func importApplicationOAuthScope(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	// Split the import ID on :
+	idParts := strings.Split(d.Id(), ":")
+	if len(idParts) != 2 {
+		return nil, fmt.Errorf("unexpected format of ID (%q), expected application_id:scope_id", d.Id())
+	}
+
+	applicationID := idParts[0]
+	scopeID := idParts[1]
+
+	d.SetId(scopeID)
+	if err := d.Set("application_id", applicationID); err != nil {
+		return nil, err
+	}
+
+	return []*schema.ResourceData{d}, nil
+}
+
 func readApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	aid := data.Get("application_id").(string)
@@ -156,9 +176,6 @@ func readApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i i
 	}
 	if err := data.Set("scope_id", oas.Id); err != nil {
 		return diag.Errorf("scope.scope_id: %s", err.Error())
-	}
-	if err := data.Set("data", oas.Data); err != nil {
-		return diag.Errorf("scope.data: %s", err.Error())
 	}
 	dataJSON, diags := mapStringInterfaceToJSONString(oas.Data)
 	if diags != nil {
