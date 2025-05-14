@@ -517,6 +517,9 @@ resource "fusionauth_tenant" "example" {
   * `passwordless_login_generator` - (Optional)
     * `length` - (Optional) The length of the secure generator used for generating the change password Id. Defaults to 32
     * `type` - (Optional) The type of the secure generator used for generating the change password Id. Defaults to randomBytes.
+  * `passwordless_login_one_time_code_generator` - (Optional)
+    * `length` - (Optional) The length of the secure generator used for generating the passwordless one-time code login. Defaults to 32
+    * `type` - (Optional) The type of the secure generator used for generating the passwordless one-time code login. Defaults to randomBytes.
   * `passwordless_login_time_to_live_in_seconds` - (Optional) The time in seconds until a passwordless code is no longer valid and cannot be used by the Passwordless API. Value must be greater than 0. Defaults to 180.
   * `pending_account_link_time_to_live_in_seconds` - (Optional) The number of seconds before the pending account link identifier is no longer valid to complete an account link request. Value must be greater than 0. Defaults to 3600
   * `phone_verification_id_generator` - (Optional)

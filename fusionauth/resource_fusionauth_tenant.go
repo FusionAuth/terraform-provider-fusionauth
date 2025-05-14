@@ -1350,6 +1350,29 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 					},
 				},
 			},
+			"passwordless_login_one_time_code_generator": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"length": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     32,
+							Description: "The length of the secure generator used for generating the passwordless one-time code login.",
+						},
+						"type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      string(fusionauth.SecureGeneratorType_RandomBytes),
+							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
+							Description:  "The type of the secure generator used for generating the passwordless one-time code login.",
+						},
+					},
+				},
+			},
 			"passwordless_login_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
 				Optional:     true,

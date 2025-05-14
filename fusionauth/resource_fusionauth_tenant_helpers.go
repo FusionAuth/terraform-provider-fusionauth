@@ -95,6 +95,12 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			},
 			PasswordlessLoginTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.passwordless_login_time_to_live_in_seconds").(int),
+			PasswordlessLoginOneTimeCodeGenerator: fusionauth.SecureGeneratorConfiguration{
+				Length: data.Get("external_identifier_configuration.0.passwordless_login_one_time_code_generator.0.length").(int),
+				Type: fusionauth.SecureGeneratorType(
+					data.Get("external_identifier_configuration.0.passwordless_login_one_time_code_generator.0.type").(string),
+				),
+			},
 			RegistrationVerificationIdGenerator: fusionauth.SecureGeneratorConfiguration{
 				Length: data.Get("external_identifier_configuration.0.registration_verification_id_generator.0.length").(int),
 				Type: fusionauth.SecureGeneratorType(
@@ -593,6 +599,10 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"passwordless_login_generator": []map[string]interface{}{{
 				"length": t.ExternalIdentifierConfiguration.PasswordlessLoginGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.PasswordlessLoginGenerator.Type,
+			}},
+			"passwordless_login_one_time_code_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.PasswordlessLoginOneTimeCodeGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.PasswordlessLoginOneTimeCodeGenerator.Type,
 			}},
 			"passwordless_login_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.PasswordlessLoginTimeToLiveInSeconds,
 			"registration_verification_id_generator": []map[string]interface{}{{
