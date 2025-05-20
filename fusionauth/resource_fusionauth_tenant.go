@@ -1360,13 +1360,13 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 						"length": {
 							Type:        schema.TypeInt,
 							Optional:    true,
-							Default:     32,
+							Default:     6,
 							Description: "The length of the secure generator used for generating the passwordless one-time code login.",
 						},
 						"type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							Default:      string(fusionauth.SecureGeneratorType_RandomBytes),
+							Default:      string(fusionauth.SecureGeneratorType_RandomDigits),
 							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
 							Description:  "The type of the secure generator used for generating the passwordless one-time code login.",
 						},

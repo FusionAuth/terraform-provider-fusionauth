@@ -86,8 +86,8 @@ email-verification-required-send-another=Send me another email
 enabled=Enabled
 enable=Enable
 forgot-password=Forgot your password? Type in your email address in the form below to reset your password.
-forgot-password-email-sent=We have sent an email to %s containing a link that will allow you to reset your password. Once you receive the email follow the instructions to change your password.
-forgot-password-email-sent-title=Email sent
+forgot-password-message-sent=We have sent a message to %s containing a link that will allow you to reset your password. Once you receive the message follow the instructions to change your password.
+forgot-password-message-sent-title=Message sent
 forgot-password-title=Forgot password
 forgot-your-password=Forgot your password?
 help=Help
@@ -213,6 +213,7 @@ sent-code=Code successfully sent
 #
 birthDate=Birth date
 code=Enter your verification or recovery code
+passwordless-code=Enter your passwordless login code
 email=Email
 firstName=First name
 fullName=Full name
@@ -342,6 +343,8 @@ go-back-to-send=Go back to send
 {description}email-verification-required=You must verify your email address before you continue.
 {description}email-verification-required-non-interactive=Email verification is configured to be completed outside of this request. Once you have verified your email, retry this request.
 
+{description}passwordless-login-form-field=You must enter the code from your message before you continue.
+
 {description}phone-verification-required=You must verify your phone number before you continue.
 {description}phone-verification-required-non-interactive=Phone number verification is configured to be completed outside of this request. Once you have verified your phone number, retry this request.
 
@@ -351,7 +354,7 @@ go-back-to-send=Go back to send
 # WebAuthn
 {description}add-webauthn=Enter a name for this passkey. This name may be used to identify the passkey during a login attempt, or when multiple passkeys exist.
 {description}delete-webauthn-passkey=Click delete to remove the passkey. Once removed, you will no longer be able to use this passkey to complete authentication.
-{description}webauthn-bootstrap-retrieve-credential=Retrieve your previously configured passkeys by entering your email.
+{description}webauthn-bootstrap-retrieve-credential=Retrieve your previously configured passkeys by entering your login.
 {description}webauthn-passkeys=Passkeys allow you to securely authenticate without a password. Configure one or more passkeys in order to complete authentication.
 {description}webauthn-reauth=Do you want to skip the password next time?
 {description}webauthn-reauth-existing-credential=You can select an existing passkey from the list below and skip the password on your next login.
@@ -498,6 +501,8 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [duplicate]email=An account already exists for that email
 [blank]loginId=Required
 [blank]methodId=Select a two-factor method
+[blank]oneTimeCode=Required
+[invalid]oneTimeCode=Invalid code
 [blank]parentEmail=Required
 [blank]password=Required
 [blank]user_code=Required

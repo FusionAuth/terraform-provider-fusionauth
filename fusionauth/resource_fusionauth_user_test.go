@@ -100,7 +100,8 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 	startTwoFactorMethodsMobilePhone, endTwoFactorMethodsMobilePhone := "+64987654321", "+64987654321"                         // two factor mobile phone number can't be altered once created.
 	startTwoFactorMethodsSecret, endTwoFactorMethodsSecret := "Sup3r\nSecr3t\nMFA\nSecr3t", "X7ra\nSup3r\nSecr3t\nMFA\nSecr3t" //nolint:gosec
 	startUsername, endUsername := "john.smith", "jon.snow"
-	startUsernameStatus, endUsernameStatus := "ACTIVE", "PENDING"
+	// Temporary username status change due FusionAuth API bug.
+	startUsernameStatus, endUsernameStatus := "ACTIVE", "ACTIVE"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
