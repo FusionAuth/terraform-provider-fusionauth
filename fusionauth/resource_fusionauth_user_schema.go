@@ -41,9 +41,21 @@ func userSchemaV1() *schema.Resource {
 			},
 			"send_set_password_email": {
 				Type:        schema.TypeBool,
+				Deprecated:  "Prefer the sendSetPasswordIdentityType field",
 				Optional:    true,
 				Default:     false,
 				Description: "Indicates to FusionAuth to send the User an email asking them to set their password. The Email Template that is used is configured in the System Configuration setting for Set Password Email Template.",
+			},
+			"send_set_password_identity_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "doNotSend",
+				ValidateFunc: validation.StringInSlice([]string{
+					"email",
+					"phone",
+					"doNotSend",
+				}, false),
+				Description: "If set, FusionAuth will send the User a message asking them to set their password. When you set this value to anything but `doNotSend`, any provided password field is ignored. The possible values are `doNotSend`, `email`, and `phone`.",
 			},
 			"skip_verification": {
 				Type:        schema.TypeBool,

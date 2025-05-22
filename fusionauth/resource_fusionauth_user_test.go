@@ -235,6 +235,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 					"password",
 					"parent_email",
 					"send_set_password_email",
+					"send_set_password_identity_type",
 					"skip_verification",
 					"two_factor_methods.0.secret",
 				},

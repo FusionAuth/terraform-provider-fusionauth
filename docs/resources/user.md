@@ -55,7 +55,8 @@ resource "fusionauth_user" "example" {
 * `password_change_required` - (Optional) Indicates that the User’s password needs to be changed during their next login attempt.
 * `phone_number` - (Optional) The phone number of the User. The phone number is stored and returned in E.164 canonical format, however a phone number is considered unique regardless of the format. 303-555-1212 is considered equal to +13035551212 so either version of this phone number can be used whenever providing it as input to an API. If phone_number is not provided, then email or username will be required.
 * `preferred_languages` - (Optional) An array of locale strings that give, in order, the User’s preferred languages. These are important for email templates and other localizable text.
-* `send_set_password_email` - (Optional) Indicates to FusionAuth to send the User an email asking them to set their password. The Email Template that is used is configured in the System Configuration setting for Set Password Email Template.
+* `send_set_password_email` - (Optional, Deprecated) Indicates to FusionAuth to send the User an email asking them to set their password. The Email Template that is used is configured in the System Configuration setting for Set Password Email Template. Use `send_set_password_identity_type` instead.
+* `send_set_password_identity_type` - (Optional) If set, FusionAuth will send the User a message asking them to set their password. When you set this value to anything but `doNotSend`, any provided password field is ignored. The possible values are `doNotSend`, `email`, and `phone`.
 * `skip_verification` - (Optional) Indicates to FusionAuth that it should skip email verification even if it is enabled. This is useful for creating admin or internal User accounts.
 * `tenant_id` - (Optional) The unique Id of the tenant used to scope this API request.
 * `timezone` - (Optional) The User’s preferred timezone. The string must be in an IANA time zone format.

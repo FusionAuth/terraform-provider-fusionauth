@@ -165,8 +165,9 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 				RecoveryCodes: handleStringSlice("two_factor_recovery_codes", data),
 			},
 		},
-		SendSetPasswordEmail: data.Get("send_set_password_email").(bool),
-		SkipVerification:     data.Get("skip_verification").(bool),
+		SendSetPasswordEmail:        data.Get("send_set_password_email").(bool),
+		SendSetPasswordIdentityType: fusionauth.SendSetPasswordIdentityType(data.Get("send_set_password_identity_type").(string)),
+		SkipVerification:            data.Get("skip_verification").(bool),
 	}
 
 	return req, diags
