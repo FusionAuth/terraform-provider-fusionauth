@@ -594,6 +594,42 @@ func newTenant() *schema.Resource {
 				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"forgot_password_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template that is used when sending a user a forgot password message.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"identity_update_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send a message to a user when their phone number has been updated. The message will be sent to both their new and old phone numbers.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"login_id_in_use_on_create_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send a message to a user when another user attempts to create an account with their login Id.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"login_id_in_use_on_update_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send a message to a user when another user attempts to update an existing account to use their login Id.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"login_new_device_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send a message to a user when they log in on a new device.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"login_suspicious_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send a message to a user when a suspicious login using their login Id occurs.",
+							ValidateFunc: validation.IsUUID,
+						},
 						"messenger_id": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -606,12 +642,48 @@ func newTenant() *schema.Resource {
 							Description:  "The Id of the Passwordless Message Template, sent to users when they start a passwordless login.",
 							ValidateFunc: validation.IsUUID,
 						},
+						"password_reset_success_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send a message to a user when they have completed a 'forgot password' workflow and their password has been reset.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"password_update_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send a message to a user when their password has been updated.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"set_password_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the SMS Message Template used when a user must set their password manually after their account was created for them (by an admin, for example).",
+							ValidateFunc: validation.IsUUID,
+						},
+						"two_factor_method_add_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send a message to a user when a MFA method has been removed from their account.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"two_factor_method_remove_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send a message to a user when a MFA method has been added to their account.",
+							ValidateFunc: validation.IsUUID,
+						},
 						"unverified": {
 							Type:     schema.TypeList,
 							MaxItems: 1,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"allow_phone_number_change_when_gated": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "When this value is set to `true`, the user is allowed to change their phone number when they are gated because they haven't verified their phone number.",
+									},
 									"behavior": {
 										Type:     schema.TypeString,
 										Optional: true,
