@@ -542,7 +542,6 @@ func newTenant() *schema.Resource {
 			"password_enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     true,
 				Description: "Indicates whether the password is enabled for this tenant. This value is used to determine if the password is required when registering a new user or updating an existing user.",
 			},
 			"password_encryption_configuration": {
@@ -687,7 +686,8 @@ func newTenant() *schema.Resource {
 									"behavior": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Default:  "Allow",
+										// Default:  "Allow",
+										Computed: true,
 										ValidateFunc: validation.StringInSlice([]string{
 											"Allow",
 											"Gated",
@@ -706,7 +706,8 @@ func newTenant() *schema.Resource {
 						"verification_strategy": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  "ClickableLink",
+							// Default:  "ClickableLink",
+							Computed: true,
 							ValidateFunc: validation.StringInSlice([]string{
 								"ClickableLink",
 								"FormField",
@@ -720,9 +721,9 @@ func newTenant() *schema.Resource {
 							ValidateFunc: validation.IsUUID,
 						},
 						"verify_phone_number": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
+							Type:     schema.TypeBool,
+							Optional: true,
+							// Default:     false,
 							Description: "Whether a user’s phone number is verified when they register with your application.",
 						},
 					},
@@ -863,22 +864,24 @@ func newTenant() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Default:     false,
+										Type:     schema.TypeBool,
+										Optional: true,
+										// Default:     false,
 										Description: "Whether rate limiting is enabled for send phone verification.",
 									},
 									"limit": {
-										Type:         schema.TypeInt,
-										Optional:     true,
-										Default:      5,
+										Type:     schema.TypeInt,
+										Optional: true,
+										// Default:      5,
+										Computed:     true,
 										Description:  "The number of times a user can request a phone verification message within the configured time_period_in_seconds duration. Value must be greater than 0.",
 										ValidateFunc: validation.IntAtLeast(1),
 									},
 									"time_period_in_seconds": {
-										Type:         schema.TypeInt,
-										Optional:     true,
-										Default:      60,
+										Type:     schema.TypeInt,
+										Optional: true,
+										// Default:      60,
+										Computed:     true,
 										Description:  "The duration for the number of times a user can request a phone verification message before being rate limited. Value must be greater than 0.",
 										ValidateFunc: validation.IntAtLeast(1),
 									},
@@ -1430,15 +1433,17 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
-							Type:        schema.TypeInt,
-							Optional:    true,
-							Default:     6,
+							Type:     schema.TypeInt,
+							Optional: true,
+							// Default:     6,
+							Computed:    true,
 							Description: "The length of the secure generator used for generating the passwordless one-time code login.",
 						},
 						"type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Default:      string(fusionauth.SecureGeneratorType_RandomDigits),
+							Type:     schema.TypeString,
+							Optional: true,
+							// Default:      string(fusionauth.SecureGeneratorType_RandomDigits),
+							Computed:     true,
 							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
 							Description:  "The type of the secure generator used for generating the passwordless one-time code login.",
 						},
@@ -1460,15 +1465,17 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
-							Type:        schema.TypeInt,
-							Optional:    true,
-							Default:     32,
+							Type:     schema.TypeInt,
+							Optional: true,
+							// Default:     32,
+							Computed:    true,
 							Description: "The length of the secure generator used for generating the the phone verification Id.",
 						},
 						"type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Default:      string(fusionauth.SecureGeneratorType_RandomBytes),
+							Type:     schema.TypeString,
+							Optional: true,
+							// Default:      string(fusionauth.SecureGeneratorType_RandomBytes),
+							Computed:     true,
 							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
 							Description:  "The type of the secure generator used for generating the phone verification Id.",
 						},
@@ -1476,9 +1483,10 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				},
 			},
 			"phone_verification_id_time_to_live_in_seconds": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      86400,
+				Type:     schema.TypeInt,
+				Optional: true,
+				// Default:      86400,
+				Computed:     true,
 				Description:  "The time in seconds until a phone verification Id is no longer valid and cannot be used by the Verify Phone API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
@@ -1490,15 +1498,17 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"length": {
-							Type:        schema.TypeInt,
-							Optional:    true,
-							Default:     6,
+							Type:     schema.TypeInt,
+							Optional: true,
+							// Default:     6,
+							Computed:    true,
 							Description: "The length of the secure generator used for generating the phone verification one time code.",
 						},
 						"type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Default:      string(fusionauth.SecureGeneratorType_RandomAlphaNumeric),
+							Type:     schema.TypeString,
+							Optional: true,
+							// Default:      string(fusionauth.SecureGeneratorType_RandomAlphaNumeric),
+							Computed:     true,
 							ValidateFunc: validation.StringInSlice(secureGeneratorTypes(), false),
 							Description:  "The type of the secure generator used for generating the phone verification one time code.",
 						},
