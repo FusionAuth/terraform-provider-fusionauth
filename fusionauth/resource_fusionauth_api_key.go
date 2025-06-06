@@ -461,10 +461,13 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 }
 
 // Workaround for Super API Key support: https://github.com/FusionAuth/terraform-provider-fusionauth/issues/126
+// Lint exclusions are to maintain consistency with the FusionAuth SDK APIKey structure
 type manualAPIKey struct {
-	ExpirationInstant     int64                    `json:"expirationInstant,omitempty"`
-	Id                    string                   `json:"id,omitempty"`
-	InsertInstant         int64                    `json:"insertInstant,omitempty"`
+	ExpirationInstant int64 `json:"expirationInstant,omitempty"`
+	//revive:disable-next-line:var-naming
+	Id            string `json:"id,omitempty"`
+	InsertInstant int64  `json:"insertInstant,omitempty"`
+	//revive:disable-next-line:var-naming
 	IpAccessControlListId string                   `json:"ipAccessControlListId,omitempty"`
 	Key                   string                   `json:"key,omitempty"`
 	KeyManager            bool                     `json:"keyManager"`
@@ -473,7 +476,8 @@ type manualAPIKey struct {
 	Name                  string                   `json:"name,omitempty"`
 	Permissions           *manualAPIKeyPermissions `json:"permissions,omitempty"`
 	Retrievable           bool                     `json:"retrievable"`
-	TenantId              string                   `json:"tenantId,omitempty"`
+	//revive:disable-next-line:var-naming
+	TenantId string `json:"tenantId,omitempty"`
 }
 
 type manualAPIKeyMetaData struct {
@@ -485,12 +489,15 @@ type manualAPIKeyPermissions struct {
 }
 
 type manualAPIKeyRequest struct {
+	//revive:disable-next-line:var-naming
 	ApiKey manualAPIKey `json:"apiKey,omitempty"`
 }
 
 type manualAPIKeyResponse struct {
 	fusionauth.BaseHTTPResponse
-	ApiKey  manualAPIKey   `json:"apiKey,omitempty"`
+	//revive:disable-next-line:var-naming
+	ApiKey manualAPIKey `json:"apiKey,omitempty"`
+	//revive:disable-next-line:var-naming
 	ApiKeys []manualAPIKey `json:"apiKeys,omitempty"`
 }
 
