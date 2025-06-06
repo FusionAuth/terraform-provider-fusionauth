@@ -226,6 +226,27 @@ func resourceAPIKey() *schema.Resource {
 	}
 }
 
+// func createAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+// 	client := i.(Client)
+// 	ak := buildAPIKey(data)
+
+// 	oldTenantID := client.FAClient.TenantId
+// 	client.FAClient.TenantId = ak.TenantId
+// 	defer func() {
+// 		client.FAClient.TenantId = oldTenantID
+// 	}()
+// 	kid := data.Get("key_id").(string)
+// 	resp, faErrs, err := client.FAClient.CreateAPIKey(kid, fusionauth.APIKeyRequest{ApiKey: ak})
+// 	if err != nil {
+// 		return diag.Errorf("createAPIKey errors: %v", err)
+// 	}
+// 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+// 		return diag.FromErr(err)
+// 	}
+// 	data.SetId(resp.ApiKey.Id)
+// 	return buildResourceDataFromAPIKey(data, resp.ApiKey)
+// }
+
 func createAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	ak := buildAPIKey(data)
@@ -236,7 +257,9 @@ func createAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) d
 		client.FAClient.TenantId = oldTenantID
 	}()
 	kid := data.Get("key_id").(string)
-	resp, faErrs, err := client.FAClient.CreateAPIKey(kid, fusionauth.APIKeyRequest{ApiKey: ak})
+	resp, faErrs, err := createManualAPIKey(context.Background(), client.FAClient, kid, manualAPIKeyRequest{
+		ApiKey: convertToManualAPIKey(ak),
+	})
 	if err != nil {
 		return diag.Errorf("createAPIKey errors: %v", err)
 	}
@@ -244,7 +267,7 @@ func createAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) d
 		return diag.FromErr(err)
 	}
 	data.SetId(resp.ApiKey.Id)
-	return buildResourceDataFromAPIKey(data, resp.ApiKey)
+	return buildResourceDataFromAPIKey(data, convertFromManualAPIKey(resp.ApiKey))
 }
 
 func readAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -270,6 +293,28 @@ func readAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	return buildResourceDataFromAPIKey(data, resp.ApiKey)
 }
 
+// func updateAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+// 	client := i.(Client)
+// 	ak := buildAPIKey(data)
+
+// 	oldTenantID := client.FAClient.TenantId
+// 	client.FAClient.TenantId = ak.TenantId
+// 	defer func() {
+// 		client.FAClient.TenantId = oldTenantID
+// 	}()
+
+// 	resp, faErrs, err := client.FAClient.UpdateAPIKey(data.Id(), fusionauth.APIKeyRequest{ApiKey: ak})
+// 	if err != nil {
+// 		return diag.Errorf("updateAPIKey errors: %v", err)
+// 	}
+// 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
+// 		return diag.FromErr(err)
+// 	}
+
+// 	data.SetId(resp.ApiKey.Id)
+// 	return buildResourceDataFromAPIKey(data, resp.ApiKey)
+// }
+
 func updateAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 	ak := buildAPIKey(data)
@@ -280,7 +325,9 @@ func updateAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) d
 		client.FAClient.TenantId = oldTenantID
 	}()
 
-	resp, faErrs, err := client.FAClient.UpdateAPIKey(data.Id(), fusionauth.APIKeyRequest{ApiKey: ak})
+	resp, faErrs, err := updateManualAPIKey(context.Background(), client.FAClient, data.Id(), manualAPIKeyRequest{
+		ApiKey: convertToManualAPIKey(ak),
+	})
 	if err != nil {
 		return diag.Errorf("updateAPIKey errors: %v", err)
 	}
@@ -289,7 +336,7 @@ func updateAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) d
 	}
 
 	data.SetId(resp.ApiKey.Id)
-	return buildResourceDataFromAPIKey(data, resp.ApiKey)
+	return buildResourceDataFromAPIKey(data, convertFromManualAPIKey(resp.ApiKey))
 }
 
 func deleteAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -411,4 +458,125 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 		return diag.Errorf("apiKey.retrievable: %s", err.Error())
 	}
 	return nil
+}
+
+// Workaround for Super API Key support: https://github.com/FusionAuth/terraform-provider-fusionauth/issues/126
+// Lint exclusions are to maintain consistency with the FusionAuth SDK APIKey structure
+type manualAPIKey struct {
+	ExpirationInstant     int64                    `json:"expirationInstant,omitempty"`
+	Id                    string                   `json:"id,omitempty"` //nolint:revive,stylecheck
+	InsertInstant         int64                    `json:"insertInstant,omitempty"`
+	IpAccessControlListId string                   `json:"ipAccessControlListId,omitempty"` //nolint:revive,stylecheck
+	Key                   string                   `json:"key,omitempty"`
+	KeyManager            bool                     `json:"keyManager"`
+	LastUpdateInstant     int64                    `json:"lastUpdateInstant,omitempty"`
+	MetaData              manualAPIKeyMetaData     `json:"metaData,omitempty"`
+	Name                  string                   `json:"name,omitempty"`
+	Permissions           *manualAPIKeyPermissions `json:"permissions,omitempty"`
+	Retrievable           bool                     `json:"retrievable"`
+	TenantId              string                   `json:"tenantId,omitempty"` //nolint:revive,stylecheck
+}
+
+type manualAPIKeyMetaData struct {
+	Attributes map[string]string `json:"attributes,omitempty"`
+}
+
+type manualAPIKeyPermissions struct {
+	Endpoints map[string][]string `json:"endpoints,omitempty"`
+}
+
+type manualAPIKeyRequest struct {
+	ApiKey manualAPIKey `json:"apiKey,omitempty"` //nolint:revive,stylecheck
+}
+
+type manualAPIKeyResponse struct {
+	fusionauth.BaseHTTPResponse
+	ApiKey  manualAPIKey   `json:"apiKey,omitempty"`  //nolint:revive,stylecheck
+	ApiKeys []manualAPIKey `json:"apiKeys,omitempty"` //nolint:revive,stylecheck
+}
+
+func createManualAPIKey(ctx context.Context, client fusionauth.FusionAuthClient, keyID string, request manualAPIKeyRequest) (*manualAPIKeyResponse, *fusionauth.Errors, error) {
+	return makeAPIKeyRequest(ctx, client, keyID, request, http.MethodPost)
+}
+
+func updateManualAPIKey(ctx context.Context, client fusionauth.FusionAuthClient, keyID string, request manualAPIKeyRequest) (*manualAPIKeyResponse, *fusionauth.Errors, error) {
+	return makeAPIKeyRequest(ctx, client, keyID, request, http.MethodPut)
+}
+
+func convertFromManualAPIKey(manualAPIKey manualAPIKey) fusionauth.APIKey {
+	apiKey := fusionauth.APIKey{
+		ExpirationInstant:     manualAPIKey.ExpirationInstant,
+		Id:                    manualAPIKey.Id,
+		InsertInstant:         manualAPIKey.InsertInstant,
+		IpAccessControlListId: manualAPIKey.IpAccessControlListId,
+		Key:                   manualAPIKey.Key,
+		KeyManager:            manualAPIKey.KeyManager,
+		LastUpdateInstant:     manualAPIKey.LastUpdateInstant,
+		MetaData: fusionauth.APIKeyMetaData{
+			Attributes: manualAPIKey.MetaData.Attributes,
+		},
+		Name:        manualAPIKey.Name,
+		Retrievable: manualAPIKey.Retrievable,
+		TenantId:    manualAPIKey.TenantId,
+	}
+
+	if manualAPIKey.Permissions != nil && len(manualAPIKey.Permissions.Endpoints) > 0 {
+		apiKey.Permissions = fusionauth.APIKeyPermissions{
+			Endpoints: make(map[string][]string, len(manualAPIKey.Permissions.Endpoints)),
+		}
+		for endpoint, methods := range manualAPIKey.Permissions.Endpoints {
+			apiKey.Permissions.Endpoints[endpoint] = append([]string(nil), methods...)
+		}
+	}
+
+	return apiKey
+}
+
+func convertToManualAPIKey(apiKey fusionauth.APIKey) manualAPIKey {
+	manualAPIKey := manualAPIKey{
+		ExpirationInstant:     apiKey.ExpirationInstant,
+		Id:                    apiKey.Id,
+		InsertInstant:         apiKey.InsertInstant,
+		IpAccessControlListId: apiKey.IpAccessControlListId,
+		Key:                   apiKey.Key,
+		KeyManager:            apiKey.KeyManager,
+		LastUpdateInstant:     apiKey.LastUpdateInstant,
+		MetaData: manualAPIKeyMetaData{
+			Attributes: apiKey.MetaData.Attributes,
+		},
+		Name:        apiKey.Name,
+		Retrievable: apiKey.Retrievable,
+		TenantId:    apiKey.TenantId,
+	}
+
+	if len(apiKey.Permissions.Endpoints) > 0 {
+		manualAPIKey.Permissions = &manualAPIKeyPermissions{
+			Endpoints: make(map[string][]string, len(apiKey.Permissions.Endpoints)),
+		}
+		for endpoint, methods := range apiKey.Permissions.Endpoints {
+			manualAPIKey.Permissions.Endpoints[endpoint] = append([]string(nil), methods...)
+		}
+	}
+
+	return manualAPIKey
+}
+
+func makeAPIKeyRequest(ctx context.Context, client fusionauth.FusionAuthClient, keyID string, request manualAPIKeyRequest, method string) (*manualAPIKeyResponse, *fusionauth.Errors, error) {
+	var resp manualAPIKeyResponse
+	var errors fusionauth.Errors
+
+	restClient := client.Start(&resp, &errors)
+	if method != http.MethodGet {
+		restClient.WithJSONBody(request)
+	}
+
+	err := restClient.WithUri("/api/api-key").
+		WithUriSegment(keyID).
+		WithMethod(method).
+		Do(ctx)
+
+	if restClient.ErrorRef == nil {
+		return &resp, nil, err
+	}
+	return &resp, &errors, err
 }
