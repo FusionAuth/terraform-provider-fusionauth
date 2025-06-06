@@ -463,12 +463,10 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 // Workaround for Super API Key support: https://github.com/FusionAuth/terraform-provider-fusionauth/issues/126
 // Lint exclusions are to maintain consistency with the FusionAuth SDK APIKey structure
 type manualAPIKey struct {
-	ExpirationInstant int64 `json:"expirationInstant,omitempty"`
-	//revive:disable-next-line:var-naming
-	Id            string `json:"id,omitempty"`
-	InsertInstant int64  `json:"insertInstant,omitempty"`
-	//revive:disable-next-line:var-naming
-	IpAccessControlListId string                   `json:"ipAccessControlListId,omitempty"`
+	ExpirationInstant     int64                    `json:"expirationInstant,omitempty"`
+	Id                    string                   `json:"id,omitempty"` //nolint:stylecheck
+	InsertInstant         int64                    `json:"insertInstant,omitempty"`
+	IpAccessControlListId string                   `json:"ipAccessControlListId,omitempty"` //nolint:stylecheck
 	Key                   string                   `json:"key,omitempty"`
 	KeyManager            bool                     `json:"keyManager"`
 	LastUpdateInstant     int64                    `json:"lastUpdateInstant,omitempty"`
@@ -476,8 +474,7 @@ type manualAPIKey struct {
 	Name                  string                   `json:"name,omitempty"`
 	Permissions           *manualAPIKeyPermissions `json:"permissions,omitempty"`
 	Retrievable           bool                     `json:"retrievable"`
-	//revive:disable-next-line:var-naming
-	TenantId string `json:"tenantId,omitempty"`
+	TenantId              string                   `json:"tenantId,omitempty"` //nolint:stylecheck
 }
 
 type manualAPIKeyMetaData struct {
@@ -489,16 +486,13 @@ type manualAPIKeyPermissions struct {
 }
 
 type manualAPIKeyRequest struct {
-	//revive:disable-next-line:var-naming
-	ApiKey manualAPIKey `json:"apiKey,omitempty"`
+	ApiKey manualAPIKey `json:"apiKey,omitempty"` //nolint:stylecheck
 }
 
 type manualAPIKeyResponse struct {
 	fusionauth.BaseHTTPResponse
-	//revive:disable-next-line:var-naming
-	ApiKey manualAPIKey `json:"apiKey,omitempty"`
-	//revive:disable-next-line:var-naming
-	ApiKeys []manualAPIKey `json:"apiKeys,omitempty"`
+	ApiKey  manualAPIKey   `json:"apiKey,omitempty"`  //nolint:stylecheck
+	ApiKeys []manualAPIKey `json:"apiKeys,omitempty"` //nolint:stylecheck
 }
 
 func createManualAPIKey(ctx context.Context, client fusionauth.FusionAuthClient, keyID string, request manualAPIKeyRequest) (*manualAPIKeyResponse, *fusionauth.Errors, error) {
