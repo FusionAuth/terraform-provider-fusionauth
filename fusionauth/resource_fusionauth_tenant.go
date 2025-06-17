@@ -856,6 +856,38 @@ func newTenant() *schema.Resource {
 								},
 							},
 						},
+						"send_passwordless_phone": {
+							Optional: true,
+							Computed: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										// Default:     false,
+										Description: "Whether rate limiting is enabled for send phone verification.",
+									},
+									"limit": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										// Default:      5,
+										Computed:     true,
+										Description:  "The number of times a user can request a phone verification message within the configured time_period_in_seconds duration. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"time_period_in_seconds": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										// Default:      60,
+										Computed:     true,
+										Description:  "The duration for the number of times a user can request a phone verification message before being rate limited. Value must be greater than 0.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
 						"send_phone_verification": {
 							Optional: true,
 							Computed: true,

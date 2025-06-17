@@ -340,6 +340,11 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 				Limit:               data.Get("rate_limit_configuration.0.send_passwordless.0.limit").(int),
 				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.send_passwordless.0.time_period_in_seconds").(int),
 			},
+			SendPasswordlessPhone: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.send_passwordless_phone.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.send_passwordless_phone.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.send_passwordless_phone.0.time_period_in_seconds").(int),
+			},
 			SendPhoneVerification: fusionauth.RateLimitedRequestConfiguration{
 				Enableable:          buildEnableable("rate_limit_configuration.0.send_phone_verification.0.enabled", data),
 				Limit:               data.Get("rate_limit_configuration.0.send_phone_verification.0.limit").(int),
@@ -915,6 +920,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"enabled":                t.RateLimitConfiguration.SendPasswordless.Enabled,
 				"limit":                  t.RateLimitConfiguration.SendPasswordless.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.SendPasswordless.TimePeriodInSeconds,
+			}},
+			"send_passwordless_phone": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.SendPasswordlessPhone.Enabled,
+				"limit":                  t.RateLimitConfiguration.SendPasswordlessPhone.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.SendPasswordlessPhone.TimePeriodInSeconds,
 			}},
 			"send_phone_verification": []map[string]interface{}{{
 				"enabled":                t.RateLimitConfiguration.SendPhoneVerification.Enabled,

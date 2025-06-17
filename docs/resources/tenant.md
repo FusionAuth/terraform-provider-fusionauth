@@ -675,6 +675,10 @@ resource "fusionauth_tenant" "example" {
     * `enabled` - (Optional) Whether rate limiting is enabled for send passwordless.
     * `limit` - (Optional) The number of times a user can request a passwordless login email within the configured `time_period_in_seconds` duration.
     * `time_period_in_seconds` - (Optional) The duration for the number of times a user can request a passwordless login email before being rate limited.
+  * `send_passwordless_phone` - (Optional)
+    * `enabled` - (Optional) Whether rate limiting is enabled for send passwordless phone.
+    * `limit` - (Optional) The number of times a user can request a passwordless login phone message within the configured `time_period_in_seconds` duration.
+    * `time_period_in_seconds` - (Optional) The duration for the number of times a user can request a passwordless login phone message before being rate limited.
   * `send_phone_verification` - (Optional)
     * `enabled` - (Optional) Whether rate limiting is enabled for send phone verification.
     * `limit` - (Optional) The number of times a user can request a phone verification message within the configured `time_period_in_seconds` duration. Value must be greater than 0.
