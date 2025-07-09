@@ -218,6 +218,7 @@ func dataSourceUser() *schema.Resource {
 	}
 }
 
+//nolint:gocyclo,gocognit
 func dataSourceUserRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
@@ -349,16 +350,16 @@ func dataSourceUserRead(_ context.Context, data *schema.ResourceData, i interfac
 		return diag.Errorf("user.username_status: %s", err.Error())
 	}
 	if resp.VerificationIds != nil {
-		verification_ids := make([]map[string]interface{}, len(resp.VerificationIds))
-		for i, verification_id := range resp.VerificationIds {
-			verification_ids[i] = map[string]interface{}{
-				"verification_id": verification_id.Id,
-				"one_time_code":   verification_id.OneTimeCode,
-				"type":            verification_id.Type,
-				"value":           verification_id.Value,
+		verificationIDs := make([]map[string]interface{}, len(resp.VerificationIds))
+		for i, verificationID := range resp.VerificationIds {
+			verificationIDs[i] = map[string]interface{}{
+				"verification_id": verificationID.Id,
+				"one_time_code":   verificationID.OneTimeCode,
+				"type":            verificationID.Type,
+				"value":           verificationID.Value,
 			}
 		}
-		if err := data.Set("verification_ids", verification_ids); err != nil {
+		if err := data.Set("verification_ids", verificationIDs); err != nil {
 			return diag.Errorf("user.verification_ids: %s", err.Error())
 		}
 	} else {

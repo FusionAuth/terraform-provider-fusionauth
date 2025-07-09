@@ -463,9 +463,9 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 // Workaround for Super API Key support: https://github.com/FusionAuth/terraform-provider-fusionauth/issues/126
 type manualAPIKey struct {
 	ExpirationInstant     int64                    `json:"expirationInstant,omitempty"`
-	Id                    string                   `json:"id,omitempty"`
+	Id                    string                   `json:"id,omitempty"` //nolint:revive,var-naming // FusionAuth API uses 'Id'
 	InsertInstant         int64                    `json:"insertInstant,omitempty"`
-	IpAccessControlListId string                   `json:"ipAccessControlListId,omitempty"`
+	IpAccessControlListId string                   `json:"ipAccessControlListId,omitempty"` //nolint:revive,var-naming // FusionAuth API uses 'IpAccessControlListId'
 	Key                   string                   `json:"key,omitempty"`
 	KeyManager            bool                     `json:"keyManager"`
 	LastUpdateInstant     int64                    `json:"lastUpdateInstant,omitempty"`
@@ -473,7 +473,7 @@ type manualAPIKey struct {
 	Name                  string                   `json:"name,omitempty"`
 	Permissions           *manualAPIKeyPermissions `json:"permissions,omitempty"`
 	Retrievable           bool                     `json:"retrievable"`
-	TenantId              string                   `json:"tenantId,omitempty"`
+	TenantId              string                   `json:"tenantId,omitempty"` //nolint:revive,var-naming // FusionAuth API uses 'TenantId'
 }
 
 type manualAPIKeyMetaData struct {
@@ -485,13 +485,13 @@ type manualAPIKeyPermissions struct {
 }
 
 type manualAPIKeyRequest struct {
-	ApiKey manualAPIKey `json:"apiKey,omitempty"`
+	ApiKey manualAPIKey `json:"apiKey,omitempty"` //nolint:revive,var-naming // FusionAuth API uses 'ApiKey'
 }
 
 type manualAPIKeyResponse struct {
 	fusionauth.BaseHTTPResponse
-	ApiKey  manualAPIKey   `json:"apiKey,omitempty"`
-	ApiKeys []manualAPIKey `json:"apiKeys,omitempty"`
+	ApiKey  manualAPIKey   `json:"apiKey,omitempty"`  //nolint:revive,var-naming // FusionAuth API uses 'ApiKey'
+	ApiKeys []manualAPIKey `json:"apiKeys,omitempty"` //nolint:revive,var-naming // FusionAuth API uses 'ApiKeys'
 }
 
 func createManualAPIKey(ctx context.Context, client fusionauth.FusionAuthClient, keyID string, request manualAPIKeyRequest) (*manualAPIKeyResponse, *fusionauth.Errors, error) {

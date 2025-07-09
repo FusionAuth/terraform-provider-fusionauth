@@ -522,6 +522,7 @@ func buildEventConfiguration(key string, data *schema.ResourceData) fusionauth.E
 	return fusionauth.EventConfiguration{Events: ev}
 }
 
+//nolint:gocyclo,gocognit
 func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData) diag.Diagnostics {
 	if err := data.Set("tenant_id", t.Id); err != nil {
 		return diag.Errorf("tenant.tenant_id: %s", err.Error())
@@ -898,6 +899,9 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"verify_phone_number":               t.PhoneConfiguration.VerifyPhoneNumber,
 		},
 	})
+	if err != nil {
+		return diag.Errorf("tenant.phone_configuration: %s", err.Error())
+	}
 
 	err = data.Set("rate_limit_configuration", []map[string]interface{}{
 		{
