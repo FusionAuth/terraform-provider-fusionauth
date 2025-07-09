@@ -45,6 +45,7 @@ resource "fusionauth_webhook" "example" {
 * `events_enabled` - (Optional) A mapping for the events that are enabled for this Webhook.
   * `audit_log_create` - (Optional) An audit log was created
   * `event_log_create` - (Optional) An event log was created
+  * `identity_verified` - (Optional) When a user's identity is verified
   * `group_create` - (Optional) A group is being created
   * `group_create_complete` - (Optional) A create group request completed
   * `group_delete` - (Optional) A group is being deleted

@@ -58,6 +58,11 @@ func newWebhook() *schema.Resource {
 							Optional:    true,
 							Description: "An event log was created",
 						},
+						"identity_verified": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "When a user's identity is verified",
+						},
 						"group_create": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -441,6 +446,7 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 	return map[fusionauth.EventType]bool{
 		fusionauth.EventType_AuditLogCreate:                 data.Get(prefix + "audit_log_create").(bool),
 		fusionauth.EventType_EventLogCreate:                 data.Get(prefix + "event_log_create").(bool),
+		fusionauth.EventType_IdentityVerified:               data.Get(prefix + "identity_verified").(bool),
 		fusionauth.EventType_GroupCreate:                    data.Get(prefix + "group_create").(bool),
 		fusionauth.EventType_GroupCreateComplete:            data.Get(prefix + "group_create_complete").(bool),
 		fusionauth.EventType_GroupDelete:                    data.Get(prefix + "group_delete").(bool),
@@ -552,6 +558,7 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 		{
 			"audit_log_create":                  l.EventsEnabled[fusionauth.EventType_AuditLogCreate],
 			"event_log_create":                  l.EventsEnabled[fusionauth.EventType_EventLogCreate],
+			"identity_verified":                 l.EventsEnabled[fusionauth.EventType_IdentityVerified],
 			"group_create":                      l.EventsEnabled[fusionauth.EventType_GroupCreate],
 			"group_create_complete":             l.EventsEnabled[fusionauth.EventType_GroupCreateComplete],
 			"group_delete":                      l.EventsEnabled[fusionauth.EventType_GroupDelete],

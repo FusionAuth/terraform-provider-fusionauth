@@ -51,9 +51,9 @@ func userSchemaV1() *schema.Resource {
 				Optional: true,
 				Default:  "doNotSend",
 				ValidateFunc: validation.StringInSlice([]string{
+					"doNotSend",
 					"email",
 					"phone",
-					"doNotSend",
 				}, false),
 				Description: "If set, FusionAuth will send the User a message asking them to set their password. When you set this value to anything but `doNotSend`, any provided password field is ignored. The possible values are `doNotSend`, `email`, and `phone`.",
 			},
