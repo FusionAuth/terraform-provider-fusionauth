@@ -90,8 +90,6 @@ forgot-password-message-sent=We have sent a message to %s containing a link that
 forgot-password-message-sent-title=Message sent
 forgot-password-title=Forgot password
 forgot-your-password=Forgot your password?
-forgot-password-email-sent=We have sent an email to %s containing a link that will allow you to reset your password. Once you receive the email follow the instructions to change your password.
-forgot-password-email-sent-title=Email sent
 help=Help
 instructions=Instructions
 id=Id
@@ -719,6 +717,8 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 
 [InvalidOrMissingCSRFToken]=You are not authorized to make this request. Ensure you complete this form in a browser.
 [RateLimitedException]=Your request has been rate limited. Please wait a few minutes before making another request.
+
+[MessengerError]=An error occurred while trying to send the message. Please contact your system administrator.
 
 `, name)
 }

@@ -143,6 +143,7 @@ func newTenant() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{
 								"audit-log.create",
 								"event-log.create",
+								"identity.verified",
 								"jwt.public-key.update",
 								"jwt.refresh",
 								"jwt.refresh-token.revoke",
