@@ -617,7 +617,6 @@ resource "fusionauth_tenant" "example" {
     * `template_id` - (Optional) The Id of the SMS template that is used when notifying a user to complete a multi-factor authentication request.
 * `oauth_configuration` - (Optional)
   * `client_credentials_access_token_populate_lambda_id` - (Optional) The Id of a lambda that will be called to populate the JWT during a client credentials grant. **Note:** A paid edition of FusionAuth is required to utilize client credentials grant.
-* `password_enabled` - (Optional) Indicates whether the password is enabled for this tenant. This value is used to determine if the password is required when registering a new user or updating an existing user. Defaults to `true`.
 * `password_encryption_configuration` - (Optional)
   * `encryption_scheme` - (Optional) The default method for encrypting the User’s password.
   * `encryption_scheme_factor` - (Optional) The factor used by the password encryption scheme. If not provided, the PasswordEncryptor provides a default value. Generally this will be used as an iteration count to generate the hash. The actual use of this value is up to the PasswordEncryptor implementation.
