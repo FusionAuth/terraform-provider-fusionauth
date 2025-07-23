@@ -143,7 +143,6 @@ func newTenant() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{
 								"audit-log.create",
 								"event-log.create",
-								"identity.verified",
 								"jwt.public-key.update",
 								"jwt.refresh",
 								"jwt.refresh-token.revoke",
@@ -171,6 +170,7 @@ func newTenant() *schema.Resource {
 								"user.email.verified",
 								"user.identity-provider.link",
 								"user.identity-provider.unlink",
+								"user.identity.verified",
 								"user.loginId.duplicate.create",
 								"user.loginId.duplicate.update",
 								"user.login.failed",
@@ -539,11 +539,6 @@ func newTenant() *schema.Resource {
 						},
 					},
 				},
-			},
-			"password_enabled": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Indicates whether the password is enabled for this tenant. This value is used to determine if the password is required when registering a new user or updating an existing user.",
 			},
 			"password_encryption_configuration": {
 				Optional: true,

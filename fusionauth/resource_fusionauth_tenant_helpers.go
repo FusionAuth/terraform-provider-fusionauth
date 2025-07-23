@@ -264,7 +264,6 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 		OauthConfiguration: fusionauth.TenantOAuth2Configuration{
 			ClientCredentialsAccessTokenPopulateLambdaId: data.Get("oauth_configuration.0.client_credentials_access_token_populate_lambda_id").(string),
 		},
-		PasswordEnabled: data.Get("password_enabled").(bool),
 		PasswordEncryptionConfiguration: fusionauth.PasswordEncryptionConfiguration{
 			EncryptionScheme:       data.Get("password_encryption_configuration.0.encryption_scheme").(string),
 			EncryptionSchemeFactor: data.Get("password_encryption_configuration.0.encryption_scheme_factor").(int),
@@ -820,10 +819,6 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		if err != nil {
 			return diag.Errorf("tenant.oauth_configuration: %s", err.Error())
 		}
-	}
-
-	if err := data.Set("password_enabled", t.PasswordEnabled); err != nil {
-		return diag.Errorf("tenant.password_enabled: %s", err.Error())
 	}
 
 	err = data.Set("password_encryption_configuration", []map[string]interface{}{

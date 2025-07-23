@@ -45,7 +45,6 @@ resource "fusionauth_webhook" "example" {
 * `events_enabled` - (Optional) A mapping for the events that are enabled for this Webhook.
   * `audit_log_create` - (Optional) An audit log was created
   * `event_log_create` - (Optional) An event log was created
-  * `identity_verified` - (Optional) When a user's identity is verified
   * `group_create` - (Optional) A group is being created
   * `group_create_complete` - (Optional) A create group request completed
   * `group_delete` - (Optional) A group is being deleted
@@ -73,6 +72,7 @@ resource "fusionauth_webhook" "example" {
   * `user_email_verified` - (Optional) A user has verified their email address
   * `user_identity_provider_link` - (Optional) A link has been established between a user and an identity provider
   * `user_identity_provider_unlink` - (Optional) An existing link has been removed between a user and an identify provider
+  * `user_identity_verified` - (Optional) When a user's identity is verified
   * `user_login_id_duplicate_create` - (Optional) A user attempted to register using an email address or username of an existing user
   * `user_login_id_duplicate_update` - (Optional) A user attempted to modify their email address or username to that of an existing user
   * `user_login_failed` - (Optional) A login request has failed
