@@ -170,7 +170,10 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 				data.Get("samlv2_configuration.0.xml_signature_location").(string),
 			),
 		},
-		ThemeId:                     data.Get("theme_id").(string),
+		ThemeId: data.Get("theme_id").(string),
+		UniversalConfiguration: fusionauth.UniversalApplicationConfiguration{
+			Universal: data.Get("universal_configuration.0.universal").(bool),
+		},
 		VerificationEmailTemplateId: data.Get("verification_email_template_id").(string),
 		VerificationStrategy:        fusionauth.VerificationStrategy(data.Get("verification_strategy").(string)),
 		VerifyRegistration:          data.Get("verify_registration").(bool),
@@ -542,6 +545,14 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 	}
 	if err := data.Set("theme_id", a.ThemeId); err != nil {
 		return diag.Errorf("application.theme_id: %s", err.Error())
+	}
+
+	if err := data.Set("universal_configuration", []map[string]interface{}{
+		{
+			"universal": a.UniversalConfiguration.Universal,
+		},
+	}); err != nil {
+		return diag.Errorf("application.universal_configuration: %s", err.Error())
 	}
 
 	if err := data.Set("verify_registration", a.VerifyRegistration); err != nil {
