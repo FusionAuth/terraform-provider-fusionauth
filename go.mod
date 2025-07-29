@@ -1,11 +1,11 @@
 module github.com/FusionAuth/terraform-provider-fusionauth
 
-go 1.23.0
+go 1.24
 
-toolchain go1.23.7
+toolchain go1.24.5
 
 require (
-	github.com/FusionAuth/go-client v1.57.1
+	github.com/FusionAuth/go-client v1.58.2
 	github.com/hashicorp/go-cty v1.5.0
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.37.0
@@ -57,7 +57,7 @@ require (
 	golang.org/x/text v0.27.0 // indirect
 	golang.org/x/tools v0.35.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250721164621-a45f3dfb1074 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250728155136-f173205681a0 // indirect
 	google.golang.org/grpc v1.74.2 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 )
