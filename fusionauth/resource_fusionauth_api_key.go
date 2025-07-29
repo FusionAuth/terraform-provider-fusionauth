@@ -464,9 +464,9 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 // Lint exclusions are to maintain consistency with the FusionAuth SDK APIKey structure
 type manualAPIKey struct {
 	ExpirationInstant     int64                    `json:"expirationInstant,omitempty"`
-	Id                    string                   `json:"id,omitempty"` //nolint:revive,stylecheck
+	Id                    string                   `json:"id,omitempty"` //nolint:revive
 	InsertInstant         int64                    `json:"insertInstant,omitempty"`
-	IpAccessControlListId string                   `json:"ipAccessControlListId,omitempty"` //nolint:revive,stylecheck
+	IpAccessControlListId string                   `json:"ipAccessControlListId,omitempty"` //nolint:revive
 	Key                   string                   `json:"key,omitempty"`
 	KeyManager            bool                     `json:"keyManager"`
 	LastUpdateInstant     int64                    `json:"lastUpdateInstant,omitempty"`
@@ -474,7 +474,7 @@ type manualAPIKey struct {
 	Name                  string                   `json:"name,omitempty"`
 	Permissions           *manualAPIKeyPermissions `json:"permissions,omitempty"`
 	Retrievable           bool                     `json:"retrievable"`
-	TenantId              string                   `json:"tenantId,omitempty"` //nolint:revive,stylecheck
+	TenantId              string                   `json:"tenantId,omitempty"` //nolint:revive
 }
 
 type manualAPIKeyMetaData struct {
@@ -486,13 +486,13 @@ type manualAPIKeyPermissions struct {
 }
 
 type manualAPIKeyRequest struct {
-	ApiKey manualAPIKey `json:"apiKey,omitempty"` //nolint:revive,stylecheck
+	ApiKey manualAPIKey `json:"apiKey,omitempty"` //nolint:revive
 }
 
 type manualAPIKeyResponse struct {
 	fusionauth.BaseHTTPResponse
-	ApiKey  manualAPIKey   `json:"apiKey,omitempty"`  //nolint:revive,stylecheck
-	ApiKeys []manualAPIKey `json:"apiKeys,omitempty"` //nolint:revive,stylecheck
+	ApiKey  manualAPIKey   `json:"apiKey,omitempty"`  //nolint:revive
+	ApiKeys []manualAPIKey `json:"apiKeys,omitempty"` //nolint:revive
 }
 
 func createManualAPIKey(ctx context.Context, client fusionauth.FusionAuthClient, keyID string, request manualAPIKeyRequest) (*manualAPIKeyResponse, *fusionauth.Errors, error) {
