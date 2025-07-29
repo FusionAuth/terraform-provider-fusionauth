@@ -32,7 +32,7 @@ func newApplication() *schema.Resource {
 			},
 			"tenant_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				ValidateFunc: validation.IsUUID,
 			},
 			"access_control_configuration": {
@@ -422,6 +422,21 @@ func newApplication() *schema.Resource {
 				Optional:     true,
 				Description:  "The unique Id of the theme to be used to style the login page and other end user templates.",
 				ValidateFunc: validation.IsUUID,
+			},
+			"universal_configuration": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"universal": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Indicates if this application is a universal application.",
+						},
+					},
+				},
 			},
 			"verification_email_template_id": {
 				Type:        schema.TypeString,

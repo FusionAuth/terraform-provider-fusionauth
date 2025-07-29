@@ -107,13 +107,15 @@ resource "fusionauth_application" "Forum" {
     unverified_enabled                  = true
     unverified_number_of_days_to_retain = 30
   }
+  universal_configuration {
+    universal = false
+  }
 }
 ```
 
 ## Argument Reference
 
 * `name` - (Required) The name of the Application.
-* `tenant_id` - (Required) The Id of the Tenant that this Application belongs to.
 
 ---
 
@@ -297,7 +299,10 @@ resource "fusionauth_application" "Forum" {
   * `required_signed_requests` - (Optional) If set to true, will force verification through the key store.
   * `xml_signature_canonicalization_method` - (Optional) The XML signature canonicalization method used when digesting and signing the SAML response. Unfortunately, many service providers do not correctly implement the XML signature specifications and force a specific canonicalization method. This setting allows you to change the canonicalization method to match the service provider. Often, service providers don’t even document their required method. You might need to contact enterprise support at the service provider to figure out what method they use.
   * `xml_signature_location` - (Optional) The location to place the XML signature when signing a successful SAML response.
+* `tenant_id` - (Optional) The Id of the Tenant that this Application belongs to. This is required unnless the `universal_configuration.universal` field is set to true, in which case the Application will be a universal application and will not belong to a Tenant.
 * `theme_id` - (Optional) The unique Id of the theme to be used to style the login page and other end user templates.
+* `universal_configuration` - (Optional)
+  * `universal` - (Optional) Indicates if this application is a universal application.
 * `verification_email_template_id` - (Optional) The Id of the Email Template that is used to send the Registration Verification emails to users. If the `verify_registration` field is true this field is required.
 * `verification_strategy` - (Optional) The process by which the user will verify their email address. Possible values are `ClickableLink` or `FormField`
 * `verify_registration` - (Optional) Whether or not registrations to this Application may be verified. When this is set to true the `verification_email_template_id` parameter is also required.
