@@ -4,7 +4,7 @@ This provider is used for setting up [FusionAuth](https://fusionauth.io).
 
 Learn more about [using FusionAuth and Terraform together](https://fusionauth.io/docs/operate/deploy/terraform).
 
-## Example Usage - Provider Configuration via `tfvars variables`
+## Example Usage - Provider Configuration via `Terraform variables`
 
 ```hcl
 terraform {
