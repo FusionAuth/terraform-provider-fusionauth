@@ -257,9 +257,6 @@ user.phoneNumber=Phone number
 user.preferredLanguages=Languages
 user.timezone=Timezone
 user.username=Username
-identities.email=Email
-identities.username=Username
-identities.phoneNumber=Phone number
 
 #
 # Self-service account management
@@ -345,6 +342,7 @@ go-back-to-send=Go back to send
 
 {description}passwordless-login-form-field=You must enter the code from your message before you continue.
 
+{description}phone-verification-required-change-phone=Confirm your phone number is correct and update it if you mis-typed it during registration. Updating your phone number will also send you a new message to the new number.
 {description}phone-verification-required=You must verify your phone number before you continue.
 {description}phone-verification-required-non-interactive=Phone number verification is configured to be completed outside of this request. Once you have verified your phone number, retry this request.
 
@@ -547,6 +545,9 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [blank]user.phoneNumber=Required
 [duplicate]user.phoneNumber=An account already exists for that phone number
 [invalidPhone]user.phoneNumber=Invalid
+[blank]phoneNumber=Required
+[duplicate]phoneNumber=An account already exists for that phone number
+[invalidPhone]phoneNumber=Invalid
 
 [blank]user.username=Required
 [duplicate]user.username=An account already exists for that username
@@ -617,6 +618,7 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [PasswordChangeReasonValidation]=Your password does not meet password validation rules and must be changed.
 [PasswordlessDisabled]=Passwordless login is not currently configured.
 [PhoneVerificationDisabled]=Phone number verification functionality is currently disabled. Contact your FusionAuth administrator for assistance.
+[PhoneVerificationPhoneNumberUpdated]=Your phone number has been updated and another message is on the way.
 [PhoneVerificationSent]=A verification message is on the way.
 [PushTwoFactorFailed]=Failed to send a verification code using the configured push service.
 [RegistrationVerificationSent]=A verification email is on the way.
