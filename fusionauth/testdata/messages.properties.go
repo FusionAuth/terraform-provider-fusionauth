@@ -10,22 +10,6 @@ func MessageProperties(name string) string {
 
 	return fmt.Sprintf(`
 #
-# Copyright (c) 2019-2024, FusionAuth, All Rights Reserved
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-# either express or implied. See the License for the specific
-# language governing permissions and limitations under the License.
-#
-
-#
 # Date and Time formats
 #
 date-format=M/d/yyyy
@@ -85,7 +69,7 @@ email-verification-required-title=Verification required
 email-verification-required-send-another=Send me another email
 enabled=Enabled
 enable=Enable
-forgot-password=Forgot your password? Type in your email address in the form below to reset your password.
+forgot-password=Forgot your password? Enter your login in the form below to reset your password.
 forgot-password-message-sent=We have sent a message to %s containing a link that will allow you to reset your password. Once you receive the message follow the instructions to change your password.
 forgot-password-message-sent-title=Message sent
 forgot-password-title=Forgot password
@@ -307,8 +291,8 @@ oauth2-email-enable-step-1=To enable two-factor using email, enter an email addr
 
 # SMS Enable / Disable
 sms-disable-step-1=To disable two-factor using SMS, click the button to send a one-time use code to %s. Once you receive the code, enter it in the form below.
-sms-enable-step-1=Two enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
-oauth2-sms-enable-step-1=Two enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
+sms-enable-step-1=To enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
+oauth2-sms-enable-step-1=To enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
 
 authenticator-configuration=Authenticator configuration
 verification-code=Verification code
@@ -471,6 +455,7 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [empty]=Required
 [inUse]=In use
 [invalid]=Invalid
+[invalidPhone]=Invalid
 [missing]=Required
 [mismatch]=Unexpected value
 [notEmail]=Invalid email
