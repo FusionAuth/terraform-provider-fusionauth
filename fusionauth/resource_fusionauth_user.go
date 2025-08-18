@@ -148,6 +148,7 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 			MiddleName:         data.Get("middle_name").(string),
 			MobilePhone:        data.Get("mobile_phone").(string),
 			ParentEmail:        data.Get("parent_email").(string),
+			PhoneNumber:        data.Get("phone_number").(string),
 			PreferredLanguages: handleStringSlice("preferred_languages", data),
 			Timezone:           data.Get("timezone").(string),
 			SecureIdentity: fusionauth.SecureIdentity{
@@ -164,14 +165,15 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 				RecoveryCodes: handleStringSlice("two_factor_recovery_codes", data),
 			},
 		},
-		SendSetPasswordEmail: data.Get("send_set_password_email").(bool),
-		SkipVerification:     data.Get("skip_verification").(bool),
+		SendSetPasswordEmail:        data.Get("send_set_password_email").(bool),
+		SendSetPasswordIdentityType: fusionauth.SendSetPasswordIdentityType(data.Get("send_set_password_identity_type").(string)),
+		SkipVerification:            data.Get("skip_verification").(bool),
 	}
 
 	return req, diags
 }
 
-//nolint:gocognit
+//nolint:gocyclo,gocognit
 func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse) diag.Diagnostics {
 	data.SetId(resp.User.Id)
 
@@ -213,6 +215,9 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 	}
 	if err := data.Set("mobile_phone", resp.User.MobilePhone); err != nil {
 		return diag.Errorf("user.mobile_phone: %s", err.Error())
+	}
+	if err := data.Set("phone_number", resp.User.PhoneNumber); err != nil {
+		return diag.Errorf("user.phone_number: %s", err.Error())
 	}
 	// Do not set parent_email in TF state as the server never returns the data.
 	if err := data.Set("preferred_languages", resp.User.PreferredLanguages); err != nil {
@@ -279,6 +284,53 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 	}
 	if err := data.Set("two_factor_methods", twoFactorMethodsData); err != nil {
 		return diag.Errorf("user.two_factor_methods: %s", err.Error())
+	}
+
+	// Attributes
+	if resp.VerificationIds != nil {
+		verificationIDs := make([]map[string]interface{}, len(resp.VerificationIds))
+		for i, verificationID := range resp.VerificationIds {
+			verificationIDs[i] = map[string]interface{}{
+				"verification_id": verificationID.Id,
+				"one_time_code":   verificationID.OneTimeCode,
+				"type":            verificationID.Type,
+				"value":           verificationID.Value,
+			}
+		}
+		if err := data.Set("verification_ids", verificationIDs); err != nil {
+			return diag.Errorf("user.verification_ids: %s", err.Error())
+		}
+	} else {
+		// If VerificationIds is nil in the response, set it as an empty list in the state.
+		if err := data.Set("verification_ids", []map[string]interface{}{}); err != nil {
+			return diag.Errorf("user.verification_ids: %s", err.Error())
+		}
+	}
+
+	if resp.User.Identities != nil {
+		identities := make([]map[string]interface{}, len(resp.User.Identities))
+		for i, identity := range resp.User.Identities {
+			identities[i] = map[string]interface{}{
+				"display_value":       identity.DisplayValue,
+				"insert_instant":      identity.InsertInstant,
+				"last_login_instant":  identity.LastLoginInstant,
+				"last_update_instant": identity.LastUpdateInstant,
+				"moderation_status":   identity.ModerationStatus,
+				"type":                identity.Type,
+				"value":               identity.Value,
+				"verified":            identity.Verified,
+				"verified_instant":    identity.VerifiedInstant,
+				"verified_reason":     identity.VerifiedReason,
+			}
+		}
+		if err := data.Set("identities", identities); err != nil {
+			return diag.Errorf("user.identities: %s", err.Error())
+		}
+	} else {
+		// If Identities is nil in the response, set it as an empty list in the state.
+		if err := data.Set("identities", []map[string]interface{}{}); err != nil {
+			return diag.Errorf("user.identities: %s", err.Error())
+		}
 	}
 
 	return nil

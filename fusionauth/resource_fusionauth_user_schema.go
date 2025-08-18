@@ -41,9 +41,21 @@ func userSchemaV1() *schema.Resource {
 			},
 			"send_set_password_email": {
 				Type:        schema.TypeBool,
+				Deprecated:  "Prefer the sendSetPasswordIdentityType field",
 				Optional:    true,
 				Default:     false,
 				Description: "Indicates to FusionAuth to send the User an email asking them to set their password. The Email Template that is used is configured in the System Configuration setting for Set Password Email Template.",
+			},
+			"send_set_password_identity_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "doNotSend",
+				ValidateFunc: validation.StringInSlice([]string{
+					"doNotSend",
+					"email",
+					"phone",
+				}, false),
+				Description: "If set, FusionAuth will send the User a message asking them to set their password. When you set this value to anything but `doNotSend`, any provided password field is ignored. The possible values are `doNotSend`, `email`, and `phone`.",
 			},
 			"skip_verification": {
 				Type:        schema.TypeBool,
@@ -65,7 +77,7 @@ func userSchemaV1() *schema.Resource {
 			"email": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"username", "email"},
+				AtLeastOneOf: []string{"email", "phone_number", "username"},
 				Description:  "The User’s email address. An email address is a unique in FusionAuth and stored in lower case.",
 			},
 			"encryption_scheme": {
@@ -142,6 +154,12 @@ func userSchemaV1() *schema.Resource {
 				Default:     false,
 				Optional:    true,
 				Description: "Indicates that the User’s password needs to be changed during their next login attempt.",
+			},
+			"phone_number": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"email", "phone_number", "username"},
+				Description:  "The phone number of the User. The phone number is stored and returned in E.164 canonical format, however a phone number is considered unique regardless of the format. 303-555-1212 is considered equal to +13035551212 so either version of this phone number can be used whenever providing it as input to an API. If phone_number is not provided, then email or username will be required.",
 			},
 			"preferred_languages": {
 				Type:        schema.TypeSet,
@@ -226,7 +244,7 @@ func userSchemaV1() *schema.Resource {
 			"username": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				AtLeastOneOf: []string{"username", "email"},
+				AtLeastOneOf: []string{"email", "phone_number", "username"},
 				Description:  "The username of the User. The username is stored and returned as a case sensitive value, however a username is considered unique regardless of the case. bob is considered equal to BoB so either version of this username can be used whenever providing it as input to an API.",
 			},
 			"username_status": {
@@ -239,6 +257,97 @@ func userSchemaV1() *schema.Resource {
 				}, false),
 				Default:     "ACTIVE",
 				Description: "The current status of the username. This is used if you are moderating usernames via CleanSpeak.",
+			},
+			// Attributes
+			"verification_ids": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Default:     nil,
+				Description: "The list of all verifications that exist for a user. This includes the email and phone identities that a user may have. The values from emailVerificationId and emailVerificationOneTimeCode are legacy fields and will also be present in this list.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"verification_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A verification Id.",
+						},
+						"one_time_code": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A one time code that will be paired with the verificationIds[x].id .",
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The identity type that the verification Id is for. This identity type, along with verificationIds[x].value , matches exactly one identity via user.identities[x].type .",
+						},
+						"value": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The identity value that the verification Id is for. This identity value, along with verificationIds[x].type , matches exactly one identity via user.identities[x].value .",
+						},
+					},
+				},
+			},
+			"identities": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Default:     nil,
+				Description: "The list of identities that exist for a User.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"display_value": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The display value for the identity. Only used for username type identities. If the unique username feature is not enabled, this value will be the same as user.identities[x].value. Otherwise, it will be the username the User has chosen. For primary username identities, this will be the same value as user.username .",
+						},
+						"insert_instant": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The instant when the identity was created.",
+						},
+						"last_login_instant": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The instant when the identity was last used to log in. If a User has multiple identity types (username, email, and phoneNumber), then this value will represent the specific identity they last used to log in. This contrasts with user.lastLoginInstant, which represents the last time any of the User’s identities was used to log in.",
+						},
+						"last_update_instant": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The instant when the identity was last updated.",
+						},
+						"moderation_status": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The current status of the username. This is used if you are moderating usernames via CleanSpeak.",
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The identity type.",
+						},
+						"value": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The value represented by the identity.",
+						},
+						"verified": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Whether verification was actually performed on the identity by FusionAuth.",
+						},
+						"verified_instant": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The instant when verification was performed on the identity.",
+						},
+						"verified_reason": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The reason the User’s identity was verified or not verified.",
+						},
+					},
+				},
 			},
 		},
 	}

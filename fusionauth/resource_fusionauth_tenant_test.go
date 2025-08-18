@@ -262,6 +262,9 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_passwordless.0.enabled", "false"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_passwordless.0.limit", "3"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_passwordless.0.time_period_in_seconds", "57"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_passwordless_phone.0.enabled", "false"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_passwordless_phone.0.limit", "3"),
+		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_passwordless_phone.0.time_period_in_seconds", "57"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_registration_verification.0.enabled", "true"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_registration_verification.0.limit", "2"),
 		resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.send_registration_verification.0.time_period_in_seconds", "56"),
@@ -671,6 +674,11 @@ resource "fusionauth_tenant" "test_%[1]s" {
       time_period_in_seconds = 58
     }
     send_passwordless {
+      enabled                = false
+      limit                  = 3
+      time_period_in_seconds = 57
+    }
+	send_passwordless_phone {
       enabled                = false
       limit                  = 3
       time_period_in_seconds = 57

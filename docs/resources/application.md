@@ -216,6 +216,21 @@ resource "fusionauth_application" "Forum" {
     * `Compatibility` - OAuth workflows will populate JWT and UserInfo claims in a manner compatible with versions of FusionAuth before version 1.50.0.
     * `Strict` - OAuth workflows will populate token and UserInfo claims according to the OpenID Connect 1.0 specification based on requested and consented scopes.
 * `passwordless_configuration_enabled` - (Optional) Determines if passwordless login is enabled for this application.
+* `phone_configuration` - (Optional)
+  * `forgot_password_template_id` - (Optional) The Id of the Message Template that is used when sending a user a forgot password message.
+  * `identity_update_template_id` - (Optional) The Id of the Message Template used to send a message to a user when their phone number has been updated. The message will be sent to both their new and old phone numbers.
+  * `login_id_in_use_on_create_template_id` - (Optional) The Id of the Message Template used to send a message to a user when another user attempts to create an account with their login Id.
+  * `login_id_in_use_on_update_template_id` - (Optional) The Id of the Message Template used to send a message to a user when another user attempts to update an existing account to use their login Id.
+  * `login_new_device_template_id` - (Optional) The Id of the Message Template used to send a message to a user when they log in on a new device.
+  * `login_suspicious_template_id` - (Optional) The Id of the Message Template used to send a message to a user when a suspicious login using their login Id occurs.
+  * `passwordless_template_id` - (Optional) The Id of the Passwordless Message Template, sent to users when they start a passwordless login.
+  * `password_reset_success_template_id` - (Optional) The Id of the Message Template used to send a message to a user when they have completed a 'forgot password' workflow and their password has been reset.
+  * `password_update_template_id` - (Optional) The Id of the Message Template used to send a message to a user when their password has been updated.
+  * `set_password_template_id` - (Optional) The Id of the SMS Message Template used when a user must set their password manually after their account was created for them (by an admin, for example).
+  * `two_factor_method_add_template_id` - (Optional) The Id of the Message Template used to send a message to a user when a MFA method has been added to their account.
+  * `two_factor_method_remove_template_id` - (Optional) The Id of the Message Template used to send a message to a user when a MFA method has been removed from their account.
+  * `verification_complete_template_id` - (Optional) The Id of the Message Template used to notify a user that their phone number has been verified.
+  * `verification_template_id` - (Optional) The Id of the Message Template used to send SMS messages to users to verify that their phone number is valid.
 * `registration_configuration` - (Optional)
   * `birth_date` - (Optional)
     * `enabled` - (Optional)
@@ -232,7 +247,7 @@ resource "fusionauth_application" "Forum" {
   * `last_name` - (Optional)
     * `enabled` - (Optional)
     * `required` - (Optional)
-  * `login_id_type` - (Optional) The unique login Id that will be collected during registration, this value can be email or username. Leaving the default value of email is preferred because an email address is globally unique.
+  * `login_id_type` - (Optional) The unique login Id that will be collected during registration. A value of `email` or `phoneNumber` is preferred because they are globally unique. The possible values are: `email`, `phoneNumber` or `username`.
   * `middle_name` - (Optional)
     * `enabled` - (Optional)
     * `required` - (Optional)

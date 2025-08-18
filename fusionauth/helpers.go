@@ -188,14 +188,6 @@ func clientTenantIDOverride(client *Client, data *schema.ResourceData) (revert f
 	}
 }
 
-// suppressBlockDiff is a custom diff suppressor for the "block" attribute.
-func suppressBlockDiff(_, oldVal, newVal string, _ *schema.ResourceData) bool {
-	if newVal == "0" && oldVal == "1" {
-		return true
-	}
-	return false
-}
-
 // getValueAndIsSet function checks if the key exists in the schema resource data.
 // If it does, it returns the value and true. If it doesn't, it checks if the
 // key exists in the state attributes. If it does, it returns false and true.

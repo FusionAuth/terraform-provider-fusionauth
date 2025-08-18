@@ -10,22 +10,6 @@ func MessageProperties(name string) string {
 
 	return fmt.Sprintf(`
 #
-# Copyright (c) 2019-2024, FusionAuth, All Rights Reserved
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-# either express or implied. See the License for the specific
-# language governing permissions and limitations under the License.
-#
-
-#
 # Date and Time formats
 #
 date-format=M/d/yyyy
@@ -85,9 +69,9 @@ email-verification-required-title=Verification required
 email-verification-required-send-another=Send me another email
 enabled=Enabled
 enable=Enable
-forgot-password=Forgot your password? Type in your email address in the form below to reset your password.
-forgot-password-email-sent=We have sent an email to %s containing a link that will allow you to reset your password. Once you receive the email follow the instructions to change your password.
-forgot-password-email-sent-title=Email sent
+forgot-password=Forgot your password? Enter your login in the form below to reset your password.
+forgot-password-message-sent=We have sent a message to %s containing a link that will allow you to reset your password. Once you receive the message follow the instructions to change your password.
+forgot-password-message-sent-title=Message sent
 forgot-password-title=Forgot password
 forgot-your-password=Forgot your password?
 help=Help
@@ -143,6 +127,16 @@ pending-device-link=Continue to complete your link to %s.
 pending-device-links=Continue to complete your link to %s and %s.
 pending-link-register-to-complete=Register to complete your link to %s.
 pending-links-register-to-complete=Register to complete your link to %s and %s.
+
+phone-verification-complete=Thank you. Your phone number has been verified.
+phone-verification-complete-title=Phone number verification complete
+phone-verification-form=Complete the form to request a new verification message.
+phone-verification-form-title=Phone number verification
+phone-verification-required-title=Verification required
+phone-verification-required-send-another=Send me another message
+phone-verification-sent=We have sent a message to %s with your verification code. Follow the instructions in the message to verify your phone number.
+phone-verification-sent-title=Verification sent
+
 profile=User Profile
 provide-parent-email=Provide parent email
 register-cancel-link=Or, cancel the link request.
@@ -203,16 +197,18 @@ sent-code=Code successfully sent
 #
 birthDate=Birth date
 code=Enter your verification or recovery code
+passwordless-code=Enter your passwordless login code
 email=Email
 firstName=First name
 fullName=Full name
 lastName=Last name
-loginId=Email
+loginId=Login
 middleName=Middle name
 mobilePhone=Mobile phone
 password=Password
 passwordConfirm=Confirm password
 parentEmail=Parent's email
+phoneNumber=Phone number
 preferredLanguage=Language
 preferredLanguages=Languages
 register=Register
@@ -241,6 +237,7 @@ user.mobilePhone=Mobile phone
 user.middleName=Middle name
 user.password=Password
 confirm.user.password=Confirm password
+user.phoneNumber=Phone number
 user.preferredLanguages=Languages
 user.timezone=Timezone
 user.username=Username
@@ -294,8 +291,8 @@ oauth2-email-enable-step-1=To enable two-factor using email, enter an email addr
 
 # SMS Enable / Disable
 sms-disable-step-1=To disable two-factor using SMS, click the button to send a one-time use code to %s. Once you receive the code, enter it in the form below.
-sms-enable-step-1=Two enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
-oauth2-sms-enable-step-1=Two enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
+sms-enable-step-1=To enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
+oauth2-sms-enable-step-1=To enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
 
 authenticator-configuration=Authenticator configuration
 verification-code=Verification code
@@ -307,6 +304,7 @@ go-back-to-send=Go back to send
 # Confirmation required
 #
 {description}confirmation-required-verifyEmail=To confirm you wish to verify your email address, click continue.
+{description}confirmation-required-verifyPhone=To confirm you wish to verify your phone number, click continue.
 {description}confirmation-required-verifyRegistration=To confirm you wish to verify your registration, click continue.
 {description}confirmation-required-changePasswordMultiFactor=Because you have enabled two-factor authentication, you must first complete an authentication challenge prior to changing your password.<br><br>To confirm you wish to start a two-factor challenge, click continue.
 {description}confirmation-required-passwordlessLogin=To confirm you wish to complete a passwordless login, click continue.
@@ -326,13 +324,19 @@ go-back-to-send=Go back to send
 {description}email-verification-required=You must verify your email address before you continue.
 {description}email-verification-required-non-interactive=Email verification is configured to be completed outside of this request. Once you have verified your email, retry this request.
 
+{description}passwordless-login-form-field=You must enter the code from your message before you continue.
+
+{description}phone-verification-required-change-phone=Confirm your phone number is correct and update it if you mis-typed it during registration. Updating your phone number will also send you a new message to the new number.
+{description}phone-verification-required=You must verify your phone number before you continue.
+{description}phone-verification-required-non-interactive=Phone number verification is configured to be completed outside of this request. Once you have verified your phone number, retry this request.
+
 {description}registration-verification-required=You must verify your registration before you continue.
 {description}registration-verification-required-non-interactive=Registration verification is configured to be completed outside of this request. Once you have verified your registration, retry this request.
 
 # WebAuthn
 {description}add-webauthn=Enter a name for this passkey. This name may be used to identify the passkey during a login attempt, or when multiple passkeys exist.
 {description}delete-webauthn-passkey=Click delete to remove the passkey. Once removed, you will no longer be able to use this passkey to complete authentication.
-{description}webauthn-bootstrap-retrieve-credential=Retrieve your previously configured passkeys by entering your email.
+{description}webauthn-bootstrap-retrieve-credential=Retrieve your previously configured passkeys by entering your login.
 {description}webauthn-passkeys=Passkeys allow you to securely authenticate without a password. Configure one or more passkeys in order to complete authentication.
 {description}webauthn-reauth=Do you want to skip the password next time?
 {description}webauthn-reauth-existing-credential=You can select an existing passkey from the list below and skip the password on your next login.
@@ -451,6 +455,7 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [empty]=Required
 [inUse]=In use
 [invalid]=Invalid
+[invalidPhone]=Invalid
 [missing]=Required
 [mismatch]=Unexpected value
 [notEmail]=Invalid email
@@ -479,6 +484,8 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [duplicate]email=An account already exists for that email
 [blank]loginId=Required
 [blank]methodId=Select a two-factor method
+[blank]oneTimeCode=Required
+[invalid]oneTimeCode=Invalid code
 [blank]parentEmail=Required
 [blank]password=Required
 [blank]user_code=Required
@@ -519,6 +526,14 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [tooShort]user.password=Password does not meet the minimum length requirement
 [tooLong]user.password=Password exceeds the maximum length requirement
 [tooYoung]user.password=Password was changed too recently, try again later
+
+[blank]user.phoneNumber=Required
+[duplicate]user.phoneNumber=An account already exists for that phone number
+[invalidPhone]user.phoneNumber=Invalid
+[blank]phoneNumber=Required
+[duplicate]phoneNumber=An account already exists for that phone number
+[invalidPhone]phoneNumber=Invalid
+
 [blank]user.username=Required
 [duplicate]user.username=An account already exists for that username
 [inactive]user.username=An account already exists for that username but is locked. Contact the administrator for assistance
@@ -581,12 +596,15 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [NotFoundException]=The requested OAuth configuration is invalid.
 [OAuthv1TokenMismatch]=Invalid request. The token provided on the OAuth v1 callback did not match the one sent during authorization. Unable to handle the identity provider login. Please contact your system administrator or support for assistance.
 [Oauthv2Error]=An invalid request was made to the Authorize endpoint. %s
-[PasswordlessRequestSent]=An email is on the way.
+[PasswordlessRequestSent]=A message is on the way.
 [PasswordChangeRequired]=You must change your password in order to continue.
 [PasswordChangeReasonExpired]=Your password has expired and must be changed.
 [PasswordChangeReasonBreached]=Your password was found in the list of vulnerable passwords and must be changed.
 [PasswordChangeReasonValidation]=Your password does not meet password validation rules and must be changed.
 [PasswordlessDisabled]=Passwordless login is not currently configured.
+[PhoneVerificationDisabled]=Phone number verification functionality is currently disabled. Contact your FusionAuth administrator for assistance.
+[PhoneVerificationPhoneNumberUpdated]=Your phone number has been updated and another message is on the way.
+[PhoneVerificationSent]=A verification message is on the way.
 [PushTwoFactorFailed]=Failed to send a verification code using the configured push service.
 [RegistrationVerificationSent]=A verification email is on the way.
 [SSOSessionDeletedOrExpired]=You have been logged out of FusionAuth.
@@ -686,6 +704,8 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 
 [InvalidOrMissingCSRFToken]=You are not authorized to make this request. Ensure you complete this form in a browser.
 [RateLimitedException]=Your request has been rate limited. Please wait a few minutes before making another request.
+
+[MessengerError]=An error occurred while trying to send the message. Please contact your system administrator.
 
 `, name)
 }

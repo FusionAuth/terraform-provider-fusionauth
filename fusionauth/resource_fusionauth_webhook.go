@@ -193,6 +193,11 @@ func newWebhook() *schema.Resource {
 							Optional:    true,
 							Description: "An existing link has been removed between a user and an identify provider",
 						},
+						"user_identity_verified": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "When a user's identity is verified",
+						},
 						"user_login_id_duplicate_create": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -468,6 +473,7 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 		fusionauth.EventType_UserEmailVerified:              data.Get(prefix + "user_email_verified").(bool),
 		fusionauth.EventType_UserIdentityProviderLink:       data.Get(prefix + "user_identity_provider_link").(bool),
 		fusionauth.EventType_UserIdentityProviderUnlink:     data.Get(prefix + "user_identity_provider_unlink").(bool),
+		fusionauth.EventType_UserIdentityVerified:           data.Get(prefix + "user_identity_verified").(bool),
 		fusionauth.EventType_UserLoginIdDuplicateOnCreate:   data.Get(prefix + "user_login_id_duplicate_create").(bool),
 		fusionauth.EventType_UserLoginIdDuplicateOnUpdate:   data.Get(prefix + "user_login_id_duplicate_update").(bool),
 		fusionauth.EventType_UserLoginFailed:                data.Get(prefix + "user_login_failed").(bool),
@@ -579,6 +585,7 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 			"user_email_verified":               l.EventsEnabled[fusionauth.EventType_UserEmailVerified],
 			"user_identity_provider_link":       l.EventsEnabled[fusionauth.EventType_UserIdentityProviderLink],
 			"user_identity_provider_unlink":     l.EventsEnabled[fusionauth.EventType_UserIdentityProviderUnlink],
+			"user_identity_verified":            l.EventsEnabled[fusionauth.EventType_UserIdentityVerified],
 			"user_login_id_duplicate_create":    l.EventsEnabled[fusionauth.EventType_UserLoginIdDuplicateOnCreate],
 			"user_login_id_duplicate_update":    l.EventsEnabled[fusionauth.EventType_UserLoginIdDuplicateOnUpdate],
 			"user_login_failed":                 l.EventsEnabled[fusionauth.EventType_UserLoginFailed],

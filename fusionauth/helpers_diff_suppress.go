@@ -50,3 +50,11 @@ func diffSuppressTemplate(_, oldStr, newStr string, _ *schema.ResourceData) bool
 	newStr = clean(newStr)
 	return oldStr == newStr
 }
+
+// suppressBlockDiff is a custom diff suppressor for the "block" attribute.
+func suppressBlockDiff(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+	if newVal == "0" && oldVal == "1" {
+		return true
+	}
+	return false
+}

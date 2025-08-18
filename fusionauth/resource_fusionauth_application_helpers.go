@@ -98,6 +98,22 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		PasswordlessConfiguration: fusionauth.PasswordlessConfiguration{
 			Enableable: buildEnableable("passwordless_configuration_enabled", data),
 		},
+		PhoneConfiguration: fusionauth.ApplicationPhoneConfiguration{
+			ForgotPasswordTemplateId:        data.Get("phone_configuration.0.forgot_password_template_id").(string),
+			IdentityUpdateTemplateId:        data.Get("phone_configuration.0.identity_update_template_id").(string),
+			LoginIdInUseOnCreateTemplateId:  data.Get("phone_configuration.0.login_id_in_use_on_create_template_id").(string),
+			LoginIdInUseOnUpdateTemplateId:  data.Get("phone_configuration.0.login_id_in_use_on_update_template_id").(string),
+			LoginNewDeviceTemplateId:        data.Get("phone_configuration.0.login_new_device_template_id").(string),
+			LoginSuspiciousTemplateId:       data.Get("phone_configuration.0.login_suspicious_template_id").(string),
+			PasswordlessTemplateId:          data.Get("phone_configuration.0.passwordless_template_id").(string),
+			PasswordResetSuccessTemplateId:  data.Get("phone_configuration.0.password_reset_success_template_id").(string),
+			PasswordUpdateTemplateId:        data.Get("phone_configuration.0.password_update_template_id").(string),
+			SetPasswordTemplateId:           data.Get("phone_configuration.0.set_password_template_id").(string),
+			TwoFactorMethodAddTemplateId:    data.Get("phone_configuration.0.two_factor_method_add_template_id").(string),
+			TwoFactorMethodRemoveTemplateId: data.Get("phone_configuration.0.two_factor_method_remove_template_id").(string),
+			VerificationCompleteTemplateId:  data.Get("phone_configuration.0.verification_complete_template_id").(string),
+			VerificationTemplateId:          data.Get("phone_configuration.0.verification_template_id").(string),
+		},
 		RegistrationConfiguration: fusionauth.RegistrationConfiguration{
 			Enableable:         buildEnableable("registration_configuration.0.enabled", data),
 			BirthDate:          buildRequireable("registration_configuration.0.birth_date", data),
@@ -410,6 +426,28 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	if err := data.Set("passwordless_configuration_enabled", a.PasswordlessConfiguration.Enabled); err != nil {
 		return diag.Errorf("application.passwordless_configuration_enabled: %s", err.Error())
+	}
+
+	err = data.Set("phone_configuration", []map[string]interface{}{
+		{
+			"forgot_password_template_id":           a.PhoneConfiguration.ForgotPasswordTemplateId,
+			"identity_update_template_id":           a.PhoneConfiguration.IdentityUpdateTemplateId,
+			"login_id_in_use_on_create_template_id": a.PhoneConfiguration.LoginIdInUseOnCreateTemplateId,
+			"login_id_in_use_on_update_template_id": a.PhoneConfiguration.LoginIdInUseOnUpdateTemplateId,
+			"login_new_device_template_id":          a.PhoneConfiguration.LoginNewDeviceTemplateId,
+			"login_suspicious_template_id":          a.PhoneConfiguration.LoginSuspiciousTemplateId,
+			"passwordless_template_id":              a.PhoneConfiguration.PasswordlessTemplateId,
+			"password_reset_success_template_id":    a.PhoneConfiguration.PasswordResetSuccessTemplateId,
+			"password_update_template_id":           a.PhoneConfiguration.PasswordUpdateTemplateId,
+			"set_password_template_id":              a.PhoneConfiguration.SetPasswordTemplateId,
+			"two_factor_method_add_template_id":     a.PhoneConfiguration.TwoFactorMethodAddTemplateId,
+			"two_factor_method_remove_template_id":  a.PhoneConfiguration.TwoFactorMethodRemoveTemplateId,
+			"verification_complete_template_id":     a.PhoneConfiguration.VerificationCompleteTemplateId,
+			"verification_template_id":              a.PhoneConfiguration.VerificationTemplateId,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("application.phone_configuration: %s", err.Error())
 	}
 
 	err = data.Set("registration_configuration", []map[string]interface{}{

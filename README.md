@@ -75,11 +75,4 @@ To run tests:
 ```
 cd fusionauth
 go test
-```
-
-## Known issues
-
-If you do not specify permissions when adding an API key, you will get a key created that has no permissions. See the following issues for more details.
-
-* <https://github.com/FusionAuth/terraform-provider-fusionauth/issues/126>
-* <https://github.com/FusionAuth/fusionauth-issues/issues/1675>
+``

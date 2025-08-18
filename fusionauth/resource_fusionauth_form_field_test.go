@@ -51,7 +51,7 @@ func Test_validateKey(t *testing.T) {
 				i: "user.invalid.",
 				k: "key",
 			},
-			wantErrors:   []error{fmt.Errorf(`valid options for "key" are: ["registration.username" "user.birthDate" "user.email" "user.firstname" "user.fullName" "user.lastName" "user.middleName" "user.mobilePhone" "user.password" "user.username"] or start with ["user.data." "registration.data."]`)},
+			wantErrors:   []error{fmt.Errorf(`valid options for "key" are: ["registration.preferredLanguages" "registration.roles" "registration.timezone" "registration.username" "user.birthDate" "user.email" "user.firstname" "user.fullName" "user.imageUrl" "user.lastName" "user.middleName" "user.mobilePhone" "user.password" "user.phoneNumber" "user.preferredLanguages" "user.timezone" "user.username"] or start with ["user.data." "registration.data."]`)},
 			wantWarnings: nil,
 		},
 	}

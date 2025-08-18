@@ -95,10 +95,31 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			},
 			PasswordlessLoginTimeToLiveInSeconds: data.Get(
 				"external_identifier_configuration.0.passwordless_login_time_to_live_in_seconds").(int),
+			PasswordlessLoginOneTimeCodeGenerator: fusionauth.SecureGeneratorConfiguration{
+				Length: data.Get("external_identifier_configuration.0.passwordless_login_one_time_code_generator.0.length").(int),
+				Type: fusionauth.SecureGeneratorType(
+					data.Get("external_identifier_configuration.0.passwordless_login_one_time_code_generator.0.type").(string),
+				),
+			},
 			RegistrationVerificationIdGenerator: fusionauth.SecureGeneratorConfiguration{
 				Length: data.Get("external_identifier_configuration.0.registration_verification_id_generator.0.length").(int),
 				Type: fusionauth.SecureGeneratorType(
 					data.Get("external_identifier_configuration.0.registration_verification_id_generator.0.type").(string),
+				),
+			},
+			PhoneVerificationIdGenerator: fusionauth.SecureGeneratorConfiguration{
+				Length: data.Get("external_identifier_configuration.0.phone_verification_id_generator.0.length").(int),
+				Type: fusionauth.SecureGeneratorType(
+					data.Get("external_identifier_configuration.0.phone_verification_id_generator.0.type").(string),
+				),
+			},
+			PhoneVerificationIdTimeToLiveInSeconds: data.Get(
+				"external_identifier_configuration.0.phone_verification_id_time_to_live_in_seconds",
+			).(int),
+			PhoneVerificationOneTimeCodeGenerator: fusionauth.SecureGeneratorConfiguration{
+				Length: data.Get("external_identifier_configuration.0.phone_verification_one_time_code_generator.0.length").(int),
+				Type: fusionauth.SecureGeneratorType(
+					data.Get("external_identifier_configuration.0.phone_verification_one_time_code_generator.0.type").(string),
 				),
 			},
 			RegistrationVerificationIdTimeToLiveInSeconds: data.Get(
@@ -274,6 +295,29 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			RequireNumber:    data.Get("password_validation_rules.0.require_number").(bool),
 			ValidateOnLogin:  data.Get("password_validation_rules.0.validate_on_login").(bool),
 		},
+		PhoneConfiguration: fusionauth.TenantPhoneConfiguration{
+			ForgotPasswordTemplateId:        data.Get("phone_configuration.0.forgot_password_template_id").(string),
+			IdentityUpdateTemplateId:        data.Get("phone_configuration.0.identity_update_template_id").(string),
+			LoginIdInUseOnCreateTemplateId:  data.Get("phone_configuration.0.login_id_in_use_on_create_template_id").(string),
+			LoginIdInUseOnUpdateTemplateId:  data.Get("phone_configuration.0.login_id_in_use_on_update_template_id").(string),
+			LoginNewDeviceTemplateId:        data.Get("phone_configuration.0.login_new_device_template_id").(string),
+			LoginSuspiciousTemplateId:       data.Get("phone_configuration.0.login_suspicious_template_id").(string),
+			MessengerId:                     data.Get("phone_configuration.0.messenger_id").(string),
+			PasswordlessTemplateId:          data.Get("phone_configuration.0.passwordless_template_id").(string),
+			PasswordResetSuccessTemplateId:  data.Get("phone_configuration.0.password_reset_success_template_id").(string),
+			PasswordUpdateTemplateId:        data.Get("phone_configuration.0.password_update_template_id").(string),
+			SetPasswordTemplateId:           data.Get("phone_configuration.0.set_password_template_id").(string),
+			TwoFactorMethodAddTemplateId:    data.Get("phone_configuration.0.two_factor_method_add_template_id").(string),
+			TwoFactorMethodRemoveTemplateId: data.Get("phone_configuration.0.two_factor_method_remove_template_id").(string),
+			Unverified: fusionauth.PhoneUnverifiedOptions{
+				AllowPhoneNumberChangeWhenGated: data.Get("phone_configuration.0.unverified.0.allow_phone_number_change_when_gated").(bool),
+				Behavior:                        fusionauth.UnverifiedBehavior(data.Get("phone_configuration.0.unverified.0.behavior").(string)),
+			},
+			VerificationCompleteTemplateId: data.Get("phone_configuration.0.verification_complete_template_id").(string),
+			VerificationStrategy:           fusionauth.VerificationStrategy(data.Get("phone_configuration.0.verification_strategy").(string)),
+			VerificationTemplateId:         data.Get("phone_configuration.0.verification_template_id").(string),
+			VerifyPhoneNumber:              data.Get("phone_configuration.0.verify_phone_number").(bool),
+		},
 		RateLimitConfiguration: fusionauth.TenantRateLimitConfiguration{
 			FailedLogin: fusionauth.RateLimitedRequestConfiguration{
 				Enableable:          buildEnableable("rate_limit_configuration.0.failed_login.0.enabled", data),
@@ -294,6 +338,16 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 				Enableable:          buildEnableable("rate_limit_configuration.0.send_passwordless.0.enabled", data),
 				Limit:               data.Get("rate_limit_configuration.0.send_passwordless.0.limit").(int),
 				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.send_passwordless.0.time_period_in_seconds").(int),
+			},
+			SendPasswordlessPhone: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.send_passwordless_phone.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.send_passwordless_phone.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.send_passwordless_phone.0.time_period_in_seconds").(int),
+			},
+			SendPhoneVerification: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.send_phone_verification.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.send_phone_verification.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.send_phone_verification.0.time_period_in_seconds").(int),
 			},
 			SendRegistrationVerification: fusionauth.RateLimitedRequestConfiguration{
 				Enableable:          buildEnableable("rate_limit_configuration.0.send_registration_verification.0.enabled", data),
@@ -467,6 +521,7 @@ func buildEventConfiguration(key string, data *schema.ResourceData) fusionauth.E
 	return fusionauth.EventConfiguration{Events: ev}
 }
 
+//nolint:gocyclo,gocognit
 func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData) diag.Diagnostics {
 	if err := data.Set("tenant_id", t.Id); err != nil {
 		return diag.Errorf("tenant.tenant_id: %s", err.Error())
@@ -562,10 +617,23 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"length": t.ExternalIdentifierConfiguration.PasswordlessLoginGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.PasswordlessLoginGenerator.Type,
 			}},
+			"passwordless_login_one_time_code_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.PasswordlessLoginOneTimeCodeGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.PasswordlessLoginOneTimeCodeGenerator.Type,
+			}},
 			"passwordless_login_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.PasswordlessLoginTimeToLiveInSeconds,
 			"registration_verification_id_generator": []map[string]interface{}{{
 				"length": t.ExternalIdentifierConfiguration.RegistrationVerificationIdGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.RegistrationVerificationIdGenerator.Type,
+			}},
+			"phone_verification_id_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.PhoneVerificationIdGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.PhoneVerificationIdGenerator.Type,
+			}},
+			"phone_verification_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.PhoneVerificationIdTimeToLiveInSeconds,
+			"phone_verification_one_time_code_generator": []map[string]interface{}{{
+				"length": t.ExternalIdentifierConfiguration.PhoneVerificationOneTimeCodeGenerator.Length,
+				"type":   t.ExternalIdentifierConfiguration.PhoneVerificationOneTimeCodeGenerator.Type,
 			}},
 			"registration_verification_id_time_to_live_in_seconds":        t.ExternalIdentifierConfiguration.RegistrationVerificationIdTimeToLiveInSeconds,
 			"remember_oauth_scope_consent_choice_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.RememberOAuthScopeConsentChoiceTimeToLiveInSeconds,
@@ -801,6 +869,35 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.password_validation_rules: %s", err.Error())
 	}
 
+	err = data.Set("phone_configuration", []map[string]interface{}{
+		{
+			"forgot_password_template_id":           t.PhoneConfiguration.ForgotPasswordTemplateId,
+			"identity_update_template_id":           t.PhoneConfiguration.IdentityUpdateTemplateId,
+			"login_id_in_use_on_create_template_id": t.PhoneConfiguration.LoginIdInUseOnCreateTemplateId,
+			"login_id_in_use_on_update_template_id": t.PhoneConfiguration.LoginIdInUseOnUpdateTemplateId,
+			"login_new_device_template_id":          t.PhoneConfiguration.LoginNewDeviceTemplateId,
+			"login_suspicious_template_id":          t.PhoneConfiguration.LoginSuspiciousTemplateId,
+			"messenger_id":                          t.PhoneConfiguration.MessengerId,
+			"passwordless_template_id":              t.PhoneConfiguration.PasswordlessTemplateId,
+			"password_reset_success_template_id":    t.PhoneConfiguration.PasswordResetSuccessTemplateId,
+			"password_update_template_id":           t.PhoneConfiguration.PasswordUpdateTemplateId,
+			"set_password_template_id":              t.PhoneConfiguration.SetPasswordTemplateId,
+			"two_factor_method_add_template_id":     t.PhoneConfiguration.TwoFactorMethodAddTemplateId,
+			"two_factor_method_remove_template_id":  t.PhoneConfiguration.TwoFactorMethodRemoveTemplateId,
+			"unverified": []map[string]interface{}{{
+				"allow_phone_number_change_when_gated": t.PhoneConfiguration.Unverified.AllowPhoneNumberChangeWhenGated,
+				"behavior":                             t.PhoneConfiguration.Unverified.Behavior,
+			}},
+			"verification_complete_template_id": t.PhoneConfiguration.VerificationCompleteTemplateId,
+			"verification_strategy":             t.PhoneConfiguration.VerificationStrategy,
+			"verification_template_id":          t.PhoneConfiguration.VerificationTemplateId,
+			"verify_phone_number":               t.PhoneConfiguration.VerifyPhoneNumber,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("tenant.phone_configuration: %s", err.Error())
+	}
+
 	err = data.Set("rate_limit_configuration", []map[string]interface{}{
 		{
 			"failed_login": []map[string]interface{}{{
@@ -822,6 +919,16 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"enabled":                t.RateLimitConfiguration.SendPasswordless.Enabled,
 				"limit":                  t.RateLimitConfiguration.SendPasswordless.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.SendPasswordless.TimePeriodInSeconds,
+			}},
+			"send_passwordless_phone": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.SendPasswordlessPhone.Enabled,
+				"limit":                  t.RateLimitConfiguration.SendPasswordlessPhone.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.SendPasswordlessPhone.TimePeriodInSeconds,
+			}},
+			"send_phone_verification": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.SendPhoneVerification.Enabled,
+				"limit":                  t.RateLimitConfiguration.SendPhoneVerification.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.SendPhoneVerification.TimePeriodInSeconds,
 			}},
 			"send_registration_verification": []map[string]interface{}{{
 				"enabled":                t.RateLimitConfiguration.SendRegistrationVerification.Enabled,
