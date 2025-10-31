@@ -47,8 +47,19 @@ func resourceForm() *schema.Resource {
 							Type:        schema.TypeList,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							MinItems:    1,
-							Required:    true,
+							Optional:    true,
 							Description: "An ordered list of Form Field Ids assigned to this step.",
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "collectData",
+							Description: "The type of step being created.",
+							ValidateFunc: validation.StringInSlice([]string{
+								"collectData",
+								"verifyEmail",
+								"verifyPhoneNumber",
+							}, false),
 						},
 					},
 				},
@@ -162,6 +173,7 @@ func buildForm(data *schema.ResourceData) fusionauth.Form {
 		}
 		steps = append(steps, fusionauth.FormStep{
 			Fields: f,
+			Type:   fusionauth.FormStepType(m["type"].(string)),
 		})
 	}
 
@@ -192,6 +204,7 @@ func buildResourceDataFromForm(data *schema.ResourceData, f fusionauth.Form) dia
 	for _, step := range f.Steps {
 		fs = append(fs, map[string]interface{}{
 			"fields": step.Fields,
+			"type":   string(step.Type),
 		},
 		)
 	}

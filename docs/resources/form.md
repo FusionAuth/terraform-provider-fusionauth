@@ -26,6 +26,10 @@ resource "fusionauth_form" "form" {
 * `name` - (Required) The unique name of the Form Field.
 * `steps` - (Required) An ordered list of objects containing one or more Form Fields. A Form must have at least one step defined.
   * `fields` - (Required) An ordered list of Form Field Ids assigned to this step.
+  * `type` - (Optional) The type of step being created. The possible values are:
+    * `collectData` - Standard form step type that collects fields from the user.
+    * `verifyEmail` - Perform verification on `user.email` before user creation.
+    * `verifyPhoneNumber` - Perform verification on `user.phoneNumber` before user creation.
 
 ---
 

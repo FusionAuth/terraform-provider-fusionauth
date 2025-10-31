@@ -47,6 +47,11 @@ func dataSourceForm() *schema.Resource {
 							Required:    true,
 							Description: "An ordered list of Form Field Ids assigned to this step.",
 						},
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type of step.",
+						},
 					},
 				},
 			},

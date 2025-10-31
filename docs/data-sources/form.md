@@ -27,6 +27,11 @@ The following additional attributes are exported:
 * `id` - The unique Id of the Form.
 * `name` - The unique name of the Form.
 * `steps` - An ordered list of objects containing one or more Form Fields.
+  * `fields` - An ordered list of Form Field Ids assigned to this step.
+  * `type` - The type of step. The possible values are:
+    * `collectData` - Standard form step type that collects fields from the user.
+    * `verifyEmail` - Perform verification on `user.email` before user creation.
+    * `verifyPhoneNumber` - Perform verification on `user.phoneNumber` before user creation.
 * `type` - The form type. The possible values are:
   * `adminRegistration` - This form be used to customize the add and edit User Registration form in the FusionAuth UI.
   * `adminUser` - This form can be used to customize the add and edit User form in the FusionAuth UI.
