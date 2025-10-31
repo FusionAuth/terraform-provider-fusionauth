@@ -132,6 +132,19 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 		diags = append(diags, subDiags...)
 	}
 
+	var verificationIDs []string
+	if verificationIDsData, ok := data.GetOk("verification_ids"); ok {
+		verificationIDsList := verificationIDsData.([]interface{})
+		verificationIDs = make([]string, 0, len(verificationIDsList))
+		for _, item := range verificationIDsList {
+			if verificationIDMap, ok := item.(map[string]interface{}); ok {
+				if verificationID, exists := verificationIDMap["verification_id"].(string); exists && verificationID != "" {
+					verificationIDs = append(verificationIDs, verificationID)
+				}
+			}
+		}
+	}
+
 	req = fusionauth.UserRequest{
 		ApplicationId:      data.Get("application_id").(string),
 		DisableDomainBlock: data.Get("disable_domain_block").(bool),
@@ -168,6 +181,7 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 		SendSetPasswordEmail:        data.Get("send_set_password_email").(bool),
 		SendSetPasswordIdentityType: fusionauth.SendSetPasswordIdentityType(data.Get("send_set_password_identity_type").(string)),
 		SkipVerification:            data.Get("skip_verification").(bool),
+		VerificationIds:             verificationIDs,
 	}
 
 	return req, diags
