@@ -261,13 +261,14 @@ func userSchemaV1() *schema.Resource {
 			"verification_ids": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Default:     nil,
+				Computed:    true,
 				Description: "The list of all verifications that exist for a user. This includes the email and phone identities that a user may have. The values from emailVerificationId and emailVerificationOneTimeCode are legacy fields and will also be present in this list.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"verification_id": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: "A verification Id.",
 						},
 						"one_time_code": {
