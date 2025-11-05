@@ -53,7 +53,7 @@ func resourceForm() *schema.Resource {
 						"type": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Default:     "collectData",
+							Computed:    true,
 							Description: "The type of step being created.",
 							ValidateFunc: validation.StringInSlice([]string{
 								"collectData",
