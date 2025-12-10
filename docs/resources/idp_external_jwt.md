@@ -44,6 +44,7 @@ resource "fusionauth_idp_external_jwt" "jwt" {
 * `idp_id` - (Optional) The ID to use for the new identity provider. If not specified a secure random UUID will be generated.
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.
+* `name` - (Optional) The name of the provider. This is only used for display purposes. The display name of this provider instance. Required when using a provided `tenant_id` or `identity_provider.tenant_id`.
 * `oauth2_authorization_endpoint` - (Optional) The authorization endpoint for this Identity Provider. This value is not utilized by FusionAuth is only provided to be returned by the Lookup Identity Provider API response. During integration you may then utilize this value to perform the browser redirect to the OAuth2 authorize endpoint.
 * `oauth2_email_claim` - (Optional) The name of the claim that contains the user's email address. This will only be used when the `linking_strategy`is equal to LinkByEmail or LinkByEmailForExistingUser.
 * `oauth2_email_verified_claim` - (Optional) The name of the claim that identities if the user's email address has been verified. When the `linking_strategy` is equal to LinkByEmail or LinkByEmailForExistingUser and this claim is present and the value is false a link will not be established and an error will be returned indicating a link cannot be established using an unverified email address.
@@ -54,4 +55,5 @@ resource "fusionauth_idp_external_jwt" "jwt" {
   * `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
     * `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
     * `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
+* `tenant_id` - (Optional) The unique Id of the Tenant. Providing a value creates an identity provider scoped to the specified tenant, otherwise a global identity provider is created. Tenant-scoped identity providers can only be used to authenticate in the context of the specified tenant. Global identity providers can be used with any tenant. This value cannot be updated after creation and requires recreating the resource to change.
 * `unique_identity_claim` - (Deprecated) (Optional) The name of the claim that represents the unique identify of the User. This will generally be email or the name of the claim that provides the email address.

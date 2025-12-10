@@ -128,6 +128,11 @@ func resourceIDPLinkedIn() *schema.Resource {
 				}, false),
 				Description: "The linking strategy to use when creating the link between the LinkedIn Identity Provider and the user.",
 			},
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the provider. This is only used for display purposes.",
+			},
 			"scope": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -159,6 +164,13 @@ func resourceIDPLinkedIn() *schema.Resource {
 						},
 					},
 				},
+			},
+			"tenant_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  "The unique Id of the Tenant. Providing a value creates an identity provider scoped to the specified tenant, otherwise a global identity provider is created. Tenant-scoped identity providers can only be used to authenticate in the context of the specified tenant. Global identity providers can be used with any tenant. This value cannot be updated after creation and requires recreating the resource to change.",
+				ValidateFunc: validation.IsUUID,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -235,8 +247,10 @@ func buildIDPLinkedIn(data *schema.ResourceData) LinkedInIdentityProviderBody {
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
-			Type:            fusionauth.IdentityProviderType_LinkedIn,
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
+			Name:            data.Get("name").(string),
+			TenantId:        data.Get("tenant_id").(string),
+			Type:            fusionauth.IdentityProviderType_LinkedIn,
 		},
 		ButtonText:   data.Get("button_text").(string),
 		ClientId:     data.Get("client_id").(string),
@@ -303,8 +317,14 @@ func buildResourceFromIDPLinkedIn(res fusionauth.LinkedInIdentityProvider, data 
 	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
 		return diag.Errorf("idpLinkedIn.linking_strategy: %s", err.Error())
 	}
+	if err := data.Set("name", res.Name); err != nil {
+		return diag.Errorf("idpLinkedIn.name: %s", err.Error())
+	}
 	if err := data.Set("scope", res.Scope); err != nil {
 		return diag.Errorf("idpLinkedIn.scope: %s", err.Error())
+	}
+	if err := data.Set("tenant_id", res.TenantId); err != nil {
+		return diag.Errorf("idpLinkedIn.tenant_id: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

@@ -149,6 +149,11 @@ func resourceIDPFacebook() *schema.Resource {
 				}, false),
 				Description: "The login method to use for this Identity Provider.",
 			},
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the provider. This is only used for display purposes.",
+			},
 			"permissions": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -180,6 +185,13 @@ func resourceIDPFacebook() *schema.Resource {
 						},
 					},
 				},
+			},
+			"tenant_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  "The unique Id of the Tenant. Providing a value creates an identity provider scoped to the specified tenant, otherwise a global identity provider is created. Tenant-scoped identity providers can only be used to authenticate in the context of the specified tenant. Global identity providers can be used with any tenant. This value cannot be updated after creation and requires recreating the resource to change.",
+				ValidateFunc: validation.IsUUID,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -256,8 +268,10 @@ func buildIDPFacebook(data *schema.ResourceData) FacebookIdentityProviderBody {
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
-			Type:            fusionauth.IdentityProviderType_Facebook,
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
+			Name:            data.Get("name").(string),
+			TenantId:        data.Get("tenant_id").(string),
+			Type:            fusionauth.IdentityProviderType_Facebook,
 		},
 		AppId:        data.Get("app_id").(string),
 		ButtonText:   data.Get("button_text").(string),
@@ -333,8 +347,14 @@ func buildResourceFromIDPFacebook(res fusionauth.FacebookIdentityProvider, data 
 	if err := data.Set("login_method", res.LoginMethod); err != nil {
 		return diag.Errorf("idpFacebook.login_method: %s", err.Error())
 	}
+	if err := data.Set("name", res.Name); err != nil {
+		return diag.Errorf("idpFacebook.name: %s", err.Error())
+	}
 	if err := data.Set("permissions", res.Permissions); err != nil {
 		return diag.Errorf("idpFacebook.permissions: %s", err.Error())
+	}
+	if err := data.Set("tenant_id", res.TenantId); err != nil {
+		return diag.Errorf("idpFacebook.tenant_id: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

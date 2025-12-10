@@ -65,9 +65,11 @@ resource "fusionauth_idp_facebook" "facebook" {
   The valid values are:
   * `UsePopup` - When logging in use a popup window and the Facebook javascript library.
   * `UseRedirect` - When logging in use the Facebook OAuth redirect login flow.
+* `name` - (Optional) The name of the provider. This is only used for display purposes. The display name of this provider instance. Required when using a provided `tenant_id` or `identity_provider.tenant_id`.
 * `permissions` - (Optional) The top-level permissions that your application is asking of the user’s Facebook account.
   Permission values are documented at [Facebook Login API](https://developers.facebook.com/docs/permissions/reference)
 * `tenant_configuration` - (Optional) The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.
   * `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
     * `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
     * `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
+* `tenant_id` - (Optional) The unique Id of the Tenant. Providing a value creates an identity provider scoped to the specified tenant, otherwise a global identity provider is created. Tenant-scoped identity providers can only be used to authenticate in the context of the specified tenant. Global identity providers can be used with any tenant. This value cannot be updated after creation and requires recreating the resource to change.

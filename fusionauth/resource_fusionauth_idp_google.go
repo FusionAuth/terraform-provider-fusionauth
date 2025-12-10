@@ -3,7 +3,6 @@ package fusionauth
 import (
 	"context"
 	"encoding/json"
-	"log"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -55,12 +54,12 @@ func newIDPGoogle() *schema.Resource {
 						},
 						"client_id": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Required:    true,
 							Description: "This is an optional Application specific override for the top level client id.",
 						},
 						"client_secret": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Required:    true,
 							Sensitive:   true,
 							Description: "This is an optional Application specific override for the top level client secret.",
 						},
@@ -164,6 +163,11 @@ func newIDPGoogle() *schema.Resource {
 				}, false),
 				Description: "The login method to use for this Identity Provider.",
 			},
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the provider. This is only used for display purposes.",
+			},
 			"properties": {
 				Type:             schema.TypeList,
 				Optional:         true,
@@ -229,6 +233,13 @@ type=standard`,
 					},
 				},
 			},
+			"tenant_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  "The unique Id of the Tenant. Providing a value creates an identity provider scoped to the specified tenant, otherwise a global identity provider is created. Tenant-scoped identity providers can only be used to authenticate in the context of the specified tenant. Global identity providers can be used with any tenant. This value cannot be updated after creation and requires recreating the resource to change.",
+				ValidateFunc: validation.IsUUID,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -245,8 +256,10 @@ func buildIDPGoogle(data *schema.ResourceData) GoogleIdentityProviderBody {
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
-			Type:            fusionauth.IdentityProviderType_Google,
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
+			Name:            data.Get("name").(string),
+			TenantId:        data.Get("tenant_id").(string),
+			Type:            fusionauth.IdentityProviderType_Google,
 		},
 		ClientId:     data.Get("client_id").(string),
 		ClientSecret: data.Get("client_secret").(string),
@@ -298,7 +311,6 @@ func buildGoogleAppConfig(key string, data *schema.ResourceData) map[string]inte
 }
 
 func getStringOrDefault(m map[string]interface{}, key string, defaultValue string) string {
-	log.Printf("TOMTEST: %v, %v, %v", m, key, defaultValue)
 	if v, ok := m[key]; ok && v != nil {
 		if s, ok := v.(string); ok {
 			return s
@@ -348,6 +360,12 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	if err := data.Set("button_text", o.ButtonText); err != nil {
 		return diag.Errorf("idpGoogle.button_text: %s", err.Error())
 	}
+	if err := data.Set("client_id", o.ClientId); err != nil {
+		return diag.Errorf("idpGoogle.client_id: %s", err.Error())
+	}
+	if err := data.Set("client_secret", o.ClientSecret); err != nil {
+		return diag.Errorf("idpGoogle.client_secret: %s", err.Error())
+	}
 	if err := data.Set("debug", o.Debug); err != nil {
 		return diag.Errorf("idpGoogle.debug: %s", err.Error())
 	}
@@ -357,11 +375,14 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	if err := data.Set("lambda_reconcile_id", o.LambdaConfiguration.ReconcileId); err != nil {
 		return diag.Errorf("idpGoogle.lambda_reconcile_id: %s", err.Error())
 	}
-	if err := data.Set("client_id", o.ClientId); err != nil {
-		return diag.Errorf("idpGoogle.client_id: %s", err.Error())
+	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
+		return diag.Errorf("idpGoogle.linking_strategy: %s", err.Error())
 	}
-	if err := data.Set("client_secret", o.ClientSecret); err != nil {
-		return diag.Errorf("idpGoogle.client_secret: %s", err.Error())
+	if err := data.Set("login_method", o.LoginMethod); err != nil {
+		return diag.Errorf("idpGoogle.login_method: %s", err.Error())
+	}
+	if err := data.Set("name", o.Name); err != nil {
+		return diag.Errorf("idpGoogle.name: %s", err.Error())
 	}
 	if err := data.Set("properties", []map[string]interface{}{
 		{
@@ -374,11 +395,8 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	if err := data.Set("scope", o.Scope); err != nil {
 		return diag.Errorf("idpGoogle.scope: %s", err.Error())
 	}
-	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
-		return diag.Errorf("idpGoogle.linking_strategy: %s", err.Error())
-	}
-	if err := data.Set("login_method", o.LoginMethod); err != nil {
-		return diag.Errorf("idpGoogle.login_method: %s", err.Error())
+	if err := data.Set("tenant_id", o.TenantId); err != nil {
+		return diag.Errorf("idpGoogle.tenant_id: %s", err.Error())
 	}
 	// Since this is coming down as an interface and would end up being map[string]interface{}
 	// with one of the values being map[string]interface{}

@@ -145,8 +145,8 @@ func newIDPOpenIDConnect() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The name of this OpenID Connect identity provider. This is only used for display purposes.",
+				Optional:    true,
+				Description: "The name of the provider. This is only used for display purposes.",
 			},
 			"oauth2_authorization_endpoint": {
 				Type:        schema.TypeString,
@@ -251,6 +251,13 @@ func newIDPOpenIDConnect() *schema.Resource {
 					},
 				},
 			},
+			"tenant_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  "The unique Id of the Tenant. Providing a value creates an identity provider scoped to the specified tenant, otherwise a global identity provider is created. Tenant-scoped identity providers can only be used to authenticate in the context of the specified tenant. Global identity providers can be used with any tenant. This value cannot be updated after creation and requires recreating the resource to change.",
+				ValidateFunc: validation.IsUUID,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -268,9 +275,10 @@ func buildOpenIDConnect(data *schema.ResourceData) OpenIDConnectIdentityProvider
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
-			Name:            data.Get("name").(string),
-			Type:            fusionauth.IdentityProviderType_OpenIDConnect,
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
+			Name:            data.Get("name").(string),
+			TenantId:        data.Get("tenant_id").(string),
+			Type:            fusionauth.IdentityProviderType_OpenIDConnect,
 		},
 		PostRequest: data.Get("post_request").(bool),
 		Domains:     handleStringSlice("domains", data),
@@ -382,7 +390,7 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 		return diag.Errorf("idpOpenIDConnect.lambda_reconcile_id: %s", err.Error())
 	}
 	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
-		return diag.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
+		return diag.Errorf("idpOpenIDConnect.linking_strategy: %s", err.Error())
 	}
 	if err := data.Set("name", o.Name); err != nil {
 		return diag.Errorf("idpOpenIDConnect.name: %s", err.Error())
@@ -425,6 +433,9 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 	}
 	if err := data.Set("post_request", o.PostRequest); err != nil {
 		return diag.Errorf("idpOpenIDConnect.post_request: %s", err.Error())
+	}
+	if err := data.Set("tenant_id", o.TenantId); err != nil {
+		return diag.Errorf("idpOpenIDConnect.tenant_id: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

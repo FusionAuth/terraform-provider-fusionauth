@@ -27,6 +27,13 @@ resource "fusionauth_idp_apple" "apple" {
 
 ## Argument Reference
 
+* `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
+* `key_id` - (Required) The unique Id of the private key downloaded from Apple and imported into Key Master that will be used to sign the client secret.
+* `services_id` - (Required) The unique Id of the private key downloaded from Apple and imported into Key Master that will be used to sign the client secret.
+* `team_id` - (Required) The Apple App ID Prefix, or Team ID found in your Apple Developer Account which has been configured for Sign in with Apple.
+
+---
+
 * `application_configuration` - (Optional) The configuration for each Application that the identity provider is enabled for.
   * `application_id` - (Optional) ID of the Application to apply this configuration to.
   * `button_text` - (Optional) This is an optional Application specific override for the top level button text.
@@ -37,19 +44,14 @@ resource "fusionauth_idp_apple" "apple" {
   * `services_id` - (Optional) This is an optional Application specific override for for the top level servicesId.
   * `team_id` - (Optional) This is an optional Application specific override for for the top level teamId.
 * `bundle_id` - (Optional) The Apple Bundle identifier found in your Apple Developer Account which has been configured for Sign in with Apple. The Bundle identifier is used to Sign in with Apple from native applications. The request must include `bundle_id` or `services_id` . If `services_id` is omitted, this field is required.
-* `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
-* `key_id` - (Required) The unique Id of the private key downloaded from Apple and imported into Key Master that will be used to sign the client secret.
-* `services_id` - (Required) The unique Id of the private key downloaded from Apple and imported into Key Master that will be used to sign the client secret.
-* `team_id` - (Required) The Apple App ID Prefix, or Team ID found in your Apple Developer Account which has been configured for Sign in with Apple.
-
----
-
 * `debug` - (Optional) Determines if debug is enabled for this provider. When enabled, each time this provider is invoked to reconcile a login an Event Log will be created.
 * `enabled` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.
+* `name` - (Optional) The name of the provider. This is only used for display purposes. The display name of this provider instance. Required when using a provided `tenant_id` or `identity_provider.tenant_id`.
 * `scope` - (Optional) The top-level space separated scope that you are requesting from Apple.
 * `tenant_configuration` - (Optional) The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.
   * `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
     * `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
     * `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
+* `tenant_id` - (Optional) The unique Id of the Tenant. Providing a value creates an identity provider scoped to the specified tenant, otherwise a global identity provider is created. Tenant-scoped identity providers can only be used to authenticate in the context of the specified tenant. Global identity providers can be used with any tenant. This value cannot be updated after creation and requires recreating the resource to change.
