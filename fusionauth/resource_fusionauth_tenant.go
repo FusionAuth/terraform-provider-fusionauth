@@ -1932,6 +1932,12 @@ func newLambdaConfiguration() *schema.Resource {
 				Description:  "The Id of the lambda that will be invoked at the end of a successful login request in order to extend custom validation of a login request.",
 				ValidateFunc: validation.IsUUID,
 			},
+			"multi_factor_requirement_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the lambda that will be invoked during the login process to determine the multi-factor authentication requirements for a given user at the time of login.",
+				ValidateFunc: validation.IsUUID,
+			},
 			"scim_enterprise_user_request_converter_id": {
 				Type:         schema.TypeString,
 				Optional:     true,

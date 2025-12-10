@@ -226,6 +226,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 		},
 		LambdaConfiguration: fusionauth.TenantLambdaConfiguration{
 			LoginValidationId:                     data.Get("lambda_configuration.0.login_validation_id").(string),
+			MultiFactorRequirementId:              data.Get("lambda_configuration.0.multi_factor_requirement_id").(string),
 			ScimEnterpriseUserRequestConverterId:  data.Get("lambda_configuration.0.scim_enterprise_user_request_converter_id").(string),
 			ScimEnterpriseUserResponseConverterId: data.Get("lambda_configuration.0.scim_enterprise_user_response_converter_id").(string),
 			ScimGroupRequestConverterId:           data.Get("lambda_configuration.0.scim_group_request_converter_id").(string),
@@ -741,6 +742,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	err = data.Set("lambda_configuration", []map[string]interface{}{
 		{
 			"login_validation_id":                        t.LambdaConfiguration.LoginValidationId,
+			"multi_factor_requirement_id":                t.LambdaConfiguration.MultiFactorRequirementId,
 			"scim_enterprise_user_request_converter_id":  t.LambdaConfiguration.ScimEnterpriseUserRequestConverterId,
 			"scim_enterprise_user_response_converter_id": t.LambdaConfiguration.ScimEnterpriseUserResponseConverterId,
 			"scim_group_request_converter_id":            t.LambdaConfiguration.ScimGroupRequestConverterId,
