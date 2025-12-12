@@ -53,6 +53,9 @@ func readIdentityProvider(id string, client Client) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
+		if resp.StatusCode == http.StatusNotFound {
+			return nil, fmt.Errorf("404(Not Found)")
+		}
 		return nil, err
 	}
 

@@ -208,6 +208,10 @@ func readIDPSonyPSN(_ context.Context, data *schema.ResourceData, i interface{})
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
+		if err.Error() == "404(Not Found)" {
+			data.SetId("")
+			return nil
+		}
 		return diag.FromErr(err)
 	}
 
@@ -224,7 +228,6 @@ func updateIDPSonyPSN(_ context.Context, data *schema.ResourceData, i interface{
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {

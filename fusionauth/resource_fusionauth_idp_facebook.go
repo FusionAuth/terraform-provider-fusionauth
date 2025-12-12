@@ -226,6 +226,10 @@ func readIDPFacebook(_ context.Context, data *schema.ResourceData, i interface{}
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
+		if err.Error() == "404(Not Found)" {
+			data.SetId("")
+			return nil
+		}
 		return diag.FromErr(err)
 	}
 
