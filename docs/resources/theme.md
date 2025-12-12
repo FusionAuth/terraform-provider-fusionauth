@@ -8,7 +8,7 @@ UI login themes can be configured to enable custom branding for your FusionAuth 
 
 ```hcl
 resource "fusionauth_theme" "mytheme" {
-  default_messages                               = "[#ftl/]"
+  default_messages                               = file("${path.module}/default_messages.properties")
   name                                           = "my theme"
   stylesheet                                     = "/* stylish */"
   account_edit                                   = "[#ftl/]"
