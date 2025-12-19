@@ -587,7 +587,7 @@ resource "fusionauth_tenant" "example" {
   * `refresh_token_time_to_live_in_minutes` - (Optional) The length of time in minutes a Refresh Token is valid from the time it was issued. Value must be greater than 0.
   * `refresh_token_usage_policy` - (Optional) The refresh token usage policy.
   * `time_to_live_in_seconds` - (Optional) The length of time in seconds this JWT is valid from the time it was issued. Value must be greater than 0.
-* `lambda_configuration` - (Optional) Lamnda configuration for this tenant.
+* `lambda_configuration` - (Optional) Lambda configuration for this tenant.
   * `login_validation_id` - (Optional) The Id of the lambda that will be invoked at the end of a successful login request in order to extend custom validation of a login request.
   * `multi_factor_requirement_id` - (Optional) The Id of the lambda that will be invoked during the login process to determine the multi-factor authentication requirements for a given user at the time of login.
   * `scim_enterprise_user_request_converter_id` - (Optional) The Id of a SCIM User Request lambda that will be used to convert the SCIM Enterprise User request to a FusionAuth User. Note: An Enterprise plan is required to utilize SCIM. Required when `scim_server_configuration.enabled` is true.

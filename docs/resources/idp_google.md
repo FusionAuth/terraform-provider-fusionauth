@@ -28,7 +28,6 @@ resource "fusionauth_idp_google" "google" {
 ## Argument Reference
 
 * `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
-* `client_id` - (Required) The top-level Google client id for your Application. This value is retrieved from the Google developer website when you setup your Google developer account.
 
 ---
 

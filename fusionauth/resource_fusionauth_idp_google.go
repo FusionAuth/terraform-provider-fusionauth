@@ -54,12 +54,12 @@ func newIDPGoogle() *schema.Resource {
 						},
 						"client_id": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: "This is an optional Application specific override for the top level client id.",
 						},
 						"client_secret": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Sensitive:   true,
 							Description: "This is an optional Application specific override for the top level client secret.",
 						},
