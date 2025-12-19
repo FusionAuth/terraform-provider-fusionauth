@@ -205,7 +205,7 @@ func readIDPLinkedIn(_ context.Context, data *schema.ResourceData, i interface{}
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
-		if err.Error() == "404(Not Found)" {
+		if err.Error() == NotFoundError {
 			data.SetId("")
 			return nil
 		}

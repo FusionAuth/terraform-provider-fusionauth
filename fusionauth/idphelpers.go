@@ -3,6 +3,7 @@ package fusionauth
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +14,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+const NotFoundError string = "404(Not Found)"
 
 func deleteIdentityProvider(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
@@ -54,7 +57,7 @@ func readIdentityProvider(id string, client Client) ([]byte, error) {
 	defer resp.Body.Close()
 	if err := checkResponse(resp.StatusCode, nil); err != nil {
 		if resp.StatusCode == http.StatusNotFound {
-			return nil, fmt.Errorf("404(Not Found)")
+			return nil, errors.New(NotFoundError)
 		}
 		return nil, err
 	}
