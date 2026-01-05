@@ -72,13 +72,14 @@ resource "fusionauth_user" "example" {
 * `user_id` - (Optional) The Id to use for the new User. If not specified a secure random UUID will be generated..
 * `username` - (Optional) The username of the User. The username is stored and returned as a case sensitive value, however a username is considered unique regardless of the case. bob is considered equal to BoB so either version of this username can be used whenever providing it as input to an API.
 * `username_status` - (Optional) The current status of the username. This is used if you are moderating usernames via CleanSpeak.
+* `verification_ids` - The list of all verifications that exist for a user. This includes the email and phone identities that a user may have. The values from emailVerificationId and emailVerificationOneTimeCode are legacy fields and will also be present in this list.
+  * `verification_id` - A verification Id.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `verification_ids` - The list of all verifications that exist for a user. This includes the email and phone identities that a user may have. The values from emailVerificationId and emailVerificationOneTimeCode are legacy fields and will also be present in this list.
-  * `verification_id` - A verification Id.
   * `one_time_code` - A one time code that will be paired with the verificationIds[x].id.
   * `type` - The identity type that the verification Id is for. This identity type, along with verificationIds[x].value , matches exactly one identity via user.identities[x].type.
   * `value` - The identity value that the verification Id is for. This identity value, along with verificationIds[x].type , matches exactly one identity via user.identities[x].value.

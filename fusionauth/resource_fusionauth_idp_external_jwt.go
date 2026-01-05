@@ -124,8 +124,8 @@ func resourceIDPExternalJWT() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The name of the Identity Provider.",
+				Optional:    true,
+				Description: "The name of the provider. This is only used for display purposes.",
 			},
 			"oauth2_authorization_endpoint": {
 				Type:        schema.TypeString,
@@ -193,6 +193,13 @@ func resourceIDPExternalJWT() *schema.Resource {
 					},
 				},
 			},
+			"tenant_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  "The unique Id of the Tenant. Providing a value creates an identity provider scoped to the specified tenant, otherwise a global identity provider is created. Tenant-scoped identity providers can only be used to authenticate in the context of the specified tenant. Global identity providers can be used with any tenant. This value cannot be updated after creation and requires recreating the resource to change.",
+				ValidateFunc: validation.IsUUID,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -228,6 +235,10 @@ func readIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interfac
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
+		if err.Error() == NotFoundError {
+			data.SetId("")
+			return nil
+		}
 		return diag.FromErr(err)
 	}
 
@@ -268,9 +279,10 @@ func buildIDPExternalJWT(data *schema.ResourceData) IDPExternalJWTProviderBody {
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
-			Name:            data.Get("name").(string),
-			Type:            fusionauth.IdentityProviderType_ExternalJWT,
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
+			Name:            data.Get("name").(string),
+			TenantId:        data.Get("tenant_id").(string),
+			Type:            fusionauth.IdentityProviderType_ExternalJWT,
 		},
 		DefaultKeyId:       data.Get("default_key_id").(string),
 		Domains:            handleStringSlice("domains", data),
@@ -343,6 +355,9 @@ func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionau
 	if err := data.Set("lambda_reconcile_id", res.LambdaConfiguration.ReconcileId); err != nil {
 		return diag.Errorf("idpExternalJwt.lambda_reconcile_id: %s", err.Error())
 	}
+	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
+		return diag.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
+	}
 	if err := data.Set("name", res.Name); err != nil {
 		return diag.Errorf("idpExternalJwt.name: %s", err.Error())
 	}
@@ -364,11 +379,11 @@ func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionau
 	if err := data.Set("oauth2_username_claim", res.Oauth2.UsernameClaim); err != nil {
 		return diag.Errorf("idpExternalJwt.oauth2_username_claim: %s", err.Error())
 	}
+	if err := data.Set("tenant_id", res.TenantId); err != nil {
+		return diag.Errorf("idpExternalJwt.tenant_id: %s", err.Error())
+	}
 	if err := data.Set("unique_identity_claim", res.UniqueIdentityClaim); err != nil {
 		return diag.Errorf("idpExternalJwt.unique_identity_claim: %s", err.Error())
-	}
-	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
-		return diag.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

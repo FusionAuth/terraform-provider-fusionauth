@@ -26,7 +26,7 @@ add-two-factor=Add two-factor
 add-webauthn-passkey=Add passkey
 back-to-login=Return to Login
 cancel=Cancel
-captcha-google-branding=This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+captcha-google-branding=This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" class="text-indigo-500 hover:text-indigo-700 font-medium focus:outline-none focus:underline">Privacy Policy</a> and <a href="https://policies.google.com/terms" class="text-indigo-500 hover:text-indigo-700 font-medium focus:outline-none focus:underline">Terms of Service</a> apply.
 created=Created
 customize=Customize
 authorized-not-registered=Registration is required to access this application and your account has not been registered for this application. Please complete your registration and try again.
@@ -220,6 +220,7 @@ update=Update
 username=Username
 userCode=Enter your user code
 verify=Verify
+verificationCode=Verification code
 
 #
 # Custom Registration forms. These must match the domain names.
@@ -236,6 +237,7 @@ user.lastName=Last name
 user.mobilePhone=Mobile phone
 user.middleName=Middle name
 user.password=Password
+user.parentEmail=Parent's email
 confirm.user.password=Confirm password
 user.phoneNumber=Phone number
 user.preferredLanguages=Languages
@@ -323,15 +325,19 @@ go-back-to-send=Go back to send
 {description}email-verification-required-change-email=Confirm your email address is correct and update it if you mis-typed it during registration. Updating your address will also send you a new email to the new address.
 {description}email-verification-required=You must verify your email address before you continue.
 {description}email-verification-required-non-interactive=Email verification is configured to be completed outside of this request. Once you have verified your email, retry this request.
+{description}email-verification-required-non-interactive-registration=Email verification is required to register. Check your inbox for the verification email and follow the instructions.
 
 {description}passwordless-login-form-field=You must enter the code from your message before you continue.
 
 {description}phone-verification-required-change-phone=Confirm your phone number is correct and update it if you mis-typed it during registration. Updating your phone number will also send you a new message to the new number.
 {description}phone-verification-required=You must verify your phone number before you continue.
 {description}phone-verification-required-non-interactive=Phone number verification is configured to be completed outside of this request. Once you have verified your phone number, retry this request.
+{description}phone-verification-required-non-interactive-registration=Phone number verification is required to register. Check your device for the verification message and follow the instructions.
 
 {description}registration-verification-required=You must verify your registration before you continue.
 {description}registration-verification-required-non-interactive=Registration verification is configured to be completed outside of this request. Once you have verified your registration, retry this request.
+
+{description}-registration-ready=Ready to complete your registration. Click the Register button below.
 
 # WebAuthn
 {description}add-webauthn=Enter a name for this passkey. This name may be used to identify the passkey during a login attempt, or when multiple passkeys exist.
@@ -484,8 +490,6 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [duplicate]email=An account already exists for that email
 [blank]loginId=Required
 [blank]methodId=Select a two-factor method
-[blank]oneTimeCode=Required
-[invalid]oneTimeCode=Invalid code
 [blank]parentEmail=Required
 [blank]password=Required
 [blank]user_code=Required
@@ -616,6 +620,7 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [UserExpiredException]=Your account has expired. Please contact your system administrator.
 [UserLockedException]=Your account has been locked. Please contact your system administrator.
 [UserUnauthenticated]=Oops. It looks like you've gotten here by accident. Please return to your application and log in to begin the authorization sequence.
+[VerificationTimeout]=You did not complete the registration process in time. Please restart your request.
 [WebAuthnDisabled]=WebAuthn is not currently enabled.
 [WebAuthnCredentialSelectionCanceled]=Passkey selection canceled.
 [WebAuthnFailed]=Unable to complete the WebAuthn workflow.
@@ -653,6 +658,8 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [ExternalAuthenticationException]SAMLResponseAudienceNotOnOrAfterVerificationFailed=The SAML audience is no longer eligible to be confirmed. Unable to complete this request.
 [ExternalAuthenticationException]SAMLResponseAudienceVerificationFailed=The SAML audience failed validation. Unable to complete this login request.
 [ExternalAuthenticationException]SAMLResponseDestinationVerificationFailed=The SAML destination failed validation. Unable to complete this login request.
+[ExternalAuthenticationException]SAMLResponseMismatchedAssertions=The SAML AuthnResponse object contained multiple Assertions that were incompatible. Unable to complete this login request.
+[ExternalAuthenticationException]SAMLResponseMissingAssertion=The SAML AuthnResponse object did not contain any Assertions. Unable to complete this login request.
 [ExternalAuthenticationException]SAMLResponseStatus=The SAML AuthnResponse status indicated the request has failed. Unable to complete this login request.
 [ExternalAuthenticationException]SAMLResponseSubjectNoOnOrAfterVerificationFailed=The SAML subject is no longer eligible to be confirmed. Unable to complete this login request.
 [ExternalAuthenticationException]SAMLResponseSubjectNotBeforeVerificationFailed=The SAML subject is not yet available to be confirmed. Unable to complete this login request.

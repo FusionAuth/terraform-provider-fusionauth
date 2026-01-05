@@ -40,9 +40,10 @@ func newTheme() *schema.Resource {
 				DiffSuppressFunc: diffSuppressTemplate,
 			},
 			"localized_messages": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "A Map of localized versions of the messages. The key is the Locale and the value is a properties file formatted String.",
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Description:      "A Map of localized versions of the messages. The key is the Locale and the value is a properties file formatted String.",
+				DiffSuppressFunc: diffSuppressTemplate,
 			},
 			"name": {
 				Type:        schema.TypeString,

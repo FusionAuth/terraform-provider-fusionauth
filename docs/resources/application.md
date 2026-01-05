@@ -161,6 +161,7 @@ resource "fusionauth_application" "Forum" {
 * `lambda_configuration` - (Optional)
   * `access_token_populate_id` - (Optional) The Id of the Lambda that will be invoked when an access token is generated for this application. This will be utilized during OAuth2 and OpenID Connect authentication requests as well as when an access token is generated for the Login API.
   * `id_token_populate_id` - (Optional) The Id of the Lambda that will be invoked when an Id token is generated for this application during an OpenID Connect authentication request.
+  * `multi_factor_requirement_id` - (Optional) The Id of the lambda that will be invoked during the login process to determine the multi-factor authentication requirements for a given user at the time of login.
   * `samlv2_populate_id` - (Optional) The Id of the Lambda that will be invoked when a a SAML response is generated during a SAML authentication request.
   * `self_service_registration_validation_id` - (Optional) The unique Id of the lambda that will be used to perform additional validation on registration form steps.
   * `userinfo_populate_id` - (Optional) The Id of the Lambda that will be invoked when a UserInfo response is generated for this application.

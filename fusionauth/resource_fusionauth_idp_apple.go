@@ -134,6 +134,11 @@ func resourceIDPApple() *schema.Resource {
 				}, false),
 				Description: "The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.",
 			},
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the provider. This is only used for display purposes.",
+			},
 			"scope": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -180,6 +185,13 @@ func resourceIDPApple() *schema.Resource {
 					},
 				},
 			},
+			"tenant_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  "The unique Id of the Tenant. Providing a value creates an identity provider scoped to the specified tenant, otherwise a global identity provider is created. Tenant-scoped identity providers can only be used to authenticate in the context of the specified tenant. Global identity providers can be used with any tenant. This value cannot be updated after creation and requires recreating the resource to change.",
+				ValidateFunc: validation.IsUUID,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -215,6 +227,10 @@ func readIDPApple(_ context.Context, data *schema.ResourceData, i interface{}) d
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
+		if err.Error() == NotFoundError {
+			data.SetId("")
+			return nil
+		}
 		return diag.FromErr(err)
 	}
 
@@ -256,8 +272,10 @@ func buildIDPApple(data *schema.ResourceData) AppleIdentityProviderBody {
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
-			Type:            fusionauth.IdentityProviderType_Apple,
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
+			Name:            data.Get("name").(string),
+			TenantId:        data.Get("tenant_id").(string),
+			Type:            fusionauth.IdentityProviderType_Apple,
 		},
 		KeyId:      data.Get("key_id").(string),
 		Scope:      data.Get("scope").(string),
@@ -314,6 +332,12 @@ func buildResourceFromIDPApple(o fusionauth.AppleIdentityProvider, data *schema.
 	if err := data.Set("lambda_reconcile_id", o.LambdaConfiguration.ReconcileId); err != nil {
 		return diag.Errorf("idpApple.lambda_reconcile_id: %s", err.Error())
 	}
+	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
+		return diag.Errorf("idpApple.linking_strategy: %s", err.Error())
+	}
+	if err := data.Set("name", o.Name); err != nil {
+		return diag.Errorf("idpApple.name: %s", err.Error())
+	}
 	if err := data.Set("scope", o.Scope); err != nil {
 		return diag.Errorf("idpApple.scope: %s", err.Error())
 	}
@@ -326,8 +350,8 @@ func buildResourceFromIDPApple(o fusionauth.AppleIdentityProvider, data *schema.
 	if err := data.Set("team_id", o.TeamId); err != nil {
 		return diag.Errorf("idpApple.team_id: %s", err.Error())
 	}
-	if err := data.Set("linking_strategy", o.LinkingStrategy); err != nil {
-		return diag.Errorf("idpApple.linking_strategy: %s", err.Error())
+	if err := data.Set("tenant_id", o.TenantId); err != nil {
+		return diag.Errorf("idpApple.tenant_id: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

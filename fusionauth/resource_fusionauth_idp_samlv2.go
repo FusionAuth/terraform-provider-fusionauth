@@ -256,8 +256,8 @@ func resourceIDPSAMLv2() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The name of this SAML v2 identity provider. This is only used for display purposes.",
+				Optional:    true,
+				Description: "The name of the provider. This is only used for display purposes.",
 			},
 			"name_id_format": {
 				Type:        schema.TypeString,
@@ -327,6 +327,13 @@ func resourceIDPSAMLv2() *schema.Resource {
 					},
 				},
 			},
+			"tenant_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  "The unique Id of the Tenant. Providing a value creates an identity provider scoped to the specified tenant, otherwise a global identity provider is created. Tenant-scoped identity providers can only be used to authenticate in the context of the specified tenant. Global identity providers can be used with any tenant. This value cannot be updated after creation and requires recreating the resource to change.",
+				ValidateFunc: validation.IsUUID,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -360,6 +367,10 @@ func readIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) 
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
+		if err.Error() == NotFoundError {
+			data.SetId("")
+			return nil
+		}
 		return diag.FromErr(err)
 	}
 
@@ -433,9 +444,10 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 				LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 					ReconcileId: data.Get("lambda_reconcile_id").(string),
 				},
-				Name:            data.Get("name").(string),
-				Type:            fusionauth.IdentityProviderType_SAMLv2,
 				LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
+				Name:            data.Get("name").(string),
+				TenantId:        data.Get("tenant_id").(string),
+				Type:            fusionauth.IdentityProviderType_SAMLv2,
 			},
 			UniqueIdClaim:     data.Get("unique_id_claim").(string),
 			EmailClaim:        data.Get("email_claim").(string),
@@ -528,6 +540,17 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	if err := data.Set("lambda_reconcile_id", res.LambdaConfiguration.ReconcileId); err != nil {
 		return diag.Errorf("idpSAMLv2.lambda_reconcile_id: %s", err.Error())
 	}
+	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
+		return diag.Errorf("idpSAMLv2.linking_strategy: %s", err.Error())
+	}
+	if err := data.Set("login_hint_configuration", []map[string]interface{}{
+		{
+			"enabled":        res.LoginHintConfiguration.Enabled,
+			"parameter_name": res.LoginHintConfiguration.ParameterName,
+		},
+	}); err != nil {
+		return diag.Errorf("idpSAMLv2.login_hint_configuration: %s", err.Error())
+	}
 	if err := data.Set("name", res.Name); err != nil {
 		return diag.Errorf("idpSAMLv2.name: %s", err.Error())
 	}
@@ -543,22 +566,14 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	if err := data.Set("sign_request", res.SignRequest); err != nil {
 		return diag.Errorf("idpSAMLv2.sign_request: %s", err.Error())
 	}
+	if err := data.Set("tenant_id", res.TenantId); err != nil {
+		return diag.Errorf("idpSAMLv2.tenant_id: %s", err.Error())
+	}
 	if err := data.Set("use_name_for_email", res.UseNameIdForEmail); err != nil {
 		return diag.Errorf("idpSAMLv2.use_name_for_email: %s", err.Error())
 	}
 	if err := data.Set("xml_signature_canonicalization_method", res.XmlSignatureC14nMethod); err != nil {
 		return diag.Errorf("idpSAMLv2.xml_signature_canonicalization_method: %s", err.Error())
-	}
-	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
-		return diag.Errorf("idpExternalJwt.linking_strategy: %s", err.Error())
-	}
-	if err := data.Set("login_hint_configuration", []map[string]interface{}{
-		{
-			"enabled":        res.LoginHintConfiguration.Enabled,
-			"parameter_name": res.LoginHintConfiguration.ParameterName,
-		},
-	}); err != nil {
-		return diag.Errorf("idpSAMLv2.login_hint_configuration: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

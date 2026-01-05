@@ -49,6 +49,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		LambdaConfiguration: fusionauth.LambdaConfiguration{
 			AccessTokenPopulateId:               data.Get("lambda_configuration.0.access_token_populate_id").(string),
 			IdTokenPopulateId:                   data.Get("lambda_configuration.0.id_token_populate_id").(string),
+			MultiFactorRequirementId:            data.Get("lambda_configuration.0.multi_factor_requirement_id").(string),
 			Samlv2PopulateId:                    data.Get("lambda_configuration.0.samlv2_populate_id").(string),
 			SelfServiceRegistrationValidationId: data.Get("lambda_configuration.0.self_service_registration_validation_id").(string),
 			UserinfoPopulateId:                  data.Get("lambda_configuration.0.userinfo_populate_id").(string),
@@ -333,6 +334,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		{
 			"access_token_populate_id":                a.LambdaConfiguration.AccessTokenPopulateId,
 			"id_token_populate_id":                    a.LambdaConfiguration.IdTokenPopulateId,
+			"multi_factor_requirement_id":             a.LambdaConfiguration.MultiFactorRequirementId,
 			"samlv2_populate_id":                      a.LambdaConfiguration.Samlv2PopulateId,
 			"self_service_registration_validation_id": a.LambdaConfiguration.SelfServiceRegistrationValidationId,
 			"userinfo_populate_id":                    a.LambdaConfiguration.UserinfoPopulateId,

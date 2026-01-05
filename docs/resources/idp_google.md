@@ -28,7 +28,6 @@ resource "fusionauth_idp_google" "google" {
 ## Argument Reference
 
 * `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
-* `client_id` - (Required) The top-level Google client id for your Application. This value is retrieved from the Google developer website when you setup your Google developer account.
 
 ---
 
@@ -50,6 +49,7 @@ resource "fusionauth_idp_google" "google" {
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.
 * `login_method` - (Optional) The login method to use for this Identity Provider.
+* `name` - (Optional) The name of the provider. This is only used for display purposes. The display name of this provider instance. Required when using a provided `tenant_id` or `identity_provider.tenant_id`.
 * `properties` - (Optional) An object to hold configuration parameters for the Google Identity Services API.
   * `api` - (Optional) Google Identity Services login API configuration in a properties file formatted String. Any attribute from Google's documentation can be added. Properties can be referenced in templates that support Google login to initialize the API via HTML or JavaScript. The properties specified in this field should not include the data- prefix on the property name. If the `login_method` is set to UsePopup and this value contains the conflicting ux_mode=redirect property, that single property will be replaced with ux_mode=popup.
   * `button` - (Optional) Google Identity Services button configuration in a properties file formatted String. Any attribute from Google's documentation can be added. Properties can be referenced in templates that support Google login to render the login button via HTML or JavaScript. The properties specified in this field should not include the data- prefix on the property name.
@@ -58,3 +58,4 @@ resource "fusionauth_idp_google" "google" {
   * `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
     * `limit_user_link_count_enabled` - (Optional) When enabled, the number of identity provider links a user may create is enforced by maximumLinks.
     * `limit_user_link_count_maximum_links` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
+* `tenant_id` - (Optional) The unique Id of the Tenant. Providing a value creates an identity provider scoped to the specified tenant, otherwise a global identity provider is created. Tenant-scoped identity providers can only be used to authenticate in the context of the specified tenant. Global identity providers can be used with any tenant. This value cannot be updated after creation and requires recreating the resource to change.
