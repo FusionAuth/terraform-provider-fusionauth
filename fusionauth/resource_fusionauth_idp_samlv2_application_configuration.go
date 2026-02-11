@@ -316,20 +316,14 @@ func deleteIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 	// Remove association using JSON Patch (RFC 6902)
 	if idpBody.IdentityProvider.ApplicationConfiguration != nil {
 		if _, exists := idpBody.IdentityProvider.ApplicationConfiguration[applicationId]; exists {
-			// Use JSON Patch to remove the specific application configuration
-			jsonPatchOps := []map[string]interface{}{
+			p := patch{
 				{
-					"op":   "remove",
-					"path": fmt.Sprintf("/identityProvider/applicationConfiguration/%s", applicationId),
+					Op:   removeOp,
+					Path: fmt.Sprintf("/identityProvider/applicationConfiguration/%s", applicationId),
 				},
 			}
 
-			jsonPatchB, err := json.Marshal(jsonPatchOps)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-
-			_, err = patchIdentityProviderJsonPatch(jsonPatchB, idpId, client)
+			_, err = patchIdentityProviderJsonPatch(p, idpId, client)
 			if err != nil {
 				return diag.FromErr(err)
 			}
