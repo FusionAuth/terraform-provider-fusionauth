@@ -137,20 +137,15 @@ func createIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 	}
 
 	// Use PATCH to update only the specific application configuration
-	patchData := map[string]interface{}{
-		"identityProvider": map[string]interface{}{
-			"applicationConfiguration": map[string]interface{}{
-				applicationId: appConfig,
-			},
+	p := patch{
+		{
+			Op:    addOp,
+			Path:  fmt.Sprintf("/identityProvider/applicationConfiguration/%s", applicationId),
+			Value: appConfig,
 		},
 	}
 
-	patchB, err := json.Marshal(patchData)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	_, err = patchIdentityProvider(patchB, idpId, client)
+	_, err = patchIdentityProvider(p, idpId, client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -267,20 +262,15 @@ func updateIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 	}
 
 	// Use PATCH to update only the specific application configuration
-	patchData := map[string]interface{}{
-		"identityProvider": map[string]interface{}{
-			"applicationConfiguration": map[string]interface{}{
-				applicationId: appConfig,
-			},
+	p := patch{
+		{
+			Op:    replaceOp,
+			Path:  fmt.Sprintf("/identityProvider/applicationConfiguration/%s", applicationId),
+			Value: appConfig,
 		},
 	}
 
-	patchB, err := json.Marshal(patchData)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	_, err = patchIdentityProvider(patchB, idpId, client)
+	_, err = patchIdentityProvider(p, idpId, client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -323,7 +313,7 @@ func deleteIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 				},
 			}
 
-			_, err = patchIdentityProviderJsonPatch(p, idpId, client)
+			_, err = patchIdentityProvider(p, idpId, client)
 			if err != nil {
 				return diag.FromErr(err)
 			}
