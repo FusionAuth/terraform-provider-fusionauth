@@ -139,6 +139,74 @@ func updateIdentityProvider(b []byte, id string, client Client) ([]byte, error) 
 	return bb, nil
 }
 
+func patchIdentityProvider(b []byte, id string, client Client) ([]byte, error) {
+	req, err := http.NewRequest(
+		http.MethodPatch,
+		fmt.Sprintf("%s/%s/%s", strings.TrimRight(client.Host, "/"), "api/identity-provider", id),
+		bytes.NewBuffer(b),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Authorization", client.APIKey)
+	req.Header.Add("Content-Type", "application/json")
+
+	hc := http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	resp, err := hc.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if err := checkResponse(resp.StatusCode, nil); err != nil {
+		return nil, err
+	}
+	bb, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode > 299 {
+		return nil, fmt.Errorf("status: %d, response: \n\t%s\nreq body:\n\t%s", resp.StatusCode, string(bb), string(b))
+	}
+	return bb, nil
+}
+
+func patchIdentityProviderJsonPatch(b []byte, id string, client Client) ([]byte, error) {
+	req, err := http.NewRequest(
+		http.MethodPatch,
+		fmt.Sprintf("%s/%s/%s", strings.TrimRight(client.Host, "/"), "api/identity-provider", id),
+		bytes.NewBuffer(b),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Authorization", client.APIKey)
+	req.Header.Add("Content-Type", "application/json-patch+json")
+
+	hc := http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	resp, err := hc.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if err := checkResponse(resp.StatusCode, nil); err != nil {
+		return nil, err
+	}
+	bb, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode > 299 {
+		return nil, fmt.Errorf("status: %d, response: \n\t%s\nreq body:\n\t%s", resp.StatusCode, string(bb), string(b))
+	}
+	return bb, nil
+}
+
 func buildTenantConfigurationResource(tcm map[string]fusionauth.IdentityProviderTenantConfiguration) []map[string]interface{} {
 	t := make([]map[string]interface{}, 0, len(tcm))
 	for k, v := range tcm {

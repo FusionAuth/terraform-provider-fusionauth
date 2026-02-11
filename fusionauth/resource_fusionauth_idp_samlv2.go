@@ -301,6 +301,12 @@ func resourceIDPSAMLv2() *schema.Resource {
 					"inclusive_with_comments",
 				}, false),
 			},
+			"manage_application_configurations": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "When true, the provider will manage application configurations for this identity provider. This is a local-only setting that does not affect the FusionAuth API.",
+			},
 			"tenant_configuration": {
 				Optional:    true,
 				Type:        schema.TypeSet,
@@ -334,8 +340,26 @@ func resourceIDPSAMLv2() *schema.Resource {
 	}
 }
 
+func validateApplicationConfigurationUsage(data *schema.ResourceData) diag.Diagnostics {
+	manageAppConfigs := data.Get("manage_application_configurations").(bool)
+	appConfigSet := data.Get("application_configuration").(*schema.Set)
+
+	if !manageAppConfigs && appConfigSet.Len() > 0 {
+		return diag.Errorf("application_configuration cannot be set when manage_application_configurations is false")
+	}
+
+	return nil
+}
+
 func createIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-	o := buildIDPSAMLv2(data)
+	manageAppConfigs := data.Get("manage_application_configurations").(bool)
+
+	// Validate conflicting configuration
+	if diags := validateApplicationConfigurationUsage(data); diags.HasError() {
+		return diags
+	}
+
+	o := buildIDPSAMLv2(data, manageAppConfigs)
 
 	b, err := json.Marshal(o)
 	if err != nil {
@@ -357,20 +381,61 @@ func createIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}
 	return nil
 }
 func readIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+	idpId := data.Id()
+
+	// Validate conflicting configuration
+	if diags := validateApplicationConfigurationUsage(data); diags.HasError() {
+		return diags
+	}
+
 	client := i.(Client)
-	b, err := readIdentityProvider(data.Id(), client)
+	b, err := readIdentityProvider(idpId, client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	var ipb SAMLIdentityProviderBody
-	_ = json.Unmarshal(b, &ipb)
+	err = json.Unmarshal(b, &ipb)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	return buildResourceDataFromIDPSAMLv2(data, ipb.IdentityProvider)
 }
 
 func updateIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
-	o := buildIDPSAMLv2(data)
+	manageAppConfigs := data.Get("manage_application_configurations").(bool)
+	idpId := data.Id()
+
+	// Validate conflicting configuration
+	if diags := validateApplicationConfigurationUsage(data); diags.HasError() {
+		return diags
+	}
+
+	var o SAMLIdentityProviderBody
+
+	if !manageAppConfigs {
+		// When not managing app configs, preserve existing ones
+		client := i.(Client)
+
+		b, err := readIdentityProvider(idpId, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		var existingIDP SAMLIdentityProviderBody
+		err = json.Unmarshal(b, &existingIDP)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		// Build the new configuration but preserve existing app configs
+		o = buildIDPSAMLv2(data, manageAppConfigs)
+
+		o.IdentityProvider.ApplicationConfiguration = existingIDP.IdentityProvider.ApplicationConfiguration
+	} else {
+		o = buildIDPSAMLv2(data, manageAppConfigs)
+	}
 
 	b, err := json.Marshal(o)
 	if err != nil {
@@ -378,7 +443,7 @@ func updateIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}
 	}
 
 	client := i.(Client)
-	bb, err := updateIdentityProvider(b, data.Id(), client)
+	bb, err := updateIdentityProvider(b, idpId, client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -412,7 +477,7 @@ func handleDestinationAlternates(alternates []interface{}) []string {
 	return result
 }
 
-func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
+func buildIDPSAMLv2(data *schema.ResourceData, manageAppConfigs bool) SAMLIdentityProviderBody {
 	s := fusionauth.SAMLv2IdentityProvider{
 		AssertionConfiguration: fusionauth.SAMLv2AssertionConfiguration{
 			Destination: fusionauth.SAMLv2DestinationAssertionConfiguration{
@@ -462,7 +527,12 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 		),
 	}
 
-	s.ApplicationConfiguration = buildSAMLv2AppConfig("application_configuration", data)
+	if manageAppConfigs {
+		s.ApplicationConfiguration = buildSAMLv2AppConfig("application_configuration", data)
+	} else {
+		// When not managing app configs, send empty map for CREATE operations
+		s.ApplicationConfiguration = make(map[string]interface{})
+	}
 	s.TenantConfiguration = buildTenantConfiguration(data)
 
 	return SAMLIdentityProviderBody{IdentityProvider: s}
@@ -561,29 +631,42 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 		return diag.Errorf("idpSAMLv2.login_hint_configuration: %s", err.Error())
 	}
 
-	// Since this is coming down as an interface and would end up being map[string]interface{}
-	// with one of the values being map[string]interface{}
-	b, _ := json.Marshal(res.ApplicationConfiguration)
-	m := make(map[string]SAMLAppConfig)
-	_ = json.Unmarshal(b, &m)
+	// Only set application_configuration if manage_application_configurations is true
+	manageAppConfigs := data.Get("manage_application_configurations").(bool)
+	if manageAppConfigs {
+		// Since this is coming down as an interface and would end up being map[string]interface{}
+		// with one of the values being map[string]interface{}
+		b, _ := json.Marshal(res.ApplicationConfiguration)
+		m := make(map[string]SAMLAppConfig)
+		_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
-	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
-			"application_id":      k,
-			"button_image_url":    v.ButtonImageURL,
-			"button_text":         v.ButtonText,
-			"create_registration": v.CreateRegistration,
-			"enabled":             v.Enabled,
-		})
-	}
-	if err := data.Set("application_configuration", ac); err != nil {
-		return diag.Errorf("idpSAMLv2.application_configuration: %s", err.Error())
+		ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+		for k, v := range m {
+			ac = append(ac, map[string]interface{}{
+				"application_id":      k,
+				"button_image_url":    v.ButtonImageURL,
+				"button_text":         v.ButtonText,
+				"create_registration": v.CreateRegistration,
+				"enabled":             v.Enabled,
+			})
+		}
+		if err := data.Set("application_configuration", ac); err != nil {
+			return diag.Errorf("idpSAMLv2.application_configuration: %s", err.Error())
+		}
+	} else {
+		// When not managing app configs, always keep application_configuration empty in state
+		if err := data.Set("application_configuration", []interface{}{}); err != nil {
+			return diag.Errorf("idpSAMLv2.application_configuration: %s", err.Error())
+		}
 	}
 
 	tc := buildTenantConfigurationResource(res.TenantConfiguration)
 	if err := data.Set("tenant_configuration", tc); err != nil {
 		return diag.Errorf("idpSAMLv2.tenant_configuration: %s", err.Error())
+	}
+
+	if err := data.Set("manage_application_configurations", data.Get("manage_application_configurations").(bool)); err != nil {
+		return diag.Errorf("idpSAMLv2.manage_application_configurations: %s", err.Error())
 	}
 
 	return nil

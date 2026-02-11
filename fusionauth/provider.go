@@ -42,6 +42,7 @@ func Provider() *schema.Provider {
 			"fusionauth_idp_linkedin":             resourceIDPLinkedIn(),
 			"fusionauth_idp_open_id_connect":      newIDPOpenIDConnect(),
 			"fusionauth_idp_saml_v2":              resourceIDPSAMLv2(),
+			"fusionauth_idp_saml_v2_association":  resourceIDPSAMLv2Association(),
 			"fusionauth_idp_saml_v2_idp_initated": resourceIDPSAMLv2IdPInitiated(),
 			"fusionauth_idp_sony_psn":             resourceIDPSonyPSN(),
 			"fusionauth_idp_steam":                resourceIDPSteam(),
