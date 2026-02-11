@@ -117,16 +117,12 @@ func createIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 		return diag.FromErr(err)
 	}
 
-	// Do not check if association already exists
-	// When we pull from the API we will get whatever is already there,
-	// Which was set by us
-	//if idpBody.IdentityProvider.ApplicationConfiguration == nil {
-	//	idpBody.IdentityProvider.ApplicationConfiguration = make(map[string]interface{})
-	//}
-
-	//if _, exists := idpBody.IdentityProvider.ApplicationConfiguration[applicationId]; exists {
-	//	return diag.Errorf("association between IDP %s and application %s already exists", idpId, applicationId)
-	//}
+	// Ensure configuration doesn't already exist. The patch endpoint does not reject "add"
+	// operations on existing paths, so we must check existence to avoid assuming management
+	// of existing application configurations that have not been explicitly imported.
+	if _, ok := idpBody.IdentityProvider.ApplicationConfiguration[applicationId]; ok {
+		return diag.Errorf("association between IDP %s and application %s already exists", idpId, applicationId)
+	}
 
 	// Create PATCH payload with only the application configuration
 	appConfig := SAMLAppConfig{
