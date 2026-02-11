@@ -5,42 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
-
-// Global mutex map for IDP-level locking to prevent race conditions
-// when multiple association resources modify the same IDP concurrently
-var (
-	idpLocksMutex = sync.RWMutex{}
-	idpLocks      = make(map[string]*sync.Mutex)
-)
-
-// getIDPMutex returns a mutex for the given IDP ID, creating one if it doesn't exist
-func getIDPMutex(idpId string) *sync.Mutex {
-	idpLocksMutex.RLock()
-	if mutex, exists := idpLocks[idpId]; exists {
-		idpLocksMutex.RUnlock()
-		return mutex
-	}
-	idpLocksMutex.RUnlock()
-
-	idpLocksMutex.Lock()
-	defer idpLocksMutex.Unlock()
-
-	// Double-check pattern in case another goroutine created it
-	if mutex, exists := idpLocks[idpId]; exists {
-		return mutex
-	}
-
-	// Create new mutex for this IDP
-	mutex := &sync.Mutex{}
-	idpLocks[idpId] = mutex
-	return mutex
-}
 
 func resourceIDPSAMLv2ApplicationConfiguration() *schema.Resource {
 	return &schema.Resource{
@@ -96,13 +65,6 @@ func createIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 	idpId := data.Get("idp_id").(string)
 	applicationId := data.Get("application_id").(string)
 
-	// Acquire IDP-specific mutex to prevent race conditions
-	mutex := getIDPMutex(idpId)
-	mutex.Lock()
-	defer func() {
-		mutex.Unlock()
-	}()
-
 	client := i.(Client)
 
 	// Read current IDP configuration
@@ -156,13 +118,6 @@ func createIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 func readIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	idpId := data.Get("idp_id").(string)
 	applicationId := data.Get("application_id").(string)
-
-	// Acquire IDP-specific mutex to ensure consistent reads during concurrent modifications
-	mutex := getIDPMutex(idpId)
-	mutex.Lock()
-	defer func() {
-		mutex.Unlock()
-	}()
 
 	client := i.(Client)
 
@@ -218,13 +173,6 @@ func updateIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 	idpId := data.Get("idp_id").(string)
 	applicationId := data.Get("application_id").(string)
 
-	// Acquire IDP-specific mutex to prevent race conditions
-	mutex := getIDPMutex(idpId)
-	mutex.Lock()
-	defer func() {
-		mutex.Unlock()
-	}()
-
 	client := i.(Client)
 
 	// Read current IDP configuration
@@ -277,13 +225,6 @@ func updateIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 func deleteIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	idpId := data.Get("idp_id").(string)
 	applicationId := data.Get("application_id").(string)
-
-	// Acquire IDP-specific mutex to prevent race conditions
-	mutex := getIDPMutex(idpId)
-	mutex.Lock()
-	defer func() {
-		mutex.Unlock()
-	}()
 
 	client := i.(Client)
 
