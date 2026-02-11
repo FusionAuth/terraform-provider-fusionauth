@@ -42,12 +42,12 @@ func getIDPMutex(idpId string) *sync.Mutex {
 	return mutex
 }
 
-func resourceIDPSAMLv2Association() *schema.Resource {
+func resourceIDPSAMLv2ApplicationConfiguration() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: createIDPSAMLv2Association,
-		ReadContext:   readIDPSAMLv2Association,
-		UpdateContext: updateIDPSAMLv2Association,
-		DeleteContext: deleteIDPSAMLv2Association,
+		CreateContext: createIDPSAMLv2ApplicationConfiguration,
+		ReadContext:   readIDPSAMLv2ApplicationConfiguration,
+		UpdateContext: updateIDPSAMLv2ApplicationConfiguration,
+		DeleteContext: deleteIDPSAMLv2ApplicationConfiguration,
 		Schema: map[string]*schema.Schema{
 			"idp_id": {
 				Type:         schema.TypeString,
@@ -87,13 +87,12 @@ func resourceIDPSAMLv2Association() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			StateContext: importIDPSAMLv2Association,
+			StateContext: importIDPSAMLv2ApplicationConfiguration,
 		},
 	}
 }
 
-
-func createIDPSAMLv2Association(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	idpId := data.Get("idp_id").(string)
 	applicationId := data.Get("application_id").(string)
 
@@ -163,7 +162,7 @@ func createIDPSAMLv2Association(_ context.Context, data *schema.ResourceData, i 
 	return nil
 }
 
-func readIDPSAMLv2Association(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	idpId := data.Get("idp_id").(string)
 	applicationId := data.Get("application_id").(string)
 
@@ -224,7 +223,7 @@ func readIDPSAMLv2Association(_ context.Context, data *schema.ResourceData, i in
 	return nil
 }
 
-func updateIDPSAMLv2Association(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	idpId := data.Get("idp_id").(string)
 	applicationId := data.Get("application_id").(string)
 
@@ -289,7 +288,7 @@ func updateIDPSAMLv2Association(_ context.Context, data *schema.ResourceData, i 
 	return nil
 }
 
-func deleteIDPSAMLv2Association(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	idpId := data.Get("idp_id").(string)
 	applicationId := data.Get("application_id").(string)
 
@@ -340,7 +339,7 @@ func deleteIDPSAMLv2Association(_ context.Context, data *schema.ResourceData, i 
 	return nil
 }
 
-func importIDPSAMLv2Association(_ context.Context, data *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func importIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	id := data.Id()
 
 	// Parse composite ID: "idp_id:application_id"
