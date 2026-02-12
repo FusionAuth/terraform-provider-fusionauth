@@ -8,6 +8,8 @@ FusionAuth will locate the user’s email address in the SAML assertion which wi
 
 [SAML v2 Connect Identity Providers API](https://fusionauth.io/docs/v1/tech/apis/identity-providers/samlv2/)
 
+!> **WARNING:** You should not use the `fusionauth_idp_saml_v2` resource with _in-line application configurations_ (using the `application_configuration` argument of `fusionauth_idp_saml_v2`) in conjunction with the [`fusionauth_idp_saml_v2_application_configuration`](idp_saml_v2_application_configuration.html) resource. Doing so may cause configuration conflicts, perpetual differences, and result in configuration being overwritten.
+
 ## Example Usage
 
 ```hcl
