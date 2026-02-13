@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -65,6 +66,19 @@ func resourceIDPSAMLv2ApplicationConfiguration() *schema.Resource {
 	}
 }
 
+type samlV2IDPApplicationConfigurationIdentityProvider struct {
+	ApplicationConfiguration map[string]*SAMLAppConfig `json:"applicationConfiguration"`
+}
+
+// samlV2IDPApplicationConfiguration is used to submit merge patches to SAMLv2
+// IdP applicationConfiguration, or retrieve only its applicationConfiguration
+// from the FusionAuth API.
+type samlV2IDPApplicationConfiguration struct {
+	fusionauth.StatusResponse
+
+	IdentityProvider samlV2IDPApplicationConfigurationIdentityProvider `json:"identityProvider"`
+}
+
 func createIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	idpId := data.Get("idp_id").(string)
 	applicationId := data.Get("application_id").(string)
@@ -83,15 +97,15 @@ func createIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 		return diag.FromErr(err)
 	}
 
-	// Ensure configuration doesn't already exist. The patch endpoint does not reject "add"
-	// operations on existing paths, so we must check existence to avoid assuming management
-	// of existing application configurations that have not been explicitly imported.
+	// Ensure configuration doesn't already exist. We must check existence to avoid assuming
+	// management of existing application configurations that have not been explicitly
+	// imported.
 	if _, ok := idpBody.IdentityProvider.ApplicationConfiguration[applicationId]; ok {
 		return diag.Errorf(appConfigAlreadyExistsErrorFmt, applicationId, idpId)
 	}
 
 	// Create PATCH payload with only the application configuration
-	appConfig := SAMLAppConfig{
+	appConfig := &SAMLAppConfig{
 		Enabled:            data.Get("enabled").(bool),
 		CreateRegistration: data.Get("create_registration").(bool),
 		ButtonText:         data.Get("button_text").(string),
@@ -99,15 +113,18 @@ func createIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 	}
 
 	// Use PATCH to update only the specific application configuration
-	p := patch{
-		{
-			Op:    addOp,
-			Path:  fmt.Sprintf("/identityProvider/applicationConfiguration/%s", applicationId),
-			Value: appConfig,
+	p := &samlV2IDPApplicationConfiguration{
+		IdentityProvider: samlV2IDPApplicationConfigurationIdentityProvider{
+			ApplicationConfiguration: map[string]*SAMLAppConfig{applicationId: appConfig},
 		},
 	}
 
-	_, err = patchIdentityProvider(p, idpId, client)
+	b, err = json.Marshal(p)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	_, err = patchIdentityProvider(b, idpId, client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -202,7 +219,7 @@ func updateIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 	}
 
 	// Create PATCH payload with only the application configuration
-	appConfig := SAMLAppConfig{
+	appConfig := &SAMLAppConfig{
 		Enabled:            data.Get("enabled").(bool),
 		CreateRegistration: data.Get("create_registration").(bool),
 		ButtonText:         data.Get("button_text").(string),
@@ -210,15 +227,18 @@ func updateIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 	}
 
 	// Use PATCH to update only the specific application configuration
-	p := patch{
-		{
-			Op:    replaceOp,
-			Path:  fmt.Sprintf("/identityProvider/applicationConfiguration/%s", applicationId),
-			Value: appConfig,
+	p := &samlV2IDPApplicationConfiguration{
+		IdentityProvider: samlV2IDPApplicationConfigurationIdentityProvider{
+			ApplicationConfiguration: map[string]*SAMLAppConfig{applicationId: appConfig},
 		},
 	}
 
-	_, err = patchIdentityProvider(p, idpId, client)
+	b, err = json.Marshal(p)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	_, err = patchIdentityProvider(b, idpId, client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -244,17 +264,21 @@ func deleteIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 		return diag.FromErr(err)
 	}
 
-	// Remove association using JSON Patch (RFC 6902)
 	if idpBody.IdentityProvider.ApplicationConfiguration != nil {
 		if _, exists := idpBody.IdentityProvider.ApplicationConfiguration[applicationId]; exists {
-			p := patch{
-				{
-					Op:   removeOp,
-					Path: fmt.Sprintf("/identityProvider/applicationConfiguration/%s", applicationId),
+			// Use PATCH to update only the specific application configuration
+			p := &samlV2IDPApplicationConfiguration{
+				IdentityProvider: samlV2IDPApplicationConfigurationIdentityProvider{
+					ApplicationConfiguration: map[string]*SAMLAppConfig{applicationId: nil},
 				},
 			}
 
-			_, err = patchIdentityProvider(p, idpId, client)
+			b, err := json.Marshal(p)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+
+			_, err = patchIdentityProvider(b, idpId, client)
 			if err != nil {
 				return diag.FromErr(err)
 			}

@@ -188,26 +188,18 @@ func TestAccIdpSamlV2ApplicationConfiguration(t *testing.T) {
 
 }
 
-type samlV2IDPApplicationConfigResp struct {
-	fusionauth.StatusResponse
-
-	IdentityProvider struct {
-		ApplicationConfiguration map[string]SAMLAppConfig `json:"applicationConfiguration"`
-	} `json:"identityProvider"`
-}
-
 // testAccIdpSamlV2GetApplicationConfigurations fetches the Application Configurations
 // from a FusionAuth SAML v2 IdP by id.
 //
 // The FusionAuthClient does not have methods that do this natively in a convenient way.
-func testAccIdpSamlV2GetApplicationConfigurations(id string) (map[string]SAMLAppConfig, error) {
+func testAccIdpSamlV2GetApplicationConfigurations(id string) (map[string]*SAMLAppConfig, error) {
 	client := fusionauthClient()
 	// This method of using the client to build and execute REST requests is not well documented,
 	// but from reading source code it takes care of authentication and error handling and spares
 	// us setting up our own HTTP client.
 	// https://pkg.go.dev/github.com/FusionAuth/go-client@v1.59.0/pkg/fusionauth#FusionAuthClient.Start
 	var errors fusionauth.Errors
-	var resp samlV2IDPApplicationConfigResp
+	var resp samlV2IDPApplicationConfiguration
 	err := client.Start(&resp, &errors).
 		WithUri(fmt.Sprintf("/api/identity-provider/%s", id)).
 		WithMethod(http.MethodGet).
@@ -287,7 +279,7 @@ func testAccIDPSAMLv2ApplicationConfigurationCompareAppConfigs(expected map[stri
 			if !ok {
 				return fmt.Errorf("expected application configuration for app %s to exist", appID)
 			}
-			if config != expectedConfig {
+			if *config != expectedConfig {
 				return fmt.Errorf("expected application configuration for app %s to be %#v, got %#v", appID, expectedConfig, config)
 			}
 		}

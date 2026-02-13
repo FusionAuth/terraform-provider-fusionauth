@@ -3,7 +3,6 @@ package fusionauth
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -140,28 +139,7 @@ func updateIdentityProvider(b []byte, id string, client Client) ([]byte, error) 
 	return bb, nil
 }
 
-type patchOp string
-
-var (
-	addOp     patchOp = "add"
-	removeOp  patchOp = "remove"
-	replaceOp patchOp = "replace"
-)
-
-type patchOperation struct {
-	Op    patchOp     `json:"op"`
-	Path  string      `json:"path"`
-	Value interface{} `json:"value,omitempty"`
-}
-
-type patch []patchOperation
-
-func patchIdentityProvider(p patch, id string, client Client) ([]byte, error) {
-	b, err := json.Marshal(p)
-	if err != nil {
-		return nil, err
-	}
-
+func patchIdentityProvider(b []byte, id string, client Client) ([]byte, error) {
 	req, err := http.NewRequest(
 		http.MethodPatch,
 		fmt.Sprintf("%s/%s/%s", strings.TrimRight(client.Host, "/"), "api/identity-provider", id),
@@ -173,7 +151,7 @@ func patchIdentityProvider(p patch, id string, client Client) ([]byte, error) {
 	}
 
 	req.Header.Add("Authorization", client.APIKey)
-	req.Header.Add("Content-Type", "application/json-patch+json")
+	req.Header.Add("Content-Type", "application/merge-patch+json")
 
 	hc := http.Client{
 		Timeout: 30 * time.Second,
