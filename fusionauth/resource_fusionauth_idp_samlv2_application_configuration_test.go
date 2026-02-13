@@ -137,7 +137,7 @@ func TestAccIdpSamlV2ApplicationConfiguration(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
-			// Create an IdP and standalone applications configurations.
+			// Create an IdP and standalone application configurations.
 			{
 				Config: testAccIDPSAMLv2ApplicationConfigurationConfig(t,
 					&testAccIdpSamlV2ApplicationConfigurationResourceTemplateConfig{
@@ -186,6 +186,85 @@ func TestAccIdpSamlV2ApplicationConfiguration(t *testing.T) {
 		},
 	})
 
+	// Verify that updates to IdP don't overwrite application configuration after application
+	// configuration is moved from inline management to standalone management. This slightly
+	// changes the behavior of the Terraform SDK.
+	resource.Test(t, resource.TestCase{
+		ProviderFactories: testAccProviderFactories,
+		Steps: []resource.TestStep{
+			// Create an IdP with inline application configuration.
+			{
+				Config: testAccIDPSAMLv2ApplicationConfigurationConfig(t,
+					&testAccIdpSamlV2ApplicationConfigurationResourceTemplateConfig{
+						ResourceName:     resourceName,
+						InlineApp0Config: true,
+					},
+				),
+				Check: testAccIDPSAMLv2ApplicationConfigurationCompareAppConfigs(map[string]SAMLAppConfig{
+					testAccIdpSamlV2ApplicationConfigurationApp0TFResourcePath: {
+						ButtonText:         "Login with SAML (test_" + resourceName + "_0)",
+						CreateRegistration: true,
+						Enabled:            true,
+					},
+				}),
+			},
+			// Remove the inline application configuration.
+			{
+				Config: testAccIDPSAMLv2ApplicationConfigurationConfig(t,
+					&testAccIdpSamlV2ApplicationConfigurationResourceTemplateConfig{
+						ResourceName: resourceName,
+					},
+				),
+				Check: testAccIDPSAMLv2ApplicationConfigurationCompareAppConfigs(map[string]SAMLAppConfig{}),
+			},
+			// Add standlone application configurations.
+			{
+				Config: testAccIDPSAMLv2ApplicationConfigurationConfig(t,
+					&testAccIdpSamlV2ApplicationConfigurationResourceTemplateConfig{
+						ResourceName:         resourceName,
+						StandaloneApp0Config: true,
+						StandaloneApp1Config: true,
+					},
+				),
+				Check: testAccIDPSAMLv2ApplicationConfigurationCompareAppConfigs(map[string]SAMLAppConfig{
+					testAccIdpSamlV2ApplicationConfigurationApp0TFResourcePath: {
+						ButtonText:         "Login with SAML (test_" + resourceName + "_0)",
+						CreateRegistration: true,
+						Enabled:            true,
+					},
+					testAccIdpSamlV2ApplicationConfigurationApp1TFResourcePath: {
+						ButtonText:         "Login with SAML (test_" + resourceName + "_1)",
+						CreateRegistration: true,
+						Enabled:            true,
+					},
+				}),
+			},
+			// Make a change to the IdP.
+			// We expect the application configurations to be unchanged.
+			{
+				Config: testAccIDPSAMLv2ApplicationConfigurationConfig(t,
+					&testAccIdpSamlV2ApplicationConfigurationResourceTemplateConfig{
+						ResourceName:         resourceName,
+						DisableIdp:           true,
+						StandaloneApp0Config: true,
+						StandaloneApp1Config: true,
+					},
+				),
+				Check: testAccIDPSAMLv2ApplicationConfigurationCompareAppConfigs(map[string]SAMLAppConfig{
+					testAccIdpSamlV2ApplicationConfigurationApp0TFResourcePath: {
+						ButtonText:         "Login with SAML (test_" + resourceName + "_0)",
+						CreateRegistration: true,
+						Enabled:            true,
+					},
+					testAccIdpSamlV2ApplicationConfigurationApp1TFResourcePath: {
+						ButtonText:         "Login with SAML (test_" + resourceName + "_1)",
+						CreateRegistration: true,
+						Enabled:            true,
+					},
+				}),
+			},
+		},
+	})
 }
 
 // testAccIdpSamlV2GetApplicationConfigurations fetches the Application Configurations

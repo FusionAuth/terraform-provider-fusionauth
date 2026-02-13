@@ -39,12 +39,6 @@ resource "fusionauth_idp_saml_v2" "test" {
     create_registration = true
     enabled             = true
   }
-  {{- else -}}
-  lifecycle {
-    ignore_changes = [
-      application_configuration,
-    ]
-  }
   {{- end }}
 }
 

@@ -378,7 +378,7 @@ func updateIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}
 	}
 
 	client := i.(Client)
-	bb, err := updateIdentityProvider(b, data.Id(), client)
+	bb, err := patchIdentityProvider(b, data.Id(), client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -561,24 +561,41 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 		return diag.Errorf("idpSAMLv2.login_hint_configuration: %s", err.Error())
 	}
 
-	// Since this is coming down as an interface and would end up being map[string]interface{}
-	// with one of the values being map[string]interface{}
-	b, _ := json.Marshal(res.ApplicationConfiguration)
-	m := make(map[string]SAMLAppConfig)
-	_ = json.Unmarshal(b, &m)
+	// If application_configuration has ever been non-null in the configuration.
+	if set, ok := data.GetOk("application_configuration"); ok {
+		if set != nil && set.(*schema.Set).Len() > 0 {
+			// If application_configuration is currently non-empty.
+			//
+			// Docs for GetOk aren't clear on whether the returned value can ever be nil, so check
+			// for that just in case.
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
-	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
-			"application_id":      k,
-			"button_image_url":    v.ButtonImageURL,
-			"button_text":         v.ButtonText,
-			"create_registration": v.CreateRegistration,
-			"enabled":             v.Enabled,
-		})
-	}
-	if err := data.Set("application_configuration", ac); err != nil {
-		return diag.Errorf("idpSAMLv2.application_configuration: %s", err.Error())
+			// Since this is coming down as an interface and would end up being map[string]interface{}
+			// with one of the values being map[string]interface{}
+			b, _ := json.Marshal(res.ApplicationConfiguration)
+			m := make(map[string]SAMLAppConfig)
+			_ = json.Unmarshal(b, &m)
+
+			ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+			for k, v := range m {
+				ac = append(ac, map[string]interface{}{
+					"application_id":      k,
+					"button_image_url":    v.ButtonImageURL,
+					"button_text":         v.ButtonText,
+					"create_registration": v.CreateRegistration,
+					"enabled":             v.Enabled,
+				})
+			}
+			if err := data.Set("application_configuration", ac); err != nil {
+				return diag.Errorf("idpSAMLv2.application_configuration: %s", err.Error())
+			}
+		} else {
+			// Otherwise, application_configuration is currently empty, but was set to something
+			// non-null at some point in the past. Explicitly store an empty value to the state to
+			// cover the case where the user had configuration here and has just removed it.
+			if err := data.Set("application_configuration", make([]map[string]interface{}, 0)); err != nil {
+				return diag.Errorf("idpSAMLv2.application_configuration: %s", err.Error())
+			}
+		}
 	}
 
 	tc := buildTenantConfigurationResource(res.TenantConfiguration)
@@ -591,12 +608,12 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 
 func buildSAMLv2AppConfig(key string, data *schema.ResourceData) map[string]interface{} {
 	m := make(map[string]interface{})
-	s := data.Get(key)
-	set, ok := s.(*schema.Set)
+	sOld, sNew := data.GetChange(key)
+	setNew, ok := sNew.(*schema.Set)
 	if !ok {
 		return m
 	}
-	l := set.List()
+	l := setNew.List()
 	for _, x := range l {
 		ac := x.(map[string]interface{})
 		aid := ac["application_id"].(string)
@@ -608,5 +625,20 @@ func buildSAMLv2AppConfig(key string, data *schema.ResourceData) map[string]inte
 		}
 		m[aid] = oc
 	}
+
+	// For JSON merge patch: set any removed keys explicitly to null.
+	setOld, ok := sOld.(*schema.Set)
+	if !ok {
+		return m
+	}
+	l = setOld.List()
+	for _, x := range l {
+		ac := x.(map[string]interface{})
+		aid := ac["application_id"].(string)
+		if _, ok := m[aid]; !ok {
+			m[aid] = nil
+		}
+	}
+
 	return m
 }
