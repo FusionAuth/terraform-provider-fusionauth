@@ -1,0 +1,69 @@
+{{- /* This template generates test configuration for fusionauth_idp_saml_v2_application_configuration
+       based on the passed parameters. It generates two applications, a key, and an IdP. It can generate
+       inline application configuration on the IdP for the first application and can generate standalone
+       application configuration resources for both applications.
+*/ -}}
+
+data "fusionauth_tenant" "default"{
+    name = "Default"
+}
+
+resource "fusionauth_application" "test_0" {
+  name = "test_{{.ResourceName}}_0"
+  tenant_id = data.fusionauth_tenant.default.id
+}
+
+resource "fusionauth_application" "test_1" {
+  name = "test_{{.ResourceName}}_1"
+  tenant_id = data.fusionauth_tenant.default.id
+}
+
+resource "fusionauth_key" "test" {
+  algorithm = "RS256"
+  name      = "Test key for SAMLv2 IdP test_{{.ResourceName}}"
+  length    = 2048
+}
+
+resource "fusionauth_idp_saml_v2" "test" {
+  button_text  = "Login with SAML (test_{{.ResourceName}})"
+  idp_endpoint = "https://example.com/fake"
+  key_id       = fusionauth_key.test.id
+  name         = "test_{{.ResourceName}}"
+
+  enabled = {{ not .DisableIdp }}
+
+  {{ if .InlineApp0Config -}}
+  application_configuration {
+    application_id      = fusionauth_application.test_0.id
+    button_text         = "Login with SAML (test_{{.ResourceName}}_0)"
+    create_registration = true
+    enabled             = true
+  }
+  {{- else -}}
+  lifecycle {
+    ignore_changes = [
+      application_configuration,
+    ]
+  }
+  {{- end }}
+}
+
+{{ if .StandaloneApp0Config -}}
+resource "fusionauth_idp_saml_v2_application_configuration" "test_0" {
+  idp_id              = fusionauth_idp_saml_v2.test.id
+  application_id      = fusionauth_application.test_0.id
+  button_text         = "Login with SAML (test_{{.ResourceName}}_0)"
+  enabled             = true
+  create_registration = true
+}
+{{- end }}
+
+{{ if .StandaloneApp1Config -}}
+resource "fusionauth_idp_saml_v2_application_configuration" "test_1" {
+  idp_id              = fusionauth_idp_saml_v2.test.id
+  application_id      = fusionauth_application.test_1.id
+  button_text         = "Login with SAML (test_{{.ResourceName}}_1)"
+  enabled             = true
+  create_registration = true
+}
+{{- end }}

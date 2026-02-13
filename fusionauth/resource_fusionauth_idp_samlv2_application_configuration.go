@@ -11,6 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+const (
+	appConfigAlreadyExistsErrorFmt = "configuration for application %s on IDP %s already exists"
+)
+
 func resourceIDPSAMLv2ApplicationConfiguration() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: createIDPSAMLv2ApplicationConfiguration,
@@ -83,7 +87,7 @@ func createIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 	// operations on existing paths, so we must check existence to avoid assuming management
 	// of existing application configurations that have not been explicitly imported.
 	if _, ok := idpBody.IdentityProvider.ApplicationConfiguration[applicationId]; ok {
-		return diag.Errorf("association between IDP %s and application %s already exists", idpId, applicationId)
+		return diag.Errorf(appConfigAlreadyExistsErrorFmt, applicationId, idpId)
 	}
 
 	// Create PATCH payload with only the application configuration
