@@ -40,6 +40,10 @@ resource "fusionauth_idp_saml_v2" "test" {
     enabled             = true
   }
   {{- end }}
+
+  {{ if .EmptyAppConfig -}}
+  application_configuration = []
+  {{- end }}
 }
 
 {{ if .StandaloneApp0Config -}}

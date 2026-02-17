@@ -271,6 +271,80 @@ func TestAccIdpSamlV2ApplicationConfiguration(t *testing.T) {
 			},
 		},
 	})
+
+	// Test behavior of empty vs. null inline application_configuration.
+	//
+	// XXX: This is not possible in terraform-plugin-sdk, but is ideally something that should be
+	// supported. To fix it this whole provider would have to be migration to the newer
+	// terraform-plugin-framework.
+	// resource.Test(t, resource.TestCase{
+	// 	ProviderFactories: testAccProviderFactories,
+	// 	Steps: []resource.TestStep{
+	// 		// Create an IdP with no application configurations and a standalone application_configuration.
+	// 		{
+	// 			Config: testAccIDPSAMLv2ApplicationConfigurationConfig(t,
+	// 				&testAccIdpSamlV2ApplicationConfigurationResourceTemplateConfig{
+	// 					ResourceName:     resourceName,
+	// 					InlineApp0Config: true,
+	// 				},
+	// 			),
+	// 			Check: testAccIDPSAMLv2ApplicationConfigurationCompareAppConfigs(map[string]SAMLAppConfig{
+	// 				testAccIdpSamlV2ApplicationConfigurationApp0TFResourcePath: {
+	// 					ButtonText:         "Login with SAML (test_" + resourceName + "_0)",
+	// 					CreateRegistration: true,
+	// 					Enabled:            true,
+	// 				},
+	// 			}),
+	// 		},
+	// 		// Set inline application configuration on the IdP to empty. We expect this to cause a
+	// 		// conflict that overwrites the app config to be empty.
+	// 		{
+	// 			Config: testAccIDPSAMLv2ApplicationConfigurationConfig(t,
+	// 				&testAccIdpSamlV2ApplicationConfigurationResourceTemplateConfig{
+	// 					ResourceName:     resourceName,
+	// 					EmptyAppConfig:   true,
+	// 					InlineApp0Config: true,
+	// 				},
+	// 			),
+	// 			Check: testAccIDPSAMLv2ApplicationConfigurationCompareAppConfigs(map[string]SAMLAppConfig{}),
+	// 		},
+	// 		// Apply again with the same configuration. The same conflict should occur and cause
+	// 		// the standalone application configuration to be reapplied.
+	// 		{
+	// 			Config: testAccIDPSAMLv2ApplicationConfigurationConfig(t,
+	// 				&testAccIdpSamlV2ApplicationConfigurationResourceTemplateConfig{
+	// 					ResourceName:         resourceName,
+	// 					EmptyAppConfig:       true,
+	// 					StandaloneApp0Config: true,
+	// 				},
+	// 			),
+	// 			Check: testAccIDPSAMLv2ApplicationConfigurationCompareAppConfigs(map[string]SAMLAppConfig{
+	// 				testAccIdpSamlV2ApplicationConfigurationApp0TFResourcePath: {
+	// 					ButtonText:         "Login with SAML (test_" + resourceName + "_0)",
+	// 					CreateRegistration: true,
+	// 					Enabled:            true,
+	// 				},
+	// 			}),
+	// 		},
+	// 		// Remove the empty inline application configuration. This should remove the conflict
+	// 		// and result in no changes, since the previous state of the world is the correct one.
+	// 		{
+	// 			Config: testAccIDPSAMLv2ApplicationConfigurationConfig(t,
+	// 				&testAccIdpSamlV2ApplicationConfigurationResourceTemplateConfig{
+	// 					ResourceName:         resourceName,
+	// 					StandaloneApp0Config: true,
+	// 				},
+	// 			),
+	// 			Check: testAccIDPSAMLv2ApplicationConfigurationCompareAppConfigs(map[string]SAMLAppConfig{
+	// 				testAccIdpSamlV2ApplicationConfigurationApp0TFResourcePath: {
+	// 					ButtonText:         "Login with SAML (test_" + resourceName + "_0)",
+	// 					CreateRegistration: true,
+	// 					Enabled:            true,
+	// 				},
+	// 			}),
+	// 		},
+	// 	},
+	// })
 }
 
 // testAccIdpSamlV2GetApplicationConfigurations fetches the Application Configurations
@@ -307,8 +381,13 @@ type testAccIdpSamlV2ApplicationConfigurationResourceTemplateConfig struct {
 	// DisableIdp sets the enabled field on the SAML v2 IdP to false.
 	DisableIdp bool
 
-	// InlineApp0Config enables inline application_configuration for the first test app.
+	// InlineApp0Config enables inline application_configuration for the first test app. Conflicts
+	// with EmptyAppConfig.
 	InlineApp0Config bool
+
+	// EmptyAppConfig generates an empty, non-null inline application_configuration. Conflicts with
+	// InlineApp0Config.
+	EmptyAppConfig bool
 
 	// StandaloneApp0Config enables a standalone fusionauth_idp_saml_v2_application_configuration
 	// resource for the first test app.
