@@ -91,7 +91,7 @@ func createIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 		return diag.FromErr(err)
 	}
 
-	var idpBody SAMLIdentityProviderBody
+	var idpBody samlV2IDPApplicationConfiguration
 	err = json.Unmarshal(b, &idpBody)
 	if err != nil {
 		return diag.FromErr(err)
@@ -148,29 +148,17 @@ func readIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Resou
 		return diag.FromErr(err)
 	}
 
-	var idpBody SAMLIdentityProviderBody
+	var idpBody samlV2IDPApplicationConfiguration
 	err = json.Unmarshal(b, &idpBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	// Check if association exists
-	appConfigInterface, exists := idpBody.IdentityProvider.ApplicationConfiguration[applicationId]
-	if !exists {
+	appConfig, ok := idpBody.IdentityProvider.ApplicationConfiguration[applicationId]
+	if !ok {
 		data.SetId("")
 		return nil
-	}
-
-	// Convert to our struct format
-	appConfigJson, err := json.Marshal(appConfigInterface)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	var appConfig SAMLAppConfig
-	err = json.Unmarshal(appConfigJson, &appConfig)
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	// Set values in Terraform state
