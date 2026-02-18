@@ -196,28 +196,6 @@ func updateIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 
 	client := i.(Client)
 
-	// Read current IDP configuration
-	b, err := readIdentityProvider(idpId, client)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	var idpBody SAMLIdentityProviderBody
-	err = json.Unmarshal(b, &idpBody)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	// Check if association exists
-	if idpBody.IdentityProvider.ApplicationConfiguration == nil {
-		idpBody.IdentityProvider.ApplicationConfiguration = make(map[string]interface{})
-	}
-
-	_, exists := idpBody.IdentityProvider.ApplicationConfiguration[applicationId]
-	if !exists {
-		return diag.Errorf("association between IDP %s and application %s does not exist", idpId, applicationId)
-	}
-
 	// Create PATCH payload with only the application configuration
 	appConfig := &SAMLAppConfig{
 		Enabled:            data.Get("enabled").(bool),
@@ -233,7 +211,7 @@ func updateIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 		},
 	}
 
-	b, err = json.Marshal(p)
+	b, err := json.Marshal(p)
 	if err != nil {
 		return diag.FromErr(err)
 	}
