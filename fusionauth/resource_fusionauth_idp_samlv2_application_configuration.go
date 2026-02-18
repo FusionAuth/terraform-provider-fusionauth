@@ -230,37 +230,21 @@ func deleteIDPSAMLv2ApplicationConfiguration(_ context.Context, data *schema.Res
 
 	client := i.(Client)
 
-	// Read current IDP configuration
-	b, err := readIdentityProvider(idpId, client)
+	// Use PATCH to update only the specific application configuration
+	p := &samlV2IDPApplicationConfiguration{
+		IdentityProvider: samlV2IDPApplicationConfigurationIdentityProvider{
+			ApplicationConfiguration: map[string]*SAMLAppConfig{applicationId: nil},
+		},
+	}
+
+	b, err := json.Marshal(p)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var idpBody SAMLIdentityProviderBody
-	err = json.Unmarshal(b, &idpBody)
+	_, err = patchIdentityProvider(b, idpId, client)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	if idpBody.IdentityProvider.ApplicationConfiguration != nil {
-		if _, exists := idpBody.IdentityProvider.ApplicationConfiguration[applicationId]; exists {
-			// Use PATCH to update only the specific application configuration
-			p := &samlV2IDPApplicationConfiguration{
-				IdentityProvider: samlV2IDPApplicationConfigurationIdentityProvider{
-					ApplicationConfiguration: map[string]*SAMLAppConfig{applicationId: nil},
-				},
-			}
-
-			b, err := json.Marshal(p)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-
-			_, err = patchIdentityProvider(b, idpId, client)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-		}
 	}
 
 	return nil
