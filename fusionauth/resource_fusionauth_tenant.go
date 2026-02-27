@@ -2025,6 +2025,12 @@ func newPasswordValidationRules() *schema.Resource {
 					},
 				},
 			},
+			"disallow_user_login_id": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "If enabled, passwords will be rejected if they contain the user's email, username, or phone number.",
+			},
 			"max_length": {
 				Type:     schema.TypeInt,
 				Optional: true,

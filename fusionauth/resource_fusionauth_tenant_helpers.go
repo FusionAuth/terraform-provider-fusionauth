@@ -285,8 +285,9 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 					data.Get("password_validation_rules.0.breach_detection.0.on_login").(string),
 				),
 			},
-			MaxLength: data.Get("password_validation_rules.0.max_length").(int),
-			MinLength: data.Get("password_validation_rules.0.min_length").(int),
+			DisallowUserLoginId: data.Get("password_validation_rules.0.disallow_user_login_id").(bool),
+			MaxLength:           data.Get("password_validation_rules.0.max_length").(int),
+			MinLength:           data.Get("password_validation_rules.0.min_length").(int),
 			RememberPreviousPasswords: fusionauth.RememberPreviousPasswords{
 				Enableable: buildEnableable("password_validation_rules.0.remember_previous_passwords.0.enabled", data),
 				Count:      data.Get("password_validation_rules.0.remember_previous_passwords.0.count").(int),
@@ -855,8 +856,9 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"notify_user_email_template_id": t.PasswordValidationRules.BreachDetection.NotifyUserEmailTemplateId,
 				"on_login":                      t.PasswordValidationRules.BreachDetection.OnLogin,
 			}},
-			"max_length": t.PasswordValidationRules.MaxLength,
-			"min_length": t.PasswordValidationRules.MinLength,
+			"disallow_user_login_id": t.PasswordValidationRules.DisallowUserLoginId,
+			"max_length":             t.PasswordValidationRules.MaxLength,
+			"min_length":             t.PasswordValidationRules.MinLength,
 			"remember_previous_passwords": []map[string]interface{}{{
 				"enabled": t.PasswordValidationRules.RememberPreviousPasswords.Enabled,
 				"count":   t.PasswordValidationRules.RememberPreviousPasswords.Count,
