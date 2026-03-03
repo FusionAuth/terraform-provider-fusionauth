@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func createApplication(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createApplication(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	ar := fusionauth.ApplicationRequest{
 		Application: buildApplication(data),
@@ -39,7 +39,7 @@ func createApplication(_ context.Context, data *schema.ResourceData, i interface
 	return buildResourceDataFromApplication(resp.Application, data)
 }
 
-func readApplication(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readApplication(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -59,7 +59,7 @@ func readApplication(_ context.Context, data *schema.ResourceData, i interface{}
 	return buildResourceDataFromApplication(resp.Application, data)
 }
 
-func updateApplication(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateApplication(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	ar := fusionauth.ApplicationRequest{
 		Application: buildApplication(data),
@@ -76,7 +76,7 @@ func updateApplication(_ context.Context, data *schema.ResourceData, i interface
 	return nil
 }
 
-func deleteApplication(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteApplication(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	resp, faErrs, err := client.FAClient.DeleteApplication(data.Id())
 	if err != nil {
@@ -101,9 +101,9 @@ func resourceApplicationV0() *schema.Resource {
 	}
 }
 
-func resourceApplicationUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceApplicationUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err

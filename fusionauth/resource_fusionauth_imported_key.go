@@ -12,10 +12,10 @@ import (
 func resourceImportedKey() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: createImportedKey,
-		ReadContext: func(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+		ReadContext: func(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 			return keyRead(data, buildResourceDataFromImportedKey, i)
 		},
-		UpdateContext: func(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+		UpdateContext: func(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 			return keyUpdate(data, buildImportedKey, i)
 		},
 		DeleteContext: keyDelete,
@@ -106,7 +106,7 @@ func resourceImportedKey() *schema.Resource {
 	}
 }
 
-func createImportedKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createImportedKey(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	l := buildImportedKey(data)
 

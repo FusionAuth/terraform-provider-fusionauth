@@ -72,7 +72,7 @@ func dataSourceForm() *schema.Resource {
 	}
 }
 
-func dataSourceFormRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceFormRead(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	var searchTerm string

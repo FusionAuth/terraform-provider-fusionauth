@@ -199,7 +199,7 @@ func resourceIDPApple() *schema.Resource {
 	}
 }
 
-func createIDPApple(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPApple(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPApple(data)
 
 	b, err := json.Marshal(o)
@@ -223,7 +223,7 @@ func createIDPApple(_ context.Context, data *schema.ResourceData, i interface{})
 	return nil
 }
 
-func readIDPApple(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPApple(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -240,7 +240,7 @@ func readIDPApple(_ context.Context, data *schema.ResourceData, i interface{}) d
 	return buildResourceFromIDPApple(ipb.IdentityProvider, data)
 }
 
-func updateIDPApple(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPApple(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPApple(data)
 
 	b, err := json.Marshal(o)
@@ -290,8 +290,8 @@ func buildIDPApple(data *schema.ResourceData) AppleIdentityProviderBody {
 	return AppleIdentityProviderBody{IdentityProvider: a}
 }
 
-func buildAppleAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildAppleAppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -299,7 +299,7 @@ func buildAppleAppConfig(key string, data *schema.ResourceData) map[string]inter
 	}
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
 		oc := AppleAppConfig{
 			ButtonText:         ac["button_text"].(string),
@@ -360,9 +360,9 @@ func buildResourceFromIDPApple(o fusionauth.AppleIdentityProvider, data *schema.
 	m := make(map[string]AppleAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(o.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(o.ApplicationConfiguration))
 	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"application_id":      k,
 			"button_text":         v.ButtonText,
 			"create_registration": v.CreateRegistration,

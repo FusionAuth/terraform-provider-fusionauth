@@ -1,6 +1,6 @@
 module github.com/FusionAuth/terraform-provider-fusionauth
 
-go 1.25.0
+go 1.26
 
 require (
 	github.com/FusionAuth/go-client v1.63.0

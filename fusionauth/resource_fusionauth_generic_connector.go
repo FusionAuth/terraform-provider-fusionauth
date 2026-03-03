@@ -114,13 +114,13 @@ func buildGenericConnector(data *schema.ResourceData) fusionauth.GenericConnecto
 	}
 
 	if i, ok := data.GetOk("headers"); ok {
-		connector.Headers = intMapToStringMap(i.(map[string]interface{}))
+		connector.Headers = intMapToStringMap(i.(map[string]any))
 	}
 
 	return connector
 }
 
-func createGenericConnector(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createGenericConnector(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	connector := buildGenericConnector(data)
 	resp, faErrs, err := CreateConnector(ctx, client.FAClient, connector.Id, GenericConnectorRequest{Connector: connector})
@@ -135,7 +135,7 @@ func createGenericConnector(ctx context.Context, data *schema.ResourceData, i in
 	return nil
 }
 
-func readGenericConnector(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readGenericConnector(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -192,7 +192,7 @@ func readGenericConnector(ctx context.Context, data *schema.ResourceData, i inte
 	return nil
 }
 
-func updateGenericConnector(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateGenericConnector(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	connector := buildGenericConnector(data)
 
@@ -208,7 +208,7 @@ func updateGenericConnector(ctx context.Context, data *schema.ResourceData, i in
 	return nil
 }
 
-func deleteGenericConnector(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteGenericConnector(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -225,12 +225,12 @@ func deleteGenericConnector(_ context.Context, data *schema.ResourceData, i inte
 }
 
 type GenericConnectorRequest struct {
-	Connector fusionauth.GenericConnectorConfiguration `json:"connector,omitempty"`
+	Connector fusionauth.GenericConnectorConfiguration `json:"connector"`
 }
 
 type GenericConnectorResponse struct {
 	fusionauth.BaseHTTPResponse
-	Connector  fusionauth.GenericConnectorConfiguration   `json:"connector,omitempty"`
+	Connector  fusionauth.GenericConnectorConfiguration   `json:"connector"`
 	Connectors []fusionauth.GenericConnectorConfiguration `json:"connectors,omitempty"`
 }
 
@@ -283,9 +283,9 @@ func resourceGenericConnectorV0() *schema.Resource {
 	}
 }
 
-func resourceGenericConnectorUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceGenericConnectorUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err

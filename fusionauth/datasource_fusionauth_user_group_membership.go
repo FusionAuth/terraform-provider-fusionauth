@@ -37,7 +37,7 @@ func dataSourceUserGroupMembership() *schema.Resource {
 	}
 }
 
-func dataSourceUserGroupMembershipRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceUserGroupMembershipRead(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	gmsreq := fusionauth.GroupMemberSearchRequest{

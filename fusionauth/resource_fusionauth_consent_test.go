@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -81,9 +82,9 @@ func testAccConsentBasicConfig(
 	data string,
 	values []string,
 	withEmailPlus bool) string {
-	valuesStr := ""
+	var valuesStr strings.Builder
 	for _, v := range values {
-		valuesStr += fmt.Sprintf(`"%s", `, v)
+		valuesStr.WriteString(fmt.Sprintf(`"%s", `, v))
 	}
 
 	emailPlusConfig := ""
@@ -125,7 +126,7 @@ func testAccConsentBasicConfig(
         %[7]s
         %[8]s
     }
-    `, resourceName, name, defaultAge, multipleValues, data, valuesStr, countryMinAgeConfig, emailPlusConfig)
+    `, resourceName, name, defaultAge, multipleValues, data, valuesStr.String(), countryMinAgeConfig, emailPlusConfig)
 }
 
 func testConsentAccTestCheckFuncs(

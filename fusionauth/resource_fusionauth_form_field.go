@@ -143,7 +143,7 @@ func resourceFormField() *schema.Resource {
 	}
 }
 
-func createFormField(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createFormField(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	// Validate key is provided for non-consent types
 	formType := data.Get("type").(string)
 	key := data.Get("key").(string)
@@ -168,7 +168,7 @@ func createFormField(_ context.Context, data *schema.ResourceData, i interface{}
 	return buildResourceDataFromFormField(data, resp.Field)
 }
 
-func readFormField(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readFormField(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -188,7 +188,7 @@ func readFormField(_ context.Context, data *schema.ResourceData, i interface{}) 
 	return buildResourceDataFromFormField(data, resp.Field)
 }
 
-func updateFormField(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateFormField(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	f := buildFormField(data)
 
@@ -203,7 +203,7 @@ func updateFormField(_ context.Context, data *schema.ResourceData, i interface{}
 	return buildResourceDataFromFormField(data, resp.Field)
 }
 
-func deleteFormField(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteFormField(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -229,7 +229,7 @@ func buildFormField(data *schema.ResourceData) fusionauth.FormField {
 		Description: data.Get("description").(string),
 		Key:         data.Get("key").(string),
 		Name:        data.Get("name").(string),
-		Options:     handleStringSliceFromList(data.Get("options").([]interface{})),
+		Options:     handleStringSliceFromList(data.Get("options").([]any)),
 		Required:    data.Get("required").(bool),
 		Type:        fusionauth.FormDataType(data.Get("type").(string)),
 		Validator: fusionauth.FormFieldValidator{
@@ -275,7 +275,7 @@ func buildResourceDataFromFormField(data *schema.ResourceData, f fusionauth.Form
 		return diag.Errorf("form_field.type: %s", err.Error())
 	}
 
-	err := data.Set("validator", []map[string]interface{}{
+	err := data.Set("validator", []map[string]any{
 		{
 			"enabled":    f.Validator.Enabled,
 			"expression": f.Validator.Expression,
@@ -287,7 +287,7 @@ func buildResourceDataFromFormField(data *schema.ResourceData, f fusionauth.Form
 	return nil
 }
 
-func validateKey(i interface{}, k string) (warnings []string, errors []error) {
+func validateKey(i any, k string) (warnings []string, errors []error) {
 	v, ok := i.(string)
 	if !ok {
 		errors = append(errors, fmt.Errorf("expected type of %q to be string", k))
@@ -356,7 +356,7 @@ func validateKey(i interface{}, k string) (warnings []string, errors []error) {
 	return warnings, errors
 }
 
-func validateRegex(i interface{}, k string) (warnings []string, errors []error) {
+func validateRegex(i any, k string) (warnings []string, errors []error) {
 	v, ok := i.(string)
 	if !ok {
 		errors = append(errors, fmt.Errorf("expected type of %q to be string", k))
@@ -381,9 +381,9 @@ func resourceFormFieldV0() *schema.Resource {
 	}
 }
 
-func resourceFormFieldUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceFormFieldUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err

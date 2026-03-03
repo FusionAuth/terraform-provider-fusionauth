@@ -179,7 +179,7 @@ func resourceIDPLinkedIn() *schema.Resource {
 	}
 }
 
-func createIDPLinkedIn(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPLinkedIn(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	linkedInIDP := buildIDPLinkedIn(data)
 	b, err := json.Marshal(linkedInIDP)
 	if err != nil {
@@ -201,7 +201,7 @@ func createIDPLinkedIn(_ context.Context, data *schema.ResourceData, i interface
 	return buildResourceFromIDPLinkedIn(linkedInIDP.IdentityProvider, data)
 }
 
-func readIDPLinkedIn(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPLinkedIn(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -221,7 +221,7 @@ func readIDPLinkedIn(_ context.Context, data *schema.ResourceData, i interface{}
 	return buildResourceFromIDPLinkedIn(ipb.IdentityProvider, data)
 }
 
-func updateIDPLinkedIn(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPLinkedIn(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	linkedInIDP := buildIDPLinkedIn(data)
 	b, err := json.Marshal(linkedInIDP)
 	if err != nil {
@@ -272,8 +272,8 @@ func buildIDPLinkedIn(data *schema.ResourceData) LinkedInIdentityProviderBody {
 
 // buildLinkedInAppConfig transforms the incoming application configuration as
 // recorded in Terraform to the format as required by the FusionAuth API.
-func buildLinkedInAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildLinkedInAppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -282,7 +282,7 @@ func buildLinkedInAppConfig(key string, data *schema.ResourceData) map[string]in
 
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
 		m[aid] = LinkedInAppConfig{
 			ButtonText:         ac["button_text"].(string),
@@ -337,9 +337,9 @@ func buildResourceFromIDPLinkedIn(res fusionauth.LinkedInIdentityProvider, data 
 	m := make(map[string]LinkedInAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(res.ApplicationConfiguration))
 	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"application_id":      k,
 			"button_text":         v.ButtonText,
 			"client_id":           v.ClientID,

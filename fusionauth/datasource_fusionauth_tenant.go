@@ -22,7 +22,7 @@ func dataSourceTenant() *schema.Resource {
 	}
 }
 
-func dataSourceTenantRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceTenantRead(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, err := client.FAClient.RetrieveTenants()

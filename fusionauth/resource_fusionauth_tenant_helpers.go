@@ -438,7 +438,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 }
 
 func buildAdditionalHeaders(data *schema.ResourceData) (emailHeaders []fusionauth.EmailHeader, diags diag.Diagnostics) {
-	emailHeadersData, ok := data.Get("email_configuration.0.additional_headers").(map[string]interface{})
+	emailHeadersData, ok := data.Get("email_configuration.0.additional_headers").(map[string]any)
 	if emailHeadersData == nil || !ok {
 		if !ok {
 			diags = append(diags, diag.Diagnostic{
@@ -465,7 +465,7 @@ func buildAdditionalHeaders(data *schema.ResourceData) (emailHeaders []fusionaut
 }
 
 func buildConnectorPolicies(data *schema.ResourceData) (connectorPolicies []fusionauth.ConnectorPolicy, diags diag.Diagnostics) {
-	policiesData, ok := data.Get("connector_policy").([]interface{})
+	policiesData, ok := data.Get("connector_policy").([]any)
 	if policiesData == nil || !ok {
 		if !ok {
 			diags = append(diags, diag.Diagnostic{
@@ -482,7 +482,7 @@ func buildConnectorPolicies(data *schema.ResourceData) (connectorPolicies []fusi
 	connectorPolicies = make([]fusionauth.ConnectorPolicy, len(policiesData))
 
 	for i, policiesDatum := range policiesData {
-		if connectorPolicy, ok := policiesDatum.(map[string]interface{}); !ok {
+		if connectorPolicy, ok := policiesDatum.(map[string]any); !ok {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Warning,
 				Summary:  "Unable to convert a connector policy",
@@ -511,7 +511,7 @@ func buildEventConfiguration(key string, data *schema.ResourceData) fusionauth.E
 	ev := make(map[fusionauth.EventType]fusionauth.EventConfigurationData)
 
 	for _, x := range l {
-		r := x.(map[string]interface{})
+		r := x.(map[string]any)
 		ev[fusionauth.EventType(r["event"].(string))] = fusionauth.EventConfigurationData{
 			TransactionType: fusionauth.TransactionType(r["transaction_type"].(string)),
 			Enableable: fusionauth.Enableable{
@@ -537,9 +537,9 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.data: %s", err.Error())
 	}
 
-	connectorPolicies := []map[string]interface{}{}
+	connectorPolicies := []map[string]any{}
 	for _, policy := range t.ConnectorPolicies {
-		connectorPolicies = append(connectorPolicies, map[string]interface{}{
+		connectorPolicies = append(connectorPolicies, map[string]any{
 			"connector_id": policy.ConnectorId,
 			"domains":      policy.Domains,
 			"migrate":      policy.Migrate,
@@ -554,7 +554,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		additionalHeaders[additionalHeader.Name] = additionalHeader.Value
 	}
 
-	err := data.Set("email_configuration", []map[string]interface{}{
+	err := data.Set("email_configuration", []map[string]any{
 		{
 			"additional_headers":                          additionalHeaders,
 			"debug":                                       t.EmailConfiguration.Debug,
@@ -584,7 +584,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"verify_email_when_changed":                   t.EmailConfiguration.VerifyEmailWhenChanged,
 			"default_from_email":                          t.EmailConfiguration.DefaultFromEmail,
 			"default_from_name":                           t.EmailConfiguration.DefaultFromName,
-			"unverified": []map[string]interface{}{{
+			"unverified": []map[string]any{{
 				"allow_email_change_when_gated": t.EmailConfiguration.Unverified.AllowEmailChangeWhenGated,
 				"behavior":                      t.EmailConfiguration.Unverified.Behavior,
 			}},
@@ -594,20 +594,20 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.email_configuration: %s", err.Error())
 	}
 
-	err = data.Set("external_identifier_configuration", []map[string]interface{}{
+	err = data.Set("external_identifier_configuration", []map[string]any{
 		{
 			"authorization_grant_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.AuthorizationGrantIdTimeToLiveInSeconds,
-			"change_password_id_generator": []map[string]interface{}{{
+			"change_password_id_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.ChangePasswordIdGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.ChangePasswordIdGenerator.Type,
 			}},
 			"change_password_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.ChangePasswordIdTimeToLiveInSeconds,
 			"device_code_time_to_live_in_seconds":        t.ExternalIdentifierConfiguration.DeviceCodeTimeToLiveInSeconds,
-			"device_user_code_id_generator": []map[string]interface{}{{
+			"device_user_code_id_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.DeviceUserCodeIdGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.DeviceUserCodeIdGenerator.Type,
 			}},
-			"email_verification_id_generator": []map[string]interface{}{{
+			"email_verification_id_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.EmailVerificationIdGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.EmailVerificationIdGenerator.Type,
 			}},
@@ -615,32 +615,32 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"external_authentication_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.ExternalAuthenticationIdTimeToLiveInSeconds,
 			"login_intent_time_to_live_in_seconds":               t.ExternalIdentifierConfiguration.LoginIntentTimeToLiveInSeconds,
 			"one_time_password_time_to_live_in_seconds":          t.ExternalIdentifierConfiguration.OneTimePasswordTimeToLiveInSeconds,
-			"passwordless_login_generator": []map[string]interface{}{{
+			"passwordless_login_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.PasswordlessLoginGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.PasswordlessLoginGenerator.Type,
 			}},
-			"passwordless_login_one_time_code_generator": []map[string]interface{}{{
+			"passwordless_login_one_time_code_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.PasswordlessLoginOneTimeCodeGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.PasswordlessLoginOneTimeCodeGenerator.Type,
 			}},
 			"passwordless_login_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.PasswordlessLoginTimeToLiveInSeconds,
-			"registration_verification_id_generator": []map[string]interface{}{{
+			"registration_verification_id_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.RegistrationVerificationIdGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.RegistrationVerificationIdGenerator.Type,
 			}},
-			"phone_verification_id_generator": []map[string]interface{}{{
+			"phone_verification_id_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.PhoneVerificationIdGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.PhoneVerificationIdGenerator.Type,
 			}},
 			"phone_verification_id_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.PhoneVerificationIdTimeToLiveInSeconds,
-			"phone_verification_one_time_code_generator": []map[string]interface{}{{
+			"phone_verification_one_time_code_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.PhoneVerificationOneTimeCodeGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.PhoneVerificationOneTimeCodeGenerator.Type,
 			}},
 			"registration_verification_id_time_to_live_in_seconds":        t.ExternalIdentifierConfiguration.RegistrationVerificationIdTimeToLiveInSeconds,
 			"remember_oauth_scope_consent_choice_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.RememberOAuthScopeConsentChoiceTimeToLiveInSeconds,
 			"saml_v2_authn_request_id_ttl_seconds":                        t.ExternalIdentifierConfiguration.Samlv2AuthNRequestIdTimeToLiveInSeconds,
-			"setup_password_id_generator": []map[string]interface{}{{
+			"setup_password_id_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.SetupPasswordIdGenerator.Type,
 			}},
@@ -652,15 +652,15 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"two_factor_trust_id_time_to_live_in_seconds":               t.ExternalIdentifierConfiguration.TwoFactorTrustIdTimeToLiveInSeconds,
 			"webauthn_authentication_challenge_time_to_live_in_seconds": t.ExternalIdentifierConfiguration.WebAuthnAuthenticationChallengeTimeToLiveInSeconds,
 			"webauthn_registration_challenge_time_to_live_in_seconds":   t.ExternalIdentifierConfiguration.WebAuthnRegistrationChallengeTimeToLiveInSeconds,
-			"email_verification_one_time_code_generator": []map[string]interface{}{{
+			"email_verification_one_time_code_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.EmailVerificationOneTimeCodeGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.EmailVerificationOneTimeCodeGenerator.Type,
 			}},
-			"registration_verification_one_time_code_generator": []map[string]interface{}{{
+			"registration_verification_one_time_code_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.RegistrationVerificationOneTimeCodeGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.RegistrationVerificationOneTimeCodeGenerator.Type,
 			}},
-			"two_factor_one_time_code_id_generator": []map[string]interface{}{{
+			"two_factor_one_time_code_id_generator": []map[string]any{{
 				"length": t.ExternalIdentifierConfiguration.TwoFactorOneTimeCodeIdGenerator.Length,
 				"type":   t.ExternalIdentifierConfiguration.TwoFactorOneTimeCodeIdGenerator.Type,
 			}},
@@ -670,7 +670,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.external_identifier_configuration: %s", err.Error())
 	}
 
-	err = data.Set("failed_authentication_configuration", []map[string]interface{}{
+	err = data.Set("failed_authentication_configuration", []map[string]any{
 		{
 			"action_duration":                        t.FailedAuthenticationConfiguration.ActionDuration,
 			"action_duration_unit":                   t.FailedAuthenticationConfiguration.ActionDurationUnit,
@@ -685,7 +685,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.failed_authentication_configuration: %s", err.Error())
 	}
 
-	err = data.Set("family_configuration", []map[string]interface{}{
+	err = data.Set("family_configuration", []map[string]any{
 		{
 			"allow_child_registrations":             t.FamilyConfiguration.AllowChildRegistrations,
 			"confirm_child_email_template_id":       t.FamilyConfiguration.ConfirmChildEmailTemplateId,
@@ -703,7 +703,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.family_configuration: %s", err.Error())
 	}
 
-	err = data.Set("form_configuration", []map[string]interface{}{
+	err = data.Set("form_configuration", []map[string]any{
 		{
 			"admin_user_form_id": t.FormConfiguration.AdminUserFormId,
 		},
@@ -720,7 +720,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.issuer: %s", err.Error())
 	}
 
-	err = data.Set("jwt_configuration", []map[string]interface{}{
+	err = data.Set("jwt_configuration", []map[string]any{
 		{
 			"access_token_key_id":             t.JwtConfiguration.AccessTokenKeyId,
 			"id_token_key_id":                 t.JwtConfiguration.IdTokenKeyId,
@@ -740,7 +740,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.jwt_configuration: %s", err.Error())
 	}
 
-	err = data.Set("lambda_configuration", []map[string]interface{}{
+	err = data.Set("lambda_configuration", []map[string]any{
 		{
 			"login_validation_id":                        t.LambdaConfiguration.LoginValidationId,
 			"multi_factor_requirement_id":                t.LambdaConfiguration.MultiFactorRequirementId,
@@ -756,7 +756,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.lambda_configuration: %s", err.Error())
 	}
 
-	err = data.Set("login_configuration", []map[string]interface{}{
+	err = data.Set("login_configuration", []map[string]any{
 		{
 			"require_authentication": t.LoginConfiguration.RequireAuthentication,
 		},
@@ -769,7 +769,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.logout_url: %s", err.Error())
 	}
 
-	err = data.Set("maximum_password_age", []map[string]interface{}{
+	err = data.Set("maximum_password_age", []map[string]any{
 		{
 			"enabled": t.MaximumPasswordAge.Enabled,
 			"days":    t.MaximumPasswordAge.Days,
@@ -778,7 +778,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	if err != nil {
 		return diag.Errorf("tenant.maximum_password_age: %s", err.Error())
 	}
-	err = data.Set("minimum_password_age", []map[string]interface{}{
+	err = data.Set("minimum_password_age", []map[string]any{
 		{
 			"enabled": t.MinimumPasswordAge.Enabled,
 			"seconds": t.MinimumPasswordAge.Seconds,
@@ -788,17 +788,17 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.minimum_password_age: %s", err.Error())
 	}
 
-	err = data.Set("multi_factor_configuration", []map[string]interface{}{
+	err = data.Set("multi_factor_configuration", []map[string]any{
 		{
 			"login_policy": t.MultiFactorConfiguration.LoginPolicy,
-			"authenticator": []map[string]interface{}{{
+			"authenticator": []map[string]any{{
 				"enabled": t.MultiFactorConfiguration.Authenticator.Enabled,
 			}},
-			"email": []map[string]interface{}{{
+			"email": []map[string]any{{
 				"enabled":     t.MultiFactorConfiguration.Email.Enabled,
 				"template_id": t.MultiFactorConfiguration.Email.TemplateId,
 			}},
-			"sms": []map[string]interface{}{{
+			"sms": []map[string]any{{
 				"enabled":      t.MultiFactorConfiguration.Sms.Enabled,
 				"messenger_id": t.MultiFactorConfiguration.Sms.MessengerId,
 				"template_id":  t.MultiFactorConfiguration.Sms.TemplateId,
@@ -814,7 +814,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	}
 
 	if lambdaID := t.OauthConfiguration.ClientCredentialsAccessTokenPopulateLambdaId; lambdaID != "" {
-		err = data.Set("oauth_configuration", []map[string]interface{}{
+		err = data.Set("oauth_configuration", []map[string]any{
 			{
 				"client_credentials_access_token_populate_lambda_id": lambdaID,
 			},
@@ -824,7 +824,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		}
 	}
 
-	err = data.Set("password_encryption_configuration", []map[string]interface{}{
+	err = data.Set("password_encryption_configuration", []map[string]any{
 		{
 			"encryption_scheme":                 t.PasswordEncryptionConfiguration.EncryptionScheme,
 			"encryption_scheme_factor":          t.PasswordEncryptionConfiguration.EncryptionSchemeFactor,
@@ -835,7 +835,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.password_encryption_configuration: %s", err.Error())
 	}
 
-	err = data.Set("captcha_configuration", []map[string]interface{}{
+	err = data.Set("captcha_configuration", []map[string]any{
 		{
 			"enabled":        t.CaptchaConfiguration.Enabled,
 			"captcha_method": t.CaptchaConfiguration.CaptchaMethod,
@@ -848,9 +848,9 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.captcha_configuration: %s", err.Error())
 	}
 
-	err = data.Set("password_validation_rules", []map[string]interface{}{
+	err = data.Set("password_validation_rules", []map[string]any{
 		{
-			"breach_detection": []map[string]interface{}{{
+			"breach_detection": []map[string]any{{
 				"enabled":                       t.PasswordValidationRules.BreachDetection.Enabled,
 				"match_mode":                    t.PasswordValidationRules.BreachDetection.MatchMode,
 				"notify_user_email_template_id": t.PasswordValidationRules.BreachDetection.NotifyUserEmailTemplateId,
@@ -859,7 +859,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"disallow_user_login_id": t.PasswordValidationRules.DisallowUserLoginId,
 			"max_length":             t.PasswordValidationRules.MaxLength,
 			"min_length":             t.PasswordValidationRules.MinLength,
-			"remember_previous_passwords": []map[string]interface{}{{
+			"remember_previous_passwords": []map[string]any{{
 				"enabled": t.PasswordValidationRules.RememberPreviousPasswords.Enabled,
 				"count":   t.PasswordValidationRules.RememberPreviousPasswords.Count,
 			}},
@@ -873,7 +873,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.password_validation_rules: %s", err.Error())
 	}
 
-	err = data.Set("phone_configuration", []map[string]interface{}{
+	err = data.Set("phone_configuration", []map[string]any{
 		{
 			"forgot_password_template_id":           t.PhoneConfiguration.ForgotPasswordTemplateId,
 			"identity_update_template_id":           t.PhoneConfiguration.IdentityUpdateTemplateId,
@@ -888,7 +888,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 			"set_password_template_id":              t.PhoneConfiguration.SetPasswordTemplateId,
 			"two_factor_method_add_template_id":     t.PhoneConfiguration.TwoFactorMethodAddTemplateId,
 			"two_factor_method_remove_template_id":  t.PhoneConfiguration.TwoFactorMethodRemoveTemplateId,
-			"unverified": []map[string]interface{}{{
+			"unverified": []map[string]any{{
 				"allow_phone_number_change_when_gated": t.PhoneConfiguration.Unverified.AllowPhoneNumberChangeWhenGated,
 				"behavior":                             t.PhoneConfiguration.Unverified.Behavior,
 			}},
@@ -902,44 +902,44 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.phone_configuration: %s", err.Error())
 	}
 
-	err = data.Set("rate_limit_configuration", []map[string]interface{}{
+	err = data.Set("rate_limit_configuration", []map[string]any{
 		{
-			"failed_login": []map[string]interface{}{{
+			"failed_login": []map[string]any{{
 				"enabled":                t.RateLimitConfiguration.FailedLogin.Enabled,
 				"limit":                  t.RateLimitConfiguration.FailedLogin.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.FailedLogin.TimePeriodInSeconds,
 			}},
-			"forgot_password": []map[string]interface{}{{
+			"forgot_password": []map[string]any{{
 				"enabled":                t.RateLimitConfiguration.ForgotPassword.Enabled,
 				"limit":                  t.RateLimitConfiguration.ForgotPassword.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.ForgotPassword.TimePeriodInSeconds,
 			}},
-			"send_email_verification": []map[string]interface{}{{
+			"send_email_verification": []map[string]any{{
 				"enabled":                t.RateLimitConfiguration.SendEmailVerification.Enabled,
 				"limit":                  t.RateLimitConfiguration.SendEmailVerification.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.SendEmailVerification.TimePeriodInSeconds,
 			}},
-			"send_passwordless": []map[string]interface{}{{
+			"send_passwordless": []map[string]any{{
 				"enabled":                t.RateLimitConfiguration.SendPasswordless.Enabled,
 				"limit":                  t.RateLimitConfiguration.SendPasswordless.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.SendPasswordless.TimePeriodInSeconds,
 			}},
-			"send_passwordless_phone": []map[string]interface{}{{
+			"send_passwordless_phone": []map[string]any{{
 				"enabled":                t.RateLimitConfiguration.SendPasswordlessPhone.Enabled,
 				"limit":                  t.RateLimitConfiguration.SendPasswordlessPhone.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.SendPasswordlessPhone.TimePeriodInSeconds,
 			}},
-			"send_phone_verification": []map[string]interface{}{{
+			"send_phone_verification": []map[string]any{{
 				"enabled":                t.RateLimitConfiguration.SendPhoneVerification.Enabled,
 				"limit":                  t.RateLimitConfiguration.SendPhoneVerification.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.SendPhoneVerification.TimePeriodInSeconds,
 			}},
-			"send_registration_verification": []map[string]interface{}{{
+			"send_registration_verification": []map[string]any{{
 				"enabled":                t.RateLimitConfiguration.SendRegistrationVerification.Enabled,
 				"limit":                  t.RateLimitConfiguration.SendRegistrationVerification.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.SendRegistrationVerification.TimePeriodInSeconds,
 			}},
-			"send_two_factor": []map[string]interface{}{{
+			"send_two_factor": []map[string]any{{
 				"enabled":                t.RateLimitConfiguration.SendTwoFactor.Enabled,
 				"limit":                  t.RateLimitConfiguration.SendTwoFactor.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.SendTwoFactor.TimePeriodInSeconds,
@@ -958,7 +958,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	return nil
 }
 
-func flattenJSONString(input interface{}) string {
+func flattenJSONString(input any) string {
 	if input == nil {
 		return ""
 	}
@@ -971,7 +971,7 @@ func flattenJSONString(input interface{}) string {
 }
 
 func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData) diag.Diagnostics {
-	err := data.Set("registration_configuration", []map[string]interface{}{
+	err := data.Set("registration_configuration", []map[string]any{
 		{
 			"blocked_domains": t.RegistrationConfiguration.BlockedDomains,
 		},
@@ -980,7 +980,7 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 		return diag.Errorf("tenant.registration_configuration: %s", err.Error())
 	}
 
-	err = data.Set("scim_server_configuration", []map[string]interface{}{
+	err = data.Set("scim_server_configuration", []map[string]any{
 		{
 			"client_entity_type_id": t.ScimServerConfiguration.ClientEntityTypeId,
 			"enabled":               t.ScimServerConfiguration.Enabled,
@@ -992,7 +992,7 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 		return diag.Errorf("tenant.scim_server_configuration: %s", err.Error())
 	}
 
-	err = data.Set("sso_configuration", []map[string]interface{}{
+	err = data.Set("sso_configuration", []map[string]any{
 		{
 			"allow_access_token_bootstrap":         t.SsoConfiguration.AllowAccessTokenBootstrap,
 			"device_trust_time_to_live_in_seconds": t.SsoConfiguration.DeviceTrustTimeToLiveInSeconds,
@@ -1006,7 +1006,7 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 		return diag.Errorf("tenant.theme_id: %s", err.Error())
 	}
 
-	err = data.Set("user_delete_policy", []map[string]interface{}{
+	err = data.Set("user_delete_policy", []map[string]any{
 		{
 			"unverified_enabled":                  t.UserDeletePolicy.Unverified.Enabled,
 			"unverified_number_of_days_to_retain": t.UserDeletePolicy.Unverified.NumberOfDaysToRetain,
@@ -1016,9 +1016,9 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 		return diag.Errorf("tenant.user_delete_policy: %s", err.Error())
 	}
 
-	err = data.Set("username_configuration", []map[string]interface{}{
+	err = data.Set("username_configuration", []map[string]any{
 		{
-			"unique": []map[string]interface{}{{
+			"unique": []map[string]any{{
 				"enabled":          t.UsernameConfiguration.Unique.Enabled,
 				"number_of_digits": t.UsernameConfiguration.Unique.NumberOfDigits,
 				"separator":        t.UsernameConfiguration.Unique.Separator,
@@ -1030,16 +1030,16 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 		return diag.Errorf("tenant.username_configuration: %s", err.Error())
 	}
 
-	err = data.Set("webauthn_configuration", []map[string]interface{}{
+	err = data.Set("webauthn_configuration", []map[string]any{
 		{
 			"enabled": t.WebAuthnConfiguration.Enabled,
-			"bootstrap_workflow": []map[string]interface{}{{
+			"bootstrap_workflow": []map[string]any{{
 				"enabled":                             t.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
 				"authenticator_attachment_preference": t.WebAuthnConfiguration.BootstrapWorkflow.AuthenticatorAttachmentPreference,
 				"user_verification_requirement":       t.WebAuthnConfiguration.BootstrapWorkflow.UserVerificationRequirement,
 			}},
 			"debug": t.WebAuthnConfiguration.Debug,
-			"reauthentication_workflow": []map[string]interface{}{{
+			"reauthentication_workflow": []map[string]any{{
 				"enabled":                             t.WebAuthnConfiguration.ReauthenticationWorkflow.Enabled,
 				"authenticator_attachment_preference": t.WebAuthnConfiguration.ReauthenticationWorkflow.AuthenticatorAttachmentPreference,
 				"user_verification_requirement":       t.WebAuthnConfiguration.ReauthenticationWorkflow.UserVerificationRequirement,
@@ -1052,9 +1052,9 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 		return diag.Errorf("tenant.webauthn_configuration: %s", err.Error())
 	}
 
-	e := make([]map[string]interface{}, 0, len(t.EventConfiguration.Events))
+	e := make([]map[string]any, 0, len(t.EventConfiguration.Events))
 	for k, v := range t.EventConfiguration.Events {
-		e = append(e, map[string]interface{}{
+		e = append(e, map[string]any{
 			"event":            k,
 			"transaction_type": v.TransactionType,
 			"enabled":          v.Enabled,

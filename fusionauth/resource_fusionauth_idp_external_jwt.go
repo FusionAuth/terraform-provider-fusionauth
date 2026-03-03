@@ -207,7 +207,7 @@ func resourceIDPExternalJWT() *schema.Resource {
 	}
 }
 
-func createIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPExternalJWT(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPExternalJWT(data)
 
 	b, err := json.Marshal(o)
@@ -231,7 +231,7 @@ func createIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interf
 	return nil
 }
 
-func readIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPExternalJWT(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -248,7 +248,7 @@ func readIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interfac
 	return buildResourceDataFromIDPExternalJWT(data, ipb.IdentityProvider)
 }
 
-func updateIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPExternalJWT(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPExternalJWT(data)
 
 	b, err := json.Marshal(o)
@@ -300,7 +300,7 @@ func buildIDPExternalJWT(data *schema.ResourceData) IDPExternalJWTProviderBody {
 	}
 
 	if i, ok := data.GetOk("claim_map"); ok {
-		idp.ClaimMap = intMapToStringMap(i.(map[string]interface{}))
+		idp.ClaimMap = intMapToStringMap(i.(map[string]any))
 	}
 
 	idp.ApplicationConfiguration = buildIDPExternalJWTAppConfig("application_configuration", data)
@@ -308,8 +308,8 @@ func buildIDPExternalJWT(data *schema.ResourceData) IDPExternalJWTProviderBody {
 	return IDPExternalJWTProviderBody{IdentityProvider: idp}
 }
 
-func buildIDPExternalJWTAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildIDPExternalJWTAppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -317,7 +317,7 @@ func buildIDPExternalJWTAppConfig(key string, data *schema.ResourceData) map[str
 	}
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
 		oc := IDPExternalJWTAppConfig{
 			CreateRegistration: ac["create_registration"].(bool),
@@ -392,9 +392,9 @@ func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionau
 	m := make(map[string]IDPExternalJWTAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(res.ApplicationConfiguration))
 	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"application_id":      k,
 			"create_registration": v.CreateRegistration,
 			"enabled":             v.Enabled,
@@ -412,8 +412,8 @@ func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionau
 	return nil
 }
 
-func validateClaimMap(i interface{}, k string) (warnings []string, errors []error) {
-	m, ok := i.(map[string]interface{})
+func validateClaimMap(i any, k string) (warnings []string, errors []error) {
+	m, ok := i.(map[string]any)
 	if !ok {
 		errors = append(errors, fmt.Errorf("expected type of %q to be map", k))
 		return

@@ -8,43 +8,43 @@ import (
 func Test_handleStringSliceFromList(t *testing.T) {
 	tests := []struct {
 		name      string
-		list      []interface{}
+		list      []any
 		want      []string
 		wantPanic bool
 	}{
 		{
 			name:      "empty list",
-			list:      []interface{}{},
+			list:      []any{},
 			want:      []string{},
 			wantPanic: false,
 		},
 		{
 			name:      "all strings",
-			list:      []interface{}{"hello", "world"},
+			list:      []any{"hello", "world"},
 			want:      []string{"hello", "world"},
 			wantPanic: false,
 		},
 		{
 			name:      "mixed types",
-			list:      []interface{}{"string1", 42, "string2"},
+			list:      []any{"string1", 42, "string2"},
 			want:      nil,
 			wantPanic: true,
 		},
 		{
 			name:      "nil element",
-			list:      []interface{}{"valid", nil, "also valid"},
+			list:      []any{"valid", nil, "also valid"},
 			want:      []string{"valid", "also valid"},
 			wantPanic: false,
 		},
 		{
 			name:      "multiple nil elements",
-			list:      []interface{}{nil, "middle", nil},
+			list:      []any{nil, "middle", nil},
 			want:      []string{"middle"},
 			wantPanic: false,
 		},
 		{
 			name:      "all nil elements",
-			list:      []interface{}{nil, nil, nil},
+			list:      []any{nil, nil, nil},
 			want:      []string{},
 			wantPanic: false,
 		},
@@ -77,7 +77,7 @@ func Test_handleStringSliceFromList(t *testing.T) {
 
 func Test_intMapToStringMap(t *testing.T) {
 	type args struct {
-		intMap map[string]interface{}
+		intMap map[string]any
 	}
 	tests := []struct {
 		name string
@@ -87,7 +87,7 @@ func Test_intMapToStringMap(t *testing.T) {
 		{
 			name: "FA Issues #1482",
 			args: args{
-				intMap: map[string]interface{}{
+				intMap: map[string]any{
 					"ar": "Test",
 				},
 			},
@@ -98,7 +98,7 @@ func Test_intMapToStringMap(t *testing.T) {
 		{
 			name: "FA Issues #1482",
 			args: args{
-				intMap: map[string]interface{}{
+				intMap: map[string]any{
 					"ar":    "Test",
 					"aaass": 2,
 				},

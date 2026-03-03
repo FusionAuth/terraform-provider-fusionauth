@@ -30,7 +30,7 @@ func newUser() *schema.Resource {
 	}
 }
 
-func createUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createUser(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	req, diags := dataToUserRequest(data)
 	if diags != nil {
@@ -55,7 +55,7 @@ func createUser(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	return userResponseToData(data, resp)
 }
 
-func readUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readUser(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -75,7 +75,7 @@ func readUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.
 	return userResponseToData(data, resp)
 }
 
-func updateUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateUser(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	req, diags := dataToUserRequest(data)
 	if diags != nil {
@@ -94,7 +94,7 @@ func updateUser(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	return userResponseToData(data, resp)
 }
 
-func deleteUser(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteUser(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -134,10 +134,10 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 
 	var verificationIDs []string
 	if verificationIDsData, ok := data.GetOk("verification_ids"); ok {
-		verificationIDsList := verificationIDsData.([]interface{})
+		verificationIDsList := verificationIDsData.([]any)
 		verificationIDs = make([]string, 0, len(verificationIDsList))
 		for _, item := range verificationIDsList {
-			if verificationIDMap, ok := item.(map[string]interface{}); ok {
+			if verificationIDMap, ok := item.(map[string]any); ok {
 				if verificationID, exists := verificationIDMap["verification_id"].(string); exists && verificationID != "" {
 					verificationIDs = append(verificationIDs, verificationID)
 				}
@@ -273,7 +273,7 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 	}
 
 	currentTwoFactorMethods := dataToTwoFactorMethodMap(data)
-	twoFactorMethodsData := make([]map[string]interface{}, len(resp.User.TwoFactor.Methods))
+	twoFactorMethodsData := make([]map[string]any, len(resp.User.TwoFactor.Methods))
 	for i, twoFactorMethod := range resp.User.TwoFactor.Methods {
 		var secret string
 		if strings.ToLower(twoFactorMethod.Method) == "authenticator" {
@@ -285,7 +285,7 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 			}
 		}
 
-		twoFactorMethodsData[i] = map[string]interface{}{
+		twoFactorMethodsData[i] = map[string]any{
 			"two_factor_method_id":      twoFactorMethod.Id,
 			"authenticator_algorithm":   twoFactorMethod.Authenticator.Algorithm,
 			"authenticator_code_length": twoFactorMethod.Authenticator.CodeLength,
@@ -302,9 +302,9 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 
 	// Attributes
 	if resp.VerificationIds != nil {
-		verificationIDs := make([]map[string]interface{}, len(resp.VerificationIds))
+		verificationIDs := make([]map[string]any, len(resp.VerificationIds))
 		for i, verificationID := range resp.VerificationIds {
-			verificationIDs[i] = map[string]interface{}{
+			verificationIDs[i] = map[string]any{
 				"verification_id": verificationID.Id,
 				"one_time_code":   verificationID.OneTimeCode,
 				"type":            verificationID.Type,
@@ -316,15 +316,15 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 		}
 	} else {
 		// If VerificationIds is nil in the response, set it as an empty list in the state.
-		if err := data.Set("verification_ids", []map[string]interface{}{}); err != nil {
+		if err := data.Set("verification_ids", []map[string]any{}); err != nil {
 			return diag.Errorf("user.verification_ids: %s", err.Error())
 		}
 	}
 
 	if resp.User.Identities != nil {
-		identities := make([]map[string]interface{}, len(resp.User.Identities))
+		identities := make([]map[string]any, len(resp.User.Identities))
 		for i, identity := range resp.User.Identities {
-			identities[i] = map[string]interface{}{
+			identities[i] = map[string]any{
 				"display_value":       identity.DisplayValue,
 				"insert_instant":      identity.InsertInstant,
 				"last_login_instant":  identity.LastLoginInstant,
@@ -342,7 +342,7 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 		}
 	} else {
 		// If Identities is nil in the response, set it as an empty list in the state.
-		if err := data.Set("identities", []map[string]interface{}{}); err != nil {
+		if err := data.Set("identities", []map[string]any{}); err != nil {
 			return diag.Errorf("user.identities: %s", err.Error())
 		}
 	}
@@ -351,7 +351,7 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 }
 
 func dataToTwoFactorMethods(data *schema.ResourceData) (twoFactorMethods []fusionauth.TwoFactorMethod, diags diag.Diagnostics) {
-	twoFactorMethodsData, ok := data.Get("two_factor_methods").([]interface{})
+	twoFactorMethodsData, ok := data.Get("two_factor_methods").([]any)
 	if twoFactorMethodsData == nil || !ok {
 		if !ok {
 			diags = append(diags, diag.Diagnostic{
@@ -367,7 +367,7 @@ func dataToTwoFactorMethods(data *schema.ResourceData) (twoFactorMethods []fusio
 
 	twoFactorMethods = make([]fusionauth.TwoFactorMethod, len(twoFactorMethodsData))
 	for i, twoFactorMethodsDatum := range twoFactorMethodsData {
-		if twoFactorMethod, ok := twoFactorMethodsDatum.(map[string]interface{}); !ok {
+		if twoFactorMethod, ok := twoFactorMethodsDatum.(map[string]any); !ok {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Warning,
 				Summary:  "Unable to convert a two factor method",

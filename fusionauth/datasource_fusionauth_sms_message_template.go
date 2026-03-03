@@ -55,7 +55,7 @@ func dataSourceSMSMessageTemplate() *schema.Resource {
 	}
 }
 
-func dataSourceSMSMessageTemplateRead(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceSMSMessageTemplateRead(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	var searchTerm string
@@ -117,7 +117,7 @@ func setSMSMessageTemplateFields(data *schema.ResourceData, template fusionauth.
 		return diags
 	}
 
-	fields := map[string]interface{}{
+	fields := map[string]any{
 		"message_template_id": template.Id,
 		"name":                template.Name,
 		"default_template":    template.DefaultTemplate,

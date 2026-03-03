@@ -62,7 +62,7 @@ func buildApplicationRole(data *schema.ResourceData) fusionauth.ApplicationRole 
 	}
 }
 
-func createApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createApplicationRole(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	ar := buildApplicationRole(data)
@@ -83,7 +83,7 @@ func createApplicationRole(_ context.Context, data *schema.ResourceData, i inter
 	return applicationRoleToData(data, aid, resp)
 }
 
-func importApplicationRole(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func importApplicationRole(_ context.Context, d *schema.ResourceData, _ any) ([]*schema.ResourceData, error) {
 	// Split the import ID on :
 	idParts := strings.Split(d.Id(), ":")
 	if len(idParts) != 2 {
@@ -101,7 +101,7 @@ func importApplicationRole(_ context.Context, d *schema.ResourceData, _ interfac
 	return []*schema.ResourceData{d}, nil
 }
 
-func readApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func readApplicationRole(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	client := i.(Client)
 
 	// application roles are only returned via an application, so we need
@@ -144,7 +144,7 @@ func readApplicationRole(_ context.Context, data *schema.ResourceData, i interfa
 	return diags
 }
 
-func updateApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateApplicationRole(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	ar := buildApplicationRole(data)
@@ -169,7 +169,7 @@ func updateApplicationRole(_ context.Context, data *schema.ResourceData, i inter
 	return applicationRoleToData(data, aid, resp)
 }
 
-func deleteApplicationRole(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteApplicationRole(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	id := data.Id()
@@ -189,7 +189,7 @@ func deleteApplicationRole(_ context.Context, data *schema.ResourceData, i inter
 func applicationRoleToData(data *schema.ResourceData, applicationID string, res *fusionauth.ApplicationResponse) (diags diag.Diagnostics) {
 	data.SetId(res.Role.Id)
 
-	dataMapping := map[string]interface{}{
+	dataMapping := map[string]any{
 		"application_id": applicationID,
 		"description":    res.Role.Description,
 		"is_default":     res.Role.IsDefault,

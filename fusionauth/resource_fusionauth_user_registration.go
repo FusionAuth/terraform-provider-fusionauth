@@ -125,10 +125,10 @@ func buildRegistration(data *schema.ResourceData) fusionauth.RegistrationRequest
 	}
 }
 
-func createRegistration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createRegistration(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
 	reg := struct {
-		Registration                 fusionauth.UserRegistration `json:"registration,omitempty"`
+		Registration                 fusionauth.UserRegistration `json:"registration"`
 		SkipRegistrationVerification bool                        `json:"skipRegistrationVerification"`
 	}{
 		Registration: fusionauth.UserRegistration{
@@ -190,7 +190,7 @@ func sendCreateRegistration(b []byte, uid string, aid string, client Client) ([]
 	return b, nil
 }
 
-func readRegistration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readRegistration(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, faErrs, err := client.FAClient.RetrieveRegistration(data.Get("user_id").(string), data.Get("application_id").(string))
@@ -242,7 +242,7 @@ func buildResourceDataFromRegistration(r fusionauth.UserRegistration, data *sche
 	return nil
 }
 
-func updateRegistration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateRegistration(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	ur := buildRegistration(data)
 
@@ -258,7 +258,7 @@ func updateRegistration(_ context.Context, data *schema.ResourceData, i interfac
 	return nil
 }
 
-func deleteRegistration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteRegistration(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, faErrs, err := client.FAClient.DeleteRegistration(data.Get("user_id").(string), data.Get("application_id").(string))
@@ -284,9 +284,9 @@ func resourceUserRegistrationV0() *schema.Resource {
 	}
 }
 
-func resourceUserRegistrationUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceUserRegistrationUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err

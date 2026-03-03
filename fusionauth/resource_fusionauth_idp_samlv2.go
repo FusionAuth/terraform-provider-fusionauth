@@ -90,8 +90,8 @@ func resourceIDPSAMLv2() *schema.Resource {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "The array of URLs that FusionAuth will accept as SAML login destinations if the identityProvider.assertionConfiguration.destination.policy setting is AllowAlternates.",
-										DefaultFunc: func() (interface{}, error) {
-											return []interface{}{}, nil
+										DefaultFunc: func() (any, error) {
+											return []any{}, nil
 										},
 										Elem: &schema.Schema{Type: schema.TypeString},
 									},
@@ -341,7 +341,7 @@ func resourceIDPSAMLv2() *schema.Resource {
 	}
 }
 
-func createIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPSAMLv2(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPSAMLv2(data)
 
 	b, err := json.Marshal(o)
@@ -363,7 +363,7 @@ func createIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}
 	data.SetId(o.IdentityProvider.Id)
 	return nil
 }
-func readIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPSAMLv2(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -380,7 +380,7 @@ func readIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) 
 	return buildResourceDataFromIDPSAMLv2(data, ipb.IdentityProvider)
 }
 
-func updateIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPSAMLv2(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPSAMLv2(data)
 
 	b, err := json.Marshal(o)
@@ -404,7 +404,7 @@ func updateIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}
 }
 
 // * This is a workaround for the fact that the AssertionConfiguration.Destination.Alternates SDK field doesn't seem to handle empty slices correctly.
-func handleDestinationAlternates(alternates []interface{}) []string {
+func handleDestinationAlternates(alternates []any) []string {
 	if len(alternates) == 0 {
 		return nil
 	}
@@ -427,7 +427,7 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 	s := fusionauth.SAMLv2IdentityProvider{
 		AssertionConfiguration: fusionauth.SAMLv2AssertionConfiguration{
 			Destination: fusionauth.SAMLv2DestinationAssertionConfiguration{
-				Alternates: handleDestinationAlternates(data.Get("assertion_configuration.0.destination.0.alternates").([]interface{})),
+				Alternates: handleDestinationAlternates(data.Get("assertion_configuration.0.destination.0.alternates").([]any)),
 				Policy:     fusionauth.SAMLv2DestinationAssertionPolicy(data.Get("assertion_configuration.0.destination.0.policy").(string)),
 			},
 		},
@@ -480,15 +480,15 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 	return SAMLIdentityProviderBody{IdentityProvider: s}
 }
 func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SAMLv2IdentityProvider) diag.Diagnostics {
-	if err := data.Set("assertion_configuration", []map[string]interface{}{
+	if err := data.Set("assertion_configuration", []map[string]any{
 		{
-			"destination": []map[string]interface{}{
+			"destination": []map[string]any{
 				{
 					"alternates": res.AssertionConfiguration.Destination.Alternates,
 					"policy":     res.AssertionConfiguration.Destination.Policy.String(),
 				},
 			},
-			"decryption": []map[string]interface{}{
+			"decryption": []map[string]any{
 				{
 					"enabled":                         res.AssertionDecryptionConfiguration.Enabled,
 					"key_transport_decryption_key_id": res.AssertionDecryptionConfiguration.KeyTransportDecryptionKeyId,
@@ -526,7 +526,7 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	if err := data.Set("idp_endpoint", res.IdpEndpoint); err != nil {
 		return diag.Errorf("idpSAMLv2.idp_endpoint: %s", err.Error())
 	}
-	if err := data.Set("idp_initiated_configuration", []map[string]interface{}{
+	if err := data.Set("idp_initiated_configuration", []map[string]any{
 		{
 			"enabled": res.IdpInitiatedConfiguration.Enabled,
 			"issuer":  res.IdpInitiatedConfiguration.Issuer,
@@ -543,7 +543,7 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
 		return diag.Errorf("idpSAMLv2.linking_strategy: %s", err.Error())
 	}
-	if err := data.Set("login_hint_configuration", []map[string]interface{}{
+	if err := data.Set("login_hint_configuration", []map[string]any{
 		{
 			"enabled":        res.LoginHintConfiguration.Enabled,
 			"parameter_name": res.LoginHintConfiguration.ParameterName,
@@ -582,9 +582,9 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	m := make(map[string]SAMLAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(res.ApplicationConfiguration))
 	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"application_id":      k,
 			"button_image_url":    v.ButtonImageURL,
 			"button_text":         v.ButtonText,
@@ -604,8 +604,8 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	return nil
 }
 
-func buildSAMLv2AppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildSAMLv2AppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -613,7 +613,7 @@ func buildSAMLv2AppConfig(key string, data *schema.ResourceData) map[string]inte
 	}
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
 		oc := SAMLAppConfig{
 			ButtonImageURL:     ac["button_image_url"].(string),

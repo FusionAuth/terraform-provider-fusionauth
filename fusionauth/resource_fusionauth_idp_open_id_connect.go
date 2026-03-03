@@ -17,7 +17,7 @@ type OpenIDConnectIdentityProviderBody struct {
 type OpenIDAppConfig struct {
 	ButtonImageURL     string          `json:"buttonImageURL,omitempty"`
 	ButtonText         string          `json:"buttonText,omitempty"`
-	OAuth2             OAuth2AppConfig `json:"oauth2,omitempty"`
+	OAuth2             OAuth2AppConfig `json:"oauth2"`
 	CreateRegistration bool            `json:"createRegistration"`
 	Enabled            bool            `json:"enabled"`
 }
@@ -307,8 +307,8 @@ func buildOpenIDConnect(data *schema.ResourceData) OpenIDConnectIdentityProvider
 	return OpenIDConnectIdentityProviderBody{IdentityProvider: o}
 }
 
-func buildOpenIDAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildOpenIDAppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -316,7 +316,7 @@ func buildOpenIDAppConfig(key string, data *schema.ResourceData) map[string]inte
 	}
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
 		oc := OpenIDAppConfig{
 			ButtonImageURL:     ac["button_image_url"].(string),
@@ -334,7 +334,7 @@ func buildOpenIDAppConfig(key string, data *schema.ResourceData) map[string]inte
 	return m
 }
 
-func createOpenIDConnect(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createOpenIDConnect(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildOpenIDConnect(data)
 
 	b, err := json.Marshal(o)
@@ -357,7 +357,7 @@ func createOpenIDConnect(_ context.Context, data *schema.ResourceData, i interfa
 	return nil
 }
 
-func readOpenIDConnect(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readOpenIDConnect(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -448,9 +448,9 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 	m := make(map[string]OpenIDAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(o.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(o.ApplicationConfiguration))
 	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"application_id":       k,
 			"button_image_url":     v.ButtonImageURL,
 			"button_text":          v.ButtonText,
@@ -473,7 +473,7 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 	return nil
 }
 
-func updateOpenIDConnect(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateOpenIDConnect(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildOpenIDConnect(data)
 
 	b, err := json.Marshal(o)

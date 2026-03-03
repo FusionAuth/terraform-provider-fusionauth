@@ -219,7 +219,7 @@ func dataSourceUser() *schema.Resource {
 }
 
 //nolint:gocyclo,gocognit
-func dataSourceUserRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceUserRead(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	oldTenantID := client.FAClient.TenantId
@@ -295,9 +295,9 @@ func dataSourceUserRead(_ context.Context, data *schema.ResourceData, i interfac
 		return diag.Errorf("user.full_name: %s", err.Error())
 	}
 	if resp.User.Identities != nil {
-		identities := make([]map[string]interface{}, len(resp.User.Identities))
+		identities := make([]map[string]any, len(resp.User.Identities))
 		for i, identity := range resp.User.Identities {
-			identities[i] = map[string]interface{}{
+			identities[i] = map[string]any{
 				"display_value":       identity.DisplayValue,
 				"insert_instant":      identity.InsertInstant,
 				"last_login_instant":  identity.LastLoginInstant,
@@ -315,7 +315,7 @@ func dataSourceUserRead(_ context.Context, data *schema.ResourceData, i interfac
 		}
 	} else {
 		// If Identities is nil in the response, set it as an empty list in the state.
-		if err := data.Set("identities", []map[string]interface{}{}); err != nil {
+		if err := data.Set("identities", []map[string]any{}); err != nil {
 			return diag.Errorf("user.identities: %s", err.Error())
 		}
 	}
@@ -350,9 +350,9 @@ func dataSourceUserRead(_ context.Context, data *schema.ResourceData, i interfac
 		return diag.Errorf("user.username_status: %s", err.Error())
 	}
 	if resp.VerificationIds != nil {
-		verificationIDs := make([]map[string]interface{}, len(resp.VerificationIds))
+		verificationIDs := make([]map[string]any, len(resp.VerificationIds))
 		for i, verificationID := range resp.VerificationIds {
-			verificationIDs[i] = map[string]interface{}{
+			verificationIDs[i] = map[string]any{
 				"verification_id": verificationID.Id,
 				"one_time_code":   verificationID.OneTimeCode,
 				"type":            verificationID.Type,
@@ -364,7 +364,7 @@ func dataSourceUserRead(_ context.Context, data *schema.ResourceData, i interfac
 		}
 	} else {
 		// If VerificationIds is nil in the response, set it as an empty list in the state.
-		if err := data.Set("verification_ids", []map[string]interface{}{}); err != nil {
+		if err := data.Set("verification_ids", []map[string]any{}); err != nil {
 			return diag.Errorf("user.verification_ids: %s", err.Error())
 		}
 	}

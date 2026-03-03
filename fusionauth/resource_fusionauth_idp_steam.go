@@ -195,7 +195,7 @@ func resourceIDPSteam() *schema.Resource {
 	}
 }
 
-func createIDPSteam(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPSteam(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPSteam(data)
 
 	b, err := json.Marshal(o)
@@ -218,7 +218,7 @@ func createIDPSteam(_ context.Context, data *schema.ResourceData, i interface{})
 	return nil
 }
 
-func readIDPSteam(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPSteam(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -235,7 +235,7 @@ func readIDPSteam(_ context.Context, data *schema.ResourceData, i interface{}) d
 	return buildResourceDataFromIDPSteam(data, ipb.IdentityProvider)
 }
 
-func updateIDPSteam(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPSteam(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPSteam(data)
 
 	b, err := json.Marshal(o)
@@ -323,9 +323,9 @@ func buildResourceDataFromIDPSteam(data *schema.ResourceData, res fusionauth.Ste
 	m := make(map[string]SteamAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(res.ApplicationConfiguration))
 	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"api_mode":            v.APIMode,
 			"application_id":      k,
 			"button_text":         v.ButtonText,
@@ -348,8 +348,8 @@ func buildResourceDataFromIDPSteam(data *schema.ResourceData, res fusionauth.Ste
 	return nil
 }
 
-func buildSteamAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildSteamAppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -357,7 +357,7 @@ func buildSteamAppConfig(key string, data *schema.ResourceData) map[string]inter
 	}
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
 		oc := SteamAppConfig{
 			APIMode:            ac["api_mode"].(string),

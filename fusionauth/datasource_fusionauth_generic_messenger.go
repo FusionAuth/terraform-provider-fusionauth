@@ -82,7 +82,7 @@ func dataSourceGenericMessenger() *schema.Resource {
 	}
 }
 
-func dataSourceGenericMessengerRead(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceGenericMessengerRead(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	var searchTerm string
@@ -137,7 +137,7 @@ func dataSourceGenericMessengerRead(ctx context.Context, data *schema.ResourceDa
 
 // Helper function to set all messenger fields in the schema data
 func setMessengerFields(data *schema.ResourceData, messenger fusionauth.GenericMessengerConfiguration) diag.Diagnostics {
-	fields := map[string]interface{}{
+	fields := map[string]any{
 		"messenger_id":                 messenger.Id,
 		"name":                         messenger.Name,
 		"connect_timeout":              messenger.ConnectTimeout,

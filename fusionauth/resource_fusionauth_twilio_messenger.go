@@ -98,7 +98,7 @@ func buildTwilioMessenger(data *schema.ResourceData) fusionauth.TwilioMessengerC
 	return messenger
 }
 
-func createTwilioMessenger(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createTwilioMessenger(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	messenger := buildTwilioMessenger(data)
 	resp, faErrs, err := CreateTwilioMessenger(ctx, client.FAClient, messenger.Id, TwilioMessengerRequest{Messenger: messenger})
@@ -113,7 +113,7 @@ func createTwilioMessenger(ctx context.Context, data *schema.ResourceData, i int
 	return nil
 }
 
-func readTwilioMessenger(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readTwilioMessenger(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -164,7 +164,7 @@ func readTwilioMessenger(ctx context.Context, data *schema.ResourceData, i inter
 	return nil
 }
 
-func updateTwilioMessenger(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateTwilioMessenger(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	messenger := buildTwilioMessenger(data)
 
@@ -180,7 +180,7 @@ func updateTwilioMessenger(ctx context.Context, data *schema.ResourceData, i int
 	return nil
 }
 
-func deleteTwilioMessenger(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteTwilioMessenger(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -197,12 +197,12 @@ func deleteTwilioMessenger(_ context.Context, data *schema.ResourceData, i inter
 }
 
 type TwilioMessengerRequest struct {
-	Messenger fusionauth.TwilioMessengerConfiguration `json:"messenger,omitempty"`
+	Messenger fusionauth.TwilioMessengerConfiguration `json:"messenger"`
 }
 
 type TwilioMessengerResponse struct {
 	fusionauth.BaseHTTPResponse
-	Messenger  fusionauth.TwilioMessengerConfiguration   `json:"messenger,omitempty"`
+	Messenger  fusionauth.TwilioMessengerConfiguration   `json:"messenger"`
 	Messengers []fusionauth.TwilioMessengerConfiguration `json:"messengers,omitempty"`
 }
 

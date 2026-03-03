@@ -247,7 +247,7 @@ func resourceAPIKey() *schema.Resource {
 // 	return buildResourceDataFromAPIKey(data, resp.ApiKey)
 // }
 
-func createAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createAPIKey(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	ak := buildAPIKey(data)
 
@@ -270,7 +270,7 @@ func createAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) d
 	return buildResourceDataFromAPIKey(data, convertFromManualAPIKey(resp.ApiKey))
 }
 
-func readAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readAPIKey(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -315,7 +315,7 @@ func readAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) dia
 // 	return buildResourceDataFromAPIKey(data, resp.ApiKey)
 // }
 
-func updateAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateAPIKey(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	ak := buildAPIKey(data)
 
@@ -339,7 +339,7 @@ func updateAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) d
 	return buildResourceDataFromAPIKey(data, convertFromManualAPIKey(resp.ApiKey))
 }
 
-func deleteAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteAPIKey(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	resp, faErrs, err := client.FAClient.DeleteAPIKey(data.Id())
 	if err != nil {
@@ -378,7 +378,7 @@ func buildAPIKey(data *schema.ResourceData) fusionauth.APIKey {
 	}
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		ep := ac["endpoint"].(string)
 		ss := []string{}
 		if ac["delete"].(bool) {
@@ -422,9 +422,9 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 		return diag.Errorf("apiKey.ip_access_control_list_id: %s", err.Error())
 	}
 
-	pe := make([]map[string]interface{}, 0, len(res.Permissions.Endpoints))
+	pe := make([]map[string]any, 0, len(res.Permissions.Endpoints))
 	for ep := range res.Permissions.Endpoints {
-		endpointPermission := map[string]interface{}{
+		endpointPermission := map[string]any{
 			"delete": false,
 			"get":    false,
 			"patch":  false,
@@ -470,7 +470,7 @@ type manualAPIKey struct {
 	Key                   string                   `json:"key,omitempty"`
 	KeyManager            bool                     `json:"keyManager"`
 	LastUpdateInstant     int64                    `json:"lastUpdateInstant,omitempty"`
-	MetaData              manualAPIKeyMetaData     `json:"metaData,omitempty"`
+	MetaData              manualAPIKeyMetaData     `json:"metaData"`
 	Name                  string                   `json:"name,omitempty"`
 	Permissions           *manualAPIKeyPermissions `json:"permissions,omitempty"`
 	Retrievable           bool                     `json:"retrievable"`
@@ -486,12 +486,12 @@ type manualAPIKeyPermissions struct {
 }
 
 type manualAPIKeyRequest struct {
-	ApiKey manualAPIKey `json:"apiKey,omitempty"` //nolint:revive
+	ApiKey manualAPIKey `json:"apiKey"` //nolint:revive
 }
 
 type manualAPIKeyResponse struct {
 	fusionauth.BaseHTTPResponse
-	ApiKey  manualAPIKey   `json:"apiKey,omitempty"`  //nolint:revive
+	ApiKey  manualAPIKey   `json:"apiKey"`            //nolint:revive
 	ApiKeys []manualAPIKey `json:"apiKeys,omitempty"` //nolint:revive
 }
 

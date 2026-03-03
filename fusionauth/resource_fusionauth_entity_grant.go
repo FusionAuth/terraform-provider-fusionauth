@@ -76,7 +76,7 @@ func resourceEntityGrant() *schema.Resource {
 	}
 }
 
-func createEntityGrant(ctx context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func createEntityGrant(ctx context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	resourceReq, diags := dataToEntityGrantRequest(data)
 	if diags != nil {
 		return diags
@@ -117,7 +117,7 @@ func syntheticGrantID(data *schema.ResourceData) string {
 	return fmt.Sprintf("%s_%s", entityID, userID)
 }
 
-func readEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func readEntityGrant(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	client := i.(Client)
 
 	if iTenantID, ok := data.GetOk("tenant_id"); ok {
@@ -151,7 +151,7 @@ func readEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}
 	return entityGrantResponseToData(data, res)
 }
 
-func updateEntityGrant(ctx context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func updateEntityGrant(ctx context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	resourceReq, diags := dataToEntityGrantRequest(data)
 	if diags != nil {
 		return diags
@@ -182,7 +182,7 @@ func updateEntityGrant(ctx context.Context, data *schema.ResourceData, i interfa
 	return readEntityGrant(ctx, data, i)
 }
 
-func deleteEntityGrant(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func deleteEntityGrant(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	client := i.(Client)
 
 	entityID := data.Get("entity_id").(string)
@@ -225,7 +225,7 @@ func dataToEntityGrantRequest(data *schema.ResourceData) (req fusionauth.EntityG
 func entityGrantResponseToData(data *schema.ResourceData, res *fusionauth.EntityGrantResponse) (diags diag.Diagnostics) {
 	data.SetId(res.Grant.Id)
 
-	dataMapping := map[string]interface{}{
+	dataMapping := map[string]any{
 		"tenant_id":           res.Grant.Entity.TenantId,
 		"entity_id":           res.Grant.Entity.Id,
 		"data":                res.Grant.Data,

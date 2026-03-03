@@ -86,7 +86,7 @@ func buildGroup(data *schema.ResourceData) fusionauth.GroupRequest {
 	return g
 }
 
-func createGroup(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createGroup(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	g := buildGroup(data)
 	oldTenantID := client.FAClient.TenantId
@@ -107,7 +107,7 @@ func createGroup(_ context.Context, data *schema.ResourceData, i interface{}) di
 	return nil
 }
 
-func readGroup(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readGroup(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -153,7 +153,7 @@ func readGroup(_ context.Context, data *schema.ResourceData, i interface{}) diag
 	return nil
 }
 
-func updateGroup(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateGroup(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	g := buildGroup(data)
 	id := data.Id()
@@ -175,7 +175,7 @@ func updateGroup(_ context.Context, data *schema.ResourceData, i interface{}) di
 	return nil
 }
 
-func deleteGroup(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteGroup(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -203,9 +203,9 @@ func resourceGroupV0() *schema.Resource {
 	}
 }
 
-func resourceGroupUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceGroupUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err

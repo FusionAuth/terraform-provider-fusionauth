@@ -28,7 +28,7 @@ func dataSourceApplicationRole() *schema.Resource {
 	}
 }
 
-func dataSourceApplicationRoleRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceApplicationRoleRead(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	aid := data.Get("application_id").(string)
 	resp, err := client.FAClient.RetrieveApplication(aid)

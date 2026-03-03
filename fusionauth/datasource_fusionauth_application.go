@@ -49,7 +49,7 @@ func dataSourceApplication() *schema.Resource {
 	}
 }
 
-func dataSourceApplicationRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceApplicationRead(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, err := client.FAClient.RetrieveApplications()
@@ -76,7 +76,7 @@ func dataSourceApplicationRead(_ context.Context, data *schema.ResourceData, i i
 		return diag.FromErr(fmt.Errorf("error setting tenant_id: %v", err))
 	}
 	// Properly structure WebAuthn configuration
-	webauthnConfig := []map[string]interface{}{
+	webauthnConfig := []map[string]any{
 		{
 			"bootstrap_workflow_enabled":        app.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
 			"enabled":                           app.WebAuthnConfiguration.Enabled,

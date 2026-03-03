@@ -75,13 +75,13 @@ func buildSMSMessageTemplate(data *schema.ResourceData) fusionauth.SMSMessageTem
 	}
 
 	if i, ok := data.GetOk("localized_templates"); ok {
-		template.LocalizedTemplates = intMapToStringMap(i.(map[string]interface{}))
+		template.LocalizedTemplates = intMapToStringMap(i.(map[string]any))
 	}
 
 	return template
 }
 
-func createSMSMessageTemplate(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createSMSMessageTemplate(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	template := buildSMSMessageTemplate(data)
 	resp, faErrs, err := createMessageTemplate(ctx, client.FAClient, template.Id, SMSMessageTemplateRequest{MessageTemplate: template})
@@ -96,7 +96,7 @@ func createSMSMessageTemplate(ctx context.Context, data *schema.ResourceData, i 
 	return nil
 }
 
-func readSMSMessageTemplate(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readSMSMessageTemplate(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -143,7 +143,7 @@ func readSMSMessageTemplate(ctx context.Context, data *schema.ResourceData, i in
 	return nil
 }
 
-func updateSMSMessageTemplate(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateSMSMessageTemplate(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	template := buildSMSMessageTemplate(data)
 
@@ -159,7 +159,7 @@ func updateSMSMessageTemplate(ctx context.Context, data *schema.ResourceData, i 
 	return nil
 }
 
-func deleteSMSMessageTemplate(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteSMSMessageTemplate(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -176,12 +176,12 @@ func deleteSMSMessageTemplate(_ context.Context, data *schema.ResourceData, i in
 }
 
 type SMSMessageTemplateRequest struct {
-	MessageTemplate fusionauth.SMSMessageTemplate `json:"messageTemplate,omitempty"`
+	MessageTemplate fusionauth.SMSMessageTemplate `json:"messageTemplate"`
 }
 
 type SMSMessageTemplateResponse struct {
 	fusionauth.BaseHTTPResponse
-	MessageTemplate  fusionauth.SMSMessageTemplate   `json:"messageTemplate,omitempty"`
+	MessageTemplate  fusionauth.SMSMessageTemplate   `json:"messageTemplate"`
 	MessageTemplates []fusionauth.SMSMessageTemplate `json:"messageTemplates,omitempty"`
 }
 

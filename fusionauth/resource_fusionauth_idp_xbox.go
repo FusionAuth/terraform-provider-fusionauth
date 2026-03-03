@@ -181,7 +181,7 @@ func resourceIDPXbox() *schema.Resource {
 	}
 }
 
-func createIDPXbox(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPXbox(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPXbox(data)
 
 	b, err := json.Marshal(o)
@@ -204,7 +204,7 @@ func createIDPXbox(_ context.Context, data *schema.ResourceData, i interface{}) 
 	return nil
 }
 
-func readIDPXbox(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPXbox(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -221,7 +221,7 @@ func readIDPXbox(_ context.Context, data *schema.ResourceData, i interface{}) di
 	return buildResourceDataFromIDPXbox(data, ipb.IdentityProvider)
 }
 
-func updateIDPXbox(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPXbox(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPXbox(data)
 
 	b, err := json.Marshal(o)
@@ -307,9 +307,9 @@ func buildResourceDataFromIDPXbox(data *schema.ResourceData, res fusionauth.Xbox
 	m := make(map[string]XboxAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(res.ApplicationConfiguration))
 	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"application_id":      k,
 			"button_text":         v.ButtonText,
 			"client_id":           v.ClientID,
@@ -331,8 +331,8 @@ func buildResourceDataFromIDPXbox(data *schema.ResourceData, res fusionauth.Xbox
 	return nil
 }
 
-func buildXboxAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildXboxAppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -340,7 +340,7 @@ func buildXboxAppConfig(key string, data *schema.ResourceData) map[string]interf
 	}
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
 		oc := XboxAppConfig{
 			ButtonText:         ac["button_text"].(string),

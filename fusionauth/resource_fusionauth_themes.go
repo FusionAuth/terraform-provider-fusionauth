@@ -512,13 +512,13 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 	}
 
 	if i, ok := data.GetOk("localized_messages"); ok {
-		t.LocalizedMessages = intMapToStringMap(i.(map[string]interface{}))
+		t.LocalizedMessages = intMapToStringMap(i.(map[string]any))
 	}
 
 	return t
 }
 
-func createTheme(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createTheme(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	req := fusionauth.ThemeRequest{
@@ -545,7 +545,7 @@ func createTheme(_ context.Context, data *schema.ResourceData, i interface{}) di
 	return buildResourceDataFromTheme(resp.Theme, data)
 }
 
-func readTheme(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readTheme(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -567,7 +567,7 @@ func readTheme(_ context.Context, data *schema.ResourceData, i interface{}) diag
 	return buildResourceDataFromTheme(t, data)
 }
 
-func updateTheme(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateTheme(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	req := fusionauth.ThemeRequest{
 		Theme: buildTheme(data),
@@ -587,7 +587,7 @@ func updateTheme(_ context.Context, data *schema.ResourceData, i interface{}) di
 	return buildResourceDataFromTheme(resp.Theme, data)
 }
 
-func deleteTheme(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteTheme(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -796,9 +796,9 @@ func resourceThemeV0() *schema.Resource {
 	}
 }
 
-func resourceThemeUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceThemeUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err

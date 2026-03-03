@@ -8,7 +8,7 @@ import (
 
 func Test_validateKey(t *testing.T) {
 	type args struct {
-		i interface{}
+		i any
 		k string
 	}
 	tests := []struct {
@@ -71,7 +71,7 @@ func Test_validateKey(t *testing.T) {
 
 func Test_validateRegex(t *testing.T) {
 	type args struct {
-		i interface{}
+		i any
 		k string
 	}
 	tests := []struct {

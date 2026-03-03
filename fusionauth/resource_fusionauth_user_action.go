@@ -145,7 +145,7 @@ func buildUserAction(data *schema.ResourceData) fusionauth.UserAction {
 		ua.IncludeEmailInEventJSON = d.(bool)
 	}
 	if i, ok := data.GetOk("localized_names"); ok {
-		ua.LocalizedNames = intMapToStringMap(i.(map[string]interface{}))
+		ua.LocalizedNames = intMapToStringMap(i.(map[string]any))
 	}
 	if d, ok := data.GetOk("modify_email_template_id"); ok {
 		ua.ModifyEmailTemplateId = d.(string)
@@ -178,7 +178,7 @@ func buildUserAction(data *schema.ResourceData) fusionauth.UserAction {
 	return ua
 }
 
-func createUserAction(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createUserAction(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	userAction := buildUserAction(data)
 
@@ -198,7 +198,7 @@ func createUserAction(ctx context.Context, data *schema.ResourceData, i interfac
 	return readUserAction(ctx, data, i)
 }
 
-func readUserAction(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readUserAction(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -234,9 +234,9 @@ func readUserAction(_ context.Context, data *schema.ResourceData, i interface{})
 		return diag.Errorf("user_action.modify_email_template_id: %s", err.Error())
 	}
 
-	options := make([]map[string]interface{}, 0, len(resp.UserAction.Options))
+	options := make([]map[string]any, 0, len(resp.UserAction.Options))
 	for _, opt := range resp.UserAction.Options {
-		options = append(options, map[string]interface{}{
+		options = append(options, map[string]any{
 			"name":            opt.Name,
 			"localized_names": opt.LocalizedNames,
 		})
@@ -269,7 +269,7 @@ func readUserAction(_ context.Context, data *schema.ResourceData, i interface{})
 	return nil
 }
 
-func updateUserAction(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateUserAction(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, faErrs, err := client.FAClient.UpdateUserAction(data.Id(), fusionauth.UserActionRequest{
@@ -285,7 +285,7 @@ func updateUserAction(ctx context.Context, data *schema.ResourceData, i interfac
 	return readUserAction(ctx, data, i)
 }
 
-func deleteUserAction(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteUserAction(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, faErrs, err := client.FAClient.DeleteUserAction(data.Id())
@@ -299,7 +299,7 @@ func deleteUserAction(_ context.Context, data *schema.ResourceData, i interface{
 	return nil
 }
 
-func buildUserActionOptions(d interface{}) []fusionauth.UserActionOption {
+func buildUserActionOptions(d any) []fusionauth.UserActionOption {
 	opts := make([]fusionauth.UserActionOption, 0, len(d.([]*schema.ResourceData)))
 	for _, v := range d.([]*schema.ResourceData) {
 		uao := fusionauth.UserActionOption{
@@ -307,7 +307,7 @@ func buildUserActionOptions(d interface{}) []fusionauth.UserActionOption {
 		}
 
 		if i, ok := v.GetOk("localized_names"); ok {
-			uao.LocalizedNames = intMapToStringMap(i.(map[string]interface{}))
+			uao.LocalizedNames = intMapToStringMap(i.(map[string]any))
 		}
 
 		opts = append(opts, uao)

@@ -81,7 +81,7 @@ func dataSourceGenericConnector() *schema.Resource {
 	}
 }
 
-func dataSourceGenericConnectorRead(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceGenericConnectorRead(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	var searchTerm string
@@ -138,7 +138,7 @@ func dataSourceGenericConnectorRead(ctx context.Context, data *schema.ResourceDa
 
 // Helper function to set all connector fields in the schema data
 func setConnectorFields(data *schema.ResourceData, connector fusionauth.GenericConnectorConfiguration) diag.Diagnostics {
-	fields := map[string]interface{}{
+	fields := map[string]any{
 		"id":                           connector.Id,
 		"name":                         connector.Name,
 		"authentication_url":           connector.AuthenticationURL,

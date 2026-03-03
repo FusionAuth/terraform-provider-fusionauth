@@ -66,7 +66,7 @@ func resourceEntityTypePermission() *schema.Resource {
 	}
 }
 
-func createEntityTypePermission(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func createEntityTypePermission(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	resourceReq, diags := dataToEntityTypePermissionRequest(data)
 	if diags != nil {
 		return diags
@@ -85,7 +85,7 @@ func createEntityTypePermission(_ context.Context, data *schema.ResourceData, i 
 	return entityTypePermissionResponseToData(data, entityTypeID, res)
 }
 
-func importEntityTypePermission(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+func importEntityTypePermission(ctx context.Context, d *schema.ResourceData, m any) ([]*schema.ResourceData, error) {
 	// Support importing in the format "entity_type_id:permission_id"
 	parts := strings.SplitN(d.Id(), ":", 2)
 
@@ -113,7 +113,7 @@ func importEntityTypePermission(ctx context.Context, d *schema.ResourceData, m i
 	return []*schema.ResourceData{d}, nil
 }
 
-func readEntityTypePermission(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func readEntityTypePermission(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	client := i.(Client)
 
 	// entity type permissions are only returned via an entity type, so we need
@@ -156,7 +156,7 @@ func readEntityTypePermission(_ context.Context, data *schema.ResourceData, i in
 	return diags
 }
 
-func updateEntityTypePermission(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func updateEntityTypePermission(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	req, diags := dataToEntityTypePermissionRequest(data)
 	if diags != nil {
 		return diags
@@ -175,7 +175,7 @@ func updateEntityTypePermission(_ context.Context, data *schema.ResourceData, i 
 	return entityTypePermissionResponseToData(data, entityTypeID, res)
 }
 
-func deleteEntityTypePermission(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func deleteEntityTypePermission(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	client := i.(Client)
 
 	resourceID := data.Id()
@@ -217,7 +217,7 @@ func dataToEntityTypePermissionRequest(data *schema.ResourceData) (req fusionaut
 func entityTypePermissionResponseToData(data *schema.ResourceData, entityTypeID string, res *fusionauth.EntityTypeResponse) (diags diag.Diagnostics) {
 	data.SetId(res.Permission.Id)
 
-	dataMapping := map[string]interface{}{
+	dataMapping := map[string]any{
 		"entity_type_id": entityTypeID,
 		"permission_id":  res.Permission.Id,
 		"data":           res.Permission.Data,

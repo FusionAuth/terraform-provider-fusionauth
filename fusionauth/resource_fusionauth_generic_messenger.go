@@ -111,13 +111,13 @@ func buildGenericMessenger(data *schema.ResourceData) fusionauth.GenericMessenge
 	}
 
 	if i, ok := data.GetOk("headers"); ok {
-		messenger.Headers = intMapToStringMap(i.(map[string]interface{}))
+		messenger.Headers = intMapToStringMap(i.(map[string]any))
 	}
 
 	return messenger
 }
 
-func createGenericMessenger(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createGenericMessenger(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	messenger := buildGenericMessenger(data)
 	resp, faErrs, err := CreateMessenger(ctx, client.FAClient, messenger.Id, GenericMessengerRequest{Messenger: messenger})
@@ -132,7 +132,7 @@ func createGenericMessenger(ctx context.Context, data *schema.ResourceData, i in
 	return nil
 }
 
-func readGenericMessenger(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readGenericMessenger(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -189,7 +189,7 @@ func readGenericMessenger(ctx context.Context, data *schema.ResourceData, i inte
 	return nil
 }
 
-func updateGenericMessenger(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateGenericMessenger(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	messenger := buildGenericMessenger(data)
 
@@ -205,7 +205,7 @@ func updateGenericMessenger(ctx context.Context, data *schema.ResourceData, i in
 	return nil
 }
 
-func deleteGenericMessenger(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteGenericMessenger(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -222,12 +222,12 @@ func deleteGenericMessenger(_ context.Context, data *schema.ResourceData, i inte
 }
 
 type GenericMessengerRequest struct {
-	Messenger fusionauth.GenericMessengerConfiguration `json:"messenger,omitempty"`
+	Messenger fusionauth.GenericMessengerConfiguration `json:"messenger"`
 }
 
 type GenericMessengerResponse struct {
 	fusionauth.BaseHTTPResponse
-	Messenger  fusionauth.GenericMessengerConfiguration   `json:"messenger,omitempty"`
+	Messenger  fusionauth.GenericMessengerConfiguration   `json:"messenger"`
 	Messengers []fusionauth.GenericMessengerConfiguration `json:"messengers,omitempty"`
 }
 

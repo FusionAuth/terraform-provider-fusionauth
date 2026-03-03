@@ -155,7 +155,7 @@ func buildLDAPConnector(data *schema.ResourceData) fusionauth.LDAPConnectorConfi
 	return connector
 }
 
-func createLDAPConnector(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createLDAPConnector(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	connector := buildLDAPConnector(data)
 	resp, faErrs, err := CreateLDAPConnector(ctx, client.FAClient, connector.Id, LDAPConnectorRequest{Connector: connector})
@@ -170,7 +170,7 @@ func createLDAPConnector(ctx context.Context, data *schema.ResourceData, i inter
 	return nil
 }
 
-func readLDAPConnector(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readLDAPConnector(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -214,8 +214,8 @@ func readLDAPConnector(ctx context.Context, data *schema.ResourceData, i interfa
 	if err := data.Set("identifying_attribute", connector.IdentifyingAttribute); err != nil {
 		return diag.Errorf("connector.identifying_attribute: %s", err.Error())
 	}
-	if err := data.Set("lambda_configuration", []interface{}{
-		map[string]interface{}{
+	if err := data.Set("lambda_configuration", []any{
+		map[string]any{
 			"reconcile_id": connector.LambdaConfiguration.ReconcileId,
 		},
 	}); err != nil {
@@ -245,7 +245,7 @@ func readLDAPConnector(ctx context.Context, data *schema.ResourceData, i interfa
 	return nil
 }
 
-func updateLDAPConnector(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateLDAPConnector(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	connector := buildLDAPConnector(data)
 
@@ -261,7 +261,7 @@ func updateLDAPConnector(ctx context.Context, data *schema.ResourceData, i inter
 	return nil
 }
 
-func deleteLDAPConnector(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteLDAPConnector(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -278,12 +278,12 @@ func deleteLDAPConnector(_ context.Context, data *schema.ResourceData, i interfa
 }
 
 type LDAPConnectorRequest struct {
-	Connector fusionauth.LDAPConnectorConfiguration `json:"connector,omitempty"`
+	Connector fusionauth.LDAPConnectorConfiguration `json:"connector"`
 }
 
 type LDAPConnectorResponse struct {
 	fusionauth.BaseHTTPResponse
-	Connector  fusionauth.LDAPConnectorConfiguration   `json:"connector,omitempty"`
+	Connector  fusionauth.LDAPConnectorConfiguration   `json:"connector"`
 	Connectors []fusionauth.LDAPConnectorConfiguration `json:"connectors,omitempty"`
 }
 

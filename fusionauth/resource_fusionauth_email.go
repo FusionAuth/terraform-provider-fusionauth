@@ -98,24 +98,24 @@ func buildEmail(data *schema.ResourceData) fusionauth.EmailTemplate {
 	}
 
 	if i, ok := data.GetOk("localized_from_names"); ok {
-		e.LocalizedFromNames = intMapToStringMap(i.(map[string]interface{}))
+		e.LocalizedFromNames = intMapToStringMap(i.(map[string]any))
 	}
 
 	if i, ok := data.GetOk("localized_html_templates"); ok {
-		e.LocalizedHtmlTemplates = intMapToStringMap(i.(map[string]interface{}))
+		e.LocalizedHtmlTemplates = intMapToStringMap(i.(map[string]any))
 	}
 
 	if i, ok := data.GetOk("localized_subjects"); ok {
-		e.LocalizedSubjects = intMapToStringMap(i.(map[string]interface{}))
+		e.LocalizedSubjects = intMapToStringMap(i.(map[string]any))
 	}
 
 	if i, ok := data.GetOk("localized_text_templates"); ok {
-		e.LocalizedTextTemplates = intMapToStringMap(i.(map[string]interface{}))
+		e.LocalizedTextTemplates = intMapToStringMap(i.(map[string]any))
 	}
 	return e
 }
 
-func createEmail(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createEmail(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	e := buildEmail(data)
 
@@ -139,7 +139,7 @@ func createEmail(_ context.Context, data *schema.ResourceData, i interface{}) di
 	return nil
 }
 
-func readEmail(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readEmail(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -191,7 +191,7 @@ func readEmail(_ context.Context, data *schema.ResourceData, i interface{}) diag
 	return nil
 }
 
-func updateEmail(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateEmail(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	e := buildEmail(data)
 
@@ -210,7 +210,7 @@ func updateEmail(_ context.Context, data *schema.ResourceData, i interface{}) di
 	return nil
 }
 
-func deleteEmail(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteEmail(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 

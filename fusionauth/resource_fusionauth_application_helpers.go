@@ -72,7 +72,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		Name: data.Get("name").(string),
 		OauthConfiguration: fusionauth.OAuth2Configuration{
 			AuthorizedOriginURLs:          handleStringSlice("oauth_configuration.0.authorized_origin_urls", data),
-			AuthorizedRedirectURLs:        handleStringSliceFromList(data.Get("oauth_configuration.0.authorized_redirect_urls").([]interface{})),
+			AuthorizedRedirectURLs:        handleStringSliceFromList(data.Get("oauth_configuration.0.authorized_redirect_urls").([]any)),
 			AuthorizedURLValidationPolicy: fusionauth.Oauth2AuthorizedURLValidationPolicy(data.Get("oauth_configuration.0.authorized_url_validation_policy").(string)),
 			ClientAuthenticationPolicy:    fusionauth.ClientAuthenticationPolicy(data.Get("oauth_configuration.0.client_authentication_policy").(string)),
 			ClientSecret:                  data.Get("oauth_configuration.0.client_secret").(string),
@@ -147,7 +147,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			},
 			Enableable:               buildEnableable("samlv2_configuration.0.enabled", data),
 			Audience:                 data.Get("samlv2_configuration.0.audience").(string),
-			AuthorizedRedirectURLs:   handleStringSliceFromList(data.Get("samlv2_configuration.0.authorized_redirect_urls").([]interface{})),
+			AuthorizedRedirectURLs:   handleStringSliceFromList(data.Get("samlv2_configuration.0.authorized_redirect_urls").([]any)),
 			CallbackURL:              data.Get("samlv2_configuration.0.callback_url").(string),
 			Debug:                    data.Get("samlv2_configuration.0.debug").(bool),
 			DefaultVerificationKeyId: data.Get("samlv2_configuration.0.default_verification_key_id").(string),
@@ -257,7 +257,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.authentication_token_configuration_enabled: %s", err.Error())
 	}
 
-	err := data.Set("access_control_configuration", []map[string]interface{}{
+	err := data.Set("access_control_configuration", []map[string]any{
 		{
 			"ui_ip_access_control_list_id": a.AccessControlConfiguration.UiIPAccessControlListId,
 		},
@@ -266,10 +266,10 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.access_control_configuration: %s", err.Error())
 	}
 
-	err = data.Set("clean_speak_configuration", []map[string]interface{}{
+	err = data.Set("clean_speak_configuration", []map[string]any{
 		{
 			"application_ids": a.CleanSpeakConfiguration.ApplicationIds,
-			"username_moderation": []map[string]interface{}{
+			"username_moderation": []map[string]any{
 				{
 					"application_id": a.CleanSpeakConfiguration.UsernameModeration.ApplicationId,
 					"enabled":        a.CleanSpeakConfiguration.UsernameModeration.Enabled,
@@ -290,10 +290,10 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.data: %s", err.Error())
 	}
 
-	err = data.Set("form_configuration", []map[string]interface{}{
+	err = data.Set("form_configuration", []map[string]any{
 		{
 			"admin_registration_form_id": a.FormConfiguration.AdminRegistrationFormId,
-			"self_service_form_configuration": []map[string]interface{}{
+			"self_service_form_configuration": []map[string]any{
 				{
 					"require_current_password_on_password_change": a.FormConfiguration.SelfServiceFormConfiguration.RequireCurrentPasswordOnPasswordChange,
 				},
@@ -305,7 +305,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.form_configuration: %s", err.Error())
 	}
 
-	err = data.Set("jwt_configuration", []map[string]interface{}{
+	err = data.Set("jwt_configuration", []map[string]any{
 		{
 			"enabled":                         a.JwtConfiguration.Enabled,
 			"access_token_id":                 a.JwtConfiguration.AccessTokenKeyId,
@@ -330,7 +330,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.insert_instant: %s", err.Error())
 	}
 
-	err = data.Set("lambda_configuration", []map[string]interface{}{
+	err = data.Set("lambda_configuration", []map[string]any{
 		{
 			"access_token_populate_id":                a.LambdaConfiguration.AccessTokenPopulateId,
 			"id_token_populate_id":                    a.LambdaConfiguration.IdTokenPopulateId,
@@ -344,7 +344,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.lambda_configuration: %s", err.Error())
 	}
 
-	err = data.Set("login_configuration", []map[string]interface{}{
+	err = data.Set("login_configuration", []map[string]any{
 		{
 			"allow_token_refresh":     a.LoginConfiguration.AllowTokenRefresh,
 			"generate_refresh_tokens": a.LoginConfiguration.GenerateRefreshTokens,
@@ -355,7 +355,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.login_configuration: %s", err.Error())
 	}
 
-	err = data.Set("multi_factor_configuration", []map[string]interface{}{
+	err = data.Set("multi_factor_configuration", []map[string]any{
 		{
 			"email_template_id": a.MultiFactorConfiguration.Email.TemplateId,
 			"sms_template_id":   a.MultiFactorConfiguration.Sms.TemplateId,
@@ -371,7 +371,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.name: %s", err.Error())
 	}
 
-	err = data.Set("oauth_configuration", []map[string]interface{}{
+	err = data.Set("oauth_configuration", []map[string]any{
 		{
 			"authorized_origin_urls":             a.OauthConfiguration.AuthorizedOriginURLs,
 			"authorized_redirect_urls":           a.OauthConfiguration.AuthorizedRedirectURLs,
@@ -387,27 +387,27 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"logout_behavior":                    a.OauthConfiguration.LogoutBehavior,
 			"logout_url":                         a.OauthConfiguration.LogoutURL,
 			"proof_key_for_code_exchange_policy": a.OauthConfiguration.ProofKeyForCodeExchangePolicy,
-			"provided_scope_policy": []map[string]interface{}{
+			"provided_scope_policy": []map[string]any{
 				{
-					"address": []map[string]interface{}{
+					"address": []map[string]any{
 						{
 							"enabled":  a.OauthConfiguration.ProvidedScopePolicy.Address.Enabled,
 							"required": a.OauthConfiguration.ProvidedScopePolicy.Address.Required,
 						},
 					},
-					"email": []map[string]interface{}{
+					"email": []map[string]any{
 						{
 							"enabled":  a.OauthConfiguration.ProvidedScopePolicy.Email.Enabled,
 							"required": a.OauthConfiguration.ProvidedScopePolicy.Email.Required,
 						},
 					},
-					"phone": []map[string]interface{}{
+					"phone": []map[string]any{
 						{
 							"enabled":  a.OauthConfiguration.ProvidedScopePolicy.Phone.Enabled,
 							"required": a.OauthConfiguration.ProvidedScopePolicy.Phone.Required,
 						},
 					},
-					"profile": []map[string]interface{}{
+					"profile": []map[string]any{
 						{
 							"enabled":  a.OauthConfiguration.ProvidedScopePolicy.Profile.Enabled,
 							"required": a.OauthConfiguration.ProvidedScopePolicy.Profile.Required,
@@ -430,7 +430,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.passwordless_configuration_enabled: %s", err.Error())
 	}
 
-	err = data.Set("phone_configuration", []map[string]interface{}{
+	err = data.Set("phone_configuration", []map[string]any{
 		{
 			"forgot_password_template_id":           a.PhoneConfiguration.ForgotPasswordTemplateId,
 			"identity_update_template_id":           a.PhoneConfiguration.IdentityUpdateTemplateId,
@@ -452,47 +452,47 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.phone_configuration: %s", err.Error())
 	}
 
-	err = data.Set("registration_configuration", []map[string]interface{}{
+	err = data.Set("registration_configuration", []map[string]any{
 		{
 			"enabled": a.RegistrationConfiguration.Enabled,
-			"birth_date": []map[string]interface{}{
+			"birth_date": []map[string]any{
 				{
 					"enabled":  a.RegistrationConfiguration.BirthDate.Enabled,
 					"required": a.RegistrationConfiguration.BirthDate.Required,
 				},
 			},
 			"confirm_password": a.RegistrationConfiguration.ConfirmPassword,
-			"first_name": []map[string]interface{}{
+			"first_name": []map[string]any{
 				{
 					"enabled":  a.RegistrationConfiguration.FirstName.Enabled,
 					"required": a.RegistrationConfiguration.FirstName.Required,
 				},
 			},
-			"full_name": []map[string]interface{}{
+			"full_name": []map[string]any{
 				{
 					"enabled":  a.RegistrationConfiguration.FullName.Enabled,
 					"required": a.RegistrationConfiguration.FullName.Required,
 				},
 			},
-			"last_name": []map[string]interface{}{
+			"last_name": []map[string]any{
 				{
 					"enabled":  a.RegistrationConfiguration.LastName.Enabled,
 					"required": a.RegistrationConfiguration.LastName.Required,
 				},
 			},
-			"middle_name": []map[string]interface{}{
+			"middle_name": []map[string]any{
 				{
 					"enabled":  a.RegistrationConfiguration.MiddleName.Enabled,
 					"required": a.RegistrationConfiguration.MiddleName.Required,
 				},
 			},
-			"mobile_phone": []map[string]interface{}{
+			"mobile_phone": []map[string]any{
 				{
 					"enabled":  a.RegistrationConfiguration.MobilePhone.Enabled,
 					"required": a.RegistrationConfiguration.MobilePhone.Required,
 				},
 			},
-			"preferred_languages": []map[string]interface{}{
+			"preferred_languages": []map[string]any{
 				{
 					"enabled":  a.RegistrationConfiguration.PreferredLanguages.Enabled,
 					"required": a.RegistrationConfiguration.PreferredLanguages.Required,
@@ -507,7 +507,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.registration_configuration: %s", err.Error())
 	}
 
-	err = data.Set("registration_delete_policy", []map[string]interface{}{
+	err = data.Set("registration_delete_policy", []map[string]any{
 		{
 			"unverified_enabled":                  a.RegistrationDeletePolicy.Unverified.Enabled,
 			"unverified_number_of_days_to_retain": a.RegistrationDeletePolicy.Unverified.NumberOfDaysToRetain,
@@ -517,9 +517,9 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.registration_delete_policy: %s", err.Error())
 	}
 
-	err = data.Set("samlv2_configuration", []map[string]interface{}{
+	err = data.Set("samlv2_configuration", []map[string]any{
 		{
-			"assertion_encryption_configuration": []map[string]interface{}{
+			"assertion_encryption_configuration": []map[string]any{
 				{
 					"digest_algorithm":                a.Samlv2Configuration.AssertionEncryptionConfiguration.DigestAlgorithm,
 					"enabled":                         a.Samlv2Configuration.AssertionEncryptionConfiguration.Enabled,
@@ -536,7 +536,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"callback_url":                a.Samlv2Configuration.CallbackURL,
 			"debug":                       a.Samlv2Configuration.Debug,
 			"default_verification_key_id": a.Samlv2Configuration.DefaultVerificationKeyId,
-			"initiated_login": []map[string]interface{}{
+			"initiated_login": []map[string]any{
 				{
 					"enabled":        a.Samlv2Configuration.InitiatedLogin.Enabled,
 					"name_id_format": a.Samlv2Configuration.InitiatedLogin.NameIdFormat,
@@ -544,19 +544,19 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			},
 			"issuer": a.Samlv2Configuration.Issuer,
 			"key_id": a.Samlv2Configuration.KeyId,
-			"login_hint_configuration": []map[string]interface{}{
+			"login_hint_configuration": []map[string]any{
 				{
 					"enabled":        a.Samlv2Configuration.LoginHintConfiguration.Enabled,
 					"parameter_name": a.Samlv2Configuration.LoginHintConfiguration.ParameterName,
 				},
 			},
-			"logout": []map[string]interface{}{
+			"logout": []map[string]any{
 				{
 					"behavior":                    a.Samlv2Configuration.Logout.Behavior,
 					"default_verification_key_id": a.Samlv2Configuration.Logout.DefaultVerificationKeyId,
 					"key_id":                      a.Samlv2Configuration.Logout.KeyId,
 					"require_signed_requests":     a.Samlv2Configuration.Logout.RequireSignedRequests,
-					"single_logout": []map[string]interface{}{
+					"single_logout": []map[string]any{
 						{
 							"enabled":                               a.Samlv2Configuration.Logout.SingleLogout.Enabled,
 							"key_id":                                a.Samlv2Configuration.Logout.SingleLogout.KeyId,
@@ -587,7 +587,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.theme_id: %s", err.Error())
 	}
 
-	if err := data.Set("universal_configuration", []map[string]interface{}{
+	if err := data.Set("universal_configuration", []map[string]any{
 		{
 			"universal": a.UniversalConfiguration.Universal,
 		},
@@ -603,7 +603,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.unverified_behavior: %s", err.Error())
 	}
 
-	err = data.Set("email_configuration", []map[string]interface{}{
+	err = data.Set("email_configuration", []map[string]any{
 		{
 			"email_verification_template_id":        a.EmailConfiguration.EmailVerificationEmailTemplateId,
 			"email_update_template_id":              a.EmailConfiguration.EmailUpdateEmailTemplateId,
@@ -625,7 +625,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.email_configuration: %s", err.Error())
 	}
 
-	err = data.Set("webauthn_configuration", []map[string]interface{}{
+	err = data.Set("webauthn_configuration", []map[string]any{
 		{
 			"bootstrap_workflow_enabled":        a.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
 			"enabled":                           a.WebAuthnConfiguration.Enabled,

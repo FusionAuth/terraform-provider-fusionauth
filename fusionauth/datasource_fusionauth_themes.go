@@ -329,7 +329,7 @@ func dataSourceTheme() *schema.Resource {
 	}
 }
 
-func dataSourceThemeRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceThemeRead(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	var searchTerm string

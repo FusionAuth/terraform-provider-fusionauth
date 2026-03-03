@@ -428,7 +428,7 @@ func buildWebhook(data *schema.ResourceData) fusionauth.Webhook {
 	}
 
 	if i, ok := data.GetOk("headers"); ok {
-		wh.Headers = intMapToStringMap(i.(map[string]interface{}))
+		wh.Headers = intMapToStringMap(i.(map[string]any))
 	}
 
 	return wh
@@ -500,7 +500,7 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 	}
 }
 
-func createWebhook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createWebhook(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	l := buildWebhook(data)
 	webhookID := data.Get("webhook_id").(string)
@@ -518,7 +518,7 @@ func createWebhook(_ context.Context, data *schema.ResourceData, i interface{}) 
 	return nil
 }
 
-func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readWebhook(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -554,7 +554,7 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 		return diag.Errorf("webhook.description: %s", err.Error())
 	}
 
-	err = data.Set("events_enabled", []map[string]interface{}{
+	err = data.Set("events_enabled", []map[string]any{
 		{
 			"audit_log_create":                  l.EventsEnabled[fusionauth.EventType_AuditLogCreate],
 			"event_log_create":                  l.EventsEnabled[fusionauth.EventType_EventLogCreate],
@@ -642,7 +642,7 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 	return nil
 }
 
-func updateWebhook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateWebhook(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	l := buildWebhook(data)
 
@@ -660,7 +660,7 @@ func updateWebhook(_ context.Context, data *schema.ResourceData, i interface{}) 
 	return nil
 }
 
-func deleteWebhook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteWebhook(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -688,9 +688,9 @@ func resourceWebhookV0() *schema.Resource {
 	}
 }
 
-func resourceWebhookUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceWebhookUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err

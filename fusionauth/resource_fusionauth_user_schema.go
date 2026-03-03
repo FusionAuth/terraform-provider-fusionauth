@@ -353,10 +353,10 @@ func userSchemaV1() *schema.Resource {
 	}
 }
 
-func upgradeUserSchemaV0ToV1(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func upgradeUserSchemaV0ToV1(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if len(rawState) == 0 {
 		// if raw state is nil or empty, return.
-		return map[string]interface{}{}, nil
+		return map[string]any{}, nil
 	}
 
 	// Remove deprecated fields from state.
@@ -366,7 +366,7 @@ func upgradeUserSchemaV0ToV1(_ context.Context, rawState map[string]interface{},
 
 	// Migrate data types.
 	if currentValue, ok := rawState["data"]; ok && currentValue != nil {
-		if v, ok := currentValue.(map[string]interface{}); ok && len(v) > 0 {
+		if v, ok := currentValue.(map[string]any); ok && len(v) > 0 {
 			bytes, err := json.Marshal(currentValue)
 			if err != nil {
 				return rawState, err

@@ -12,10 +12,10 @@ import (
 func newKey() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: createKey,
-		ReadContext: func(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+		ReadContext: func(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 			return keyRead(data, buildResourceDataFromKey, i)
 		},
-		UpdateContext: func(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+		UpdateContext: func(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 			return keyUpdate(data, buildKey, i)
 		},
 		DeleteContext: keyDelete,
@@ -84,7 +84,7 @@ func buildKey(data *schema.ResourceData) fusionauth.Key {
 	return l
 }
 
-func createKey(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createKey(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	l := buildKey(data)
 

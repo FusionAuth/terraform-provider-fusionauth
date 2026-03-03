@@ -113,7 +113,7 @@ func dataSourceLDAPConnector() *schema.Resource {
 	}
 }
 
-func dataSourceLDAPConnectorRead(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceLDAPConnectorRead(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	var searchTerm string
@@ -168,7 +168,7 @@ func dataSourceLDAPConnectorRead(ctx context.Context, data *schema.ResourceData,
 
 // Helper function to set all connector fields in the schema data
 func setLDAPConnectorFields(data *schema.ResourceData, connector fusionauth.LDAPConnectorConfiguration) diag.Diagnostics {
-	fields := map[string]interface{}{
+	fields := map[string]any{
 		"id":                      connector.Id,
 		"name":                    connector.Name,
 		"authentication_url":      connector.AuthenticationURL,
@@ -190,8 +190,8 @@ func setLDAPConnectorFields(data *schema.ResourceData, connector fusionauth.LDAP
 	}
 	fields["data"] = dataJSON
 
-	if err := data.Set("lambda_configuration", []interface{}{
-		map[string]interface{}{
+	if err := data.Set("lambda_configuration", []any{
+		map[string]any{
 			"reconcile_id": connector.LambdaConfiguration.ReconcileId,
 		},
 	}); err != nil {

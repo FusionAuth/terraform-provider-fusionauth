@@ -77,7 +77,7 @@ func resourceEntityType() *schema.Resource {
 	}
 }
 
-func createEntityType(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func createEntityType(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	req, diags := dataToEntityTypeRequest(data)
 	if diags != nil {
 		return diags
@@ -95,7 +95,7 @@ func createEntityType(_ context.Context, data *schema.ResourceData, i interface{
 	return entityTypeResponseToData(data, res)
 }
 
-func readEntityType(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func readEntityType(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	client := i.(Client)
 	res, faErrs, err := client.FAClient.RetrieveEntityType(data.Id())
 	if err != nil {
@@ -113,7 +113,7 @@ func readEntityType(_ context.Context, data *schema.ResourceData, i interface{})
 	return entityTypeResponseToData(data, res)
 }
 
-func updateEntityType(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func updateEntityType(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	client := i.(Client)
 	req, diags := dataToEntityTypeRequest(data)
 	if diags != nil {
@@ -131,7 +131,7 @@ func updateEntityType(_ context.Context, data *schema.ResourceData, i interface{
 	return entityTypeResponseToData(data, resp)
 }
 
-func deleteEntityType(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func deleteEntityType(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	client := i.(Client)
 
 	resourceID := data.Id()
@@ -183,7 +183,7 @@ func dataEntryToEntityJWTConfiguration(data *schema.ResourceData) fusionauth.Ent
 func entityTypeResponseToData(data *schema.ResourceData, res *fusionauth.EntityTypeResponse) (diags diag.Diagnostics) {
 	data.SetId(res.EntityType.Id)
 
-	dataMapping := map[string]interface{}{
+	dataMapping := map[string]any{
 		"entity_type_id":    res.EntityType.Id,
 		"data":              res.EntityType.Data,
 		"jwt_configuration": flattenEntityJwtConfiguration(res.EntityType.JwtConfiguration),
@@ -193,10 +193,10 @@ func entityTypeResponseToData(data *schema.ResourceData, res *fusionauth.EntityT
 	return setResourceData("entity_type", data, dataMapping)
 }
 
-func flattenEntityJwtConfiguration(conf fusionauth.EntityJWTConfiguration) []interface{} {
+func flattenEntityJwtConfiguration(conf fusionauth.EntityJWTConfiguration) []any {
 	// jwt_configuration expects a list with a single entry.
-	return []interface{}{
-		map[string]interface{}{
+	return []any{
+		map[string]any{
 			"enabled":                 conf.Enabled,
 			"access_token_key_id":     conf.AccessTokenKeyId,
 			"time_to_live_in_seconds": conf.TimeToLiveInSeconds,

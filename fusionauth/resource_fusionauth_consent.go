@@ -115,7 +115,7 @@ func newConsent() *schema.Resource {
 
 func buildConsent(data *schema.ResourceData) fusionauth.Consent {
 	countryMinAgeMap := make(map[string]int)
-	for country, ageInterface := range data.Get("country_minimum_age_for_self_consent").(map[string]interface{}) {
+	for country, ageInterface := range data.Get("country_minimum_age_for_self_consent").(map[string]any) {
 		if age, ok := ageInterface.(int); ok {
 			countryMinAgeMap[country] = age
 		}
@@ -135,13 +135,13 @@ func buildConsent(data *schema.ResourceData) fusionauth.Consent {
 		Id:                    data.Get("consent_id").(string),
 		MultipleValuesAllowed: data.Get("multiple_values_allowed").(bool),
 		Name:                  data.Get("name").(string),
-		Values:                handleStringSliceFromList(data.Get("values").([]interface{})),
+		Values:                handleStringSliceFromList(data.Get("values").([]any)),
 	}
 
 	return consent
 }
 
-func createConsent(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createConsent(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	consent := buildConsent(data)
 
@@ -159,7 +159,7 @@ func createConsent(_ context.Context, data *schema.ResourceData, i interface{}) 
 	return nil
 }
 
-func readConsent(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readConsent(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -192,8 +192,8 @@ func readConsent(_ context.Context, data *schema.ResourceData, i interface{}) di
 	if err := data.Set("default_minimum_age_for_self_consent", consent.DefaultMinimumAgeForSelfConsent); err != nil {
 		return diag.Errorf("consent.default_minimum_age_for_self_consent: %s", err.Error())
 	}
-	if err := data.Set("email_plus", []interface{}{
-		map[string]interface{}{
+	if err := data.Set("email_plus", []any{
+		map[string]any{
 			"email_template_id":                   consent.EmailPlus.EmailTemplateId,
 			"enabled":                             consent.EmailPlus.Enabled,
 			"maximum_time_to_send_email_in_hours": consent.EmailPlus.MaximumTimeToSendEmailInHours,
@@ -215,7 +215,7 @@ func readConsent(_ context.Context, data *schema.ResourceData, i interface{}) di
 	return nil
 }
 
-func updateConsent(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateConsent(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	consent := buildConsent(data)
 
@@ -233,7 +233,7 @@ func updateConsent(_ context.Context, data *schema.ResourceData, i interface{}) 
 	return nil
 }
 
-func deleteConsent(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteConsent(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 

@@ -71,7 +71,7 @@ func dataSourceTwilioMessenger() *schema.Resource {
 	}
 }
 
-func dataSourceTwilioMessengerRead(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceTwilioMessengerRead(ctx context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	var searchTerm string
@@ -126,7 +126,7 @@ func dataSourceTwilioMessengerRead(ctx context.Context, data *schema.ResourceDat
 
 // Helper function to set all Twilio messenger fields in the schema data
 func setTwilioMessengerFields(data *schema.ResourceData, messenger fusionauth.TwilioMessengerConfiguration) diag.Diagnostics {
-	fields := map[string]interface{}{
+	fields := map[string]any{
 		"messenger_id":          messenger.Id,
 		"name":                  messenger.Name,
 		"account_sid":           messenger.AccountSID,

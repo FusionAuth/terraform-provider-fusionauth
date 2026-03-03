@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func createTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createTenant(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	tenant, diags := buildTenant(data)
 	if diags != nil {
@@ -50,7 +50,7 @@ func createTenant(_ context.Context, data *schema.ResourceData, i interface{}) d
 	return buildResourceDataFromTenant(resp.Tenant, data)
 }
 
-func readTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readTenant(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -70,7 +70,7 @@ func readTenant(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	return buildResourceDataFromTenant(resp.Tenant, data)
 }
 
-func updateTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateTenant(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	tenant, diags := buildTenant(data)
 	if diags != nil {
@@ -98,7 +98,7 @@ func updateTenant(_ context.Context, data *schema.ResourceData, i interface{}) d
 	return buildResourceDataFromTenant(resp.Tenant, data)
 }
 
-func deleteTenant(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteTenant(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	resp, faErrs, err := client.FAClient.DeleteTenant(data.Id())
 	if err != nil {
@@ -124,9 +124,9 @@ func resourceTenantV0() *schema.Resource {
 	}
 }
 
-func resourceTenantUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceTenantUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err
@@ -143,8 +143,8 @@ func resourceTenantUpgradeV0(_ context.Context, rawState map[string]interface{},
 func validateSCIMConfiguration(d *schema.ResourceData) error {
 	// Check if SCIM is enabled
 	scimEnabled := false
-	if scimServerConfig, ok := d.GetOk("scim_server_configuration"); ok && len(scimServerConfig.([]interface{})) > 0 {
-		config := scimServerConfig.([]interface{})[0].(map[string]interface{})
+	if scimServerConfig, ok := d.GetOk("scim_server_configuration"); ok && len(scimServerConfig.([]any)) > 0 {
+		config := scimServerConfig.([]any)[0].(map[string]any)
 		if enabled, ok := config["enabled"].(bool); ok && enabled {
 			scimEnabled = true
 		}
@@ -153,11 +153,11 @@ func validateSCIMConfiguration(d *schema.ResourceData) error {
 	// If SCIM is enabled, check for required lambda fields
 	if scimEnabled {
 		lambdaConfig, hasLambdaConfig := d.GetOk("lambda_configuration")
-		if !hasLambdaConfig || len(lambdaConfig.([]interface{})) == 0 {
+		if !hasLambdaConfig || len(lambdaConfig.([]any)) == 0 {
 			return fmt.Errorf("lambda_configuration is required when scim_server_configuration.enabled is true")
 		}
 
-		lambdaConfigMap := lambdaConfig.([]interface{})[0].(map[string]interface{})
+		lambdaConfigMap := lambdaConfig.([]any)[0].(map[string]any)
 		requiredFields := []string{
 			"scim_enterprise_user_request_converter_id",
 			"scim_enterprise_user_response_converter_id",

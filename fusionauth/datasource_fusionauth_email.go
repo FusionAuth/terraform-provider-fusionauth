@@ -73,7 +73,7 @@ func dataSourceEmail() *schema.Resource {
 	}
 }
 
-func dataSourceEmailRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceEmailRead(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, err := client.FAClient.RetrieveEmailTemplates()

@@ -15,7 +15,7 @@ import (
 // where a plugin may expose extra values over and above the core values.
 // Will test using case-insensitivity if ignoreCase is true.
 func WarnStringInSlice(valid []string, ignoreCase bool) schema.SchemaValidateDiagFunc {
-	return func(i interface{}, path cty.Path) (diags diag.Diagnostics) {
+	return func(i any, path cty.Path) (diags diag.Diagnostics) {
 		value, ok := i.(string)
 		if !ok {
 			return diag.Diagnostics{diag.Diagnostic{

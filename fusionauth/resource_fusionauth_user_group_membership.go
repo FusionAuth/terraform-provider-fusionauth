@@ -78,7 +78,7 @@ func buildUserGroupMembership(data *schema.ResourceData) fusionauth.MemberReques
 	return mr
 }
 
-func createUserGroupMembership(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createUserGroupMembership(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	mr := buildUserGroupMembership(data)
 
@@ -95,7 +95,7 @@ func createUserGroupMembership(_ context.Context, data *schema.ResourceData, i i
 	return nil
 }
 
-func readUserGroupMembership(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readUserGroupMembership(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	gmsreq := fusionauth.GroupMemberSearchRequest{
@@ -150,7 +150,7 @@ func readUserGroupMembership(_ context.Context, data *schema.ResourceData, i int
 	return nil
 }
 
-func updateUserGroupMembership(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateUserGroupMembership(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	mr := buildUserGroupMembership(data)
 
@@ -167,7 +167,7 @@ func updateUserGroupMembership(_ context.Context, data *schema.ResourceData, i i
 	return nil
 }
 
-func deleteUserGroupMembership(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteUserGroupMembership(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	mdr := fusionauth.MemberDeleteRequest{
 		MemberIds: []string{data.Id()},
@@ -197,9 +197,9 @@ func resourceUserGroupMembershipV0() *schema.Resource {
 	}
 }
 
-func resourceUserGroupMembershipUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceUserGroupMembershipUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err

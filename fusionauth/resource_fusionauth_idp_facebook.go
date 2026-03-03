@@ -200,7 +200,7 @@ func resourceIDPFacebook() *schema.Resource {
 	}
 }
 
-func createIDPFacebook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPFacebook(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	fbIDP := buildIDPFacebook(data)
 	b, err := json.Marshal(fbIDP)
 	if err != nil {
@@ -222,7 +222,7 @@ func createIDPFacebook(_ context.Context, data *schema.ResourceData, i interface
 	return buildResourceFromIDPFacebook(fbIDP.IdentityProvider, data)
 }
 
-func readIDPFacebook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPFacebook(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -242,7 +242,7 @@ func readIDPFacebook(_ context.Context, data *schema.ResourceData, i interface{}
 	return buildResourceFromIDPFacebook(ipb.IdentityProvider, data)
 }
 
-func updateIDPFacebook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPFacebook(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	fbIDP := buildIDPFacebook(data)
 	b, err := json.Marshal(fbIDP)
 	if err != nil {
@@ -295,8 +295,8 @@ func buildIDPFacebook(data *schema.ResourceData) FacebookIdentityProviderBody {
 
 // buildFacebookAppConfig transforms the incoming application configuration as
 // recorded in Terraform to the format as required by the FusionAuth API.
-func buildFacebookAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildFacebookAppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -305,7 +305,7 @@ func buildFacebookAppConfig(key string, data *schema.ResourceData) map[string]in
 
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
 		m[aid] = FacebookAppConfig{
 			AppID:              ac["app_id"].(string),
@@ -367,9 +367,9 @@ func buildResourceFromIDPFacebook(res fusionauth.FacebookIdentityProvider, data 
 	m := make(map[string]FacebookAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(res.ApplicationConfiguration))
 	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"application_id":      k,
 			"app_id":              v.AppID,
 			"button_text":         v.ButtonText,

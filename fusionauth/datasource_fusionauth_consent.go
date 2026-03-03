@@ -100,7 +100,7 @@ func dataSourceConsent() *schema.Resource {
 	}
 }
 
-func dataSourceConsentRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceConsentRead(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	// Retrieve consent based on provided identifiers
@@ -172,7 +172,7 @@ func retrieveConsentByName(client Client, name string) (*fusionauth.Consent, dia
 // setConsentProperties sets all properties from the consent to the resource data
 func setConsentProperties(data *schema.ResourceData, consent *fusionauth.Consent) diag.Diagnostics {
 	// Helper function to reduce repeated error handling code
-	setField := func(key string, value interface{}) diag.Diagnostics {
+	setField := func(key string, value any) diag.Diagnostics {
 		if err := data.Set(key, value); err != nil {
 			return diag.Errorf("error setting consent.%s: %s", key, err.Error())
 		}
@@ -215,8 +215,8 @@ func setConsentProperties(data *schema.ResourceData, consent *fusionauth.Consent
 	}
 
 	// Set the email_plus nested object
-	emailPlus := []interface{}{
-		map[string]interface{}{
+	emailPlus := []any{
+		map[string]any{
 			"email_template_id":                   consent.EmailPlus.EmailTemplateId,
 			"enabled":                             consent.EmailPlus.Enabled,
 			"maximum_time_to_send_email_in_hours": consent.EmailPlus.MaximumTimeToSendEmailInHours,

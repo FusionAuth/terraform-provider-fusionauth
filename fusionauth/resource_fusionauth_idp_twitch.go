@@ -181,7 +181,7 @@ func resourceIDPTwitch() *schema.Resource {
 	}
 }
 
-func createIDPTwitch(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPTwitch(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPTwitch(data)
 
 	b, err := json.Marshal(o)
@@ -204,7 +204,7 @@ func createIDPTwitch(_ context.Context, data *schema.ResourceData, i interface{}
 	return nil
 }
 
-func readIDPTwitch(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPTwitch(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -221,7 +221,7 @@ func readIDPTwitch(_ context.Context, data *schema.ResourceData, i interface{}) 
 	return buildResourceDataFromIDPTwitch(data, ipb.IdentityProvider)
 }
 
-func updateIDPTwitch(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPTwitch(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPTwitch(data)
 
 	b, err := json.Marshal(o)
@@ -307,9 +307,9 @@ func buildResourceDataFromIDPTwitch(data *schema.ResourceData, res fusionauth.Tw
 	m := make(map[string]TwitchAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(res.ApplicationConfiguration))
 	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"application_id":      k,
 			"button_text":         v.ButtonText,
 			"client_id":           v.ClientID,
@@ -331,8 +331,8 @@ func buildResourceDataFromIDPTwitch(data *schema.ResourceData, res fusionauth.Tw
 	return nil
 }
 
-func buildTwitchAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildTwitchAppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -340,7 +340,7 @@ func buildTwitchAppConfig(key string, data *schema.ResourceData) map[string]inte
 	}
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
 		oc := TwitchAppConfig{
 			ButtonText:         ac["button_text"].(string),

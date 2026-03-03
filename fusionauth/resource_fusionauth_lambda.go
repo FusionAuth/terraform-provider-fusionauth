@@ -108,7 +108,7 @@ func buildLambda(data *schema.ResourceData) fusionauth.Lambda {
 	return l
 }
 
-func createLambda(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createLambda(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	l := buildLambda(data)
 	resp, faErrs, err := client.FAClient.CreateLambda(l.Id, fusionauth.LambdaRequest{
@@ -125,7 +125,7 @@ func createLambda(_ context.Context, data *schema.ResourceData, i interface{}) d
 	return nil
 }
 
-func readLambda(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readLambda(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -162,7 +162,7 @@ func readLambda(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	return nil
 }
 
-func updateLambda(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateLambda(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	l := buildLambda(data)
 
@@ -180,7 +180,7 @@ func updateLambda(_ context.Context, data *schema.ResourceData, i interface{}) d
 	return nil
 }
 
-func deleteLambda(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteLambda(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 

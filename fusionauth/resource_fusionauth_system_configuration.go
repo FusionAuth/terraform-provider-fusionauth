@@ -296,13 +296,13 @@ func resourceSystemConfiguration() *schema.Resource {
 	}
 }
 
-func createSystemConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createSystemConfiguration(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	data.SetId("syscfg")
 	return updateSysCfg(buildSystemConfigurationRequest(data), client)
 }
 
-func readSystemConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readSystemConfiguration(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	resp, err := client.FAClient.RetrieveSystemConfiguration()
 	if err != nil {
@@ -320,12 +320,12 @@ func readSystemConfiguration(_ context.Context, data *schema.ResourceData, i int
 	return buildResourceFromSystemConfiguration(resp.SystemConfiguration, data)
 }
 
-func updateSystemConfiguration(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateSystemConfiguration(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	return updateSysCfg(buildSystemConfigurationRequest(data), client)
 }
 
-func deleteSystemConfiguration(_ context.Context, _ *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteSystemConfiguration(_ context.Context, _ *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	return updateSysCfg(getDefaultSystemConfigurationRequest(), client)
 }
@@ -341,7 +341,7 @@ func updateSysCfg(req fusionauth.SystemConfigurationRequest, client Client) diag
 	return nil
 }
 
-func handleTrustProxyConfigurationTrusted(trusted []interface{}) []string {
+func handleTrustProxyConfigurationTrusted(trusted []any) []string {
 	if len(trusted) == 0 {
 		return nil
 	}
@@ -433,7 +433,7 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 	}
 
 	if _, isSet := getValueAndIsSet[[]string](data, "trusted_proxy_configuration.0.trusted"); isSet {
-		sc.SystemConfiguration.TrustedProxyConfiguration.Trusted = handleTrustProxyConfigurationTrusted(data.Get("trusted_proxy_configuration.0.trusted").([]interface{}))
+		sc.SystemConfiguration.TrustedProxyConfiguration.Trusted = handleTrustProxyConfigurationTrusted(data.Get("trusted_proxy_configuration.0.trusted").([]any))
 	}
 
 	if val, isSet := getValueAndIsSet[string](data, "ui_configuration.0.header_color"); isSet {
@@ -468,9 +468,9 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 }
 
 func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, data *schema.ResourceData) diag.Diagnostics {
-	err := data.Set("audit_log_configuration", []map[string]interface{}{
+	err := data.Set("audit_log_configuration", []map[string]any{
 		{
-			"delete": []map[string]interface{}{
+			"delete": []map[string]any{
 				{
 					"enabled":                  sc.AuditLogConfiguration.Delete.Enabled,
 					"number_of_days_to_retain": sc.AuditLogConfiguration.Delete.NumberOfDaysToRetain,
@@ -482,7 +482,7 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		return diag.Errorf("system_configuration.audit_log_configuration: %s", err.Error())
 	}
 
-	err = data.Set("cors_configuration", []map[string]interface{}{
+	err = data.Set("cors_configuration", []map[string]any{
 		{
 			"allow_credentials":            sc.CorsConfiguration.AllowCredentials,
 			"allowed_headers":              sc.CorsConfiguration.AllowedHeaders,
@@ -507,7 +507,7 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		return diag.Errorf("system_configuration.data: %s", err.Error())
 	}
 
-	err = data.Set("event_log_configuration", []map[string]interface{}{
+	err = data.Set("event_log_configuration", []map[string]any{
 		{
 			"number_to_retain": sc.EventLogConfiguration.NumberToRetain,
 		},
@@ -516,9 +516,9 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		return diag.Errorf("system_configuration.event_log_configuration: %s", err.Error())
 	}
 
-	err = data.Set("login_record_configuration", []map[string]interface{}{
+	err = data.Set("login_record_configuration", []map[string]any{
 		{
-			"delete": []map[string]interface{}{
+			"delete": []map[string]any{
 				{
 					"enabled":                  sc.LoginRecordConfiguration.Delete.Enabled,
 					"number_of_days_to_retain": sc.LoginRecordConfiguration.Delete.NumberOfDaysToRetain,
@@ -534,7 +534,7 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		return diag.Errorf("system_configuration.report_timezone: %s", err.Error())
 	}
 
-	err = data.Set("trusted_proxy_configuration", []map[string]interface{}{
+	err = data.Set("trusted_proxy_configuration", []map[string]any{
 		{
 			"trust_policy": sc.TrustedProxyConfiguration.TrustPolicy,
 			"trusted":      sc.TrustedProxyConfiguration.Trusted,
@@ -544,7 +544,7 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		return diag.Errorf("system_configuration.trusted_proxy_configuration: %s", err.Error())
 	}
 
-	err = data.Set("ui_configuration", []map[string]interface{}{
+	err = data.Set("ui_configuration", []map[string]any{
 		{
 			"header_color":    sc.UiConfiguration.HeaderColor,
 			"logo_url":        sc.UiConfiguration.LogoURL,
@@ -555,7 +555,7 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		return diag.Errorf("system_configuration.ui_configuration: %s", err.Error())
 	}
 
-	if err := data.Set("usage_data_configuration", []map[string]interface{}{
+	if err := data.Set("usage_data_configuration", []map[string]any{
 		{
 			"enabled": sc.UsageDataConfiguration.Enabled,
 		},
@@ -563,10 +563,10 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 		return diag.Errorf("system_configuration.usage_data_configuration: %s", err.Error())
 	}
 
-	err = data.Set("webhook_event_log_configuration", []map[string]interface{}{
+	err = data.Set("webhook_event_log_configuration", []map[string]any{
 		{
 			"enabled": sc.WebhookEventLogConfiguration.Enabled,
-			"delete": []map[string]interface{}{
+			"delete": []map[string]any{
 				{
 					"enabled":                  sc.WebhookEventLogConfiguration.Delete.Enabled,
 					"number_of_days_to_retain": sc.WebhookEventLogConfiguration.Delete.NumberOfDaysToRetain,
@@ -665,9 +665,9 @@ func resourceSystemConfigurationV0() *schema.Resource {
 	}
 }
 
-func resourceSystemConfigurationUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceSystemConfigurationUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err

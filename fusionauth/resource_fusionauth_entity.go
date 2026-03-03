@@ -73,7 +73,7 @@ func resourceEntity() *schema.Resource {
 	}
 }
 
-func createEntity(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func createEntity(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	resourceReq, diags := dataToEntityRequest(data)
 	if diags != nil {
 		return diags
@@ -97,7 +97,7 @@ func createEntity(_ context.Context, data *schema.ResourceData, i interface{}) (
 	return entityResponseToData(data, res)
 }
 
-func importEntity(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+func importEntity(ctx context.Context, d *schema.ResourceData, m any) ([]*schema.ResourceData, error) {
 	// Support importing in the format "tenant_id:entity_id"
 	parts := strings.SplitN(d.Id(), ":", 2)
 
@@ -119,7 +119,7 @@ func importEntity(ctx context.Context, d *schema.ResourceData, m interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func readEntity(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func readEntity(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	client := i.(Client)
 	revertTid := clientTenantIDOverride(&client, data)
 	defer revertTid()
@@ -140,7 +140,7 @@ func readEntity(_ context.Context, data *schema.ResourceData, i interface{}) (di
 	return entityResponseToData(data, res)
 }
 
-func updateEntity(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func updateEntity(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	client := i.(Client)
 	revertTid := clientTenantIDOverride(&client, data)
 	defer revertTid()
@@ -161,7 +161,7 @@ func updateEntity(_ context.Context, data *schema.ResourceData, i interface{}) (
 	return entityResponseToData(data, res)
 }
 
-func deleteEntity(_ context.Context, data *schema.ResourceData, i interface{}) (diags diag.Diagnostics) {
+func deleteEntity(_ context.Context, data *schema.ResourceData, i any) (diags diag.Diagnostics) {
 	client := i.(Client)
 	revertTid := clientTenantIDOverride(&client, data)
 	defer revertTid()
@@ -207,7 +207,7 @@ func dataToEntityRequest(data *schema.ResourceData) (req fusionauth.EntityReques
 func entityResponseToData(data *schema.ResourceData, res *fusionauth.EntityResponse) (diags diag.Diagnostics) {
 	data.SetId(res.Entity.Id)
 
-	dataMapping := map[string]interface{}{
+	dataMapping := map[string]any{
 		"client_id":      res.Entity.ClientId,
 		"client_secret":  res.Entity.ClientSecret,
 		"data":           res.Entity.Data,

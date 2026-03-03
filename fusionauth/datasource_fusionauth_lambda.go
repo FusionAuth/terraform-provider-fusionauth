@@ -79,7 +79,7 @@ func dataSourceLambda() *schema.Resource {
 	}
 }
 
-func dataSourceLambdaRead(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func dataSourceLambdaRead(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	lambdaType := data.Get("type").(string)

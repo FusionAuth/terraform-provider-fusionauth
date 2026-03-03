@@ -18,7 +18,7 @@ type GoogleAppConfig struct {
 	ButtonText         string                           `json:"buttonText,omitempty"`
 	ClientID           string                           `json:"client_id,omitempty"`
 	ClientSecret       string                           `json:"client_secret,omitempty"`
-	Properties         GoogleIdentityProviderProperties `json:"properties,omitempty"`
+	Properties         GoogleIdentityProviderProperties `json:"properties"`
 	Scope              string                           `json:"scope,omitempty"`
 	CreateRegistration bool                             `json:"createRegistration"`
 	Enabled            bool                             `json:"enabled"`
@@ -276,8 +276,8 @@ func buildIDPGoogle(data *schema.ResourceData) GoogleIdentityProviderBody {
 	return GoogleIdentityProviderBody{IdentityProvider: o}
 }
 
-func buildGoogleAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildGoogleAppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -285,12 +285,12 @@ func buildGoogleAppConfig(key string, data *schema.ResourceData) map[string]inte
 	}
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
-		propertiesList := ac["properties"].([]interface{})
+		propertiesList := ac["properties"].([]any)
 		var properties GoogleIdentityProviderProperties
 		if len(propertiesList) > 0 {
-			prop := propertiesList[0].(map[string]interface{})
+			prop := propertiesList[0].(map[string]any)
 			properties = GoogleIdentityProviderProperties{
 				API:    getStringOrDefault(prop, "api", ""),
 				Button: getStringOrDefault(prop, "button", ""),
@@ -310,7 +310,7 @@ func buildGoogleAppConfig(key string, data *schema.ResourceData) map[string]inte
 	return m
 }
 
-func getStringOrDefault(m map[string]interface{}, key string, defaultValue string) string {
+func getStringOrDefault(m map[string]any, key string, defaultValue string) string {
 	if v, ok := m[key]; ok && v != nil {
 		if s, ok := v.(string); ok {
 			return s
@@ -319,7 +319,7 @@ func getStringOrDefault(m map[string]interface{}, key string, defaultValue strin
 	return defaultValue
 }
 
-func createIDPGoogle(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPGoogle(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPGoogle(data)
 
 	b, err := json.Marshal(o)
@@ -343,7 +343,7 @@ func createIDPGoogle(_ context.Context, data *schema.ResourceData, i interface{}
 	return nil
 }
 
-func readIDPGoogle(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPGoogle(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -388,7 +388,7 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	if err := data.Set("name", o.Name); err != nil {
 		return diag.Errorf("idpGoogle.name: %s", err.Error())
 	}
-	if err := data.Set("properties", []map[string]interface{}{
+	if err := data.Set("properties", []map[string]any{
 		{
 			"api":    o.Properties.Api,
 			"button": o.Properties.Button,
@@ -408,16 +408,16 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	m := make(map[string]GoogleAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(o.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(o.ApplicationConfiguration))
 	for k, v := range m {
-		properties := []map[string]interface{}{}
+		properties := []map[string]any{}
 		if v.Properties.API != "" || v.Properties.Button != "" {
-			properties = append(properties, map[string]interface{}{
+			properties = append(properties, map[string]any{
 				"api":    v.Properties.API,
 				"button": v.Properties.Button,
 			})
 		}
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"application_id":      k,
 			"button_text":         v.ButtonText,
 			"client_id":           v.ClientID,
@@ -440,7 +440,7 @@ func buildResourceFromIDPGoogle(o fusionauth.GoogleIdentityProvider, data *schem
 	return nil
 }
 
-func updateIDPGoogle(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPGoogle(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPGoogle(data)
 
 	b, err := json.Marshal(o)

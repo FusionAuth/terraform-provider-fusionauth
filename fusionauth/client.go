@@ -18,7 +18,7 @@ type Client struct {
 	APIKey   string
 }
 
-func configureClient(_ context.Context, data *schema.ResourceData) (client interface{}, diags diag.Diagnostics) {
+func configureClient(_ context.Context, data *schema.ResourceData) (client any, diags diag.Diagnostics) {
 	host := data.Get("host").(string)
 	apiKey := data.Get("api_key").(string)
 

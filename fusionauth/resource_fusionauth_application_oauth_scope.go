@@ -112,7 +112,7 @@ func buildApplicationOAuthScope(data *schema.ResourceData) fusionauth.Applicatio
 	return oas
 }
 
-func createApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	oas := buildApplicationOAuthScope(data)
 
@@ -134,7 +134,7 @@ func createApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i
 	return nil
 }
 
-func importApplicationOAuthScope(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func importApplicationOAuthScope(_ context.Context, d *schema.ResourceData, _ any) ([]*schema.ResourceData, error) {
 	// Split the import ID on :
 	idParts := strings.Split(d.Id(), ":")
 	if len(idParts) != 2 {
@@ -152,7 +152,7 @@ func importApplicationOAuthScope(_ context.Context, d *schema.ResourceData, _ in
 	return []*schema.ResourceData{d}, nil
 }
 
-func readApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	aid := data.Get("application_id").(string)
 	id := data.Id()
@@ -204,7 +204,7 @@ func readApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i i
 	return nil
 }
 
-func updateApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	oas := buildApplicationOAuthScope(data)
 	id := data.Id()
@@ -221,7 +221,7 @@ func updateApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i
 	return nil
 }
 
-func deleteApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteApplicationOAuthScope(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	aid := data.Get("application_id").(string)
 	id := data.Id()
@@ -250,9 +250,9 @@ func resourceApplicationOAuthScopeV0() *schema.Resource {
 	}
 }
 
-func resourceApplicationOAuthScopeUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceApplicationOAuthScopeUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err

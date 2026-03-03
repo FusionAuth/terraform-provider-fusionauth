@@ -92,7 +92,7 @@ func resourceForm() *schema.Resource {
 	}
 }
 
-func createForm(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createForm(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	f := buildForm(data)
 	var fid string
@@ -110,7 +110,7 @@ func createForm(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	return buildResourceDataFromForm(data, resp.Form)
 }
 
-func readForm(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readForm(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -130,7 +130,7 @@ func readForm(_ context.Context, data *schema.ResourceData, i interface{}) diag.
 	return buildResourceDataFromForm(data, resp.Form)
 }
 
-func updateForm(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateForm(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	f := buildForm(data)
 
@@ -145,7 +145,7 @@ func updateForm(_ context.Context, data *schema.ResourceData, i interface{}) dia
 	return buildResourceDataFromForm(data, resp.Form)
 }
 
-func deleteForm(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteForm(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -162,11 +162,11 @@ func deleteForm(_ context.Context, data *schema.ResourceData, i interface{}) dia
 
 func buildForm(data *schema.ResourceData) fusionauth.Form {
 	s := data.Get("steps")
-	slice, _ := s.([]interface{})
+	slice, _ := s.([]any)
 	steps := make([]fusionauth.FormStep, 0, len(slice))
 	for _, i := range slice {
-		m := i.(map[string]interface{})
-		fields := m["fields"].([]interface{})
+		m := i.(map[string]any)
+		fields := m["fields"].([]any)
 		var f []string
 		for _, x := range fields {
 			f = append(f, x.(string))
@@ -200,9 +200,9 @@ func buildResourceDataFromForm(data *schema.ResourceData, f fusionauth.Form) dia
 		return diag.Errorf("form.name: %s", err.Error())
 	}
 
-	fs := make([]map[string]interface{}, 0, len(f.Steps))
+	fs := make([]map[string]any, 0, len(f.Steps))
 	for _, step := range f.Steps {
-		fs = append(fs, map[string]interface{}{
+		fs = append(fs, map[string]any{
 			"fields": step.Fields,
 			"type":   string(step.Type),
 		},
@@ -230,9 +230,9 @@ func resourceFormV0() *schema.Resource {
 	}
 }
 
-func resourceFormUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceFormUpgradeV0(_ context.Context, rawState map[string]any, _ any) (map[string]any, error) {
 	if v, ok := rawState["data"]; ok {
-		if dataMap, ok := v.(map[string]interface{}); ok {
+		if dataMap, ok := v.(map[string]any); ok {
 			jsonBytes, err := json.Marshal(dataMap)
 			if err != nil {
 				return nil, err

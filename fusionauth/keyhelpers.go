@@ -12,7 +12,7 @@ import (
 type keyReadFunc func(*schema.ResourceData, fusionauth.Key) diag.Diagnostics
 type keyBuildFunc func(*schema.ResourceData) fusionauth.Key
 
-func keyUpdate(data *schema.ResourceData, f keyBuildFunc, i interface{}) diag.Diagnostics {
+func keyUpdate(data *schema.ResourceData, f keyBuildFunc, i any) diag.Diagnostics {
 	client := i.(Client)
 	l := f(data)
 
@@ -27,7 +27,7 @@ func keyUpdate(data *schema.ResourceData, f keyBuildFunc, i interface{}) diag.Di
 	return nil
 }
 
-func keyDelete(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func keyDelete(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -42,7 +42,7 @@ func keyDelete(_ context.Context, data *schema.ResourceData, i interface{}) diag
 	return nil
 }
 
-func keyRead(data *schema.ResourceData, f keyReadFunc, i interface{}) diag.Diagnostics {
+func keyRead(data *schema.ResourceData, f keyReadFunc, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 

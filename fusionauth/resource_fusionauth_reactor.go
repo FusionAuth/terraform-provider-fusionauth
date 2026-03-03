@@ -39,7 +39,7 @@ func buildReactor(data *schema.ResourceData) fusionauth.ReactorRequest {
 	return reactor
 }
 
-func createReactor(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createReactor(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	reactor := buildReactor(data)
 
@@ -60,7 +60,7 @@ func createReactor(_ context.Context, data *schema.ResourceData, i interface{}) 
 	return nil
 }
 
-func updateReactor(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateReactor(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	reactor := buildReactor(data)
 
@@ -79,7 +79,7 @@ func updateReactor(_ context.Context, data *schema.ResourceData, i interface{}) 
 	return nil
 }
 
-func deleteReactor(_ context.Context, _ *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteReactor(_ context.Context, _ *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, err := client.FAClient.DeactivateReactor()
@@ -94,7 +94,7 @@ func deleteReactor(_ context.Context, _ *schema.ResourceData, i interface{}) dia
 	return nil
 }
 
-func readReactor(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readReactor(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 
 	resp, err := client.FAClient.RetrieveReactorStatus()

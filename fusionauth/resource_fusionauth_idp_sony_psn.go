@@ -181,7 +181,7 @@ func resourceIDPSonyPSN() *schema.Resource {
 	}
 }
 
-func createIDPSonyPSN(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPSonyPSN(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPSonyPSN(data)
 
 	b, err := json.Marshal(o)
@@ -204,7 +204,7 @@ func createIDPSonyPSN(_ context.Context, data *schema.ResourceData, i interface{
 	return nil
 }
 
-func readIDPSonyPSN(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPSonyPSN(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -221,7 +221,7 @@ func readIDPSonyPSN(_ context.Context, data *schema.ResourceData, i interface{})
 	return buildResourceDataFromIDPSonyPSN(data, ipb.IdentityProvider)
 }
 
-func updateIDPSonyPSN(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPSonyPSN(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPSonyPSN(data)
 
 	b, err := json.Marshal(o)
@@ -306,9 +306,9 @@ func buildResourceDataFromIDPSonyPSN(data *schema.ResourceData, res fusionauth.S
 	m := make(map[string]SonyPSNAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(res.ApplicationConfiguration))
 	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"application_id":      k,
 			"button_text":         v.ButtonText,
 			"client_id":           v.ClientID,
@@ -330,8 +330,8 @@ func buildResourceDataFromIDPSonyPSN(data *schema.ResourceData, res fusionauth.S
 	return nil
 }
 
-func buildSonyPSNAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildSonyPSNAppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -339,7 +339,7 @@ func buildSonyPSNAppConfig(key string, data *schema.ResourceData) map[string]int
 	}
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
 		oc := SonyPSNAppConfig{
 			ButtonText:         ac["button_text"].(string),

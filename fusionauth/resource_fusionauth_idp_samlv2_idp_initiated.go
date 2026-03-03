@@ -203,7 +203,7 @@ func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 	}
 }
 
-func createIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func createIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPSAMLv2IdPInitiated(data)
 
 	b, err := json.Marshal(o)
@@ -226,7 +226,7 @@ func createIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i
 	return nil
 }
 
-func readIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func readIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	b, err := readIdentityProvider(data.Id(), client)
 	if err != nil {
@@ -243,7 +243,7 @@ func readIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i i
 	return buildResourceDataFromIDPSAMLv2IdPInitiated(data, ipb.IdentityProvider)
 }
 
-func updateIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func updateIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	o := buildIDPSAMLv2IdPInitiated(data)
 
 	b, err := json.Marshal(o)
@@ -299,9 +299,9 @@ func buildIDPSAMLv2IdPInitiated(data *schema.ResourceData) SAMLIDPInitiatedIdent
 }
 
 func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res fusionauth.SAMLv2IdPInitiatedIdentityProvider) diag.Diagnostics {
-	if err := data.Set("assertion_configuration", []map[string]interface{}{
+	if err := data.Set("assertion_configuration", []map[string]any{
 		{
-			"decryption": []map[string]interface{}{
+			"decryption": []map[string]any{
 				{
 					"enabled":                         res.AssertionDecryptionConfiguration.Enabled,
 					"key_transport_decryption_key_id": res.AssertionDecryptionConfiguration.KeyTransportDecryptionKeyId,
@@ -355,9 +355,9 @@ func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res f
 	m := make(map[string]SAMLIDPInitiatedAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+	ac := make([]map[string]any, 0, len(res.ApplicationConfiguration))
 	for k, v := range m {
-		ac = append(ac, map[string]interface{}{
+		ac = append(ac, map[string]any{
 			"application_id":      k,
 			"create_registration": v.CreateRegistration,
 			"enabled":             v.Enabled,
@@ -375,8 +375,8 @@ func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res f
 	return nil
 }
 
-func buildIDPSAMLv2IdPInitiatedAppConfig(key string, data *schema.ResourceData) map[string]interface{} {
-	m := make(map[string]interface{})
+func buildIDPSAMLv2IdPInitiatedAppConfig(key string, data *schema.ResourceData) map[string]any {
+	m := make(map[string]any)
 	s := data.Get(key)
 	set, ok := s.(*schema.Set)
 	if !ok {
@@ -384,7 +384,7 @@ func buildIDPSAMLv2IdPInitiatedAppConfig(key string, data *schema.ResourceData) 
 	}
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["application_id"].(string)
 		oc := SAMLIDPInitiatedAppConfig{
 			CreateRegistration: ac["create_registration"].(bool),

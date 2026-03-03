@@ -17,7 +17,7 @@ import (
 
 const NotFoundError string = "404(Not Found)"
 
-func deleteIdentityProvider(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+func deleteIdentityProvider(_ context.Context, data *schema.ResourceData, i any) diag.Diagnostics {
 	client := i.(Client)
 	id := data.Id()
 
@@ -145,10 +145,10 @@ func updateIdentityProvider(b []byte, id string, client Client) ([]byte, error) 
 	return bb, nil
 }
 
-func buildTenantConfigurationResource(tcm map[string]fusionauth.IdentityProviderTenantConfiguration) []map[string]interface{} {
-	t := make([]map[string]interface{}, 0, len(tcm))
+func buildTenantConfigurationResource(tcm map[string]fusionauth.IdentityProviderTenantConfiguration) []map[string]any {
+	t := make([]map[string]any, 0, len(tcm))
 	for k, v := range tcm {
-		t = append(t, map[string]interface{}{
+		t = append(t, map[string]any{
 			"tenant_id":                           k,
 			"limit_user_link_count_enabled":       v.LimitUserLinkCount.Enabled,
 			"limit_user_link_count_maximum_links": v.LimitUserLinkCount.MaximumLinks,
@@ -167,7 +167,7 @@ func buildTenantConfiguration(data *schema.ResourceData) map[string]fusionauth.I
 
 	l := set.List()
 	for _, x := range l {
-		ac := x.(map[string]interface{})
+		ac := x.(map[string]any)
 		aid := ac["tenant_id"].(string)
 		oc := fusionauth.IdentityProviderTenantConfiguration{
 			LimitUserLinkCount: fusionauth.IdentityProviderLimitUserLinkingPolicy{

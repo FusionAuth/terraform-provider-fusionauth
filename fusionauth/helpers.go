@@ -3,6 +3,7 @@ package fusionauth
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"net/http"
 	"reflect"
 	"strings"
@@ -16,7 +17,7 @@ func handleStringSlice(key string, data *schema.ResourceData) []string {
 	return handleStringSliceFromSet(data.Get(key).(*schema.Set))
 }
 
-func handleStringSliceFromList(list []interface{}) []string {
+func handleStringSliceFromList(list []any) []string {
 	s := make([]string, 0, len(list))
 
 	for _, x := range list {
@@ -52,12 +53,12 @@ func checkResponse(statusCode int, faErrors *fusionauth.Errors) error {
 
 // isEqualJSON checks to see if the two JSON encoded strings are equal.
 func isEqualJSON(a, b string) (equal bool, err error) {
-	var x interface{}
+	var x any
 	if err = json.Unmarshal([]byte(a), &x); err != nil {
 		return false, fmt.Errorf("error unmarshaling %s to JSON: %s", a, err)
 	}
 
-	var y interface{}
+	var y any
 	if err = json.Unmarshal([]byte(b), &y); err != nil {
 		return false, fmt.Errorf("error unmarshaling %s to JSON: %s", b, err)
 	}
@@ -68,9 +69,7 @@ func isEqualJSON(a, b string) (equal bool, err error) {
 // injectSchemaChanges pushes the provided schema edits into the provided schema.
 // Primarily for working with multiple schema versions.
 func injectSchemaChanges(schemaToEdit, schemaEdits *schema.Resource) *schema.Resource {
-	for attributeName, schemaEdit := range schemaEdits.Schema {
-		schemaToEdit.Schema[attributeName] = schemaEdit
-	}
+	maps.Copy(schemaToEdit.Schema, schemaEdits.Schema)
 
 	return schemaToEdit
 }
@@ -78,8 +77,8 @@ func injectSchemaChanges(schemaToEdit, schemaEdits *schema.Resource) *schema.Res
 // jsonStringToMapStringInterface reads data for a "data" key, which it expects
 // to be a json encoded string and transforms the json data to a map[string]interface{}
 // to comply to the expected type for the fusionauth client.
-func jsonStringToMapStringInterface(in string) (out map[string]interface{}, diags diag.Diagnostics) {
-	out = map[string]interface{}{}
+func jsonStringToMapStringInterface(in string) (out map[string]any, diags diag.Diagnostics) {
+	out = map[string]any{}
 	if strings.TrimSpace(in) == "" {
 		return out, nil
 	}
@@ -104,7 +103,7 @@ func jsonStringToMapStringInterface(in string) (out map[string]interface{}, diag
 
 // mapStringInterfaceToJSONString transforms a map[string]interface{} to a JSON
 // string.
-func mapStringInterfaceToJSONString(in map[string]interface{}) (out string, diags diag.Diagnostics) {
+func mapStringInterfaceToJSONString(in map[string]any) (out string, diags diag.Diagnostics) {
 	if len(in) == 0 {
 		return "", nil
 	}
@@ -133,11 +132,11 @@ func mapStringInterfaceToJSONString(in map[string]interface{}) (out string, diag
 //   - This performs simple top level loading and returning a build up of errors.
 //   - Any sub-objects/maps/lists requiring specific ordering will need to be
 //     handled manually.
-func setResourceData(resource string, data *schema.ResourceData, dataMapping map[string]interface{}) (diags diag.Diagnostics) {
+func setResourceData(resource string, data *schema.ResourceData, dataMapping map[string]any) (diags diag.Diagnostics) {
 	for k, v := range dataMapping {
 		switch k {
 		case "data":
-			if resourceData, dataDiags := mapStringInterfaceToJSONString(v.(map[string]interface{})); dataDiags != nil {
+			if resourceData, dataDiags := mapStringInterfaceToJSONString(v.(map[string]any)); dataDiags != nil {
 				diags = append(diags, dataDiags...)
 			} else if err := data.Set("data", resourceData); err != nil {
 				diags = append(diags, diag.Diagnostic{
@@ -159,7 +158,7 @@ func setResourceData(resource string, data *schema.ResourceData, dataMapping map
 	return diags
 }
 
-func intMapToStringMap(intMap map[string]interface{}) map[string]string {
+func intMapToStringMap(intMap map[string]any) map[string]string {
 	m := map[string]string{}
 	for k, v := range intMap {
 		if s, ok := v.(string); ok {
@@ -208,7 +207,7 @@ func getValueAndIsSet[T any](d *schema.ResourceData, key string) (T, bool) {
 		case []string:
 			// Handle both []interface{} and *schema.Set
 			switch v := val.(type) {
-			case []interface{}:
+			case []any:
 				return any(handleStringSliceFromList(v)).(T), true
 			case *schema.Set:
 				return any(handleStringSliceFromSet(v)).(T), true
