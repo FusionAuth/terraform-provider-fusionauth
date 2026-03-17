@@ -97,7 +97,11 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			UnknownScopePolicy:          fusionauth.UnknownScopePolicy(data.Get("oauth_configuration.0.unknown_scope_policy").(string)),
 		},
 		PasswordlessConfiguration: fusionauth.PasswordlessConfiguration{
-			Enableable: buildEnableable("passwordless_configuration_enabled", data),
+			Enableable: fusionauth.Enableable{
+				Enabled: data.Get("passwordless_configuration_enabled").(bool) || data.Get("passwordless_configuration.0.enabled").(bool),
+			},
+			EmailLoginStrategy: fusionauth.PasswordlessStrategy(data.Get("passwordless_configuration.0.email_login_strategy").(string)),
+			PhoneLoginStrategy: fusionauth.PasswordlessStrategy(data.Get("passwordless_configuration.0.phone_login_strategy").(string)),
 		},
 		PhoneConfiguration: fusionauth.ApplicationPhoneConfiguration{
 			ForgotPasswordTemplateId:        data.Get("phone_configuration.0.forgot_password_template_id").(string),
@@ -247,6 +251,22 @@ func buildRequireable(key string, data *schema.ResourceData) fusionauth.Requirab
 		Enableable: buildEnableable(key+".0.enabled", data),
 		Required:   data.Get(key + ".0.required").(bool),
 	}
+}
+
+func resolvePasswordlessEnabledState(apiEnabled, priorLegacyEnabled, priorBlockEnabled bool) (bool, bool) {
+	legacyEnabled := apiEnabled
+	blockEnabled := apiEnabled
+
+	if apiEnabled {
+		if priorLegacyEnabled && !priorBlockEnabled {
+			blockEnabled = false
+		}
+		if priorBlockEnabled && !priorLegacyEnabled {
+			legacyEnabled = false
+		}
+	}
+
+	return legacyEnabled, blockEnabled
 }
 
 func buildResourceDataFromApplication(a fusionauth.Application, data *schema.ResourceData) diag.Diagnostics {
@@ -426,8 +446,25 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.oauth_configuration: %s", err.Error())
 	}
 
-	if err := data.Set("passwordless_configuration_enabled", a.PasswordlessConfiguration.Enabled); err != nil {
+	priorLegacyEnabled := data.Get("passwordless_configuration_enabled").(bool)
+	priorBlockEnabled := data.Get("passwordless_configuration.0.enabled").(bool)
+	legacyEnabled, blockEnabled := resolvePasswordlessEnabledState(
+		a.PasswordlessConfiguration.Enabled,
+		priorLegacyEnabled,
+		priorBlockEnabled,
+	)
+
+	if err := data.Set("passwordless_configuration_enabled", legacyEnabled); err != nil {
 		return diag.Errorf("application.passwordless_configuration_enabled: %s", err.Error())
+	}
+	if err := data.Set("passwordless_configuration", []map[string]interface{}{
+		{
+			"enabled":              blockEnabled,
+			"email_login_strategy": a.PasswordlessConfiguration.EmailLoginStrategy,
+			"phone_login_strategy": a.PasswordlessConfiguration.PhoneLoginStrategy,
+		},
+	}); err != nil {
+		return diag.Errorf("application.passwordless_configuration: %s", err.Error())
 	}
 
 	err = data.Set("phone_configuration", []map[string]interface{}{

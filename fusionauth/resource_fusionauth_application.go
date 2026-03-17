@@ -296,6 +296,43 @@ func newApplication() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 				Description: "Determines if passwordless login is enabled for this application.",
+				Deprecated:  "This parameter has been deprecated in favor of the more robust passwordless_configuration block. Please use that block to configure passwordless login for this application.",
+			},
+			"passwordless_configuration": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Determines if passwordless login is enabled for this application.",
+						},
+						"email_login_strategy": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The strategy to use for passwordless logins that utilize email. This configuration is only relevant if passwordless_configuration.enabled is set to true.",
+							Default:     fusionauth.PasswordlessStrategy_ClickableLink.String(),
+							ValidateFunc: validation.StringInSlice([]string{
+								fusionauth.PasswordlessStrategy_ClickableLink.String(),
+								fusionauth.PasswordlessStrategy_FormField.String(),
+							}, false),
+						},
+						"phone_login_strategy": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The strategy to use for passwordless logins that utilize phone. This configuration is only relevant if passwordless_configuration.enabled is set to true.",
+							Default:     fusionauth.PasswordlessStrategy_FormField.String(),
+							ValidateFunc: validation.StringInSlice([]string{
+								fusionauth.PasswordlessStrategy_ClickableLink.String(),
+								fusionauth.PasswordlessStrategy_FormField.String(),
+							}, false),
+						},
+					},
+				},
 			},
 			"phone_configuration": {
 				Type:             schema.TypeList,
