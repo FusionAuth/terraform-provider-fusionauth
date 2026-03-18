@@ -314,8 +314,8 @@ func newApplication() *schema.Resource {
 						"email_login_strategy": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: "The strategy to use for passwordless logins that utilize email. This configuration is only relevant if passwordless_configuration.enabled is set to true.",
-							Default:     fusionauth.PasswordlessStrategy_ClickableLink.String(),
 							ValidateFunc: validation.StringInSlice([]string{
 								fusionauth.PasswordlessStrategy_ClickableLink.String(),
 								fusionauth.PasswordlessStrategy_FormField.String(),
@@ -324,8 +324,8 @@ func newApplication() *schema.Resource {
 						"phone_login_strategy": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: "The strategy to use for passwordless logins that utilize phone. This configuration is only relevant if passwordless_configuration.enabled is set to true.",
-							Default:     fusionauth.PasswordlessStrategy_FormField.String(),
 							ValidateFunc: validation.StringInSlice([]string{
 								fusionauth.PasswordlessStrategy_ClickableLink.String(),
 								fusionauth.PasswordlessStrategy_FormField.String(),
