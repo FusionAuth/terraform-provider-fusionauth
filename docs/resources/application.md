@@ -216,7 +216,11 @@ resource "fusionauth_application" "Forum" {
   * `scope_handling_policy` Controls the policy for handling of OAuth scopes when populating JWTs and the UserInfo response. The possible values are:
     * `Compatibility` - OAuth workflows will populate JWT and UserInfo claims in a manner compatible with versions of FusionAuth before version 1.50.0.
     * `Strict` - OAuth workflows will populate token and UserInfo claims according to the OpenID Connect 1.0 specification based on requested and consented scopes.
-* `passwordless_configuration_enabled` - (Optional) Determines if passwordless login is enabled for this application.
+* `passwordless_configuration_enabled` - (Optional, Deprecated) Determines if passwordless login is enabled for this application. This parameter has been deprecated in favor of the more robust `passwordless_configuration` block. Please use that block to configure passwordless login for this application.
+* `passwordless_configuration` - (Optional)
+  * `enabled` - (Optional) Determines if passwordless login is enabled for this application.
+  * `email_login_strategy` - (Optional) The strategy to use for passwordless logins that utilize email. This configuration is only relevant if `passwordless_configuration.enabled` is set to true. Possible values are `ClickableLink` or `FormField`.
+  * `phone_login_strategy` - (Optional) The strategy to use for passwordless logins that utilize phone. This configuration is only relevant if `passwordless_configuration.enabled` is set to true. Possible values are `ClickableLink` or `FormField`.
 * `phone_configuration` - (Optional)
   * `forgot_password_template_id` - (Optional) The Id of the Message Template that is used when sending a user a forgot password message.
   * `identity_update_template_id` - (Optional) The Id of the Message Template used to send a message to a user when their phone number has been updated. The message will be sent to both their new and old phone numbers.

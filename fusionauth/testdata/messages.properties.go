@@ -17,6 +17,59 @@ date-time-format=M/d/yyyy hh:mm a z
 date-time-seconds-format=M/d/yyyy hh:mm:ss a z
 
 #
+# Page titles, used in browser tab labels
+#
+account-edit-page-title=Edit Profile
+account-index-page-title=Account
+account-two-factor-enable-page-title=Two-Factor Setup
+account-two-factor-disable-page-title=Disable Two-Factor
+account-two-factor-index-page-title=Two-Factor
+account-webauthn-add-page-title=Add Passkey
+account-webauthn-delete-page-title=Delete Passkey
+account-webauthn-index-page-title=Passkeys
+confirmation-required-page-title=Confirmation Required
+email-complete-page-title=Email Verified
+email-sent-page-title=Verification Sent
+email-verification-required-page-title=Verification Required
+email-verify-page-title=Verify Email
+index-page-title=FusionAuth
+oauth2-authorize-page-title=Login
+oauth2-authorized-not-registered-page-title=Registration Required
+oauth2-child-registration-not-allowed-page-title=Provide Parent Email
+oauth2-child-registration-not-allowed-complete-page-title=Parent Notified
+oauth2-complete-registration-page-title=Complete Registration
+oauth2-consent-page-title=Consent Required
+oauth2-device-page-title=Connect Device
+oauth2-device-complete-page-title=Device Connected
+oauth2-error-page-title=Error
+oauth2-logout-page-title=Logout
+oauth2-passwordless-page-title=Passwordless Login
+oauth2-register-page-title=Register
+oauth2-start-idp-link-page-title=Link Account
+oauth2-two-factor-page-title=Two-Factor Challenge
+oauth2-two-factor-enable-page-title=Enable Two-Factor
+oauth2-two-factor-enable-complete-page-title=Recovery Codes
+oauth2-two-factor-methods-page-title=Two-Factor Challenge
+oauth2-wait-page-title=Complete Login
+oauth2-webauthn-page-title=Passkey Login
+oauth2-webauthn-reauth-page-title=Passkey Login
+oauth2-webauthn-reauth-enable-page-title=Register Passkey
+password-change-page-title=Update Password
+password-complete-page-title=Password Updated
+password-forgot-page-title=Forgot Password
+password-sent-page-title=Message Sent
+phone-complete-page-title=Phone Verified
+phone-sent-page-title=Verification Sent
+phone-verification-required-page-title=Verification Required
+phone-verify-page-title=Verify Phone
+registration-complete-page-title=Registration Verified
+registration-sent-page-title=Verification Sent
+registration-verification-required-page-title=Verification Required
+registration-verify-page-title=Verify Registration
+samlv2-logout-page-title=Logout
+unauthorized-page-title=Unauthorized
+
+#
 # Text used on the page (inside the HTML). You can create new key-value pairs here and use them in the templates.
 #
 access-denied=Access denied
@@ -720,6 +773,5 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [RateLimitedException]=Your request has been rate limited. Please wait a few minutes before making another request.
 
 [MessengerError]=An error occurred while trying to send the message. Please contact your system administrator.
-
 `, name)
 }
