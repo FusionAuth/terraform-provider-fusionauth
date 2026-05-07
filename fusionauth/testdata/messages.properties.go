@@ -10,6 +10,10 @@ func MessageProperties(name string) string {
 
 	return fmt.Sprintf(`
 #
+# Copyright (c) 2026, FusionAuth, All Rights Reserved
+#
+
+#
 # Date and Time formats
 #
 date-format=M/d/yyyy
@@ -210,7 +214,7 @@ send-another-code=Send another code
 send-code-to-phone=Send a code to your mobile phone
 set-up=Set up
 signature-count=Signature count
-sms=SMS
+sms=Phone
 sign-in-as-different-user=Sign in as a different user
 start-idp-link-title=Link your account
 two-factor-challenge=Authentication challenge
@@ -226,6 +230,7 @@ unauthorized-message-blocked-ip=The owner of this website (%s) has blocked your 
 undefined=Undefined
 unnamed=Unnamed
 value=Value
+voice=Voice
 wait-title=Complete login on your external device
 waiting=Waiting
 warning=Warning
@@ -259,6 +264,7 @@ lastName=Last name
 loginId=Login
 middleName=Middle name
 mobilePhone=Mobile phone
+oneTimeCode=One-time code
 password=Password
 passwordConfirm=Confirm password
 parentEmail=Parent's email
@@ -317,14 +323,17 @@ send-one-time-code=Send a one-time code
 #
 no-two-factor-methods-configured=No methods have been configured
 select-two-factor-method=Select a method
+select-two-factor-message-type=Select a message type
 two-factor-authentication=Two-factor authentication
 two-factor-method=Method
 two-factor-method-authenticator=Authenticator
 two-factor-method-email=Email message
 two-factor-method-sms=Text message
+two-factor-method-voice=Voice call
 two-factor-get-code-at-authenticator=Get a code from your authenticator app
 two-factor-get-code-at-email=Get a code at %s\u2026
-two-factor-get-code-at-sms=Get a code at (***) ***-**%s
+two-factor-get-code-at-sms=Send code via SMS to (***) ***-**%s
+two-factor-get-code-at-voice=Send code via voice message to (***) ***-**%s
 
 # Form input place-holders
 {placeholder}two-factor-code=Enter the one-time code
@@ -346,9 +355,13 @@ email-enable-step-1=To enable two-factor using email, enter an email address and
 oauth2-email-enable-step-1=To enable two-factor using email, enter an email address and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
 
 # SMS Enable / Disable
-sms-disable-step-1=To disable two-factor using SMS, click the button to send a one-time use code to %s. Once you receive the code, enter it in the form below.
-sms-enable-step-1=To enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
-oauth2-sms-enable-step-1=To enable two-factor using SMS, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
+sms-disable-step-1=To disable two-factor using phone, click the button to send a one-time use code to %s. Once you receive the code, enter it in the form below.
+sms-enable-step-1=To enable two-factor using phone, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
+sms-enable-smsMessage-step-1=To enable two-factor using phone, enter a mobile phone and click the button to send a one-time use code via SMS message. Once you receive the code, enter it in the form below.
+sms-enable-voiceMessage-step-1=To enable two-factor using phone, enter a mobile phone and click the button to send a one-time use code via voice message. Once you receive the code, enter it in the form below.
+oauth2-sms-enable-step-1=To enable two-factor using phone, enter a mobile phone and click the button to send a one-time use code. Once you receive the code, enter it in the form below.
+oauth2-sms-enable-smsMessage-step-1=To enable two-factor using phone, enter a mobile phone and click the button to send a one-time use code via SMS message. Once you receive the code, enter it in the form below.
+oauth2-sms-enable-voiceMessage-step-1=To enable two-factor using phone, enter a mobile phone and click the button to send a one-time use code via voice message. Once you receive the code, enter it in the form below.
 
 authenticator-configuration=Authenticator configuration
 verification-code=Verification code
@@ -773,5 +786,6 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [RateLimitedException]=Your request has been rate limited. Please wait a few minutes before making another request.
 
 [MessengerError]=An error occurred while trying to send the message. Please contact your system administrator.
+
 `, name)
 }

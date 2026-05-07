@@ -3,6 +3,7 @@ package fusionauth
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -32,6 +33,12 @@ func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 				Description:  "The ID to use for the new identity provider. If not specified a secure random UUID will be generated.",
 				ValidateFunc: validation.IsUUID,
 				ForceNew:     true,
+			},
+			"attribute_mappings": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "A map of Identity Provider claim or response values to FusionAuth user attributes or registration fields.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"application_configuration": {
 				Optional:    true,
@@ -163,6 +170,14 @@ func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 				Optional:    true,
 				Description: "The name of the claim in the SAML response that FusionAuth uses to identity the username. If this is not set, the NameID value will be used to link a user. This property is required when `linking_stategy` is set to LinkByUsername or LinkByUsernameForExistingUser",
 			},
+			"source": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringLenBetween(0, 191),
+				Description:  "The source of this Identity Provider. The maximum length is 191 characters. This value is only used on create. If updated, a new Identity Provider will be created.",
+			},
 			"tenant_configuration": {
 				Optional:    true,
 				Type:        schema.TypeSet,
@@ -254,6 +269,9 @@ func updateIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
+		if data.HasChange("linking_strategy") && strings.Contains(err.Error(), "unexpected status code: 400(") {
+			return identityProviderLinkingStrategyUpdateWarning()
+		}
 		return diag.FromErr(err)
 	}
 
@@ -270,13 +288,15 @@ func buildIDPSAMLv2IdPInitiated(data *schema.ResourceData) SAMLIDPInitiatedIdent
 	s := fusionauth.SAMLv2IdPInitiatedIdentityProvider{
 		BaseSAMLv2IdentityProvider: fusionauth.BaseSAMLv2IdentityProvider{
 			BaseIdentityProvider: fusionauth.BaseIdentityProvider{
-				Debug:      data.Get("debug").(bool),
-				Enableable: buildEnableable("enabled", data),
+				AttributeMappings: intMapToStringMap(data.Get("attribute_mappings").(map[string]interface{})),
+				Debug:             data.Get("debug").(bool),
+				Enableable:        buildEnableable("enabled", data),
 				LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 					ReconcileId: data.Get("lambda_reconcile_id").(string),
 				},
 				LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 				Name:            data.Get("name").(string),
+				Source:          data.Get("source").(string),
 				TenantId:        data.Get("tenant_id").(string),
 				Type:            fusionauth.IdentityProviderType_SAMLv2IdPInitiated,
 			},
@@ -299,6 +319,9 @@ func buildIDPSAMLv2IdPInitiated(data *schema.ResourceData) SAMLIDPInitiatedIdent
 }
 
 func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res fusionauth.SAMLv2IdPInitiatedIdentityProvider) diag.Diagnostics {
+	if err := data.Set("attribute_mappings", res.AttributeMappings); err != nil {
+		return diag.Errorf("idpSAMLv2IdpInitiated.attribute_mappings: %s", err.Error())
+	}
 	if err := data.Set("assertion_configuration", []map[string]interface{}{
 		{
 			"decryption": []map[string]interface{}{
@@ -335,6 +358,9 @@ func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res f
 	}
 	if err := data.Set("name", res.Name); err != nil {
 		return diag.Errorf("idpSAMLv2IdpInitiated.name: %s", err.Error())
+	}
+	if err := data.Set("source", res.Source); err != nil {
+		return diag.Errorf("idpSAMLv2IdpInitiated.source: %s", err.Error())
 	}
 	if err := data.Set("tenant_id", res.TenantId); err != nil {
 		return diag.Errorf("idpSAMLv2IdpInitiated.tenant_id: %s", err.Error())

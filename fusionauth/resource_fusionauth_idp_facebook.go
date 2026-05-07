@@ -3,6 +3,7 @@ package fusionauth
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -35,6 +36,12 @@ func resourceIDPFacebook() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The top-level Facebook appId for your Application. This value is retrieved from the Facebook developer website when you setup your Facebook developer account.",
+			},
+			"attribute_mappings": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "A map of Identity Provider claim or response values to FusionAuth user attributes or registration fields.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"application_configuration": {
 				Optional:    true,
@@ -160,6 +167,14 @@ func resourceIDPFacebook() *schema.Resource {
 				Default:     "email",
 				Description: "The top-level permissions that your application is asking of the user’s Facebook account.",
 			},
+			"source": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringLenBetween(0, 191),
+				Description:  "The source of this Identity Provider. The maximum length is 191 characters. This value is only used on create. If updated, a new Identity Provider will be created.",
+			},
 			"tenant_configuration": {
 				Optional:    true,
 				Type:        schema.TypeSet,
@@ -252,6 +267,9 @@ func updateIDPFacebook(_ context.Context, data *schema.ResourceData, i interface
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
+		if data.HasChange("linking_strategy") && strings.Contains(err.Error(), "unexpected status code: 400(") {
+			return identityProviderLinkingStrategyUpdateWarning()
+		}
 		return diag.FromErr(err)
 	}
 
@@ -267,13 +285,15 @@ func updateIDPFacebook(_ context.Context, data *schema.ResourceData, i interface
 func buildIDPFacebook(data *schema.ResourceData) FacebookIdentityProviderBody {
 	fbIDP := fusionauth.FacebookIdentityProvider{
 		BaseIdentityProvider: fusionauth.BaseIdentityProvider{
-			Debug:      data.Get("debug").(bool),
-			Enableable: buildEnableable("enabled", data),
+			AttributeMappings: intMapToStringMap(data.Get("attribute_mappings").(map[string]interface{})),
+			Debug:             data.Get("debug").(bool),
+			Enableable:        buildEnableable("enabled", data),
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 			Name:            data.Get("name").(string),
+			Source:          data.Get("source").(string),
 			TenantId:        data.Get("tenant_id").(string),
 			Type:            fusionauth.IdentityProviderType_Facebook,
 		},
@@ -324,6 +344,9 @@ func buildFacebookAppConfig(key string, data *schema.ResourceData) map[string]in
 // buildResourceFromIDPFacebook writes changes back to terraform data with the
 // provided facebook identity provider response.
 func buildResourceFromIDPFacebook(res fusionauth.FacebookIdentityProvider, data *schema.ResourceData) diag.Diagnostics {
+	if err := data.Set("attribute_mappings", res.AttributeMappings); err != nil {
+		return diag.Errorf("idpFacebook.attribute_mappings: %s", err.Error())
+	}
 	if err := data.Set("app_id", res.AppId); err != nil {
 		return diag.Errorf("idpFacebook.app_id: %s", err.Error())
 	}
@@ -356,6 +379,9 @@ func buildResourceFromIDPFacebook(res fusionauth.FacebookIdentityProvider, data 
 	}
 	if err := data.Set("permissions", res.Permissions); err != nil {
 		return diag.Errorf("idpFacebook.permissions: %s", err.Error())
+	}
+	if err := data.Set("source", res.Source); err != nil {
+		return diag.Errorf("idpFacebook.source: %s", err.Error())
 	}
 	if err := data.Set("tenant_id", res.TenantId); err != nil {
 		return diag.Errorf("idpFacebook.tenant_id: %s", err.Error())
