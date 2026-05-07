@@ -3,6 +3,7 @@ package fusionauth
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -30,6 +31,12 @@ func resourceIDPLinkedIn() *schema.Resource {
 		UpdateContext: updateIDPLinkedIn,
 		DeleteContext: deleteIdentityProvider,
 		Schema: map[string]*schema.Schema{
+			"attribute_mappings": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "A map of Identity Provider claim or response values to FusionAuth user attributes or registration fields.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"application_configuration": {
 				Optional:    true,
 				Type:        schema.TypeSet,
@@ -139,6 +146,14 @@ func resourceIDPLinkedIn() *schema.Resource {
 				Default:     "r_emailaddress r_liteprofile",
 				Description: "The top-level scope that you are requesting from LinkedIn.",
 			},
+			"source": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringLenBetween(0, 191),
+				Description:  "The source of this Identity Provider. The maximum length is 191 characters. This value is only used on create. If updated, a new Identity Provider will be created.",
+			},
 			"tenant_configuration": {
 				Optional:    true,
 				Type:        schema.TypeSet,
@@ -231,6 +246,9 @@ func updateIDPLinkedIn(_ context.Context, data *schema.ResourceData, i interface
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
+		if data.HasChange("linking_strategy") && strings.Contains(err.Error(), "unexpected status code: 400(") {
+			return identityProviderLinkingStrategyUpdateWarning()
+		}
 		return diag.FromErr(err)
 	}
 
@@ -246,13 +264,15 @@ func updateIDPLinkedIn(_ context.Context, data *schema.ResourceData, i interface
 func buildIDPLinkedIn(data *schema.ResourceData) LinkedInIdentityProviderBody {
 	linkedInIDP := fusionauth.LinkedInIdentityProvider{
 		BaseIdentityProvider: fusionauth.BaseIdentityProvider{
-			Debug:      data.Get("debug").(bool),
-			Enableable: buildEnableable("enabled", data),
+			AttributeMappings: intMapToStringMap(data.Get("attribute_mappings").(map[string]interface{})),
+			Debug:             data.Get("debug").(bool),
+			Enableable:        buildEnableable("enabled", data),
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 			Name:            data.Get("name").(string),
+			Source:          data.Get("source").(string),
 			TenantId:        data.Get("tenant_id").(string),
 			Type:            fusionauth.IdentityProviderType_LinkedIn,
 		},
@@ -300,6 +320,9 @@ func buildLinkedInAppConfig(key string, data *schema.ResourceData) map[string]in
 // buildResourceFromIDPLinkedIn writes changes back to terraform data with the
 // provided LinkedIn identity provider response.
 func buildResourceFromIDPLinkedIn(res fusionauth.LinkedInIdentityProvider, data *schema.ResourceData) diag.Diagnostics {
+	if err := data.Set("attribute_mappings", res.AttributeMappings); err != nil {
+		return diag.Errorf("idpLinkedIn.attribute_mappings: %s", err.Error())
+	}
 	if err := data.Set("button_text", res.ButtonText); err != nil {
 		return diag.Errorf("idpLinkedIn.button_text: %s", err.Error())
 	}
@@ -326,6 +349,9 @@ func buildResourceFromIDPLinkedIn(res fusionauth.LinkedInIdentityProvider, data 
 	}
 	if err := data.Set("scope", res.Scope); err != nil {
 		return diag.Errorf("idpLinkedIn.scope: %s", err.Error())
+	}
+	if err := data.Set("source", res.Source); err != nil {
+		return diag.Errorf("idpLinkedIn.source: %s", err.Error())
 	}
 	if err := data.Set("tenant_id", res.TenantId); err != nil {
 		return diag.Errorf("idpLinkedIn.tenant_id: %s", err.Error())

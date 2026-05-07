@@ -3,6 +3,7 @@ package fusionauth
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -34,6 +35,12 @@ func resourceIDPSAMLv2() *schema.Resource {
 				Description:  "The ID to use for the new identity provider. If not specified a secure random UUID will be generated.",
 				ValidateFunc: validation.IsUUID,
 				ForceNew:     true,
+			},
+			"attribute_mappings": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "A map of Identity Provider claim or response values to FusionAuth user attributes or registration fields.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"application_configuration": {
 				Optional:    true,
@@ -301,6 +308,14 @@ func resourceIDPSAMLv2() *schema.Resource {
 					"inclusive_with_comments",
 				}, false),
 			},
+			"source": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringLenBetween(0, 191),
+				Description:  "The source of this Identity Provider. The maximum length is 191 characters. This value is only used on create. If updated, a new Identity Provider will be created.",
+			},
 			"tenant_configuration": {
 				Optional:    true,
 				Type:        schema.TypeSet,
@@ -391,6 +406,9 @@ func updateIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
+		if data.HasChange("linking_strategy") && strings.Contains(err.Error(), "unexpected status code: 400(") {
+			return identityProviderLinkingStrategyUpdateWarning()
+		}
 		return diag.FromErr(err)
 	}
 
@@ -439,13 +457,15 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 				KeyTransportDecryptionKeyId: data.Get("assertion_configuration.0.decryption.0.key_transport_decryption_key_id").(string),
 			},
 			BaseIdentityProvider: fusionauth.BaseIdentityProvider{
-				Debug:      data.Get("debug").(bool),
-				Enableable: buildEnableable("enabled", data),
+				AttributeMappings: intMapToStringMap(data.Get("attribute_mappings").(map[string]interface{})),
+				Debug:             data.Get("debug").(bool),
+				Enableable:        buildEnableable("enabled", data),
 				LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 					ReconcileId: data.Get("lambda_reconcile_id").(string),
 				},
 				LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 				Name:            data.Get("name").(string),
+				Source:          data.Get("source").(string),
 				TenantId:        data.Get("tenant_id").(string),
 				Type:            fusionauth.IdentityProviderType_SAMLv2,
 			},
@@ -480,6 +500,9 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 	return SAMLIdentityProviderBody{IdentityProvider: s}
 }
 func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SAMLv2IdentityProvider) diag.Diagnostics {
+	if err := data.Set("attribute_mappings", res.AttributeMappings); err != nil {
+		return diag.Errorf("idpSAMLv2.attribute_mappings: %s", err.Error())
+	}
 	if err := data.Set("assertion_configuration", []map[string]interface{}{
 		{
 			"destination": []map[string]interface{}{
@@ -565,6 +588,9 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	}
 	if err := data.Set("sign_request", res.SignRequest); err != nil {
 		return diag.Errorf("idpSAMLv2.sign_request: %s", err.Error())
+	}
+	if err := data.Set("source", res.Source); err != nil {
+		return diag.Errorf("idpSAMLv2.source: %s", err.Error())
 	}
 	if err := data.Set("tenant_id", res.TenantId); err != nil {
 		return diag.Errorf("idpSAMLv2.tenant_id: %s", err.Error())

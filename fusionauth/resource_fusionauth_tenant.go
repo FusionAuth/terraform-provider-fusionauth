@@ -1417,6 +1417,13 @@ func newExternalIdentifierConfiguration() *schema.Resource {
 				Description:  "The time in seconds until an external authentication Id is no longer valid and cannot be used by the Token API. Value must be greater than 0.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
+			"identity_provider_connection_test_time_to_live_in_seconds": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				Description:  "The time in seconds until an identity provider connection test Id is no longer valid and cannot be used by the Identity Provider Connection Test API. Value must be greater than 0.",
+				ValidateFunc: validation.IntAtLeast(1),
+			},
 			"login_intent_time_to_live_in_seconds": {
 				Type:         schema.TypeInt,
 				Optional:     true,

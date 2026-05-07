@@ -240,6 +240,7 @@ resource "fusionauth_application" "Forum" {
   * `birth_date` - (Optional)
     * `enabled` - (Optional)
     * `required` - (Optional)
+  * `complete_registration`- (Optional) Users cannot self-register, but can complete missing information from an existing registration. Defaults to `false`. When `true`, any registered user logging in to this application using hosted login pages is prompted to complete missing registration information based on the application's configured registration form. If `application.registrationConfiguration.enabled` is `true`, `completeRegistration` is ignored. In that case, users can create a registration or complete profile information.
   * `confirm_password` - (Optional)
   * `enabled` - (Optional) Determines if self service registration is enabled for this application. When this value is false, you may still use the Registration API, this only affects if the self service option is available during the OAuth 2.0 login.
   * `first_name` - (Optional)

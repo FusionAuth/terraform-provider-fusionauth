@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -33,6 +34,12 @@ func resourceIDPExternalJWT() *schema.Resource {
 				Description:  "The ID to use for the new identity provider. If not specified a secure random UUID will be generated.",
 				ValidateFunc: validation.IsUUID,
 				ForceNew:     true,
+			},
+			"attribute_mappings": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "A map of Identity Provider claim or response values to FusionAuth user attributes or registration fields.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"application_configuration": {
 				Optional:    true,
@@ -167,6 +174,14 @@ func resourceIDPExternalJWT() *schema.Resource {
 				Deprecated:  "This field is deprecated and will be removed in a future release. Prefer the use of oauth2_unique_id_claim.",
 				Description: "The name of the claim that represents the unique identify of the User. This will generally be email or the name of the claim that provides the email address.",
 			},
+			"source": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringLenBetween(0, 191),
+				Description:  "The source of this Identity Provider. The maximum length is 191 characters. This value is only used on create. If updated, a new Identity Provider will be created.",
+			},
 			"tenant_configuration": {
 				Optional:    true,
 				Type:        schema.TypeSet,
@@ -259,6 +274,9 @@ func updateIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interf
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
+		if data.HasChange("linking_strategy") && strings.Contains(err.Error(), "unexpected status code: 400(") {
+			return identityProviderLinkingStrategyUpdateWarning()
+		}
 		return diag.FromErr(err)
 	}
 
@@ -274,13 +292,15 @@ func updateIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interf
 func buildIDPExternalJWT(data *schema.ResourceData) IDPExternalJWTProviderBody {
 	idp := fusionauth.ExternalJWTIdentityProvider{
 		BaseIdentityProvider: fusionauth.BaseIdentityProvider{
-			Debug:      data.Get("debug").(bool),
-			Enableable: buildEnableable("enabled", data),
+			AttributeMappings: intMapToStringMap(data.Get("attribute_mappings").(map[string]interface{})),
+			Debug:             data.Get("debug").(bool),
+			Enableable:        buildEnableable("enabled", data),
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 			Name:            data.Get("name").(string),
+			Source:          data.Get("source").(string),
 			TenantId:        data.Get("tenant_id").(string),
 			Type:            fusionauth.IdentityProviderType_ExternalJWT,
 		},
@@ -329,6 +349,9 @@ func buildIDPExternalJWTAppConfig(key string, data *schema.ResourceData) map[str
 }
 
 func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionauth.ExternalJWTIdentityProvider) diag.Diagnostics {
+	if err := data.Set("attribute_mappings", res.AttributeMappings); err != nil {
+		return diag.Errorf("idpExternalJwt.attribute_mappings: %s", err.Error())
+	}
 	if err := data.Set("claim_map", res.ClaimMap); err != nil {
 		return diag.Errorf("idpExternalJwt.claim_map: %s", err.Error())
 	}
@@ -378,6 +401,9 @@ func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionau
 	}
 	if err := data.Set("oauth2_username_claim", res.Oauth2.UsernameClaim); err != nil {
 		return diag.Errorf("idpExternalJwt.oauth2_username_claim: %s", err.Error())
+	}
+	if err := data.Set("source", res.Source); err != nil {
+		return diag.Errorf("idpExternalJwt.source: %s", err.Error())
 	}
 	if err := data.Set("tenant_id", res.TenantId); err != nil {
 		return diag.Errorf("idpExternalJwt.tenant_id: %s", err.Error())

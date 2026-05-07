@@ -35,12 +35,13 @@ func configureClient(_ context.Context, data *schema.ResourceData) (client inter
 	client = Client{
 		Host:   host,
 		APIKey: apiKey,
-		FAClient: *fusionauth.NewClient(
+		FAClient: *fusionauth.NewClientWithRetryConfiguration(
 			&http.Client{
 				Timeout: time.Second * 30,
 			},
 			hostURL,
 			apiKey,
+			fusionauth.RetryConfigurationFromEnv(),
 		),
 	}
 

@@ -1206,6 +1206,12 @@ func newRegistrationConfiguration() *schema.Resource {
 				Elem:     requireable(),
 				Optional: true,
 			},
+			"complete_registration": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Users cannot self-register, but can complete missing information from an existing registration. Defaults to `false`. When `true`, any registered user logging in to this application using hosted login pages is prompted to complete missing registration information based on the application's configured registration form. If `application.registrationConfiguration.enabled` is `true`, `completeRegistration` is ignored. In that case, users can create a registration or complete profile information.",
+			},
 			"confirm_password": {
 				Type:        schema.TypeBool,
 				Optional:    true,

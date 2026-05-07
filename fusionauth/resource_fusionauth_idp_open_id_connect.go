@@ -3,6 +3,7 @@ package fusionauth
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -41,6 +42,12 @@ func newIDPOpenIDConnect() *schema.Resource {
 				Description:  "The ID to use for the new identity provider. If not specified a secure random UUID will be generated.",
 				ValidateFunc: validation.IsUUID,
 				ForceNew:     true,
+			},
+			"attribute_mappings": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "A map of Identity Provider claim or response values to FusionAuth user attributes or registration fields.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"application_configuration": {
 				Optional:    true,
@@ -225,6 +232,14 @@ func newIDPOpenIDConnect() *schema.Resource {
 				Default:     false,
 				Description: "Set this value equal to true if you wish to use POST bindings with this OpenID Connect identity provider. The default value of false means that a redirect binding which uses a GET request will be used.",
 			},
+			"source": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringLenBetween(0, 191),
+				Description:  "The source of this Identity Provider. The maximum length is 191 characters. This value is only used on create. If updated, a new Identity Provider will be created.",
+			},
 			"tenant_configuration": {
 				Optional:    true,
 				Type:        schema.TypeSet,
@@ -270,13 +285,15 @@ func buildOpenIDConnect(data *schema.ResourceData) OpenIDConnectIdentityProvider
 		ButtonImageURL: data.Get("button_image_url").(string),
 		ButtonText:     data.Get("button_text").(string),
 		BaseIdentityProvider: fusionauth.BaseIdentityProvider{
-			Debug:      data.Get("debug").(bool),
-			Enableable: buildEnableable("enabled", data),
+			AttributeMappings: intMapToStringMap(data.Get("attribute_mappings").(map[string]interface{})),
+			Debug:             data.Get("debug").(bool),
+			Enableable:        buildEnableable("enabled", data),
 			LambdaConfiguration: fusionauth.ProviderLambdaConfiguration{
 				ReconcileId: data.Get("lambda_reconcile_id").(string),
 			},
 			LinkingStrategy: fusionauth.IdentityProviderLinkingStrategy(data.Get("linking_strategy").(string)),
 			Name:            data.Get("name").(string),
+			Source:          data.Get("source").(string),
 			TenantId:        data.Get("tenant_id").(string),
 			Type:            fusionauth.IdentityProviderType_OpenIDConnect,
 		},
@@ -375,6 +392,9 @@ func readOpenIDConnect(_ context.Context, data *schema.ResourceData, i interface
 }
 
 func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, data *schema.ResourceData) diag.Diagnostics {
+	if err := data.Set("attribute_mappings", o.AttributeMappings); err != nil {
+		return diag.Errorf("idpOpenIDConnect.attribute_mappings: %s", err.Error())
+	}
 	if err := data.Set("button_image_url", o.ButtonImageURL); err != nil {
 		return diag.Errorf("idpOpenIDConnect.button_image_url: %s", err.Error())
 	}
@@ -438,6 +458,9 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 	if err := data.Set("post_request", o.PostRequest); err != nil {
 		return diag.Errorf("idpOpenIDConnect.post_request: %s", err.Error())
 	}
+	if err := data.Set("source", o.Source); err != nil {
+		return diag.Errorf("idpOpenIDConnect.source: %s", err.Error())
+	}
 	if err := data.Set("tenant_id", o.TenantId); err != nil {
 		return diag.Errorf("idpOpenIDConnect.tenant_id: %s", err.Error())
 	}
@@ -484,6 +507,9 @@ func updateOpenIDConnect(_ context.Context, data *schema.ResourceData, i interfa
 	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
+		if data.HasChange("linking_strategy") && strings.Contains(err.Error(), "unexpected status code: 400(") {
+			return identityProviderLinkingStrategyUpdateWarning()
+		}
 		return diag.FromErr(err)
 	}
 
