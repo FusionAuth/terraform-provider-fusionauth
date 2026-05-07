@@ -182,5 +182,5 @@ func buildTenantConfiguration(data *schema.ResourceData) map[string]fusionauth.I
 }
 
 func identityProviderLinkingStrategyUpdateWarning() diag.Diagnostics {
-	return diag.FromErr(fmt.Errorf("To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider."))
+	return diag.FromErr(fmt.Errorf("to change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider"))
 }
