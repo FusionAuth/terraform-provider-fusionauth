@@ -21,8 +21,11 @@ jobs:
           FUSIONAUTH_APP_KICKSTART_FILENAME: kickstart.json
           FUSIONAUTH_APP_KICKSTART_DIRECTORY_PATH: .github/kickstart
 
+      - name: Wait for kickstart to have run
+        run: sleep 30
+
       - name: Run tests
-        run: sleep 30 && go test ./fusionauth/... -v
+        run: go test ./fusionauth/... -v
         env:
           TF_ACC: "1"
           FA_DOMAIN: http://localhost:9011
