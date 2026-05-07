@@ -5,7 +5,8 @@
   "apiKeys": [
     {
       "key": "bf69486b-4753-4bf2-9af2-1d08f5dd5f99",
-      "description": "Test API key"
+      "description": "Test API key",
+      "keyManager": true
     }
   ],
   "requests": [
