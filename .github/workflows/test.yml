@@ -1,0 +1,29 @@
+name: test
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: oldstable
+
+      - name: Start FusionAuth
+        uses: fusionauth/fusionauth-github-action@v1
+        with:
+          FUSIONAUTH_APP_KICKSTART_FILENAME: kickstart.json
+          FUSIONAUTH_APP_KICKSTART_DIRECTORY_PATH: .github/kickstart
+
+      - name: Run tests
+        run: sleep 30 && go test ./fusionauth/... -v
+        env:
+          TF_ACC: "1"
+          FA_DOMAIN: http://localhost:9011
+          FA_API_KEY: bf69486b-4753-4bf2-9af2-1d08f5dd5f99

@@ -1,0 +1,24 @@
+{
+  "variables": {
+    "defaultTenantId": "d7d09513-a3f5-401c-9685-34ab6c552453"
+  },
+  "apiKeys": [
+    {
+      "key": "bf69486b-4753-4bf2-9af2-1d08f5dd5f99",
+      "description": "Test API key"
+    }
+  ],
+  "requests": [
+    {
+      "method": "POST",
+      "url": "/api/tenant/#{defaultTenantId}",
+      "tenantId": "#{defaultTenantId}",
+      "body": {
+        "tenant": {
+          "id": "#{defaultTenantId}",
+          "name": "Default"
+        }
+      }
+    }
+  ]
+}
