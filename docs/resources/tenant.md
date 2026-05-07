@@ -511,7 +511,7 @@ resource "fusionauth_tenant" "example" {
   * `email_verification_one_time_code_generator` - (Optional)
     * `length` - (Optional) The length of the secure generator used for generating the email verification one time code. Defaults to 6.
     * `type` - (Optional) The type of the secure generator used for generating the email verification one time code. Defaults to randomAlphaNumeric.
-  * `external_authentication_id_time_to_live_in_seconds` - (Optional) The time in seconds until an identity provider connection test Id is no longer valid and cannot be used by the Identity Provider Test API. Value must be greater than 0.
+  * `external_authentication_id_time_to_live_in_seconds` - (Optional) The time in seconds until an external authentication Id is no longer valid and cannot be used for external authentication. Value must be greater than 0.
   * `identity_provider_connection_test_time_to_live_in_seconds` - (Optional) The time in seconds until an identity provider connection test Id is no longer valid and cannot be used by the Identity Provider Test API. Value must be greater than 0.
   * `login_intent_time_to_live_in_seconds` - (Optional ) The time in seconds until a Login Timeout identifier is no longer valid to complete post-authentication steps in the OAuth workflow. Must be greater than 0. Defaults to 1800.
   * `one_time_password_time_to_live_in_seconds` - (Optional) The time in seconds until a One Time Password is no longer valid and cannot be used by the Login API. Value must be greater than 0. Defaults to 60.

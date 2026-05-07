@@ -47,7 +47,7 @@ resource "fusionauth_idp_twitch" "twitch" {
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user. To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider.
 * `name` - (Optional) The name of the provider. This is only used for display purposes. The display name of this provider instance. Required when using a provided `tenant_id` or `identity_provider.tenant_id`.
-* `scope` - (Optional) The top-level scope that you are requesting from Xbox.
+* `scope` - (Optional) The top-level scope that you are requesting from Twitch.
 * `source` - (Optional) The source of this Identity Provider. The maximum length is 191 characters. This value is only used on create. If updated, a new Identity Provider will be created.
 * `tenant_configuration` - (Optional) The configuration for each Tenant that limits the number of links a user may have for a particular identity provider.
   * `tenant_id` - (Optional) The unique Id of the tenant that this configuration applies to.
