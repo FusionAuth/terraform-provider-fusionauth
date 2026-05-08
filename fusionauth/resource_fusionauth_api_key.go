@@ -94,6 +94,8 @@ func resourceAPIKey() *schema.Resource {
 								"/api/identity-provider",
 								"/api/identity-provider/link",
 								"/api/identity-provider/link/pending",
+								"/api/identity/verify/complete",
+   								"/api/identity/verify/start",
 								"/api/identity-provider/search",
 								"/api/integration",
 								"/api/ip-acl",
