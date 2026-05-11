@@ -267,10 +267,6 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 		return diag.Errorf("user.password_change_required: %s", err.Error())
 	}
 
-	if err := data.Set("two_factor_recovery_codes", resp.User.TwoFactor.RecoveryCodes); err != nil {
-		return diag.Errorf("user.two_factor_recovery_codes: %s", err.Error())
-	}
-
 	currentTwoFactorMethods := dataToTwoFactorMethodMap(data)
 	twoFactorMethodsData := make([]map[string]interface{}, len(resp.User.TwoFactor.Methods))
 	for i, twoFactorMethod := range resp.User.TwoFactor.Methods {
