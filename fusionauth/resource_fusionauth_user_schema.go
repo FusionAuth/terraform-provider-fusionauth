@@ -236,10 +236,9 @@ func userSchemaV1() *schema.Resource {
 			"two_factor_recovery_codes": {
 				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
 				Sensitive:   true,
 				Computed:    true,
-				Description: "A list of recovery codes. These may be used in place of a code provided by an MFA factor. They are single use. If a recovery code is used in a disable request, all MFA methods are removed. If, after that, a Multi-Factor method is added, a new set of recovery codes will be generated.",
+				Description: "A server-generated list of recovery codes. These may be used in place of a code provided by an MFA factor. They are single use. If a recovery code is used in a disable request, all MFA methods are removed. If, after that, a Multi-Factor method is added, a new set of recovery codes will be generated.",
 			},
 			"username": {
 				Type:         schema.TypeString,

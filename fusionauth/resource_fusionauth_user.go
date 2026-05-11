@@ -174,8 +174,7 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 				UsernameStatus:         fusionauth.ContentStatus(data.Get("username_status").(string)),
 			},
 			TwoFactor: fusionauth.UserTwoFactorConfiguration{
-				Methods:       twoFactorMethods,
-				RecoveryCodes: handleStringSlice("two_factor_recovery_codes", data),
+				Methods: twoFactorMethods,
 			},
 		},
 		SendSetPasswordEmail:        data.Get("send_set_password_email").(bool),

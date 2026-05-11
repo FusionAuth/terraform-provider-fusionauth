@@ -68,7 +68,6 @@ resource "fusionauth_user" "example" {
   * `method` - (Optional) The type of this method. There will also be an object with the same value containing additional information about this method.
   * `mobile_phone` - (Optional) The value of the mobile phone for this method.
   * `secret` - (Optional) A base64 encoded secret
-* `two_factor_recovery_codes` - (Optional) A list of recovery codes. These may be used in place of a code provided by an MFA factor. They are single use. If a recovery code is used in a disable request, all MFA methods are removed. If, after that, a Multi-Factor method is added, a new set of recovery codes will be generated.
 * `user_id` - (Optional) The Id to use for the new User. If not specified a secure random UUID will be generated..
 * `username` - (Optional) The username of the User. The username is stored and returned as a case sensitive value, however a username is considered unique regardless of the case. bob is considered equal to BoB so either version of this username can be used whenever providing it as input to an API.
 * `username_status` - (Optional) The current status of the username. This is used if you are moderating usernames via CleanSpeak.
@@ -79,6 +78,7 @@ resource "fusionauth_user" "example" {
 
 In addition to all arguments above, the following attributes are exported:
 
+* `two_factor_recovery_codes` - A server-generated list of recovery codes. These may be used in place of a code provided by an MFA factor. They are single use. If a recovery code is used in a disable request, all MFA methods are removed. If, after that, a Multi-Factor method is added, a new set of recovery codes will be generated.
 * `verification_ids` - The list of all verifications that exist for a user. This includes the email and phone identities that a user may have. The values from emailVerificationId and emailVerificationOneTimeCode are legacy fields and will also be present in this list.
   * `one_time_code` - A one time code that will be paired with the verificationIds[x].id.
   * `type` - The identity type that the verification Id is for. This identity type, along with verificationIds[x].value , matches exactly one identity via user.identities[x].type.
