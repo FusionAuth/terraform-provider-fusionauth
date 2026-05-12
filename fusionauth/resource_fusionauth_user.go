@@ -174,8 +174,7 @@ func dataToUserRequest(data *schema.ResourceData) (req fusionauth.UserRequest, d
 				UsernameStatus:         fusionauth.ContentStatus(data.Get("username_status").(string)),
 			},
 			TwoFactor: fusionauth.UserTwoFactorConfiguration{
-				Methods:       twoFactorMethods,
-				RecoveryCodes: handleStringSlice("two_factor_recovery_codes", data),
+				Methods: twoFactorMethods,
 			},
 		},
 		SendSetPasswordEmail:        data.Get("send_set_password_email").(bool),
@@ -266,10 +265,6 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 	}
 	if err := data.Set("password_change_required", resp.User.PasswordChangeRequired); err != nil {
 		return diag.Errorf("user.password_change_required: %s", err.Error())
-	}
-
-	if err := data.Set("two_factor_recovery_codes", resp.User.TwoFactor.RecoveryCodes); err != nil {
-		return diag.Errorf("user.two_factor_recovery_codes: %s", err.Error())
 	}
 
 	currentTwoFactorMethods := dataToTwoFactorMethodMap(data)
