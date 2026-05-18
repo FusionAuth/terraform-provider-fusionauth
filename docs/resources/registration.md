@@ -31,3 +31,19 @@ resource "fusionauth_registration" "example" {
 * `skip_registration_validation` - (Optional) Indicates to FusionAuth that it should skip registration verification even if it is enabled for the Application.
 * `timezone` - (Optional) The User’s preferred timezone for this registration. The string will be in an IANA time zone format.
 * `username` - (Optional) The username of the User for this registration only.
+
+## Import
+
+In Terraform v1.5.0 and later, use an `import` block to import application scopes using the application ID and scope ID, separated by a colon. For example:
+
+```hcl
+import {
+  to = fusionauth_registration.example
+  id = "user_id:application_id"
+}
+```
+
+Using terraform import, import application roles using the application ID and user ID. For example:
+
+```shell
+terraform import fusionauth_registration.example user_id:application_id
