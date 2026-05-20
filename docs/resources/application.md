@@ -177,6 +177,7 @@ resource "fusionauth_application" "Forum" {
 * `oauth_configuration` - (Optional)
   * `authorized_origin_urls` (Optional) An array of URLs that are the authorized origins for FusionAuth OAuth.
   * `authorized_redirect_urls` - (Optional) An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.
+  * `authorized_resource_uris` - (Optional) An array of URLs that are the authorized resource URIs for FusionAuth OAuth.
   * `authorized_url_validation_policy` - (Optional) Determines whether wildcard expressions will be allowed in the authorized_redirect_urls and authorized_origin_urls.
   * `client_authentication_policy` - (Optional) Determines the client authentication requirements for the OAuth 2.0 Token endpoint.
   * `client_secret` - (Optional) The OAuth 2.0 client secret. If you leave this blank during a POST, a secure secret will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored.

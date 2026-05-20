@@ -964,6 +964,12 @@ func newOAuthConfiguration() *schema.Resource {
 				Optional:    true,
 				Description: "An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.",
 			},
+			"authorized_resource_uris": {
+				Type:        schema.TypeSet,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+				Description: "An array of URLs that are the authorized resource URIs for FusionAuth OAuth.",
+			},
 			"authorized_url_validation_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
