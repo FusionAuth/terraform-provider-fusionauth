@@ -95,7 +95,7 @@ func newRegistration() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			StateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+			StateContext: func(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 				parts := strings.Split(d.Id(), ":")
 				if len(parts) != 2 {
 					return nil, fmt.Errorf("expected import ID in format user_id:application_id")
