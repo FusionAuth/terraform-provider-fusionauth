@@ -34,7 +34,7 @@ resource "fusionauth_registration" "example" {
 
 ## Import
 
-In Terraform v1.5.0 and later, use an `import` block to import application scopes using the application ID and scope ID, separated by a colon. For example:
+In Terraform v1.5.0 and later, use an `import` block to import a registration using the user ID and application ID, separated by a colon. For example:
 
 ```hcl
 import {
