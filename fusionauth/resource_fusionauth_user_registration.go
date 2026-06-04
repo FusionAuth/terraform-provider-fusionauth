@@ -95,7 +95,24 @@ func newRegistration() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: func(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+				parts := strings.Split(d.Id(), ":")
+				if len(parts) != 2 {
+					return nil, fmt.Errorf("expected import ID in format user_id:application_id")
+				}
+
+				for index, field := range []string{"user_id", "application_id"} {
+					if _, errs := validation.IsUUID(parts[index], field); len(errs) > 0 {
+						return nil, fmt.Errorf("invalid %s: %s", field, errs[0].Error())
+					}
+
+					if err := d.Set(field, parts[index]); err != nil {
+						return nil, err
+					}
+				}
+
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{
