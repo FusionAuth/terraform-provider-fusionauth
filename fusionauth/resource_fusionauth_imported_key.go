@@ -96,6 +96,7 @@ func resourceImportedKey() *schema.Resource {
 					"EC",
 					"RSA",
 					"HMAC",
+					"Secret",
 				}, false),
 				Description: "The Key type. This field is required if importing an HMAC key type, or if importing a public key / private key pair.",
 			},
