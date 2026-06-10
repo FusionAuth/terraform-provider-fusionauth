@@ -85,6 +85,13 @@ func newTheme() *schema.Resource {
 				Description:      "A FreeMarker template that is rendered when the user requests the /account/two-factor/disable path. This page contains a form that accepts a verification code used to disable a multi-factor authentication method.",
 				DiffSuppressFunc: diffSuppressTemplate,
 			},
+			"account_two_factor_edit": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "A FreeMarker template that is rendered when the user requests the /account/two-factor/edit path. This page contains a form that allows the user to edit the name of a multi-factor authentication method.",
+				DiffSuppressFunc: diffSuppressTemplate,
+			},
 			"account_two_factor_enable": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -459,6 +466,7 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 			AccountEdit:                       data.Get("account_edit").(string),
 			AccountIndex:                      data.Get("account_index").(string),
 			AccountTwoFactorDisable:           data.Get("account_two_factor_disable").(string),
+			AccountTwoFactorEdit:              data.Get("account_two_factor_edit").(string),
 			AccountTwoFactorEnable:            data.Get("account_two_factor_enable").(string),
 			AccountTwoFactorIndex:             data.Get("account_two_factor_index").(string),
 			ConfirmationRequired:              data.Get("confirmation_required").(string),
@@ -630,6 +638,9 @@ func buildResourceDataFromTheme(t fusionauth.Theme, data *schema.ResourceData) d
 	}
 	if err := data.Set("account_two_factor_disable", t.Templates.AccountTwoFactorDisable); err != nil {
 		return diag.Errorf("theme.account_two_factor_disable: %s", err.Error())
+	}
+	if err := data.Set("account_two_factor_edit", t.Templates.AccountTwoFactorEdit); err != nil {
+		return diag.Errorf("theme.account_two_factor_edit: %s", err.Error())
 	}
 	if err := data.Set("account_two_factor_enable", t.Templates.AccountTwoFactorEnable); err != nil {
 		return diag.Errorf("theme.account_two_factor_enable: %s", err.Error())

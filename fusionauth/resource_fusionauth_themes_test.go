@@ -77,6 +77,7 @@ func testThemeAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "account_edit", templates.AccountEdit),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_index", templates.AccountIndex),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_two_factor_disable", templates.AccountTwoFactorDisable),
+		resource.TestCheckResourceAttr(tfResourcePath, "account_two_factor_edit", templates.AccountTwoFactorEdit),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_two_factor_enable", templates.AccountTwoFactorEnable),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_two_factor_index", templates.AccountTwoFactorIndex),
 		resource.TestCheckResourceAttr(tfResourcePath, "account_webauthn_add", templates.AccountWebAuthnAdd),
@@ -193,6 +194,7 @@ func generateFusionAuthTemplate() fusionauth.Templates {
 		AccountEdit:                       randString20(),
 		AccountIndex:                      randString20(),
 		AccountTwoFactorDisable:           randString20(),
+		AccountTwoFactorEdit:              randString20(),
 		AccountTwoFactorEnable:            randString20(),
 		AccountTwoFactorIndex:             randString20(),
 		AccountWebAuthnAdd:                randString20(),
@@ -316,6 +318,7 @@ resource "fusionauth_theme" "test_%[1]s" {
   # Deprecated Properties
   email_send                                     = "%[54]s"
   registration_send                              = "%[55]s"
+  account_two_factor_edit                        = "%[56]s"
 }
 `,
 		resourceName,
@@ -373,5 +376,6 @@ resource "fusionauth_theme" "test_%[1]s" {
 		templates.Unauthorized,
 		templates.EmailSend,
 		templates.RegistrationSend,
+		templates.AccountTwoFactorEdit,
 	)
 }
