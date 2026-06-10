@@ -230,6 +230,11 @@ func userSchemaV1() *schema.Resource {
 							Sensitive:   true,
 							Description: "A base64 encoded secret",
 						},
+						"name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "A user-friendly name for this two-factor method, for example \"Work authenticator\".",
+						},
 					},
 				},
 			},

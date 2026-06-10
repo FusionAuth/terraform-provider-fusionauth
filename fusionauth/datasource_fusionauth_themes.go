@@ -76,6 +76,11 @@ func dataSourceTheme() *schema.Resource {
 				Computed:    true,
 				Description: "A FreeMarker template that is rendered when the user requests the /account/two-factor/disable path. This page contains a form that accepts a verification code used to disable a multi-factor authentication method.",
 			},
+			"account_two_factor_edit": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A FreeMarker template that is rendered when the user requests the /account/two-factor/edit path. This page contains a form that allows the user to edit the name of a multi-factor authentication method.",
+			},
 			"account_two_factor_enable": {
 				Type:        schema.TypeString,
 				Computed:    true,

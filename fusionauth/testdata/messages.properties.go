@@ -27,6 +27,7 @@ account-edit-page-title=Edit Profile
 account-index-page-title=Account
 account-two-factor-enable-page-title=Two-Factor Setup
 account-two-factor-disable-page-title=Disable Two-Factor
+account-two-factor-edit-page-title=Edit Two-Factor
 account-two-factor-index-page-title=Two-Factor
 account-webauthn-add-page-title=Add Passkey
 account-webauthn-delete-page-title=Delete Passkey
@@ -116,6 +117,7 @@ done=Done
 dont-ask-again=Don't ask me again on this device
 dont-have-an-account=Don't have an account?
 edit=Edit
+edit-two-factor=Edit two-factor
 email-verification-complete=Thank you. Your email has been verified.
 email-verification-complete-title=Email verification complete
 email-verification-form=Complete the form to request a new verification email.
@@ -334,9 +336,11 @@ two-factor-get-code-at-authenticator=Get a code from your authenticator app
 two-factor-get-code-at-email=Get a code at %s\u2026
 two-factor-get-code-at-sms=Send code via SMS to (***) ***-**%s
 two-factor-get-code-at-voice=Send code via voice message to (***) ***-**%s
+two-factor-name=Name
 
 # Form input place-holders
 {placeholder}two-factor-code=Enter the one-time code
+{placeholder}two-factor-name=Enter a name to identify this method
 
 #
 # Multi-factor configuration text
@@ -381,6 +385,7 @@ go-back-to-send=Go back to send
 #
 # Multi-factor configuration descriptions
 #
+{description}edit-two-factor=Update the name used to identify this two-factor method.
 {description}two-factor-authentication=Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to login. Configure one or more methods to utilize during login.
 {description}two-factor-methods-selection=A second step is required to complete sign in. Select one of the following methods to complete login.
 {description}two-factor-recovery-code-note=If you no longer have access to the device or application to obtain a verification code, you may use a recovery code to disable this two-factor method. Warning, when you use a recovery code to disable any two-factor method, all two-factor methods will be removed and all of your recovery codes will be cleared.
@@ -573,6 +578,7 @@ scope-consent-agreement=Click Allow to grant the selected requests to %s, or Can
 [tooYoung]password=Password was changed too recently, try again later
 [tooShort]password=Password does not meet the minimum length requirement
 [tooLong]password=Password exceeds the maximum length requirement
+[tooLong]twoFactorName=Two-factor method name exceeds the maximum length requirement
 [containsEmail]password=Password cannot contain email address
 [containsUsername]password=Password cannot contain username
 [containsPhoneNumber]password=Password cannot contain phone number

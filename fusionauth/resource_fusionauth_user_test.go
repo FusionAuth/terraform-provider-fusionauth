@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/FusionAuth/terraform-provider-fusionauth/fusionauth/testdata"
@@ -530,6 +531,115 @@ resource "fusionauth_user" "test_%[1]s" {
 			username,
 			usernameStatus,
 		)
+}
+
+func TestDataToTwoFactorMethods_name(t *testing.T) {
+	tests := []struct {
+		name       string
+		methodData map[string]interface{}
+		wantName   string
+	}{
+		{
+			name: "name is read into the method",
+			methodData: map[string]interface{}{
+				"method":       "sms",
+				"mobile_phone": "+15551112222",
+				"name":         "Work phone",
+			},
+			wantName: "Work phone",
+		},
+		{
+			name: "absent name yields empty string",
+			methodData: map[string]interface{}{
+				"method":       "sms",
+				"mobile_phone": "+15551112222",
+			},
+			wantName: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data := schema.TestResourceDataRaw(t, newUser().Schema, map[string]interface{}{
+				"two_factor_methods": []interface{}{tt.methodData},
+			})
+
+			methods, diags := dataToTwoFactorMethods(data)
+			if diags.HasError() {
+				t.Fatalf("dataToTwoFactorMethods returned errors: %#v", diags)
+			}
+			if len(methods) != 1 {
+				t.Fatalf("len(methods) = %d, want 1", len(methods))
+			}
+			if got := methods[0].Name; got != tt.wantName {
+				t.Fatalf("method name = %q, want %q", got, tt.wantName)
+			}
+		})
+	}
+}
+
+func TestAccFusionauthUser_twoFactorMethodName(t *testing.T) {
+	resourceName := randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_user.test_%s", resourceName)
+	startName, endName := "Work phone", "Personal phone"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthUserDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Test resource create
+				Config: testAccUserTwoFactorMethodNameConfig(resourceName, startName, "P@ssw0rd-start"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthUserExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "two_factor_methods.0.method", "sms"),
+					resource.TestCheckResourceAttr(tfResourcePath, "two_factor_methods.0.name", startName),
+				),
+			},
+			{
+				// Test update (password rotated; tenant enforces password history)
+				Config: testAccUserTwoFactorMethodNameConfig(resourceName, endName, "P@ssw0rd-end"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthUserExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "two_factor_methods.0.name", endName),
+				),
+			},
+			{
+				// Test importing resource into state
+				ResourceName:      tfResourcePath,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					// Not returned via RetrieveUser, so can't be imported.
+					"disable_domain_block",
+					"password",
+					"send_set_password_email",
+					"send_set_password_identity_type",
+					"skip_verification",
+				},
+			},
+		},
+	})
+}
+
+// testAccUserTwoFactorMethodNameConfig returns the terraform configuration for a user with a named SMS two factor method.
+func testAccUserTwoFactorMethodNameConfig(resourceName, methodName, password string) string {
+	return testAccUserResourceConfigBase(resourceName) +
+		fmt.Sprintf(`
+resource "fusionauth_user" "test_%[1]s" {
+  tenant_id = fusionauth_tenant.test_%[1]s.id
+
+  email    = "named-mfa-%[1]s@example.com"
+  password = "%[3]s"
+
+  two_factor_methods {
+    method       = "sms"
+    mobile_phone = "+15551112222"
+    name         = "%[2]s"
+  }
+}
+`, resourceName, methodName, password)
 }
 
 // testAccUserResourceConfigBase generates the prerequisite resources required
