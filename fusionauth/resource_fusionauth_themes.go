@@ -526,6 +526,82 @@ func buildTheme(data *schema.ResourceData) fusionauth.Theme {
 	return t
 }
 
+// mergeThemeCustomizations overlays the customization fields set in config onto
+// a base theme, returning the merged theme and whether anything was overridden.
+func mergeThemeCustomizations(base fusionauth.Theme, data *schema.ResourceData) (fusionauth.Theme, bool) {
+	merged := base
+	customized := false
+
+	override := func(key string, target *string) {
+		if v := data.Get(key).(string); v != "" {
+			*target = v
+			customized = true
+		}
+	}
+
+	override("stylesheet", &merged.Stylesheet)
+	override("default_messages", &merged.DefaultMessages)
+	override("account_edit", &merged.Templates.AccountEdit)
+	override("account_index", &merged.Templates.AccountIndex)
+	override("account_two_factor_disable", &merged.Templates.AccountTwoFactorDisable)
+	override("account_two_factor_enable", &merged.Templates.AccountTwoFactorEnable)
+	override("account_two_factor_index", &merged.Templates.AccountTwoFactorIndex)
+	override("confirmation_required", &merged.Templates.ConfirmationRequired)
+	override("account_webauthn_add", &merged.Templates.AccountWebAuthnAdd)
+	override("account_webauthn_delete", &merged.Templates.AccountWebAuthnDelete)
+	override("account_webauthn_index", &merged.Templates.AccountWebAuthnIndex)
+	override("email_complete", &merged.Templates.EmailComplete)
+	override("email_send", &merged.Templates.EmailSend)
+	override("email_sent", &merged.Templates.EmailSent)
+	override("email_verification_required", &merged.Templates.EmailVerificationRequired)
+	override("email_verify", &merged.Templates.EmailVerify)
+	override("helpers", &merged.Templates.Helpers)
+	override("index", &merged.Templates.Index)
+	override("oauth2_authorize", &merged.Templates.Oauth2Authorize)
+	override("oauth2_authorized_not_registered", &merged.Templates.Oauth2AuthorizedNotRegistered)
+	override("oauth2_child_registration_not_allowed", &merged.Templates.Oauth2ChildRegistrationNotAllowed)
+	override("oauth2_child_registration_not_allowed_complete", &merged.Templates.Oauth2ChildRegistrationNotAllowedComplete)
+	override("oauth2_complete_registration", &merged.Templates.Oauth2CompleteRegistration)
+	override("oauth2_consent", &merged.Templates.Oauth2Consent)
+	override("oauth2_device", &merged.Templates.Oauth2Device)
+	override("oauth2_device_complete", &merged.Templates.Oauth2DeviceComplete)
+	override("oauth2_error", &merged.Templates.Oauth2Error)
+	override("oauth2_logout", &merged.Templates.Oauth2Logout)
+	override("oauth2_passwordless", &merged.Templates.Oauth2Passwordless)
+	override("oauth2_register", &merged.Templates.Oauth2Register)
+	override("oauth2_start_idp_link", &merged.Templates.Oauth2StartIdPLink)
+	override("oauth2_two_factor", &merged.Templates.Oauth2TwoFactor)
+	override("oauth2_two_factor_methods", &merged.Templates.Oauth2TwoFactorMethods)
+	override("oauth2_two_factor_enable", &merged.Templates.Oauth2TwoFactorEnable)
+	override("oauth2_two_factor_enable_complete", &merged.Templates.Oauth2TwoFactorEnableComplete)
+	override("oauth2_wait", &merged.Templates.Oauth2Wait)
+	override("oauth2_webauthn", &merged.Templates.Oauth2WebAuthn)
+	override("oauth2_webauthn_reauth", &merged.Templates.Oauth2WebAuthnReauth)
+	override("oauth2_webauthn_reauth_enable", &merged.Templates.Oauth2WebAuthnReauthEnable)
+	override("password_change", &merged.Templates.PasswordChange)
+	override("password_complete", &merged.Templates.PasswordComplete)
+	override("password_forgot", &merged.Templates.PasswordForgot)
+	override("password_sent", &merged.Templates.PasswordSent)
+	override("phone_complete", &merged.Templates.PhoneComplete)
+	override("phone_sent", &merged.Templates.PhoneSent)
+	override("phone_verification_required", &merged.Templates.PhoneVerificationRequired)
+	override("phone_verify", &merged.Templates.PhoneVerify)
+	override("registration_complete", &merged.Templates.RegistrationComplete)
+	override("registration_send", &merged.Templates.RegistrationSend)
+	override("registration_sent", &merged.Templates.RegistrationSent)
+	override("registration_verification_required", &merged.Templates.RegistrationVerificationRequired)
+	override("registration_verify", &merged.Templates.RegistrationVerify)
+	override("samlv2_logout", &merged.Templates.Samlv2Logout)
+	override("unauthorized", &merged.Templates.Unauthorized)
+
+	if i, ok := data.GetOk("localized_messages"); ok {
+		merged.LocalizedMessages = intMapToStringMap(i.(map[string]interface{}))
+		customized = true
+	}
+
+	return merged, customized
+}
+
 func createTheme(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
@@ -550,7 +626,24 @@ func createTheme(_ context.Context, data *schema.ResourceData, i interface{}) di
 	}
 
 	data.SetId(resp.Theme.Id)
-	return buildResourceDataFromTheme(resp.Theme, data)
+
+	// FusionAuth ignores customization fields in a create request when a
+	// sourceThemeId is set, so re-apply them with an update.
+	theme := resp.Theme
+	if req.SourceThemeId != "" {
+		if merged, customized := mergeThemeCustomizations(resp.Theme, data); customized {
+			updateResp, faErrs, err := client.FAClient.UpdateTheme(data.Id(), fusionauth.ThemeRequest{Theme: merged})
+			if err != nil {
+				return diag.Errorf("UpdateTheme err: %v", err)
+			}
+			if err := checkResponse(updateResp.StatusCode, faErrs); err != nil {
+				return diag.FromErr(err)
+			}
+			theme = updateResp.Theme
+		}
+	}
+
+	return buildResourceDataFromTheme(theme, data)
 }
 
 func readTheme(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
