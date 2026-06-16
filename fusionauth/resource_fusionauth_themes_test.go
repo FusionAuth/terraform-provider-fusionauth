@@ -60,6 +60,42 @@ func TestAccFusionauthTheme_basic(t *testing.T) {
 	})
 }
 
+// TestAccFusionauthTheme_sourceThemeID verifies a theme created from a
+// source_theme_id applies its own customizations on the first apply.
+func TestAccFusionauthTheme_sourceThemeID(t *testing.T) {
+	srcName := randString10()
+	derivedName := randString10()
+	srcResourcePath := fmt.Sprintf("fusionauth_theme.test_%s", srcName)
+	derivedResourcePath := fmt.Sprintf("fusionauth_theme.derived_%s", derivedName)
+
+	srcMessages := testdata.MessageProperties("")
+	srcTemplates := generateFusionAuthTemplate()
+	customStylesheet := "/* derived custom stylesheet */"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthThemeDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccThemeSourceThemeIDConfig(srcName, derivedName, srcMessages, srcTemplates, customStylesheet),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthThemeExists(srcResourcePath),
+					testAccCheckFusionauthThemeExists(derivedResourcePath),
+					// Caller's stylesheet override applied on the first apply.
+					resource.TestCheckResourceAttr(derivedResourcePath, "stylesheet", customStylesheet),
+					// Templates inherited from the source theme via the copy.
+					resource.TestCheckResourceAttr(derivedResourcePath, "helpers", srcTemplates.Helpers),
+					resource.TestCheckResourceAttr(derivedResourcePath, "oauth2_authorize", srcTemplates.Oauth2Authorize),
+					resource.TestCheckResourceAttr(derivedResourcePath, "index", srcTemplates.Index),
+					// source_theme_id retained in state from configuration.
+					resource.TestCheckResourceAttrPair(derivedResourcePath, "source_theme_id", srcResourcePath, "id"),
+				),
+			},
+		},
+	})
+}
+
 // testThemeAccTestCheckFuncs abstracts the test case setup required between
 // create and update testing.
 func testThemeAccTestCheckFuncs(
@@ -378,4 +414,30 @@ resource "fusionauth_theme" "test_%[1]s" {
 		templates.RegistrationSend,
 		templates.AccountTwoFactorEdit,
 	)
+}
+
+// testAccThemeSourceThemeIDConfig returns terraform configuration for a source
+// theme and a second theme derived from it via source_theme_id.
+func testAccThemeSourceThemeIDConfig(
+	srcName string,
+	derivedName string,
+	defaultMessages string,
+	templates fusionauth.Templates,
+	stylesheet string,
+) string {
+	srcConfig := testAccThemeResourceConfig(srcName, defaultMessages, "/* src styles */", templates)
+	derivedConfig := fmt.Sprintf(`
+# Derived theme: copies the source theme and overrides only the stylesheet.
+resource "fusionauth_theme" "derived_%[2]s" {
+  name            = "test-acc-derived %[2]s"
+  source_theme_id = fusionauth_theme.test_%[1]s.id
+  stylesheet      = "%[3]s"
+}
+`,
+		srcName,
+		derivedName,
+		stylesheet,
+	)
+
+	return srcConfig + derivedConfig
 }
