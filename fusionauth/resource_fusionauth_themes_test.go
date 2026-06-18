@@ -23,7 +23,7 @@ func TestAccFusionauthTheme_basic(t *testing.T) {
 	startTemplates, endTemplates := generateFusionAuthTemplate(), generateFusionAuthTemplate()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.68.0") },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckFusionauthThemeDestroy,
 		Steps: []resource.TestStep{
