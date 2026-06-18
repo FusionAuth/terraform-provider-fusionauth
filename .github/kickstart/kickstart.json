@@ -1,0 +1,10 @@
+{
+  "apiKeys": [
+    {
+      "key": "34c20e2d-15e1-40a2-ac1d-af0c85e35ced",
+      "description": "Acceptance test API key",
+      "keyManager": true
+    }
+  ],
+  "requests": []
+}

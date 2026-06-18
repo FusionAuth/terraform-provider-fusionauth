@@ -1,0 +1,91 @@
+name: test
+
+# Acceptance tests, run on PRs into main and on demand. 
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  resolve-fusionauth-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.versions.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve FusionAuth server versions (N, N-1, N-2)
+        id: versions
+        run: |
+          n=$(grep -oE 'github\.com/FusionAuth/go-client v[0-9]+\.[0-9]+\.[0-9]+' go.mod | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          if [ -z "$n" ]; then echo "::error::could not determine go-client version from go.mod"; exit 1; fi
+          major=$(echo "$n" | cut -d. -f1)
+          minor=$(echo "$n" | cut -d. -f2)
+          include="{\"label\":\"current\",\"fusionauth-version\":\"$n\"}"
+          for d in 1 2; do
+            m=$((minor - d))
+            if [ "$m" -ge 0 ]; then
+              include="$include,{\"label\":\"n-$d\",\"fusionauth-version\":\"$major.$m.0\"}"
+            fi
+          done
+          matrix="{\"include\":[$include]}"
+          echo "Resolved matrix: $matrix"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  acceptance-tests:
+    needs: resolve-fusionauth-versions
+    # Only run where repository secrets are available.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    name: acceptance-tests (${{ matrix.label }}, FusionAuth ${{ matrix.fusionauth-version }})
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.resolve-fusionauth-versions.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+
+      - name: Start FusionAuth
+        uses: fusionauth/fusionauth-github-action@v1
+        with:
+          FUSIONAUTH_VERSION: ${{ matrix.fusionauth-version }}
+          FUSIONAUTH_APP_KICKSTART_DIRECTORY_PATH: .github/kickstart
+          FUSIONAUTH_APP_KICKSTART_FILENAME: kickstart.json
+
+      - name: Wait for FusionAuth to be ready
+        run: |
+          for i in $(seq 1 40); do
+            if [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:9011/api/status)" = "200" ]; then
+              echo "FusionAuth is up"; exit 0
+            fi
+            sleep 5
+          done
+          echo "FusionAuth did not become ready in time"; exit 1
+
+      - name: Activate Enterprise license
+        env:
+          FA_LICENSE_ID: ${{ secrets.FUSIONAUTH_LICENSE_ID }}
+        run: |
+          if [ -z "$FA_LICENSE_ID" ]; then
+            echo "::error::FUSIONAUTH_LICENSE_ID secret is required for acceptance tests"; exit 1
+          fi
+          curl -fsS -X POST http://localhost:9011/api/reactor \
+            -H "Authorization: 34c20e2d-15e1-40a2-ac1d-af0c85e35ced" \
+            -H "Content-Type: application/json" \
+            -d "{\"licenseId\":\"${FA_LICENSE_ID}\"}"
+
+      - name: Run acceptance tests
+        run: go test ./fusionauth/... -v -count=1 -timeout 30m
+        env:
+          TF_ACC: "1"
+          FA_DOMAIN: http://localhost:9011
+          FA_API_KEY: 34c20e2d-15e1-40a2-ac1d-af0c85e35ced
