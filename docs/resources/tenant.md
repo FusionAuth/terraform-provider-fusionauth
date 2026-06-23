@@ -460,6 +460,7 @@ resource "fusionauth_tenant" "example" {
 * `data` - (Optional) A JSON string that can hold any information about the Tenant that should be persisted.
 * `email_configuration` - (Optional) The email configuration for the tenant.
   * `additional_headers` - (Optional) The additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.
+  * `admin_two_factor_method_remove_email_template_id` - (Optional) The Id of the Email Template used to send emails to administrators when a MFA method has been removed from a user account.
   * `debug` - (Optional) Determines if debug should be enabled to create an event log to assist in debugging SMTP errors.
   * `default_from_email` - (Optional) The default email address that emails will be sent from when a from address is not provided on an individual email template. This is the address part email address (i.e. Jared Dunn <jared@piedpiper.com>).
   * `default_from_name` - (Optional) The default From Name used in sending emails when a from name is not provided on an individual email template. This is the display name part of the email address ( i.e. Jared Dunn <jared@piedpiper.com>).
@@ -640,8 +641,10 @@ resource "fusionauth_tenant" "example" {
   * `require_number` - (Optional) Whether to force the user to use at least one number.
   * `validate_on_login` - (Optional) When enabled the user’s password will be validated during login. If the password does not meet the currently configured validation rules the user will be required to change their password.
 * `phone_configuration` - (Optional)
+  * `admin_two_factor_method_remove_template_id` - (Optional) The Id of the Message Template used to send a message to administrators when a MFA method has been removed from a user account.
   * `forgot_password_template_id` - (Optional) The Id of the Message Template that is used when sending a user a forgot password message.
   * `identity_update_template_id` - (Optional) The Id of the Message Template used to send a message to a user when their phone number has been updated. The message will be sent to both their new and old phone numbers.
+  * `implicit_phone_verification_allowed` - (Optional) When set to true, this allows a phone number to be verified as a result of completing a similar phone based workflow. When set to false, the user must explicitly complete the phone verification workflow.
   * `login_id_in_use_on_create_template_id` - (Optional) The Id of the Message Template used to send a message to a user when another user attempts to create an account with their login Id.
   * `login_id_in_use_on_update_template_id` - (Optional) The Id of the Message Template used to send a message to a user when another user attempts to update an existing account to use their login Id.
   * `login_new_device_template_id` - (Optional) The Id of the Message Template used to send a message to a user when they log in on a new device.

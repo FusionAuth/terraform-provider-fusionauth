@@ -9,6 +9,8 @@ import (
 func buildApplication(data *schema.ResourceData) fusionauth.Application {
 	resourceData, _ := jsonStringToMapStringInterface(data.Get("data").(string))
 	a := fusionauth.Application{
+		Active:   data.Get("active").(bool),
+		BaseURL:  data.Get("base_url").(string),
 		TenantId: data.Get("tenant_id").(string),
 		AuthenticationTokenConfiguration: fusionauth.AuthenticationTokenConfiguration{
 			Enableable: buildEnableable("authentication_token_configuration_enabled", data),
@@ -30,6 +32,9 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 				RequireCurrentPasswordOnPasswordChange: data.Get("form_configuration.0.self_service_form_configuration.0.require_current_password_on_password_change").(bool),
 			},
 			SelfServiceFormId: data.Get("form_configuration.0.self_service_form_id").(string),
+		},
+		ExternalIdentifierConfiguration: fusionauth.ApplicationExternalIdentifierConfiguration{
+			TwoFactorTrustIdTimeToLiveInSeconds: data.Get("external_identifier_configuration.0.two_factor_trust_id_time_to_live_in_seconds").(int),
 		},
 		JwtConfiguration: fusionauth.JWTConfiguration{
 			Enableable:                      buildEnableable("jwt_configuration.0.enabled", data),
@@ -272,6 +277,12 @@ func resolvePasswordlessEnabledState(apiEnabled, priorLegacyEnabled, priorBlockE
 }
 
 func buildResourceDataFromApplication(a fusionauth.Application, data *schema.ResourceData) diag.Diagnostics {
+	if err := data.Set("active", a.Active); err != nil {
+		return diag.Errorf("application.active: %s", err.Error())
+	}
+	if err := data.Set("base_url", a.BaseURL); err != nil {
+		return diag.Errorf("application.base_url: %s", err.Error())
+	}
 	if err := data.Set("tenant_id", a.TenantId); err != nil {
 		return diag.Errorf("application.tenant_id: %s", err.Error())
 	}
@@ -325,6 +336,15 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 	})
 	if err != nil {
 		return diag.Errorf("application.form_configuration: %s", err.Error())
+	}
+
+	err = data.Set("external_identifier_configuration", []map[string]interface{}{
+		{
+			"two_factor_trust_id_time_to_live_in_seconds": a.ExternalIdentifierConfiguration.TwoFactorTrustIdTimeToLiveInSeconds,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("application.external_identifier_configuration: %s", err.Error())
 	}
 
 	err = data.Set("jwt_configuration", []map[string]interface{}{
@@ -626,6 +646,9 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 	}
 	if err := data.Set("theme_id", a.ThemeId); err != nil {
 		return diag.Errorf("application.theme_id: %s", err.Error())
+	}
+	if err := data.Set("state", a.State); err != nil {
+		return diag.Errorf("application.state: %s", err.Error())
 	}
 
 	if err := data.Set("universal_configuration", []map[string]interface{}{

@@ -590,6 +590,12 @@ func newTenant() *schema.Resource {
 				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"admin_two_factor_method_remove_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send a message to administrators when a MFA method has been removed from a user account.",
+							ValidateFunc: validation.IsUUID,
+						},
 						"forgot_password_template_id": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -601,6 +607,11 @@ func newTenant() *schema.Resource {
 							Optional:     true,
 							Description:  "The Id of the Message Template used to send a message to a user when their phone number has been updated. The message will be sent to both their new and old phone numbers.",
 							ValidateFunc: validation.IsUUID,
+						},
+						"implicit_phone_verification_allowed": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "When set to true, this allows a phone number to be verified as a result of completing a similar phone based workflow. When set to false, the user must explicitly complete the phone verification workflow.",
 						},
 						"login_id_in_use_on_create_template_id": {
 							Type:         schema.TypeString,
@@ -1729,6 +1740,12 @@ func newEmailConfiguration() *schema.Resource {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				Description: "The additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.",
+			},
+			"admin_two_factor_method_remove_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template used to send emails to administrators when a MFA method has been removed from a user account.",
+				ValidateFunc: validation.IsUUID,
 			},
 			"debug": {
 				Type:        schema.TypeBool,
