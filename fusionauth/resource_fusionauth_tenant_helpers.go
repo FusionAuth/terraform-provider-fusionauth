@@ -206,6 +206,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 		FormConfiguration: fusionauth.TenantFormConfiguration{
 			AdminUserFormId: data.Get("form_configuration.0.admin_user_form_id").(string),
 		},
+		BaseURL:                        data.Get("base_url").(string),
 		HttpSessionMaxInactiveInterval: data.Get("http_session_max_inactive_interval").(int),
 		Issuer:                         data.Get("issuer").(string),
 		JwtConfiguration: fusionauth.JWTConfiguration{
@@ -718,6 +719,10 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	})
 	if err != nil {
 		return diag.Errorf("tenant.form_configuration: %s", err.Error())
+	}
+
+	if err := data.Set("base_url", t.BaseURL); err != nil {
+		return diag.Errorf("tenant.base_url: %s", err.Error())
 	}
 
 	if err := data.Set("http_session_max_inactive_interval", t.HttpSessionMaxInactiveInterval); err != nil {

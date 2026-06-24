@@ -48,6 +48,11 @@ func newTenant() *schema.Resource {
 					},
 				},
 			},
+			"base_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The default base URL used when rendering links in email and message templates for this tenant. Used when the application's base_url is not defined.",
+			},
 			"captcha_configuration": {
 				Optional: true,
 				Computed: true,

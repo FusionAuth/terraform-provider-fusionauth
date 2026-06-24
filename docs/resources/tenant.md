@@ -350,6 +350,7 @@ resource "fusionauth_tenant" "example" {
   form_configuration {
     admin_user_form_id = "e92751a5-25f4-4bca-ad91-66cdf67725d2"
   }
+  base_url                           = "https://auth.example.com"
   http_session_max_inactive_interval = 3600
   issuer                             = "https://example.com"
   jwt_configuration {
@@ -574,6 +575,7 @@ resource "fusionauth_tenant" "example" {
   * `parent_registration_email_template_id` - (Optional) The unique Id of the email template to use for parent registration.
 * `form_configuration` - (Optional)
   * `admin_user_form_id` - (Optional) The unique Id of the form to use for the Add and Edit User form when used in the FusionAuth admin UI.
+* `base_url` - (Optional) The default base URL used when rendering links in email and message templates for this tenant. Used when the application's `base_url` is not defined. Available in FusionAuth 1.68.0 and later.
 * `http_session_max_inactive_interval` - (Optional) Time in seconds until an inactive session will be invalidated. Used when creating a new session in the FusionAuth OAuth frontend.
 * `issuer` - (Optional) The named issuer used to sign tokens, this is generally your public fully qualified domain.
 * `jwt_configuration` - (Optional) The JWT configuration for the tenant.

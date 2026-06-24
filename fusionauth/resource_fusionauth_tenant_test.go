@@ -84,6 +84,34 @@ func TestAccFusionauthTenant_basic(t *testing.T) {
 		},
 	})
 }
+func TestAccFusionauthTenant_baseURL(t *testing.T) {
+	resourceName := randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_tenant.test_%s", resourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.68.0") },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthTenantDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTenantResourceBaseURLConfig(resourceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "base_url", "https://auth.example.com"),
+				),
+			},
+		},
+	})
+}
+
+func testAccTenantResourceBaseURLConfig(resourceName string) string {
+	return fmt.Sprintf(`
+resource "fusionauth_tenant" "test_%[1]s" {
+  name     = "test-acc-baseurl %[1]s"
+  base_url = "https://auth.example.com"
+}
+`, resourceName)
+}
 
 // testTenantAccTestCheckFuncs abstracts the test case setup required between
 // create and update testing.
