@@ -88,4 +88,4 @@ jobs:
         env:
           TF_ACC: "1"
           FA_DOMAIN: http://localhost:9011
-          FA_API_KEY: 34c20e2d-15e1-40a2-ac1d-af0c85e35ced
+          FA_API_KEY: thisisatestkey
