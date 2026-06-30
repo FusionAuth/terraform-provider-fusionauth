@@ -33,6 +33,7 @@ func fusionauthServerVersion(t *testing.T) string {
 	return body.Version
 }
 
+//nolint:unparam
 func skipIfFusionAuthBelow(t *testing.T, minVersion string) {
 	t.Helper()
 	if v := fusionauthServerVersion(t); versionOlderThan(v, minVersion) {
