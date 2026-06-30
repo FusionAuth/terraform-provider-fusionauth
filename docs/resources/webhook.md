@@ -92,8 +92,11 @@ resource "fusionauth_webhook" "example" {
   * `user_registration_update` - (Optional) A user registration is being updated
   * `user_registration_update_complete` - (Optional) A user registration update request has completed
   * `user_registration_verified` - (Optional) A user registration has been verified
+  * `user_two_factor_challenge` - (Optional) A user has been issued a two-factor challenge
+  * `user_two_factor_failed_attempt` - (Optional) A user has failed a two-factor challenge attempt
   * `user_two_factor_method_add` - (Optional) A user has added a two-factor method
   * `user_two_factor_method_remove` - (Optional) A user has removed a two-factor method
+  * `user_two_factor_success` - (Optional) A user has successfully completed a two-factor challenge
   * `user_update` - (Optional) A user is being updated
   * `user_update_complete` - (Optional) A user update request has completed
 * `global` - (Optional) Whether or not this Webhook is used for all events or just for specific Applications.

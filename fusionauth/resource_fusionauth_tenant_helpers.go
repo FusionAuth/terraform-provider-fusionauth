@@ -252,6 +252,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			Seconds:    data.Get("minimum_password_age.0.seconds").(int),
 		},
 		MultiFactorConfiguration: fusionauth.TenantMultiFactorConfiguration{
+			Debug:       data.Get("multi_factor_configuration.0.debug").(bool),
 			LoginPolicy: fusionauth.MultiFactorLoginPolicy(data.Get("multi_factor_configuration.0.login_policy").(string)),
 			Authenticator: fusionauth.MultiFactorAuthenticatorMethod{
 				Enableable: buildEnableable("multi_factor_configuration.0.authenticator.0.enabled", data),
@@ -379,6 +380,19 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			SiteKey:       data.Get("captcha_configuration.0.site_key").(string),
 			Threshold:     data.Get("captcha_configuration.0.threshold").(float64),
 		},
+		ClientRiskConfiguration: fusionauth.ClientRiskConfiguration{
+			Enableable:           buildEnableable("client_risk_configuration.0.enabled", data),
+			BlocklistedIp:        data.Get("client_risk_configuration.0.blocklisted_ip").(bool),
+			BotDetected:          data.Get("client_risk_configuration.0.bot_detected").(bool),
+			DormantAccount:       data.Get("client_risk_configuration.0.dormant_account").(bool),
+			DormantPassword:      data.Get("client_risk_configuration.0.dormant_password").(bool),
+			ImpossibleTravel:     data.Get("client_risk_configuration.0.impossible_travel").(bool),
+			RecentIdentityChange: data.Get("client_risk_configuration.0.recent_identity_change").(bool),
+			RecentPasswordChange: data.Get("client_risk_configuration.0.recent_password_change").(bool),
+			SuspiciousUserAgent:  data.Get("client_risk_configuration.0.suspicious_user_agent").(bool),
+			UnrecognizedDevice:   data.Get("client_risk_configuration.0.unrecognized_device").(bool),
+			UntrustedDevice:      data.Get("client_risk_configuration.0.untrusted_device").(bool),
+		},
 		ScimServerConfiguration: fusionauth.TenantSCIMServerConfiguration{
 			ClientEntityTypeId: data.Get("scim_server_configuration.0.client_entity_type_id").(string),
 			Enableable:         buildEnableable("scim_server_configuration.0.enabled", data),
@@ -439,6 +453,20 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 	// If the multi_factor_configuration block is not set then default authenticator to enabled
 	if _, ok := data.GetOk("multi_factor_configuration"); !ok {
 		tenant.MultiFactorConfiguration.Authenticator.Enabled = true
+	}
+
+	// If the client_risk_configuration block is not set then keep the server defaults (all risk signals enabled)
+	if _, ok := data.GetOk("client_risk_configuration"); !ok {
+		tenant.ClientRiskConfiguration.BlocklistedIp = true
+		tenant.ClientRiskConfiguration.BotDetected = true
+		tenant.ClientRiskConfiguration.DormantAccount = true
+		tenant.ClientRiskConfiguration.DormantPassword = true
+		tenant.ClientRiskConfiguration.ImpossibleTravel = true
+		tenant.ClientRiskConfiguration.RecentIdentityChange = true
+		tenant.ClientRiskConfiguration.RecentPasswordChange = true
+		tenant.ClientRiskConfiguration.SuspiciousUserAgent = true
+		tenant.ClientRiskConfiguration.UnrecognizedDevice = true
+		tenant.ClientRiskConfiguration.UntrustedDevice = true
 	}
 
 	return tenant, append(connectorDiags, emailDiags...)
@@ -803,6 +831,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	err = data.Set("multi_factor_configuration", []map[string]interface{}{
 		{
+			"debug":        t.MultiFactorConfiguration.Debug,
 			"login_policy": t.MultiFactorConfiguration.LoginPolicy,
 			"authenticator": []map[string]interface{}{{
 				"enabled": t.MultiFactorConfiguration.Authenticator.Enabled,
@@ -859,6 +888,25 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 	})
 	if err != nil {
 		return diag.Errorf("tenant.captcha_configuration: %s", err.Error())
+	}
+
+	err = data.Set("client_risk_configuration", []map[string]interface{}{
+		{
+			"enabled":                t.ClientRiskConfiguration.Enabled,
+			"blocklisted_ip":         t.ClientRiskConfiguration.BlocklistedIp,
+			"bot_detected":           t.ClientRiskConfiguration.BotDetected,
+			"dormant_account":        t.ClientRiskConfiguration.DormantAccount,
+			"dormant_password":       t.ClientRiskConfiguration.DormantPassword,
+			"impossible_travel":      t.ClientRiskConfiguration.ImpossibleTravel,
+			"recent_identity_change": t.ClientRiskConfiguration.RecentIdentityChange,
+			"recent_password_change": t.ClientRiskConfiguration.RecentPasswordChange,
+			"suspicious_user_agent":  t.ClientRiskConfiguration.SuspiciousUserAgent,
+			"unrecognized_device":    t.ClientRiskConfiguration.UnrecognizedDevice,
+			"untrusted_device":       t.ClientRiskConfiguration.UntrustedDevice,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("tenant.client_risk_configuration: %s", err.Error())
 	}
 
 	err = data.Set("password_validation_rules", []map[string]interface{}{

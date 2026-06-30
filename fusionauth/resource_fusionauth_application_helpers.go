@@ -276,7 +276,7 @@ func resolvePasswordlessEnabledState(apiEnabled, priorLegacyEnabled, priorBlockE
 	return legacyEnabled, blockEnabled
 }
 
-func buildResourceDataFromApplication(a fusionauth.Application, data *schema.ResourceData) diag.Diagnostics {
+func buildResourceDataFromApplication(a fusionauth.Application, data *schema.ResourceData) diag.Diagnostics { //nolint:gocognit,gocyclo
 	if err := data.Set("active", a.Active); err != nil {
 		return diag.Errorf("application.active: %s", err.Error())
 	}

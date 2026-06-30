@@ -454,6 +454,18 @@ resource "fusionauth_tenant" "example" {
   * `secret_key` - (Optional) The secret key for this captcha method. This field is required when tenant.captchaConfiguration.enabled is set to true.
   * `site_key` - (Optional) The site key for this captcha method. This field is required when tenant.captchaConfiguration.enabled is set to true.
   * `threshold` - (Optional) The numeric threshold which separates a passing score from a failing one. This value only applies if using either the Google v3 or HCaptcha Enterprise method, otherwise this value is ignored.
+* `client_risk_configuration` - (Optional) Flags to enable or disable specific risk signals that contribute to the composite client risk calculation used by Intelligent MFA. Available since FusionAuth `1.68.0`.
+  * `blocklisted_ip` - (Optional) Checks whether the client's IP address appears on a blocklist. Defaults to `true`.
+  * `bot_detected` - (Optional) Detects bot interactions with the browser window. Defaults to `true`.
+  * `dormant_account` - (Optional) Checks if the user has not logged in for a long period of time. Defaults to `true`.
+  * `dormant_password` - (Optional) Checks if the user's password has not been changed for a long period of time. Defaults to `true`.
+  * `enabled` - (Optional) Whether FusionAuth should use this custom signal configuration when calculating client risk. The risk score is available to MFA policies and the MFA requirement lambda; disabled signals are excluded from all risk calculations, and disabling every signal sets the risk score to HIGH. Defaults to `false`.
+  * `impossible_travel` - (Optional) Flags a login as high risk if it occurs sooner than it would take to physically travel from the previous login location to the current one. Defaults to `true`.
+  * `recent_identity_change` - (Optional) Checks if the user's login ID has been changed recently. Defaults to `true`.
+  * `recent_password_change` - (Optional) Checks if the user's password has been changed recently. Defaults to `true`.
+  * `suspicious_user_agent` - (Optional) Checks whether the client's user agent has been flagged as suspicious. Defaults to `true`.
+  * `unrecognized_device` - (Optional) Checks whether the request originates from an unrecognized device. Defaults to `true`.
+  * `untrusted_device` - (Optional) Checks if the request originates from a device that is not in the user's trusted device list. Defaults to `true`.
 * `connector_policy` - (Optional) A list of Connector policies. Users will be authenticated against Connectors in order. Each Connector can be included in this list at most once and must exist.
   * `connector_id` - (Optional) The identifier of the Connector to which this policy refers.
   * `domains` - (Optional) A list of email domains to which this connector should apply. A value of ["*"] indicates this connector applies to all users.
@@ -612,10 +624,11 @@ resource "fusionauth_tenant" "example" {
 * `multi_factor_configuration` - (Optional)
   * `authenticator` - (Optional)
     * `enabled` - (Optional) When enabled, users may utilize an authenticator application to complete a multi-factor authentication request. This method uses TOTP (Time-Based One-Time Password) as defined in RFC 6238 and often uses an native mobile app such as Google Authenticator.
+  * `debug` - (Optional) Whether to create an event log entry to assist in tracing Intelligent MFA decisions for this tenant. Available since FusionAuth `1.68.0`.
   * `email` - (Optional)
     * `enabled` - (Optional) When enabled, users may utilize an email address to complete a multi-factor authentication request.
     * `template_id` - (Optional) The Id of the email template that is used when notifying a user to complete a multi-factor authentication request.
-  * `login_policy` - (Optional)  When set to `Enabled` and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to `Disabled`, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When the login policy is to `Required`, a two-factor challenge will be required during login. If a user does not have configured two-factor methods, they will not be able to log in.
+  * `login_policy` - (Optional)  When set to `Enabled` and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to `Disabled`, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When the login policy is to `Required`, a two-factor challenge will be required during login. If a user does not have configured two-factor methods, they will not be able to log in. When set to `ChallengeOnMediumRisk` or `ChallengeOnHighRisk`, a two-factor challenge is required only when the Intelligent MFA composite risk level is medium-or-higher or high, respectively (available since FusionAuth `1.68.0`).
   * `sms` - (Optional)
     * `enabled` - (Optional) When enabled, users may utilize a mobile phone number to complete a multi-factor authentication request.
     * `messenger_id` - (Optional) The messenger that is used to deliver a SMS multi-factor authentication request.

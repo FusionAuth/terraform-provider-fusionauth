@@ -104,7 +104,7 @@ func TestAccFusionauthUser_basic(t *testing.T) {
 	startUsernameStatus, endUsernameStatus := "ACTIVE", "PENDING"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.68.0") },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckFusionauthUserDestroy,
 		Steps: []resource.TestStep{
