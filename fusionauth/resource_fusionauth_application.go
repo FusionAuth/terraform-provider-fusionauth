@@ -35,6 +35,17 @@ func newApplication() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.IsUUID,
 			},
+			"active": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Whether or not this Application is active.",
+			},
+			"base_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The base URL of the Application.",
+			},
 			"access_control_configuration": {
 				Type:       schema.TypeList,
 				MaxItems:   1,
@@ -140,6 +151,24 @@ func newApplication() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: validation.IsUUID,
 							Description:  "The unique Id of the form to to enable authenticated users to manage their profile on the account page.",
+						},
+					},
+				},
+			},
+			"external_identifier_configuration": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				Computed:         true,
+				ConfigMode:       schema.SchemaConfigModeAttr,
+				DiffSuppressFunc: suppressBlockDiff,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"two_factor_trust_id_time_to_live_in_seconds": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The time in seconds until a two factor trust Id is no longer valid and cannot be used by the Two Factor API.",
 						},
 					},
 				},
@@ -258,11 +287,13 @@ func newApplication() *schema.Resource {
 						"login_policy": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "When enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When required, the user will be required to complete a two-factor challenge during login.",
+							Description: "When enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When required, the user will be required to complete a two-factor challenge during login. When set to ChallengeOnMediumRisk or ChallengeOnHighRisk, a two-factor challenge is required only when the Intelligent MFA composite risk level is medium-or-higher or high, respectively (available since FusionAuth 1.68.0).",
 							ValidateFunc: validation.StringInSlice([]string{
 								fusionauth.MultiFactorLoginPolicy_Enabled.String(),
 								fusionauth.MultiFactorLoginPolicy_Disabled.String(),
 								fusionauth.MultiFactorLoginPolicy_Required.String(),
+								fusionauth.MultiFactorLoginPolicy_ChallengeOnMediumRisk.String(),
+								fusionauth.MultiFactorLoginPolicy_ChallengeOnHighRisk.String(),
 							}, false),
 						},
 						"trust_policy": {
@@ -463,6 +494,11 @@ func newApplication() *schema.Resource {
 				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem:       newSamlv2Configuration(),
 				Optional:   true,
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The current state of this Application.",
 			},
 			"theme_id": {
 				Type:         schema.TypeString,

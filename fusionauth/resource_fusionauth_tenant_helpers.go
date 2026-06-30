@@ -14,6 +14,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 	tenant := fusionauth.Tenant{
 		Data: resourceData,
 		EmailConfiguration: fusionauth.EmailConfiguration{
+			AdminTwoFactorMethodRemoveEmailTemplateId: data.Get("email_configuration.0.admin_two_factor_method_remove_email_template_id").(string),
 			Debug:                                data.Get("email_configuration.0.debug").(bool),
 			EmailUpdateEmailTemplateId:           data.Get("email_configuration.0.email_update_email_template_id").(string),
 			EmailVerifiedEmailTemplateId:         data.Get("email_configuration.0.email_verified_email_template_id").(string),
@@ -205,6 +206,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 		FormConfiguration: fusionauth.TenantFormConfiguration{
 			AdminUserFormId: data.Get("form_configuration.0.admin_user_form_id").(string),
 		},
+		BaseURL:                        data.Get("base_url").(string),
 		HttpSessionMaxInactiveInterval: data.Get("http_session_max_inactive_interval").(int),
 		Issuer:                         data.Get("issuer").(string),
 		JwtConfiguration: fusionauth.JWTConfiguration{
@@ -250,6 +252,7 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			Seconds:    data.Get("minimum_password_age.0.seconds").(int),
 		},
 		MultiFactorConfiguration: fusionauth.TenantMultiFactorConfiguration{
+			Debug:       data.Get("multi_factor_configuration.0.debug").(bool),
 			LoginPolicy: fusionauth.MultiFactorLoginPolicy(data.Get("multi_factor_configuration.0.login_policy").(string)),
 			Authenticator: fusionauth.MultiFactorAuthenticatorMethod{
 				Enableable: buildEnableable("multi_factor_configuration.0.authenticator.0.enabled", data),
@@ -301,19 +304,21 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			ValidateOnLogin:  data.Get("password_validation_rules.0.validate_on_login").(bool),
 		},
 		PhoneConfiguration: fusionauth.TenantPhoneConfiguration{
-			ForgotPasswordTemplateId:        data.Get("phone_configuration.0.forgot_password_template_id").(string),
-			IdentityUpdateTemplateId:        data.Get("phone_configuration.0.identity_update_template_id").(string),
-			LoginIdInUseOnCreateTemplateId:  data.Get("phone_configuration.0.login_id_in_use_on_create_template_id").(string),
-			LoginIdInUseOnUpdateTemplateId:  data.Get("phone_configuration.0.login_id_in_use_on_update_template_id").(string),
-			LoginNewDeviceTemplateId:        data.Get("phone_configuration.0.login_new_device_template_id").(string),
-			LoginSuspiciousTemplateId:       data.Get("phone_configuration.0.login_suspicious_template_id").(string),
-			MessengerId:                     data.Get("phone_configuration.0.messenger_id").(string),
-			PasswordlessTemplateId:          data.Get("phone_configuration.0.passwordless_template_id").(string),
-			PasswordResetSuccessTemplateId:  data.Get("phone_configuration.0.password_reset_success_template_id").(string),
-			PasswordUpdateTemplateId:        data.Get("phone_configuration.0.password_update_template_id").(string),
-			SetPasswordTemplateId:           data.Get("phone_configuration.0.set_password_template_id").(string),
-			TwoFactorMethodAddTemplateId:    data.Get("phone_configuration.0.two_factor_method_add_template_id").(string),
-			TwoFactorMethodRemoveTemplateId: data.Get("phone_configuration.0.two_factor_method_remove_template_id").(string),
+			AdminTwoFactorMethodRemoveTemplateId: data.Get("phone_configuration.0.admin_two_factor_method_remove_template_id").(string),
+			ForgotPasswordTemplateId:             data.Get("phone_configuration.0.forgot_password_template_id").(string),
+			IdentityUpdateTemplateId:             data.Get("phone_configuration.0.identity_update_template_id").(string),
+			ImplicitPhoneVerificationAllowed:     data.Get("phone_configuration.0.implicit_phone_verification_allowed").(bool),
+			LoginIdInUseOnCreateTemplateId:       data.Get("phone_configuration.0.login_id_in_use_on_create_template_id").(string),
+			LoginIdInUseOnUpdateTemplateId:       data.Get("phone_configuration.0.login_id_in_use_on_update_template_id").(string),
+			LoginNewDeviceTemplateId:             data.Get("phone_configuration.0.login_new_device_template_id").(string),
+			LoginSuspiciousTemplateId:            data.Get("phone_configuration.0.login_suspicious_template_id").(string),
+			MessengerId:                          data.Get("phone_configuration.0.messenger_id").(string),
+			PasswordlessTemplateId:               data.Get("phone_configuration.0.passwordless_template_id").(string),
+			PasswordResetSuccessTemplateId:       data.Get("phone_configuration.0.password_reset_success_template_id").(string),
+			PasswordUpdateTemplateId:             data.Get("phone_configuration.0.password_update_template_id").(string),
+			SetPasswordTemplateId:                data.Get("phone_configuration.0.set_password_template_id").(string),
+			TwoFactorMethodAddTemplateId:         data.Get("phone_configuration.0.two_factor_method_add_template_id").(string),
+			TwoFactorMethodRemoveTemplateId:      data.Get("phone_configuration.0.two_factor_method_remove_template_id").(string),
 			Unverified: fusionauth.PhoneUnverifiedOptions{
 				AllowPhoneNumberChangeWhenGated: data.Get("phone_configuration.0.unverified.0.allow_phone_number_change_when_gated").(bool),
 				Behavior:                        fusionauth.UnverifiedBehavior(data.Get("phone_configuration.0.unverified.0.behavior").(string)),
@@ -375,6 +380,19 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			SiteKey:       data.Get("captcha_configuration.0.site_key").(string),
 			Threshold:     data.Get("captcha_configuration.0.threshold").(float64),
 		},
+		ClientRiskConfiguration: fusionauth.ClientRiskConfiguration{
+			Enableable:           buildEnableable("client_risk_configuration.0.enabled", data),
+			BlocklistedIp:        data.Get("client_risk_configuration.0.blocklisted_ip").(bool),
+			BotDetected:          data.Get("client_risk_configuration.0.bot_detected").(bool),
+			DormantAccount:       data.Get("client_risk_configuration.0.dormant_account").(bool),
+			DormantPassword:      data.Get("client_risk_configuration.0.dormant_password").(bool),
+			ImpossibleTravel:     data.Get("client_risk_configuration.0.impossible_travel").(bool),
+			RecentIdentityChange: data.Get("client_risk_configuration.0.recent_identity_change").(bool),
+			RecentPasswordChange: data.Get("client_risk_configuration.0.recent_password_change").(bool),
+			SuspiciousUserAgent:  data.Get("client_risk_configuration.0.suspicious_user_agent").(bool),
+			UnrecognizedDevice:   data.Get("client_risk_configuration.0.unrecognized_device").(bool),
+			UntrustedDevice:      data.Get("client_risk_configuration.0.untrusted_device").(bool),
+		},
 		ScimServerConfiguration: fusionauth.TenantSCIMServerConfiguration{
 			ClientEntityTypeId: data.Get("scim_server_configuration.0.client_entity_type_id").(string),
 			Enableable:         buildEnableable("scim_server_configuration.0.enabled", data),
@@ -435,6 +453,20 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 	// If the multi_factor_configuration block is not set then default authenticator to enabled
 	if _, ok := data.GetOk("multi_factor_configuration"); !ok {
 		tenant.MultiFactorConfiguration.Authenticator.Enabled = true
+	}
+
+	// If the client_risk_configuration block is not set then keep the server defaults (all risk signals enabled)
+	if _, ok := data.GetOk("client_risk_configuration"); !ok {
+		tenant.ClientRiskConfiguration.BlocklistedIp = true
+		tenant.ClientRiskConfiguration.BotDetected = true
+		tenant.ClientRiskConfiguration.DormantAccount = true
+		tenant.ClientRiskConfiguration.DormantPassword = true
+		tenant.ClientRiskConfiguration.ImpossibleTravel = true
+		tenant.ClientRiskConfiguration.RecentIdentityChange = true
+		tenant.ClientRiskConfiguration.RecentPasswordChange = true
+		tenant.ClientRiskConfiguration.SuspiciousUserAgent = true
+		tenant.ClientRiskConfiguration.UnrecognizedDevice = true
+		tenant.ClientRiskConfiguration.UntrustedDevice = true
 	}
 
 	return tenant, append(connectorDiags, emailDiags...)
@@ -559,7 +591,8 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	err := data.Set("email_configuration", []map[string]interface{}{
 		{
-			"additional_headers":                          additionalHeaders,
+			"additional_headers": additionalHeaders,
+			"admin_two_factor_method_remove_email_template_id": t.EmailConfiguration.AdminTwoFactorMethodRemoveEmailTemplateId,
 			"debug":                                       t.EmailConfiguration.Debug,
 			"email_update_email_template_id":              t.EmailConfiguration.EmailUpdateEmailTemplateId,
 			"email_verified_email_template_id":            t.EmailConfiguration.EmailVerifiedEmailTemplateId,
@@ -716,6 +749,10 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.form_configuration: %s", err.Error())
 	}
 
+	if err := data.Set("base_url", t.BaseURL); err != nil {
+		return diag.Errorf("tenant.base_url: %s", err.Error())
+	}
+
 	if err := data.Set("http_session_max_inactive_interval", t.HttpSessionMaxInactiveInterval); err != nil {
 		return diag.Errorf("tenant.http_session_max_inactive_interval: %s", err.Error())
 	}
@@ -794,6 +831,7 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	err = data.Set("multi_factor_configuration", []map[string]interface{}{
 		{
+			"debug":        t.MultiFactorConfiguration.Debug,
 			"login_policy": t.MultiFactorConfiguration.LoginPolicy,
 			"authenticator": []map[string]interface{}{{
 				"enabled": t.MultiFactorConfiguration.Authenticator.Enabled,
@@ -852,6 +890,25 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 		return diag.Errorf("tenant.captcha_configuration: %s", err.Error())
 	}
 
+	err = data.Set("client_risk_configuration", []map[string]interface{}{
+		{
+			"enabled":                t.ClientRiskConfiguration.Enabled,
+			"blocklisted_ip":         t.ClientRiskConfiguration.BlocklistedIp,
+			"bot_detected":           t.ClientRiskConfiguration.BotDetected,
+			"dormant_account":        t.ClientRiskConfiguration.DormantAccount,
+			"dormant_password":       t.ClientRiskConfiguration.DormantPassword,
+			"impossible_travel":      t.ClientRiskConfiguration.ImpossibleTravel,
+			"recent_identity_change": t.ClientRiskConfiguration.RecentIdentityChange,
+			"recent_password_change": t.ClientRiskConfiguration.RecentPasswordChange,
+			"suspicious_user_agent":  t.ClientRiskConfiguration.SuspiciousUserAgent,
+			"unrecognized_device":    t.ClientRiskConfiguration.UnrecognizedDevice,
+			"untrusted_device":       t.ClientRiskConfiguration.UntrustedDevice,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("tenant.client_risk_configuration: %s", err.Error())
+	}
+
 	err = data.Set("password_validation_rules", []map[string]interface{}{
 		{
 			"breach_detection": []map[string]interface{}{{
@@ -879,19 +936,21 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	err = data.Set("phone_configuration", []map[string]interface{}{
 		{
-			"forgot_password_template_id":           t.PhoneConfiguration.ForgotPasswordTemplateId,
-			"identity_update_template_id":           t.PhoneConfiguration.IdentityUpdateTemplateId,
-			"login_id_in_use_on_create_template_id": t.PhoneConfiguration.LoginIdInUseOnCreateTemplateId,
-			"login_id_in_use_on_update_template_id": t.PhoneConfiguration.LoginIdInUseOnUpdateTemplateId,
-			"login_new_device_template_id":          t.PhoneConfiguration.LoginNewDeviceTemplateId,
-			"login_suspicious_template_id":          t.PhoneConfiguration.LoginSuspiciousTemplateId,
-			"messenger_id":                          t.PhoneConfiguration.MessengerId,
-			"passwordless_template_id":              t.PhoneConfiguration.PasswordlessTemplateId,
-			"password_reset_success_template_id":    t.PhoneConfiguration.PasswordResetSuccessTemplateId,
-			"password_update_template_id":           t.PhoneConfiguration.PasswordUpdateTemplateId,
-			"set_password_template_id":              t.PhoneConfiguration.SetPasswordTemplateId,
-			"two_factor_method_add_template_id":     t.PhoneConfiguration.TwoFactorMethodAddTemplateId,
-			"two_factor_method_remove_template_id":  t.PhoneConfiguration.TwoFactorMethodRemoveTemplateId,
+			"admin_two_factor_method_remove_template_id": t.PhoneConfiguration.AdminTwoFactorMethodRemoveTemplateId,
+			"forgot_password_template_id":                t.PhoneConfiguration.ForgotPasswordTemplateId,
+			"identity_update_template_id":                t.PhoneConfiguration.IdentityUpdateTemplateId,
+			"implicit_phone_verification_allowed":        t.PhoneConfiguration.ImplicitPhoneVerificationAllowed,
+			"login_id_in_use_on_create_template_id":      t.PhoneConfiguration.LoginIdInUseOnCreateTemplateId,
+			"login_id_in_use_on_update_template_id":      t.PhoneConfiguration.LoginIdInUseOnUpdateTemplateId,
+			"login_new_device_template_id":               t.PhoneConfiguration.LoginNewDeviceTemplateId,
+			"login_suspicious_template_id":               t.PhoneConfiguration.LoginSuspiciousTemplateId,
+			"messenger_id":                               t.PhoneConfiguration.MessengerId,
+			"passwordless_template_id":                   t.PhoneConfiguration.PasswordlessTemplateId,
+			"password_reset_success_template_id":         t.PhoneConfiguration.PasswordResetSuccessTemplateId,
+			"password_update_template_id":                t.PhoneConfiguration.PasswordUpdateTemplateId,
+			"set_password_template_id":                   t.PhoneConfiguration.SetPasswordTemplateId,
+			"two_factor_method_add_template_id":          t.PhoneConfiguration.TwoFactorMethodAddTemplateId,
+			"two_factor_method_remove_template_id":       t.PhoneConfiguration.TwoFactorMethodRemoveTemplateId,
 			"unverified": []map[string]interface{}{{
 				"allow_phone_number_change_when_gated": t.PhoneConfiguration.Unverified.AllowPhoneNumberChangeWhenGated,
 				"behavior":                             t.PhoneConfiguration.Unverified.Behavior,

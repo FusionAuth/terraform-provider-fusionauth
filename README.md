@@ -23,48 +23,70 @@ Please continue to use and provide feedback on this provider as you have in the 
 ## Resources Available
 
 * API Key
-* application
-* application/{application_id}/role
-* application/{application_id}/oauth/scope
-* consent
-* email
-* entity
-* entity grant
-* entity type
-* entity type permission
-* form
-* form field
-* group
-* generic connector
-* generic messenger
-* key
-* imported key
-* lambda
-* LDAP connector
-* identity provider
-  * OpenID Connect
-  * Google
+* Application
+* Application OAuth Scope
+* Application Role
+* Consent
+* Email
+* Entity
+* Entity Grant
+* Entity Type
+* Entity Type Permission
+* Form
+* Form Field
+* Generic Connector
+* Generic Messenger
+* Group
+* Identity Provider
   * Apple
   * External JWT
   * Facebook
+  * Google
   * LinkedIn
+  * OpenID Connect
   * SAML v2
   * SAML v2 IdP Initiated
   * Sony PSN
   * Steam
   * Twitch
   * Xbox
-* reactor
-* registration
-* SMS message template
-* system configuration
-* themes
-* Twilio messenger
-* tenant
-* user
-* user action
-* user group membership
-* webhook
+* Imported Key
+* Key
+* Lambda
+* LDAP Connector
+* Reactor
+* Registration
+* SMS Message Template
+* System Configuration
+* Tenant
+* Tenant Manager Configuration
+* Theme
+* Twilio Messenger
+* User
+* User Action
+* User Group Membership
+* Webhook
+
+## Data Sources Available
+
+* Application
+* Application OAuth Scope
+* Application Role
+* Consent
+* Email
+* Form
+* Form Field
+* Generic Connector
+* Generic Messenger
+* Identity Provider
+* Lambda
+* LDAP Connector
+* SMS Message Template
+* Tenant
+* Theme
+* Twilio Messenger
+* User
+* User Group Membership
 
 ## Testing
 
@@ -75,4 +97,4 @@ To run tests:
 ```
 cd fusionauth
 go test
-``
+```

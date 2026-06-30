@@ -293,6 +293,16 @@ func newWebhook() *schema.Resource {
 							Optional:    true,
 							Description: "A user registration has been verified",
 						},
+						"user_two_factor_challenge": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "A user has been issued a two-factor challenge",
+						},
+						"user_two_factor_failed_attempt": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "A user has failed a two-factor challenge attempt",
+						},
 						"user_two_factor_method_add": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -302,6 +312,11 @@ func newWebhook() *schema.Resource {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Description: "A user has removed a two-factor method",
+						},
+						"user_two_factor_success": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "A user has successfully completed a two-factor challenge",
 						},
 						"user_update": {
 							Type:        schema.TypeBool,
@@ -493,8 +508,11 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 		fusionauth.EventType_UserRegistrationUpdate:         data.Get(prefix + "user_registration_update").(bool),
 		fusionauth.EventType_UserRegistrationUpdateComplete: data.Get(prefix + "user_registration_update_complete").(bool),
 		fusionauth.EventType_UserRegistrationVerified:       data.Get(prefix + "user_registration_verified").(bool),
+		fusionauth.EventType_UserTwoFactorChallenge:         data.Get(prefix + "user_two_factor_challenge").(bool),
+		fusionauth.EventType_UserTwoFactorFailedAttempt:     data.Get(prefix + "user_two_factor_failed_attempt").(bool),
 		fusionauth.EventType_UserTwoFactorMethodAdd:         data.Get(prefix + "user_two_factor_method_add").(bool),
 		fusionauth.EventType_UserTwoFactorMethodRemove:      data.Get(prefix + "user_two_factor_method_remove").(bool),
+		fusionauth.EventType_UserTwoFactorSuccess:           data.Get(prefix + "user_two_factor_success").(bool),
 		fusionauth.EventType_UserUpdate:                     data.Get(prefix + "user_update").(bool),
 		fusionauth.EventType_UserUpdateComplete:             data.Get(prefix + "user_update_complete").(bool),
 	}
@@ -605,8 +623,11 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 			"user_registration_update":          l.EventsEnabled[fusionauth.EventType_UserRegistrationUpdate],
 			"user_registration_update_complete": l.EventsEnabled[fusionauth.EventType_UserRegistrationUpdateComplete],
 			"user_registration_verified":        l.EventsEnabled[fusionauth.EventType_UserRegistrationVerified],
+			"user_two_factor_challenge":         l.EventsEnabled[fusionauth.EventType_UserTwoFactorChallenge],
+			"user_two_factor_failed_attempt":    l.EventsEnabled[fusionauth.EventType_UserTwoFactorFailedAttempt],
 			"user_two_factor_method_add":        l.EventsEnabled[fusionauth.EventType_UserTwoFactorMethodAdd],
 			"user_two_factor_method_remove":     l.EventsEnabled[fusionauth.EventType_UserTwoFactorMethodRemove],
+			"user_two_factor_success":           l.EventsEnabled[fusionauth.EventType_UserTwoFactorSuccess],
 			"user_update":                       l.EventsEnabled[fusionauth.EventType_UserUpdate],
 			"user_update_complete":              l.EventsEnabled[fusionauth.EventType_UserUpdateComplete],
 		},

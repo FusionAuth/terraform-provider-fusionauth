@@ -350,6 +350,7 @@ resource "fusionauth_tenant" "example" {
   form_configuration {
     admin_user_form_id = "e92751a5-25f4-4bca-ad91-66cdf67725d2"
   }
+  base_url                           = "https://auth.example.com"
   http_session_max_inactive_interval = 3600
   issuer                             = "https://example.com"
   jwt_configuration {
@@ -453,6 +454,18 @@ resource "fusionauth_tenant" "example" {
   * `secret_key` - (Optional) The secret key for this captcha method. This field is required when tenant.captchaConfiguration.enabled is set to true.
   * `site_key` - (Optional) The site key for this captcha method. This field is required when tenant.captchaConfiguration.enabled is set to true.
   * `threshold` - (Optional) The numeric threshold which separates a passing score from a failing one. This value only applies if using either the Google v3 or HCaptcha Enterprise method, otherwise this value is ignored.
+* `client_risk_configuration` - (Optional) Flags to enable or disable specific risk signals that contribute to the composite client risk calculation used by Intelligent MFA. Available since FusionAuth `1.68.0`.
+  * `blocklisted_ip` - (Optional) Checks whether the client's IP address appears on a blocklist. Defaults to `true`.
+  * `bot_detected` - (Optional) Detects bot interactions with the browser window. Defaults to `true`.
+  * `dormant_account` - (Optional) Checks if the user has not logged in for a long period of time. Defaults to `true`.
+  * `dormant_password` - (Optional) Checks if the user's password has not been changed for a long period of time. Defaults to `true`.
+  * `enabled` - (Optional) Whether FusionAuth should use this custom signal configuration when calculating client risk. The risk score is available to MFA policies and the MFA requirement lambda; disabled signals are excluded from all risk calculations, and disabling every signal sets the risk score to HIGH. Defaults to `false`.
+  * `impossible_travel` - (Optional) Flags a login as high risk if it occurs sooner than it would take to physically travel from the previous login location to the current one. Defaults to `true`.
+  * `recent_identity_change` - (Optional) Checks if the user's login ID has been changed recently. Defaults to `true`.
+  * `recent_password_change` - (Optional) Checks if the user's password has been changed recently. Defaults to `true`.
+  * `suspicious_user_agent` - (Optional) Checks whether the client's user agent has been flagged as suspicious. Defaults to `true`.
+  * `unrecognized_device` - (Optional) Checks whether the request originates from an unrecognized device. Defaults to `true`.
+  * `untrusted_device` - (Optional) Checks if the request originates from a device that is not in the user's trusted device list. Defaults to `true`.
 * `connector_policy` - (Optional) A list of Connector policies. Users will be authenticated against Connectors in order. Each Connector can be included in this list at most once and must exist.
   * `connector_id` - (Optional) The identifier of the Connector to which this policy refers.
   * `domains` - (Optional) A list of email domains to which this connector should apply. A value of ["*"] indicates this connector applies to all users.
@@ -460,6 +473,7 @@ resource "fusionauth_tenant" "example" {
 * `data` - (Optional) A JSON string that can hold any information about the Tenant that should be persisted.
 * `email_configuration` - (Optional) The email configuration for the tenant.
   * `additional_headers` - (Optional) The additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.
+  * `admin_two_factor_method_remove_email_template_id` - (Optional) The Id of the Email Template used to send emails to administrators when a MFA method has been removed from a user account.
   * `debug` - (Optional) Determines if debug should be enabled to create an event log to assist in debugging SMTP errors.
   * `default_from_email` - (Optional) The default email address that emails will be sent from when a from address is not provided on an individual email template. This is the address part email address (i.e. Jared Dunn <jared@piedpiper.com>).
   * `default_from_name` - (Optional) The default From Name used in sending emails when a from name is not provided on an individual email template. This is the display name part of the email address ( i.e. Jared Dunn <jared@piedpiper.com>).
@@ -573,6 +587,7 @@ resource "fusionauth_tenant" "example" {
   * `parent_registration_email_template_id` - (Optional) The unique Id of the email template to use for parent registration.
 * `form_configuration` - (Optional)
   * `admin_user_form_id` - (Optional) The unique Id of the form to use for the Add and Edit User form when used in the FusionAuth admin UI.
+* `base_url` - (Optional) The default base URL used when rendering links in email and message templates for this tenant. Used when the application's `base_url` is not defined. Available in FusionAuth 1.68.0 and later.
 * `http_session_max_inactive_interval` - (Optional) Time in seconds until an inactive session will be invalidated. Used when creating a new session in the FusionAuth OAuth frontend.
 * `issuer` - (Optional) The named issuer used to sign tokens, this is generally your public fully qualified domain.
 * `jwt_configuration` - (Optional) The JWT configuration for the tenant.
@@ -609,10 +624,11 @@ resource "fusionauth_tenant" "example" {
 * `multi_factor_configuration` - (Optional)
   * `authenticator` - (Optional)
     * `enabled` - (Optional) When enabled, users may utilize an authenticator application to complete a multi-factor authentication request. This method uses TOTP (Time-Based One-Time Password) as defined in RFC 6238 and often uses an native mobile app such as Google Authenticator.
+  * `debug` - (Optional) Whether to create an event log entry to assist in tracing Intelligent MFA decisions for this tenant. Available since FusionAuth `1.68.0`.
   * `email` - (Optional)
     * `enabled` - (Optional) When enabled, users may utilize an email address to complete a multi-factor authentication request.
     * `template_id` - (Optional) The Id of the email template that is used when notifying a user to complete a multi-factor authentication request.
-  * `login_policy` - (Optional)  When set to `Enabled` and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to `Disabled`, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When the login policy is to `Required`, a two-factor challenge will be required during login. If a user does not have configured two-factor methods, they will not be able to log in.
+  * `login_policy` - (Optional)  When set to `Enabled` and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to `Disabled`, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When the login policy is to `Required`, a two-factor challenge will be required during login. If a user does not have configured two-factor methods, they will not be able to log in. When set to `ChallengeOnMediumRisk` or `ChallengeOnHighRisk`, a two-factor challenge is required only when the Intelligent MFA composite risk level is medium-or-higher or high, respectively (available since FusionAuth `1.68.0`).
   * `sms` - (Optional)
     * `enabled` - (Optional) When enabled, users may utilize a mobile phone number to complete a multi-factor authentication request.
     * `messenger_id` - (Optional) The messenger that is used to deliver a SMS multi-factor authentication request.
@@ -640,8 +656,10 @@ resource "fusionauth_tenant" "example" {
   * `require_number` - (Optional) Whether to force the user to use at least one number.
   * `validate_on_login` - (Optional) When enabled the user’s password will be validated during login. If the password does not meet the currently configured validation rules the user will be required to change their password.
 * `phone_configuration` - (Optional)
+  * `admin_two_factor_method_remove_template_id` - (Optional) The Id of the Message Template used to send a message to administrators when a MFA method has been removed from a user account.
   * `forgot_password_template_id` - (Optional) The Id of the Message Template that is used when sending a user a forgot password message.
   * `identity_update_template_id` - (Optional) The Id of the Message Template used to send a message to a user when their phone number has been updated. The message will be sent to both their new and old phone numbers.
+  * `implicit_phone_verification_allowed` - (Optional) When set to true, this allows a phone number to be verified as a result of completing a similar phone based workflow. When set to false, the user must explicitly complete the phone verification workflow.
   * `login_id_in_use_on_create_template_id` - (Optional) The Id of the Message Template used to send a message to a user when another user attempts to create an account with their login Id.
   * `login_id_in_use_on_update_template_id` - (Optional) The Id of the Message Template used to send a message to a user when another user attempts to update an existing account to use their login Id.
   * `login_new_device_template_id` - (Optional) The Id of the Message Template used to send a message to a user when they log in on a new device.

@@ -121,14 +121,18 @@ resource "fusionauth_application" "Forum" {
 
 * `access_control_configuration` - (Optional)
   * `ui_ip_access_control_list_id` - (Optional) The Id of the IP Access Control List limiting access to this application.
+* `active` - (Optional) Whether or not this Application is active.
 * `application_id` - (Optional) The Id to use for the new Application. If not specified a secure random UUID will be generated.
 * `authentication_token_configuration_enabled` - (Optional) Determines if Users can have Authentication Tokens associated with this Application. This feature may not be enabled for the FusionAuth application.
+* `base_url` - (Optional) The base URL of the Application.
 * `clean_speak_configuration` - (Optional)
   * `application_ids` - (Optional) An array of UUIDs that map to the CleanSpeak applications for this Application. It is possible that a single Application in FusionAuth might have multiple Applications in CleanSpeak. For example, a FusionAuth Application for a game might have one CleanSpeak Application for usernames and another Application for chat.
   * `username_moderation` - (Optional)
     * `application_id` - (Optional) The Id of the CleanSpeak application that usernames are sent to for moderation.
     * `enabled` - (Optional) True if CleanSpeak username moderation is enabled.
 * `data` - (Optional) A JSON string that can hold any information about the Application that should be persisted.
+* `external_identifier_configuration` - (Optional)
+  * `two_factor_trust_id_time_to_live_in_seconds` - (Optional) The time in seconds until a two factor trust Id is no longer valid and cannot be used by the Two Factor API.
 * `email_configuration` - (Optional)
   * `email_update_template_id` - (Optional) The Id of the Email Template used to send emails to users when their email address is updated. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
   * `email_verification_template_id` - (Optional) The Id of the Email Template used to send emails to users to verify that their email address is valid. When configured, this value will take precedence over the same configuration from the Tenant when an application context is known.
@@ -171,7 +175,7 @@ resource "fusionauth_application" "Forum" {
   * `require_authentication` - (Optional) Indicates if the Login API should require an API key. If you set this value to false and your FusionAuth API is on a public network, anyone may attempt to use the Login API.
 * `multi_factor_configuration` - (Optional)
   * `email_template_id` - (Optional) The Id of the email template that is used when notifying a user to complete a multi-factor authentication request.
-  * `login_policy` - (Optional) When enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When required, the user will be required to complete a two-factor challenge during login. Possible values are `Enabled`, `Disabled` or `Required`.
+  * `login_policy` - (Optional) When enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When required, the user will be required to complete a two-factor challenge during login. When set to `ChallengeOnMediumRisk` or `ChallengeOnHighRisk`, a two-factor challenge is required only when the Intelligent MFA composite risk level is medium-or-higher or high, respectively (available since FusionAuth `1.68.0`). Possible values are `Enabled`, `Disabled`, `Required`, `ChallengeOnMediumRisk` or `ChallengeOnHighRisk`.
   * `sms_template_id` - (Optional) The Id of the SMS template that is used when notifying a user to complete a multi-factor authentication request.
   * `trust_policy` - (Optional) When `multi_factor_configuration.login_policy` is set to `Enabled`, this trust policy is utilized when determining if a user must complete a two-factor challenge during login. Possible values are `Any`, `This` or `None`.
 * `oauth_configuration` - (Optional)
@@ -306,6 +310,7 @@ resource "fusionauth_application" "Forum" {
   * `required_signed_requests` - (Optional) If set to true, will force verification through the key store.
   * `xml_signature_canonicalization_method` - (Optional) The XML signature canonicalization method used when digesting and signing the SAML response. Unfortunately, many service providers do not correctly implement the XML signature specifications and force a specific canonicalization method. This setting allows you to change the canonicalization method to match the service provider. Often, service providers don’t even document their required method. You might need to contact enterprise support at the service provider to figure out what method they use.
   * `xml_signature_location` - (Optional) The location to place the XML signature when signing a successful SAML response.
+* `state` - (Computed) The current state of this Application.
 * `tenant_id` - (Optional) The Id of the Tenant that this Application belongs to. This is required unnless the `universal_configuration.universal` field is set to true, in which case the Application will be a universal application and will not belong to a Tenant.
 * `theme_id` - (Optional) The unique Id of the theme to be used to style the login page and other end user templates.
 * `universal_configuration` - (Optional)

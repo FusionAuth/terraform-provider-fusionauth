@@ -48,6 +48,11 @@ func newTenant() *schema.Resource {
 					},
 				},
 			},
+			"base_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The default base URL used when rendering links in email and message templates for this tenant. Used when the application's base_url is not defined.",
+			},
 			"captcha_configuration": {
 				Optional: true,
 				Computed: true,
@@ -88,6 +93,83 @@ func newTenant() *schema.Resource {
 							Default:      0.5,
 							Description:  "The numeric threshold which separates a passing score from a failing one. This value only applies if using either the Google v3 or HCaptcha Enterprise method, otherwise this value is ignored.",
 							ValidateFunc: validation.FloatBetween(0.0, 1.0),
+						},
+					},
+				},
+			},
+			"client_risk_configuration": {
+				Optional:    true,
+				Computed:    true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Description: "Flags to enable or disable specific risk signals that contribute to the composite client risk calculation used by Intelligent MFA. Available since FusionAuth 1.68.0.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether FusionAuth should use this custom signal configuration when calculating client risk. The risk score is available to MFA policies and the MFA requirement lambda; disabled signals are excluded from all risk calculations, and disabling every signal sets the risk score to HIGH.",
+						},
+						"blocklisted_ip": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Checks whether the client's IP address appears on a blocklist. Defaults to `true`.",
+						},
+						"bot_detected": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Detects bot interactions with the browser window. Defaults to `true`.",
+						},
+						"dormant_account": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Checks if the user has not logged in for a long period of time. Defaults to `true`.",
+						},
+						"dormant_password": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Checks if the user's password has not been changed for a long period of time. Defaults to `true`.",
+						},
+						"impossible_travel": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Flags a login as high risk if it occurs sooner than it would take to physically travel from the previous login location to the current one. Defaults to `true`.",
+						},
+						"recent_identity_change": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Checks if the user's login ID has been changed recently. Defaults to `true`.",
+						},
+						"recent_password_change": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Checks if the user's password has been changed recently. Defaults to `true`.",
+						},
+						"suspicious_user_agent": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Checks whether the client's user agent has been flagged as suspicious. Defaults to `true`.",
+						},
+						"unrecognized_device": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Checks whether the request originates from an unrecognized device. Defaults to `true`.",
+						},
+						"untrusted_device": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "Checks if the request originates from a device that is not in the user's trusted device list. Defaults to `true`.",
 						},
 					},
 				},
@@ -448,8 +530,14 @@ func newTenant() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "Enabled",
-							ValidateFunc: validation.StringInSlice([]string{fusionauth.MultiFactorLoginPolicy_Enabled.String(), fusionauth.MultiFactorLoginPolicy_Disabled.String(), fusionauth.MultiFactorLoginPolicy_Required.String()}, false),
-							Description:  "When set to Enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to Disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When the login policy is to Required, a two-factor challenge will be required during login. If a user does not have configured two-factor methods, they will not be able to log in.",
+							ValidateFunc: validation.StringInSlice([]string{fusionauth.MultiFactorLoginPolicy_Enabled.String(), fusionauth.MultiFactorLoginPolicy_Disabled.String(), fusionauth.MultiFactorLoginPolicy_Required.String(), fusionauth.MultiFactorLoginPolicy_ChallengeOnMediumRisk.String(), fusionauth.MultiFactorLoginPolicy_ChallengeOnHighRisk.String()}, false),
+							Description:  "When set to Enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When set to Disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When the login policy is to Required, a two-factor challenge will be required during login. If a user does not have configured two-factor methods, they will not be able to log in. When set to ChallengeOnMediumRisk or ChallengeOnHighRisk, a two-factor challenge is required only when the Intelligent MFA composite risk level is medium-or-higher or high, respectively (available since FusionAuth 1.68.0).",
+						},
+						"debug": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether to create an event log entry to assist in tracing Intelligent MFA decisions for this tenant. Available since FusionAuth 1.68.0.",
 						},
 						"authenticator": {
 							Type:             schema.TypeList,
@@ -590,6 +678,12 @@ func newTenant() *schema.Resource {
 				DiffSuppressFunc: suppressBlockDiff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"admin_two_factor_method_remove_template_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Message Template used to send a message to administrators when a MFA method has been removed from a user account.",
+							ValidateFunc: validation.IsUUID,
+						},
 						"forgot_password_template_id": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -601,6 +695,11 @@ func newTenant() *schema.Resource {
 							Optional:     true,
 							Description:  "The Id of the Message Template used to send a message to a user when their phone number has been updated. The message will be sent to both their new and old phone numbers.",
 							ValidateFunc: validation.IsUUID,
+						},
+						"implicit_phone_verification_allowed": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "When set to true, this allows a phone number to be verified as a result of completing a similar phone based workflow. When set to false, the user must explicitly complete the phone verification workflow.",
 						},
 						"login_id_in_use_on_create_template_id": {
 							Type:         schema.TypeString,
@@ -1729,6 +1828,12 @@ func newEmailConfiguration() *schema.Resource {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				Description: "The additional SMTP headers to be added to each outgoing email. Each SMTP header consists of a name and a value.",
+			},
+			"admin_two_factor_method_remove_email_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The Id of the Email Template used to send emails to administrators when a MFA method has been removed from a user account.",
+				ValidateFunc: validation.IsUUID,
 			},
 			"debug": {
 				Type:        schema.TypeBool,

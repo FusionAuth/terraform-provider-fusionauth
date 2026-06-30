@@ -28,7 +28,7 @@ func TestAccFusionauthTenant_basic(t *testing.T) {
 	startMinimumPasswordAgeEnabled, endMinimumPasswordAgeEnabled := true, false
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.68.0") },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckFusionauthTenantDestroy,
 		Steps: []resource.TestStep{
@@ -83,6 +83,112 @@ func TestAccFusionauthTenant_basic(t *testing.T) {
 			},
 		},
 	})
+}
+func TestAccFusionauthTenant_baseURL(t *testing.T) {
+	resourceName := randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_tenant.test_%s", resourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.68.0") },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthTenantDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTenantResourceBaseURLConfig(resourceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "base_url", "https://auth.example.com"),
+				),
+			},
+		},
+	})
+}
+
+func testAccTenantResourceBaseURLConfig(resourceName string) string {
+	return fmt.Sprintf(`
+resource "fusionauth_tenant" "test_%[1]s" {
+  name     = "test-acc-baseurl %[1]s"
+  base_url = "https://auth.example.com"
+}
+`, resourceName)
+}
+
+// TestAccFusionauthTenant_intelligentMFA covers the FusionAuth 1.68.0 Intelligent MFA fields; skips on older servers.
+func TestAccFusionauthTenant_intelligentMFA(t *testing.T) {
+	resourceName := randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_tenant.test_%s", resourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.68.0") },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthTenantDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTenantResourceIntelligentMFAConfig(resourceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "multi_factor_configuration.0.login_policy", "ChallengeOnHighRisk"),
+					resource.TestCheckResourceAttr(tfResourcePath, "multi_factor_configuration.0.debug", "true"),
+					resource.TestCheckResourceAttr(tfResourcePath, "client_risk_configuration.0.enabled", "true"),
+					resource.TestCheckResourceAttr(tfResourcePath, "client_risk_configuration.0.bot_detected", "false"),
+					resource.TestCheckResourceAttr(tfResourcePath, "client_risk_configuration.0.impossible_travel", "true"),
+				),
+			},
+			{
+				// Partial block (only enabled set): omitted signals must default to true, not false (regression guard).
+				Config: testAccTenantResourceIntelligentMFAPartialConfig(resourceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "client_risk_configuration.0.enabled", "true"),
+					resource.TestCheckResourceAttr(tfResourcePath, "client_risk_configuration.0.bot_detected", "true"),
+					resource.TestCheckResourceAttr(tfResourcePath, "client_risk_configuration.0.untrusted_device", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccTenantResourceIntelligentMFAConfig(resourceName string) string {
+	return fmt.Sprintf(`
+resource "fusionauth_tenant" "test_%[1]s" {
+  name = "test-acc-imfa %[1]s"
+
+  multi_factor_configuration {
+    login_policy = "ChallengeOnHighRisk"
+    debug        = true
+
+    authenticator {
+      enabled = true
+    }
+  }
+
+  client_risk_configuration {
+    enabled                = true
+    blocklisted_ip         = true
+    bot_detected           = false
+    dormant_account        = true
+    dormant_password       = true
+    impossible_travel      = true
+    recent_identity_change = true
+    recent_password_change = true
+    suspicious_user_agent  = true
+    unrecognized_device    = true
+    untrusted_device       = true
+  }
+}
+`, resourceName)
+}
+
+func testAccTenantResourceIntelligentMFAPartialConfig(resourceName string) string {
+	return fmt.Sprintf(`
+resource "fusionauth_tenant" "test_%[1]s" {
+  name = "test-acc-imfa %[1]s"
+
+  client_risk_configuration {
+    enabled = true
+  }
+}
+`, resourceName)
 }
 
 // testTenantAccTestCheckFuncs abstracts the test case setup required between

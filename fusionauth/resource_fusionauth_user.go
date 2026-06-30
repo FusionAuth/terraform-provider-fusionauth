@@ -289,6 +289,7 @@ func userResponseToData(data *schema.ResourceData, resp *fusionauth.UserResponse
 			"method":                    twoFactorMethod.Method,
 			"mobile_phone":              twoFactorMethod.MobilePhone,
 			"secret":                    secret,
+			"name":                      twoFactorMethod.Name,
 		}
 	}
 	if err := data.Set("two_factor_methods", twoFactorMethodsData); err != nil {
@@ -380,6 +381,7 @@ func dataToTwoFactorMethods(data *schema.ResourceData) (twoFactorMethods []fusio
 				Method:      twoFactorMethod["method"].(string),
 				MobilePhone: twoFactorMethod["mobile_phone"].(string),
 				Secret:      twoFactorMethod["secret"].(string),
+				Name:        twoFactorMethod["name"].(string),
 			}
 		}
 	}

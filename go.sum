@@ -1,7 +1,7 @@
 dario.cat/mergo v1.0.0 h1:AGCNq9Evsj31mOgNPcLyXc+4PNABt905YmuqPYYpBWk=
 dario.cat/mergo v1.0.0/go.mod h1:uNxQE+84aUszobStD9th8a29P2fMDhsBdgRYvZOxGmk=
-github.com/FusionAuth/go-client v1.67.0 h1:ytZaE78fDyhQwXjz2APytBwYR8Nq5zmXI6I3ObWNShE=
-github.com/FusionAuth/go-client v1.67.0/go.mod h1:GVL1t9+RMz0kjo/asGfRSitHgcl0dr4sPwe3hwIWNQI=
+github.com/FusionAuth/go-client v1.68.0 h1:BdJI5rDTtpn6ZH5jaF3lnOg3CXQc/aK4JQ5Ek42qKiw=
+github.com/FusionAuth/go-client v1.68.0/go.mod h1:GVL1t9+RMz0kjo/asGfRSitHgcl0dr4sPwe3hwIWNQI=
 github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/ProtonMail/go-crypto v1.4.1 h1:9RfcZHqEQUvP8RzecWEUafnZVtEvrBVL9BiF67IQOfM=
