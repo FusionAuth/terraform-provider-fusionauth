@@ -73,7 +73,7 @@ func TestAccFusionauthTheme_sourceThemeID(t *testing.T) {
 	customStylesheet := "/* derived custom stylesheet */"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.68.0") },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckFusionauthThemeDestroy,
 		Steps: []resource.TestStep{
