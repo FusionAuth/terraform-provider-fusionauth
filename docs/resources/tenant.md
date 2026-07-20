@@ -502,8 +502,8 @@ resource "fusionauth_tenant" "example" {
   * `verify_email` - (Optional) Whether the user’s email addresses are verified when the registers with your application.
   * `verify_email_when_changed` - (Optional) Whether the user’s email addresses are verified when the user changes them.
   * `unverified` - (Optional)
-    * `allow_email_change_when_gated` - (Optional) When this value is set to true, the user is allowed to change their email address when they are gated because they haven’t verified their email address.
-    * `behavior` = (Optional) The behavior when detecting breaches at time of user login.
+      * `allow_email_change_when_gated` - (Optional) When this value is set to true, the user is allowed to change their email address when they are gated because they haven’t verified their email address.
+      * `behavior` - (Optional) The desired behavior during login for a user that does not have a verified email. The possible values are: `Allow` - the user will be allowed to complete login; `Gated` - verification is required before a user can complete login. The use of `Gated` requires a paid plan. Defaults to `Allow`.
 * `event_configuration` - (Optional)
   * `enabled` - (Optional) Whether or not FusionAuth should send these types of events to any configured Webhooks.
   * `event` - (Optional) The event type

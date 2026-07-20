@@ -1991,7 +1991,7 @@ func newEmailConfiguration() *schema.Resource {
 								"Gated",
 							}, false),
 							Default:     "Allow",
-							Description: "The behavior when detecting breaches at time of user login",
+							Description: "The desired behavior during login for a user that does not have a verified email. The possible values are: `Allow` - the user will be allowed to complete login; `Gated` - verification is required before a user can complete login. The use of `Gated` requires a paid plan. Defaults to `Allow`.",
 						},
 					},
 				},
