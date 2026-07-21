@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"strings"
 	"time"
@@ -143,6 +144,54 @@ func updateIdentityProvider(b []byte, id string, client Client) ([]byte, error) 
 		return nil, fmt.Errorf("status: %d, response: \n\t%s\nreq body:\n\t%s", resp.StatusCode, string(bb), string(b))
 	}
 	return bb, nil
+}
+
+func patchIdentityProvider(b []byte, id string, client Client) error {
+	hc := http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	var lastErr error
+	// FusionAuth rejects concurrent identity provider updates with a retryable 409 conflict and
+	// asks clients to retry with exponential backoff.
+	for attempt := 0; attempt < 6; attempt++ {
+		if attempt > 0 {
+			time.Sleep(time.Duration(50<<attempt)*time.Millisecond + time.Duration(rand.IntN(50))*time.Millisecond) //nolint:gosec // backoff jitter is not security-sensitive
+		}
+
+		req, err := http.NewRequest(
+			http.MethodPatch,
+			fmt.Sprintf("%s/%s/%s", strings.TrimRight(client.Host, "/"), "api/identity-provider", id),
+			bytes.NewBuffer(b),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		req.Header.Add("Authorization", client.APIKey)
+		req.Header.Add("Content-Type", "application/merge-patch+json")
+
+		resp, err := hc.Do(req)
+		if err != nil {
+			return err
+		}
+		bb, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+
+		if resp.StatusCode == http.StatusConflict && strings.Contains(string(bb), "retryableConflict") {
+			lastErr = fmt.Errorf("status: %d, response: \n\t%s\nreq body:\n\t%s", resp.StatusCode, string(bb), string(b))
+			continue
+		}
+		if err := checkResponse(resp.StatusCode, nil); err != nil {
+			return err
+		}
+		if resp.StatusCode > 299 {
+			return fmt.Errorf("status: %d, response: \n\t%s\nreq body:\n\t%s", resp.StatusCode, string(bb), string(b))
+		}
+		return nil
+	}
+	return lastErr
 }
 
 func buildTenantConfigurationResource(tcm map[string]fusionauth.IdentityProviderTenantConfiguration) []map[string]interface{} {

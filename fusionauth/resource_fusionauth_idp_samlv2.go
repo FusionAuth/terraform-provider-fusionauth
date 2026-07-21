@@ -3,6 +3,7 @@ package fusionauth
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
@@ -22,13 +23,39 @@ type SAMLAppConfig struct {
 	Enabled            bool   `json:"enabled"`
 }
 
+// upgradeIDPSAMLv2StateV0 fills in manage_application_configurations on states written before
+// the field existed, so upgrading the provider doesn't force an update (which would wipe
+// externally managed application configurations).
+func upgradeIDPSAMLv2StateV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+	if rawState == nil {
+		rawState = map[string]interface{}{}
+	}
+	if v, ok := rawState["manage_application_configurations"]; !ok || v == nil {
+		rawState["manage_application_configurations"] = true
+	}
+	return rawState, nil
+}
+
 func resourceIDPSAMLv2() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
 		CreateContext: createIDPSAMLv2,
 		ReadContext:   readIDPSAMLv2,
 		UpdateContext: updateIDPSAMLv2,
 		DeleteContext: deleteIdentityProvider,
+		SchemaVersion: 1,
+		CustomizeDiff: func(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {
+			if !diff.Get("manage_application_configurations").(bool) && diff.Get("application_configuration").(*schema.Set).Len() > 0 {
+				return errors.New("application_configuration cannot be set when manage_application_configurations is false")
+			}
+			return nil
+		},
 		Schema: map[string]*schema.Schema{
+			"manage_application_configurations": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Whether this resource manages the identity provider's application configurations. Set to false when they are managed externally (e.g. by fusionauth_idp_saml_v2_application_configuration resources): the application_configuration block must then be omitted and existing configurations are left untouched, including any previously managed inline.",
+			},
 			"idp_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -354,6 +381,14 @@ func resourceIDPSAMLv2() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
+	r.StateUpgraders = []schema.StateUpgrader{
+		{
+			Version: 0,
+			Type:    r.CoreConfigSchema().ImpliedType(),
+			Upgrade: upgradeIDPSAMLv2StateV0,
+		},
+	}
+	return r
 }
 
 func createIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -398,12 +433,27 @@ func readIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) 
 func updateIDPSAMLv2(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildIDPSAMLv2(data)
 
+	client := i.(Client)
+
+	// When manage_application_configurations is false, entries are managed externally: carry
+	// the server-side entries into the PUT body so they survive the full replace.
+	if !data.Get("manage_application_configurations").(bool) {
+		cb, err := readIdentityProvider(data.Id(), client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		var current SAMLIdentityProviderBody
+		if err := json.Unmarshal(cb, &current); err != nil {
+			return diag.FromErr(err)
+		}
+		o.IdentityProvider.ApplicationConfiguration = current.IdentityProvider.ApplicationConfiguration
+	}
+
 	b, err := json.Marshal(o)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	client := i.(Client)
 	bb, err := updateIdentityProvider(b, data.Id(), client)
 	if err != nil {
 		if data.HasChange("linking_strategy") && strings.Contains(err.Error(), "unexpected status code: 400(") {
@@ -602,13 +652,31 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 		return diag.Errorf("idpSAMLv2.xml_signature_canonicalization_method: %s", err.Error())
 	}
 
+	// When manage_application_configurations is false, entries are managed externally: don't
+	// sync them into state, so they don't surface as perpetual diffs.
+	if data.Get("manage_application_configurations").(bool) {
+		if err := data.Set("application_configuration", buildSAMLv2AppConfigResource(res.ApplicationConfiguration)); err != nil {
+			return diag.Errorf("idpSAMLv2.application_configuration: %s", err.Error())
+		}
+	}
+
+	tc := buildTenantConfigurationResource(res.TenantConfiguration)
+	if err := data.Set("tenant_configuration", tc); err != nil {
+		return diag.Errorf("idpSAMLv2.tenant_configuration: %s", err.Error())
+	}
+
+	return nil
+}
+
+// buildSAMLv2AppConfigResource maps applicationConfiguration entries into resource data.
+func buildSAMLv2AppConfigResource(appConfig map[string]interface{}) []map[string]interface{} {
 	// Since this is coming down as an interface and would end up being map[string]interface{}
 	// with one of the values being map[string]interface{}
-	b, _ := json.Marshal(res.ApplicationConfiguration)
+	b, _ := json.Marshal(appConfig)
 	m := make(map[string]SAMLAppConfig)
 	_ = json.Unmarshal(b, &m)
 
-	ac := make([]map[string]interface{}, 0, len(res.ApplicationConfiguration))
+	ac := make([]map[string]interface{}, 0, len(m))
 	for k, v := range m {
 		ac = append(ac, map[string]interface{}{
 			"application_id":      k,
@@ -618,16 +686,7 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 			"enabled":             v.Enabled,
 		})
 	}
-	if err := data.Set("application_configuration", ac); err != nil {
-		return diag.Errorf("idpSAMLv2.application_configuration: %s", err.Error())
-	}
-
-	tc := buildTenantConfigurationResource(res.TenantConfiguration)
-	if err := data.Set("tenant_configuration", tc); err != nil {
-		return diag.Errorf("idpSAMLv2.tenant_configuration: %s", err.Error())
-	}
-
-	return nil
+	return ac
 }
 
 func buildSAMLv2AppConfig(key string, data *schema.ResourceData) map[string]interface{} {

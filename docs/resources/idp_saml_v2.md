@@ -8,6 +8,8 @@ FusionAuth will locate the user’s email address in the SAML assertion which wi
 
 [SAML v2 Connect Identity Providers API](https://fusionauth.io/docs/v1/tech/apis/identity-providers/samlv2/)
 
+!> **WARNING:** You should not use the `fusionauth_idp_saml_v2` resource with _in-line application configurations_ (using the `application_configuration` argument of `fusionauth_idp_saml_v2`) in conjunction with the [`fusionauth_idp_saml_v2_application_configuration`](idp_saml_v2_application_configuration.html) resource. Doing so may cause configuration conflicts, perpetual differences, and result in configuration being overwritten.
+
 ## Example Usage
 
 ```hcl
@@ -38,7 +40,7 @@ resource "fusionauth_idp_saml_v2" "Saml" {
 
 ---
 
-* `application_configuration` - (Optional) The configuration for each Application that the identity provider is enabled for.
+* `application_configuration` - (Optional) The configuration for each Application that the identity provider is enabled for. This resource manages the identity provider's application configurations authoritatively unless `manage_application_configurations` is set to `false`.
   * `application_id` - (Optional) ID of the Application to apply this configuration to.
   * `button_image_url` - (Optional) This is an optional Application specific override for the top level button image URL.
   * `button_text` - (Optional) This is an optional Application specific override for the top level button text.
@@ -63,6 +65,7 @@ resource "fusionauth_idp_saml_v2" "Saml" {
   * `enabled` - (Optional) Determines if FusionAuth will accept IdP initiated login requests from this SAMLv2 Identity Provider.
   * `issuer` - (Optional)The EntityId (unique identifier) of the SAML v2 identity provider. This value should be provided to you. Required when `enabled` is true.
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
+* `manage_application_configurations` - (Optional) Whether this resource manages the identity provider's application configurations. Defaults to `true`. Set to `false` when they are managed externally (e.g. by [`fusionauth_idp_saml_v2_application_configuration`](idp_saml_v2_application_configuration.html) resources): the `application_configuration` block must then be omitted and existing configurations are left untouched, including any previously managed inline. When `true` (the default), updates to this resource remove any application configuration not declared in-line.
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user. To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider.
 * `login_hint_configuration` - (Optional) The configuration for the login hint.
   * `enabled` - (Optional) When enabled and HTTP-Redirect bindings are used, FusionAuth will provide the username or email address when available to the IdP as a login hint using the configured parameter name set by the `parameter_name` to initiate the AuthN request.
