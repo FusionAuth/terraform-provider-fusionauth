@@ -71,6 +71,7 @@ func TestAccFusionauthTheme_sourceThemeID(t *testing.T) {
 	srcMessages := testdata.MessageProperties("")
 	srcTemplates := generateFusionAuthTemplate()
 	customStylesheet := "/* derived custom stylesheet */"
+	customTwoFactorEdit := "/* derived account_two_factor_edit override */"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.68.0") },
@@ -78,12 +79,14 @@ func TestAccFusionauthTheme_sourceThemeID(t *testing.T) {
 		CheckDestroy:      testAccCheckFusionauthThemeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccThemeSourceThemeIDConfig(srcName, derivedName, srcMessages, srcTemplates, customStylesheet),
+				Config: testAccThemeSourceThemeIDConfig(srcName, derivedName, srcMessages, srcTemplates, customStylesheet, customTwoFactorEdit),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFusionauthThemeExists(srcResourcePath),
 					testAccCheckFusionauthThemeExists(derivedResourcePath),
 					// Caller's stylesheet override applied on the first apply.
 					resource.TestCheckResourceAttr(derivedResourcePath, "stylesheet", customStylesheet),
+					// Caller's account_two_factor_edit override applied on the first apply.
+					resource.TestCheckResourceAttr(derivedResourcePath, "account_two_factor_edit", customTwoFactorEdit),
 					// Templates inherited from the source theme via the copy.
 					resource.TestCheckResourceAttr(derivedResourcePath, "helpers", srcTemplates.Helpers),
 					resource.TestCheckResourceAttr(derivedResourcePath, "oauth2_authorize", srcTemplates.Oauth2Authorize),
@@ -424,19 +427,22 @@ func testAccThemeSourceThemeIDConfig(
 	defaultMessages string,
 	templates fusionauth.Templates,
 	stylesheet string,
+	twoFactorEdit string,
 ) string {
 	srcConfig := testAccThemeResourceConfig(srcName, defaultMessages, "/* src styles */", templates)
 	derivedConfig := fmt.Sprintf(`
-# Derived theme: copies the source theme and overrides only the stylesheet.
+# Derived theme: copies the source theme and overrides the stylesheet and account_two_factor_edit.
 resource "fusionauth_theme" "derived_%[2]s" {
-  name            = "test-acc-derived %[2]s"
-  source_theme_id = fusionauth_theme.test_%[1]s.id
-  stylesheet      = "%[3]s"
+  name                    = "test-acc-derived %[2]s"
+  source_theme_id         = fusionauth_theme.test_%[1]s.id
+  stylesheet              = "%[3]s"
+  account_two_factor_edit = "%[4]s"
 }
 `,
 		srcName,
 		derivedName,
 		stylesheet,
+		twoFactorEdit,
 	)
 
 	return srcConfig + derivedConfig
