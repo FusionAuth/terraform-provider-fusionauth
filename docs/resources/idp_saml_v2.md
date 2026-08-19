@@ -62,6 +62,7 @@ resource "fusionauth_idp_saml_v2" "Saml" {
 * `idp_initiated_configuration` - (Optional) The configuration for the IdP initiated login.
   * `enabled` - (Optional) Determines if FusionAuth will accept IdP initiated login requests from this SAMLv2 Identity Provider.
   * `issuer` - (Optional)The EntityId (unique identifier) of the SAML v2 identity provider. This value should be provided to you. Required when `enabled` is true.
+* `issuer` - (Optional) The EntityId (unique identifier) FusionAuth uses as the SAML service provider. FusionAuth expects the Audience value in the SAML assertion to match this value. When not provided, FusionAuth uses the default service provider EntityId of `<base_url>/samlv2/sp/<identityProviderId>`; that default is applied when serving metadata and validating assertions and is not stored on the identity provider, so this attribute stays empty until you set it explicitly. This value is not required to be a URI, but it must not be an empty string when provided.
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user. To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider.
 * `login_hint_configuration` - (Optional) The configuration for the login hint.

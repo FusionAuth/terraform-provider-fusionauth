@@ -211,6 +211,12 @@ func resourceIDPSAMLv2() *schema.Resource {
 					},
 				},
 			},
+			"issuer": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The EntityId (unique identifier) FusionAuth uses as the SAML service provider. FusionAuth expects the Audience value in the SAML assertion to match this value. When not provided, FusionAuth uses the default service provider EntityId of `<base_url>/samlv2/sp/<identityProviderId>`; that default is applied when serving metadata and validating assertions and is not stored on the identity provider, so this attribute stays empty until you set it explicitly. This value is not required to be a URI, but it must not be an empty string when provided.",
+			},
 			"key_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -473,6 +479,7 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 		},
 		ButtonImageURL: data.Get("button_image_url").(string),
 		ButtonText:     data.Get("button_text").(string),
+		Issuer:         data.Get("issuer").(string),
 		BaseSAMLv2IdentityProvider: fusionauth.BaseSAMLv2IdentityProvider{
 			AssertionDecryptionConfiguration: fusionauth.SAMLv2AssertionDecryptionConfiguration{
 				Enableable:                  buildEnableable("assertion_configuration.0.decryption.0.enabled", data),
@@ -523,9 +530,39 @@ func buildIDPSAMLv2(data *schema.ResourceData) SAMLIdentityProviderBody {
 	return SAMLIdentityProviderBody{IdentityProvider: s}
 }
 func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SAMLv2IdentityProvider) diag.Diagnostics {
-	if err := data.Set("attribute_mappings", res.AttributeMappings); err != nil {
-		return diag.Errorf("idpSAMLv2.attribute_mappings: %s", err.Error())
+	// FusionAuth reads verification_key_ids back in key Id order, so realign it against the
+	// configured order before writing it to state.
+	keyIDs := alignVerificationKeyIDs(data.Get("verification_key_ids").([]interface{}), res.VerificationKeyIds)
+
+	if diags := setResourceData("idpSAMLv2", data, map[string]interface{}{
+		"attribute_mappings":                    res.AttributeMappings,
+		"button_image_url":                      res.ButtonImageURL,
+		"button_text":                           res.ButtonText,
+		"debug":                                 res.Debug,
+		"domains":                               res.Domains,
+		"email_claim":                           res.EmailClaim,
+		"enabled":                               res.Enabled,
+		"idp_endpoint":                          res.IdpEndpoint,
+		"issuer":                                res.Issuer,
+		"key_id":                                res.KeyId,
+		"lambda_reconcile_id":                   res.LambdaConfiguration.ReconcileId,
+		"linking_strategy":                      res.LinkingStrategy,
+		"name":                                  res.Name,
+		"name_id_format":                        res.NameIdFormat,
+		"post_request":                          res.PostRequest,
+		"request_signing_key":                   res.RequestSigningKeyId,
+		"sign_request":                          res.SignRequest,
+		"source":                                res.Source,
+		"tenant_id":                             res.TenantId,
+		"unique_id_claim":                       res.UniqueIdClaim,
+		"use_name_for_email":                    res.UseNameIdForEmail,
+		"username_claim":                        res.UsernameClaim,
+		"verification_key_ids":                  keyIDs,
+		"xml_signature_canonicalization_method": res.XmlSignatureC14nMethod,
+	}); diags != nil {
+		return diags
 	}
+
 	if err := data.Set("assertion_configuration", []map[string]interface{}{
 		{
 			"destination": []map[string]interface{}{
@@ -545,33 +582,6 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 		return diag.Errorf("idpSAMLv2.assertion_configuration: %s", err.Error())
 	}
 
-	if err := data.Set("button_image_url", res.ButtonImageURL); err != nil {
-		return diag.Errorf("idpSAMLv2.button_image_url: %s", err.Error())
-	}
-	if err := data.Set("button_text", res.ButtonText); err != nil {
-		return diag.Errorf("idpSAMLv2.button_text: %s", err.Error())
-	}
-	if err := data.Set("debug", res.Debug); err != nil {
-		return diag.Errorf("idpSAMLv2.debug: %s", err.Error())
-	}
-	if err := data.Set("domains", res.Domains); err != nil {
-		return diag.Errorf("idpSAMLv2.domains: %s", err.Error())
-	}
-	if err := data.Set("email_claim", res.EmailClaim); err != nil {
-		return diag.Errorf("idpSAMLv2.email_claim: %s", err.Error())
-	}
-	if err := data.Set("unique_id_claim", res.UniqueIdClaim); err != nil {
-		return diag.Errorf("idpSAMLv2.unique_id_claim: %s", err.Error())
-	}
-	if err := data.Set("username_claim", res.UsernameClaim); err != nil {
-		return diag.Errorf("idpSAMLv2.username_claim: %s", err.Error())
-	}
-	if err := data.Set("enabled", res.Enabled); err != nil {
-		return diag.Errorf("idpSAMLv2.enabled: %s", err.Error())
-	}
-	if err := data.Set("idp_endpoint", res.IdpEndpoint); err != nil {
-		return diag.Errorf("idpSAMLv2.idp_endpoint: %s", err.Error())
-	}
 	if err := data.Set("idp_initiated_configuration", []map[string]interface{}{
 		{
 			"enabled": res.IdpInitiatedConfiguration.Enabled,
@@ -580,15 +590,7 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 	}); err != nil {
 		return diag.Errorf("idpSAMLv2.idp_initiated_configuration: %s", err.Error())
 	}
-	if err := data.Set("key_id", res.KeyId); err != nil {
-		return diag.Errorf("idpSAMLv2.key_id: %s", err.Error())
-	}
-	if err := data.Set("lambda_reconcile_id", res.LambdaConfiguration.ReconcileId); err != nil {
-		return diag.Errorf("idpSAMLv2.lambda_reconcile_id: %s", err.Error())
-	}
-	if err := data.Set("linking_strategy", res.LinkingStrategy); err != nil {
-		return diag.Errorf("idpSAMLv2.linking_strategy: %s", err.Error())
-	}
+
 	if err := data.Set("login_hint_configuration", []map[string]interface{}{
 		{
 			"enabled":        res.LoginHintConfiguration.Enabled,
@@ -596,37 +598,6 @@ func buildResourceDataFromIDPSAMLv2(data *schema.ResourceData, res fusionauth.SA
 		},
 	}); err != nil {
 		return diag.Errorf("idpSAMLv2.login_hint_configuration: %s", err.Error())
-	}
-	if err := data.Set("name", res.Name); err != nil {
-		return diag.Errorf("idpSAMLv2.name: %s", err.Error())
-	}
-	if err := data.Set("name_id_format", res.NameIdFormat); err != nil {
-		return diag.Errorf("idpSAMLv2.nameIdFormat: %s", err.Error())
-	}
-	if err := data.Set("post_request", res.PostRequest); err != nil {
-		return diag.Errorf("idpSAMLv2.post_request: %s", err.Error())
-	}
-	if err := data.Set("request_signing_key", res.RequestSigningKeyId); err != nil {
-		return diag.Errorf("idpSAMLv2.request_signing_key: %s", err.Error())
-	}
-	if err := data.Set("sign_request", res.SignRequest); err != nil {
-		return diag.Errorf("idpSAMLv2.sign_request: %s", err.Error())
-	}
-	if err := data.Set("source", res.Source); err != nil {
-		return diag.Errorf("idpSAMLv2.source: %s", err.Error())
-	}
-	if err := data.Set("tenant_id", res.TenantId); err != nil {
-		return diag.Errorf("idpSAMLv2.tenant_id: %s", err.Error())
-	}
-	if err := data.Set("use_name_for_email", res.UseNameIdForEmail); err != nil {
-		return diag.Errorf("idpSAMLv2.use_name_for_email: %s", err.Error())
-	}
-	keyIDs := alignVerificationKeyIDs(data.Get("verification_key_ids").([]interface{}), res.VerificationKeyIds)
-	if err := data.Set("verification_key_ids", keyIDs); err != nil {
-		return diag.Errorf("idpSAMLv2.verification_key_ids: %s", err.Error())
-	}
-	if err := data.Set("xml_signature_canonicalization_method", res.XmlSignatureC14nMethod); err != nil {
-		return diag.Errorf("idpSAMLv2.xml_signature_canonicalization_method: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}
