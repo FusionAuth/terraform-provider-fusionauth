@@ -318,6 +318,7 @@ edit-profile=Edit profile
 enable-instructions=Enable two-factor
 enable-two-factor=Enable two-factor
 go-back=Go back
+return-to-application=Return to application
 send-one-time-code=Send a one-time code
 
 #
