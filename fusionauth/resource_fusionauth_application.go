@@ -789,10 +789,24 @@ func newSamlv2Configuration() *schema.Resource {
 				Description: "Whether or not FusionAuth will log SAML debug messages to the event log. This is useful for debugging purposes.",
 			},
 			"default_verification_key_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Description:  "Default verification key to use for HTTP Redirect Bindings, and for POST Bindings when no key is found in request.",
-				ValidateFunc: validation.IsUUID,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				Deprecated:    "In version 1.69.0 and above, use the verification_key_ids field. default_verification_key_id will continue to be populated with the first entry in verification_key_ids for backward compatibility.",
+				Description:   "Default verification key to use for HTTP Redirect Bindings, and for POST Bindings when no key is found in request.",
+				ValidateFunc:  validation.IsUUID,
+				ConflictsWith: []string{"samlv2_configuration.0.verification_key_ids"},
+			},
+			"verification_key_ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.IsUUID,
+				},
+				Description:   "The verification keys used to verify a signature when the SAML v2 Service Provider is using HTTP Redirect Bindings OR HTTP POST Bindings. If a KeyInfo element is found, Key Master will be used to resolve the key but the key must still be included in this list. This parameter or samlv2_configuration.default_verification_key_id is required when samlv2_configuration.required_signed_requests is set to true. The first entry is the default verification key. Requires FusionAuth 1.69.0 or later.",
+				ConflictsWith: []string{"samlv2_configuration.0.default_verification_key_id"},
 			},
 			"initiated_login": {
 				Type:             schema.TypeList,
@@ -877,10 +891,24 @@ func newSamlv2Configuration() *schema.Resource {
 							Description: "This configuration is functionally equivalent to the Logout Behavior found in the OAuth2 configuration.",
 						},
 						"default_verification_key_id": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.IsUUID,
-							Description:  "The unique Id of the Key used to verify the signature if the public key cannot be determined by the KeyInfo element when using POST bindings, or the key used to verify the signature when using HTTP Redirect bindings.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							Deprecated:    "In version 1.69.0 and above, use the verification_key_ids field. default_verification_key_id will continue to be populated with the first entry in verification_key_ids for backward compatibility.",
+							ValidateFunc:  validation.IsUUID,
+							Description:   "The unique Id of the Key used to verify the signature if the public key cannot be determined by the KeyInfo element when using POST bindings, or the key used to verify the signature when using HTTP Redirect bindings.",
+							ConflictsWith: []string{"samlv2_configuration.0.logout.0.verification_key_ids"},
+						},
+						"verification_key_ids": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.IsUUID,
+							},
+							Description:   "The verification keys used to verify a signature when the SAML v2 Service Provider is using HTTP Redirect Bindings OR HTTP POST Bindings. If a KeyInfo element is found, Key Master will be used to resolve the key but the key must still be included in this list. This parameter or samlv2_configuration.logout.default_verification_key_id is required when samlv2_configuration.logout.require_signed_requests is set to true. The first entry is the default verification key. Requires FusionAuth 1.69.0 or later.",
+							ConflictsWith: []string{"samlv2_configuration.0.logout.0.default_verification_key_id"},
 						},
 						"key_id": {
 							Type:         schema.TypeString,
@@ -1159,6 +1187,16 @@ func newJWTConfiguration() *schema.Resource {
 				Computed:    true,
 				Description: "The Id of the signing key used to sign the access token.",
 			},
+			"access_token_verification_key_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.IsUUID,
+				},
+				Description: "The list of access token verification key Ids that are trusted by this application. access_token_id is implicitly included in this list and does not need to be explicitly specified. If access_token_id is changed to a new key and the old key is supplied in this field, then this facilitates key rotation because FusionAuth will trust JWTs signed by both keys, while only signing JWTs with the new key. Requires FusionAuth 1.69.0 or later.",
+			},
 			"enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -1170,6 +1208,16 @@ func newJWTConfiguration() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: "The Id of the signing key used to sign the Id token.",
+			},
+			"id_token_verification_key_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.IsUUID,
+				},
+				Description: "The list of Id token verification key Ids that are trusted by this application. id_token_key_id is implicitly included in this list and does not need to be explicitly specified. If id_token_key_id is changed to a new key and the old key is supplied in this field, then this facilitates key rotation because FusionAuth will trust JWTs signed by both keys, while only signing JWTs with the new key. Requires FusionAuth 1.69.0 or later.",
 			},
 			"refresh_token_expiration_policy": {
 				Type:        schema.TypeString,

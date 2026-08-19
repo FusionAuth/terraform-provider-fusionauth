@@ -45,12 +45,18 @@ func init() {
 
 // fusionauthClient extracts the underlying client from a configured provider
 func fusionauthClient() fusionauth.FusionAuthClient {
+	return fusionauthProviderClient().FAClient
+}
+
+// fusionauthProviderClient extracts the provider client configuration, for the resources that are
+// read via a raw request rather than the go-client.
+func fusionauthProviderClient() Client {
 	provider, err := testAccProviderFactories[providerFusionauth]()
 	if err != nil {
 		log.Println("[ERROR] error getting Fusionauth Provider")
 	}
 
-	return provider.Meta().(Client).FAClient
+	return provider.Meta().(Client)
 }
 
 // testAccPreCheck validates the necessary test API keys exist in the testing

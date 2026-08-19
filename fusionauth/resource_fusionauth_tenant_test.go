@@ -191,6 +191,71 @@ resource "fusionauth_tenant" "test_%[1]s" {
 `, resourceName)
 }
 
+// TestAccFusionauthTenant_verificationKeyIds covers the FusionAuth 1.69.0 JWT verification key
+// lists; skips on older servers.
+func TestAccFusionauthTenant_verificationKeyIds(t *testing.T) {
+	resourceName := randString10()
+	firstKey, secondKey := randString10(), randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_tenant.test_%s", resourceName)
+	firstKeyPath := fmt.Sprintf("fusionauth_key.test_%s", firstKey)
+	secondKeyPath := fmt.Sprintf("fusionauth_key.test_%s", secondKey)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.69.0") },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthTenantDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTenantResourceVerificationKeyIDsConfig(resourceName, firstKey, secondKey, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.access_token_verification_key_ids.#", "2"),
+					resource.TestCheckTypeSetElemAttrPair(tfResourcePath, "jwt_configuration.0.access_token_verification_key_ids.*", firstKeyPath, "id"),
+					resource.TestCheckTypeSetElemAttrPair(tfResourcePath, "jwt_configuration.0.access_token_verification_key_ids.*", secondKeyPath, "id"),
+					resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.id_token_verification_key_ids.#", "1"),
+					resource.TestCheckTypeSetElemAttrPair(tfResourcePath, "jwt_configuration.0.id_token_verification_key_ids.*", firstKeyPath, "id"),
+				),
+			},
+			{
+				// Rotate off the first key on both lists.
+				Config: testAccTenantResourceVerificationKeyIDsConfig(resourceName, firstKey, secondKey, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.access_token_verification_key_ids.#", "1"),
+					resource.TestCheckTypeSetElemAttrPair(tfResourcePath, "jwt_configuration.0.access_token_verification_key_ids.*", secondKeyPath, "id"),
+					resource.TestCheckResourceAttr(tfResourcePath, "jwt_configuration.0.id_token_verification_key_ids.#", "1"),
+					resource.TestCheckTypeSetElemAttrPair(tfResourcePath, "jwt_configuration.0.id_token_verification_key_ids.*", secondKeyPath, "id"),
+				),
+			},
+		},
+	})
+}
+
+// testAccTenantResourceVerificationKeyIDsConfig returns terraform configuration for a tenant that
+// trusts additional JWT verification keys. The signing keys are left computed, so the trusted keys
+// are always keys the tenant doesn't already sign with.
+func testAccTenantResourceVerificationKeyIDsConfig(resourceName, firstKey, secondKey string, rotated bool) string {
+	accessTokenKeys := fmt.Sprintf("[fusionauth_key.test_%s.id, fusionauth_key.test_%s.id]", firstKey, secondKey)
+	idTokenKeys := fmt.Sprintf("[fusionauth_key.test_%s.id]", firstKey)
+	if rotated {
+		accessTokenKeys = fmt.Sprintf("[fusionauth_key.test_%s.id]", secondKey)
+		idTokenKeys = fmt.Sprintf("[fusionauth_key.test_%s.id]", secondKey)
+	}
+
+	return testKeyConfig(firstKey, "") +
+		testKeyConfig(secondKey, "") +
+		fmt.Sprintf(`
+resource "fusionauth_tenant" "test_%[1]s" {
+  name = "test-acc-verifykeys %[1]s"
+
+  jwt_configuration {
+    access_token_verification_key_ids = %[2]s
+    id_token_verification_key_ids     = %[3]s
+  }
+}
+`, resourceName, accessTokenKeys, idTokenKeys)
+}
+
 // testTenantAccTestCheckFuncs abstracts the test case setup required between
 // create and update testing.
 func testTenantAccTestCheckFuncs(

@@ -123,10 +123,12 @@ func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 			},
 			"key_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
+				Computed:     true,
+				Deprecated:   "In version 1.69.0 and above, use the verification_key_ids field. key_id will continue to be populated with the first entry in verification_key_ids for backward compatibility.",
 				ValidateFunc: validation.IsUUID,
 				Description:  "The id of the key stored in Key Master that is used to verify the SAML response sent back to FusionAuth from the identity provider. This key must be a verification only key or certificate (meaning that it only has a public key component).",
-				ForceNew:     true,
+				ExactlyOneOf: []string{"key_id", "verification_key_ids"},
 			},
 			"lambda_reconcile_id": {
 				Type:         schema.TypeString,
@@ -164,6 +166,17 @@ func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 				Description: "Whether or not FusionAuth will use the NameID element value as the email address of the user for reconciliation processing. If this is false, then the `email_claim` property must be set.",
+			},
+			"verification_key_ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.IsUUID,
+				},
+				Description:  "The Ids of the keys stored in Key Master that are used to verify the SAML response sent back to FusionAuth from the identity provider. These keys must be verification only keys or certificates (meaning that they only have a public key component). The first entry is the default verification key. Requires FusionAuth 1.69.0 or later.",
+				ExactlyOneOf: []string{"key_id", "verification_key_ids"},
 			},
 			"username_claim": {
 				Type:        schema.TypeString,
@@ -238,6 +251,14 @@ func createIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i
 	}
 
 	data.SetId(o.IdentityProvider.Id)
+
+	// FusionAuth derives verification_key_ids from the deprecated key_id when the list is omitted, so
+	// write the list back rather than leaving it unknown until the next refresh.
+	keyIDs := alignVerificationKeyIDs(data.Get("verification_key_ids").([]interface{}), o.IdentityProvider.VerificationKeyIds)
+	if err := data.Set("verification_key_ids", keyIDs); err != nil {
+		return diag.Errorf("idpSAMLv2IdpInitiated.verification_key_ids: %s", err.Error())
+	}
+
 	return nil
 }
 
@@ -285,6 +306,15 @@ func updateIDPSAMLv2IdPInitiated(_ context.Context, data *schema.ResourceData, i
 }
 
 func buildIDPSAMLv2IdPInitiated(data *schema.ResourceData) SAMLIDPInitiatedIdentityProviderBody {
+	verificationKeyIDs := handleStringSliceFromList(data.Get("verification_key_ids").([]interface{}))
+
+	// SAMLv2IdPInitiatedIdentityProviderValidator still requires keyId even when verificationKeyIds is
+	// supplied, so send the first entry. The server derives the same value on read (ENG-4598).
+	keyID := data.Get("key_id").(string)
+	if keyID == "" && len(verificationKeyIDs) > 0 {
+		keyID = verificationKeyIDs[0]
+	}
+
 	s := fusionauth.SAMLv2IdPInitiatedIdentityProvider{
 		BaseSAMLv2IdentityProvider: fusionauth.BaseSAMLv2IdentityProvider{
 			BaseIdentityProvider: fusionauth.BaseIdentityProvider{
@@ -304,11 +334,12 @@ func buildIDPSAMLv2IdPInitiated(data *schema.ResourceData) SAMLIDPInitiatedIdent
 				Enableable:                  buildEnableable("assertion_configuration.0.decryption.0.enabled", data),
 				KeyTransportDecryptionKeyId: data.Get("assertion_configuration.0.decryption.0.key_transport_decryption_key_id").(string),
 			},
-			EmailClaim:        data.Get("email_claim").(string),
-			KeyId:             data.Get("key_id").(string),
-			UniqueIdClaim:     data.Get("unique_id_claim").(string),
-			UseNameIdForEmail: data.Get("use_name_for_email").(bool),
-			UsernameClaim:     data.Get("username_claim").(string),
+			EmailClaim:         data.Get("email_claim").(string),
+			KeyId:              keyID,
+			VerificationKeyIds: verificationKeyIDs,
+			UniqueIdClaim:      data.Get("unique_id_claim").(string),
+			UseNameIdForEmail:  data.Get("use_name_for_email").(bool),
+			UsernameClaim:      data.Get("username_claim").(string),
 		},
 		Issuer: data.Get("issuer").(string),
 	}
@@ -370,6 +401,10 @@ func buildResourceDataFromIDPSAMLv2IdPInitiated(data *schema.ResourceData, res f
 	}
 	if err := data.Set("use_name_for_email", res.UseNameIdForEmail); err != nil {
 		return diag.Errorf("idpSAMLv2IdpInitiated.use_name_for_email: %s", err.Error())
+	}
+	keyIDs := alignVerificationKeyIDs(data.Get("verification_key_ids").([]interface{}), res.VerificationKeyIds)
+	if err := data.Set("verification_key_ids", keyIDs); err != nil {
+		return diag.Errorf("idpSAMLv2IdpInitiated.verification_key_ids: %s", err.Error())
 	}
 	if err := data.Set("username_claim", res.UsernameClaim); err != nil {
 		return diag.Errorf("idpSAMLv2IdpInitiated.username_claim: %s", err.Error())

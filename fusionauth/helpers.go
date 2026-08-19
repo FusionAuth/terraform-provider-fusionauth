@@ -39,6 +39,30 @@ func handleStringSliceFromSet(set *schema.Set) []string {
 	return s
 }
 
+// alignVerificationKeyIDs returns apiValues in the order held by prior when both contain the same
+// members and the same first entry. FusionAuth returns verification key lists default first then
+// sorted by key Id, which would otherwise churn a user authored order (ENG-4598).
+func alignVerificationKeyIDs(prior []interface{}, apiValues []string) []string {
+	priorValues := handleStringSliceFromList(prior)
+	if len(priorValues) != len(apiValues) || len(apiValues) == 0 || priorValues[0] != apiValues[0] {
+		return apiValues
+	}
+
+	remaining := make(map[string]int, len(apiValues))
+	for _, v := range apiValues {
+		remaining[v]++
+	}
+	for _, v := range priorValues {
+		if remaining[v] == 0 {
+			// Membership differs, so the change is real drift rather than reordering.
+			return apiValues
+		}
+		remaining[v]--
+	}
+
+	return priorValues
+}
+
 func checkResponse(statusCode int, faErrors *fusionauth.Errors) error {
 	switch {
 	case statusCode >= 200 && statusCode <= 299:

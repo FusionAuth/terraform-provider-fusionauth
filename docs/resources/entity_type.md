@@ -34,4 +34,10 @@ resource "fusionauth_entity_type" "company" {
       If true the signing algorithm defined in this application will be used.
   * `access_token_key_id` - (Required) The unique ID of the signing key used to sign the access token. Required when
       enabled is set to true.
+  * `access_token_verification_key_ids` - (Optional) The list of access token verification key Ids that are trusted for
+      this entity type when entity JWTs are presented to `/oauth2/introspect` or in SCIM use cases.
+      `access_token_key_id` is implicitly included in this list and does not need to be explicitly specified. If
+      `access_token_key_id` is changed to a new key and the old key is supplied in this field, then this facilitates key
+      rotation because FusionAuth will trust JWTs signed by both keys, while only signing JWTs with the new key.
+      Requires FusionAuth 1.69.0 or later.
   * `time_to_live_in_seconds` - (Required) The length of time in seconds the JWT will live before it is expired and no longer valid. Required when enabled is set to true.
