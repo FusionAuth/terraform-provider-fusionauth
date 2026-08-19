@@ -80,10 +80,13 @@ func resourceIDPExternalJWT() *schema.Resource {
 				Description: "Determines if debug is enabled for this provider. When enabled, each time this provider is invoked to reconcile a login an Event Log will be created.",
 			},
 			"default_key_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Description:  "When configured this key will be used to verify the signature of the JWT when the header key defined by the headerKeyParameter property is not found in the JWT header. In most cases, the JWT header will contain the key identifier and this value will be used to resolve the correct public key or X.509 certificate to verify the signature. This assumes the public key or X.509 certificate has already been imported using the Key API or Key Master in the FusionAuth admin UI.",
-				ValidateFunc: validation.IsUUID,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				Deprecated:    "In version 1.69.0 and above, use the verification_key_ids field. default_key_id will continue to be populated with the first entry in verification_key_ids for backward compatibility.",
+				Description:   "When configured this key will be used to verify the signature of the JWT when the header key defined by the headerKeyParameter property is not found in the JWT header. In most cases, the JWT header will contain the key identifier and this value will be used to resolve the correct public key or X.509 certificate to verify the signature. This assumes the public key or X.509 certificate has already been imported using the Key API or Key Master in the FusionAuth admin UI.",
+				ValidateFunc:  validation.IsUUID,
+				ConflictsWith: []string{"verification_key_ids"},
 			},
 			"domains": {
 				Type:        schema.TypeSet,
@@ -174,6 +177,17 @@ func resourceIDPExternalJWT() *schema.Resource {
 				Deprecated:  "This field is deprecated and will be removed in a future release. Prefer the use of oauth2_unique_id_claim.",
 				Description: "The name of the claim that represents the unique identify of the User. This will generally be email or the name of the claim that provides the email address.",
 			},
+			"verification_key_ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.IsUUID,
+				},
+				Description:   "These keys will be used to verify the signature of the JWT. In most cases, the JWT header will contain the key identifier and this value will be used to resolve the correct key to verify the signature but that key must be in this list. This assumes the key has already been imported using the Key API or Key Master in the FusionAuth admin UI. The first entry is used when the header key defined by header_key_parameter is not found in the JWT header. Requires FusionAuth 1.69.0 or later.",
+				ConflictsWith: []string{"default_key_id"},
+			},
 			"source": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -243,6 +257,14 @@ func createIDPExternalJWT(_ context.Context, data *schema.ResourceData, i interf
 	}
 
 	data.SetId(o.IdentityProvider.Id)
+
+	// FusionAuth derives verification_key_ids from the deprecated default_key_id when the list is
+	// omitted, so write the list back rather than leaving it unknown until the next refresh.
+	keyIDs := alignVerificationKeyIDs(data.Get("verification_key_ids").([]interface{}), o.IdentityProvider.VerificationKeyIds)
+	if err := data.Set("verification_key_ids", keyIDs); err != nil {
+		return diag.Errorf("idpExternalJwt.verification_key_ids: %s", err.Error())
+	}
+
 	return nil
 }
 
@@ -305,6 +327,7 @@ func buildIDPExternalJWT(data *schema.ResourceData) IDPExternalJWTProviderBody {
 			Type:            fusionauth.IdentityProviderType_ExternalJWT,
 		},
 		DefaultKeyId:       data.Get("default_key_id").(string),
+		VerificationKeyIds: handleStringSliceFromList(data.Get("verification_key_ids").([]interface{})),
 		Domains:            handleStringSlice("domains", data),
 		HeaderKeyParameter: data.Get("header_key_parameter").(string),
 		// TODO: handle keys
@@ -410,6 +433,10 @@ func buildResourceDataFromIDPExternalJWT(data *schema.ResourceData, res fusionau
 	}
 	if err := data.Set("unique_identity_claim", res.UniqueIdentityClaim); err != nil {
 		return diag.Errorf("idpExternalJwt.unique_identity_claim: %s", err.Error())
+	}
+	verificationKeyIDs := alignVerificationKeyIDs(data.Get("verification_key_ids").([]interface{}), res.VerificationKeyIds)
+	if err := data.Set("verification_key_ids", verificationKeyIDs); err != nil {
+		return diag.Errorf("idpExternalJwt.verification_key_ids: %s", err.Error())
 	}
 
 	// Since this is coming down as an interface and would end up being map[string]interface{}

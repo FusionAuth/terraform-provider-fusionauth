@@ -210,9 +210,11 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 		HttpSessionMaxInactiveInterval: data.Get("http_session_max_inactive_interval").(int),
 		Issuer:                         data.Get("issuer").(string),
 		JwtConfiguration: fusionauth.JWTConfiguration{
-			AccessTokenKeyId:             data.Get("jwt_configuration.0.access_token_key_id").(string),
-			IdTokenKeyId:                 data.Get("jwt_configuration.0.id_token_key_id").(string),
-			RefreshTokenExpirationPolicy: fusionauth.RefreshTokenExpirationPolicy(data.Get("jwt_configuration.0.refresh_token_expiration_policy").(string)),
+			AccessTokenKeyId:              data.Get("jwt_configuration.0.access_token_key_id").(string),
+			AccessTokenVerificationKeyIds: handleStringSliceFromSet(data.Get("jwt_configuration.0.access_token_verification_key_ids").(*schema.Set)),
+			IdTokenKeyId:                  data.Get("jwt_configuration.0.id_token_key_id").(string),
+			IdTokenVerificationKeyIds:     handleStringSliceFromSet(data.Get("jwt_configuration.0.id_token_verification_key_ids").(*schema.Set)),
+			RefreshTokenExpirationPolicy:  fusionauth.RefreshTokenExpirationPolicy(data.Get("jwt_configuration.0.refresh_token_expiration_policy").(string)),
 			RefreshTokenOneTimeUseConfiguration: fusionauth.RefreshTokenOneTimeUseConfiguration{
 				GracePeriodInSeconds: data.Get("jwt_configuration.0.refresh_token_one_time_use_configuration_grace_period_in_seconds").(int),
 			},
@@ -763,9 +765,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	err = data.Set("jwt_configuration", []map[string]interface{}{
 		{
-			"access_token_key_id":             t.JwtConfiguration.AccessTokenKeyId,
-			"id_token_key_id":                 t.JwtConfiguration.IdTokenKeyId,
-			"refresh_token_expiration_policy": t.JwtConfiguration.RefreshTokenExpirationPolicy,
+			"access_token_key_id":               t.JwtConfiguration.AccessTokenKeyId,
+			"access_token_verification_key_ids": t.JwtConfiguration.AccessTokenVerificationKeyIds,
+			"id_token_key_id":                   t.JwtConfiguration.IdTokenKeyId,
+			"id_token_verification_key_ids":     t.JwtConfiguration.IdTokenVerificationKeyIds,
+			"refresh_token_expiration_policy":   t.JwtConfiguration.RefreshTokenExpirationPolicy,
 			"refresh_token_one_time_use_configuration_grace_period_in_seconds": t.JwtConfiguration.RefreshTokenOneTimeUseConfiguration.GracePeriodInSeconds,
 			"refresh_token_revocation_policy_on_login_prevented":               t.JwtConfiguration.RefreshTokenRevocationPolicy.OnLoginPrevented,
 			"refresh_token_revocation_policy_on_multi_factor_enable":           t.JwtConfiguration.RefreshTokenRevocationPolicy.OnMultiFactorEnable,
