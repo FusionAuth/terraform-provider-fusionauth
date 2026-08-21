@@ -33,7 +33,7 @@ resource "fusionauth_idp_saml_v2" "Saml" {
 ## Argument Reference
 
 * `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
-* `key_id` - (Required) The id of the key stored in Key Master that is used to verify the SAML response sent back to FusionAuth from the identity provider. This key must be a verification only key or certificate (meaning that it only has a public key component).
+* `key_id` - (Optional, Deprecated) The id of the key stored in Key Master that is used to verify the SAML response sent back to FusionAuth from the identity provider. This key must be a verification only key or certificate (meaning that it only has a public key component). In version 1.69.0 and above, use `verification_key_ids` instead. This field will continue to be populated with the first entry in `verification_key_ids` for backward compatibility, so removing it from your configuration no longer clears it. Set `verification_key_ids` instead. Exactly one of `key_id` or `verification_key_ids` must be set. See the [1.69.0 Key Configuration Migration Guide](https://fusionauth.io/docs/operate/troubleshooting/1-69-0-migration-guide#external-saml-idps).
 * `name` - (Required) The name of this OpenID Connect identity provider. This is only used for display purposes.
 
 ---
@@ -62,6 +62,7 @@ resource "fusionauth_idp_saml_v2" "Saml" {
 * `idp_initiated_configuration` - (Optional) The configuration for the IdP initiated login.
   * `enabled` - (Optional) Determines if FusionAuth will accept IdP initiated login requests from this SAMLv2 Identity Provider.
   * `issuer` - (Optional)The EntityId (unique identifier) of the SAML v2 identity provider. This value should be provided to you. Required when `enabled` is true.
+* `issuer` - (Optional) The EntityId (unique identifier) FusionAuth uses as the SAML service provider. FusionAuth expects the Audience value in the SAML assertion to match this value. When not provided, FusionAuth uses the default service provider EntityId of `<base_url>/samlv2/sp/<identityProviderId>`; that default is applied when serving metadata and validating assertions and is not stored on the identity provider, so this attribute stays empty until you set it explicitly. This value is not required to be a URI, but it must not be an empty string when provided.
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user. To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider.
 * `login_hint_configuration` - (Optional) The configuration for the login hint.
@@ -82,4 +83,5 @@ resource "fusionauth_idp_saml_v2" "Saml" {
 * `unique_id_claim` - (Optional) The name of the unique claim in the SAML response that FusionAuth uses to uniquely link the user. If this is not set, `the email_claim` will be used when linking user.
 * `use_name_for_email` - (Optional) Whether or not FusionAuth will use the NameID element value as the email address of the user for reconciliation processing. If this is false, then the `email_claim` property must be set.
 * `username_claim` - (Optional) The name of the claim in the SAML response that FusionAuth uses to identify the username. If this is not set, the NameId value will be used to link a user. This property is required when linkingStrategy is set to LinkByUsername or LinkByUsernameForExistingUser.
+* `verification_key_ids` - (Optional) The Ids of the keys stored in Key Master that are used to verify the SAML response sent back to FusionAuth from the identity provider. These keys must be verification only keys or certificates (meaning that they only have a public key component). The first entry is the default verification key and is the value FusionAuth reports back in `key_id`. Exactly one of `key_id` or `verification_key_ids` must be set. Requires FusionAuth 1.69.0 or later.
 * `xml_signature_canonicalization_method` - (Optional) The XML signature canonicalization method used when digesting and signing the SAML request.

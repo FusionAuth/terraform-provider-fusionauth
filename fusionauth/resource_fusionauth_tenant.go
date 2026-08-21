@@ -364,12 +364,32 @@ func newTenant() *schema.Resource {
 							ValidateFunc: validation.IsUUID,
 							Description:  "The unique id of the signing key used to sign the access token.",
 						},
+						"access_token_verification_key_ids": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.IsUUID,
+							},
+							Description: "The list of access token verification key Ids that are trusted by this tenant. access_token_key_id is implicitly included in this list and does not need to be explicitly specified. If access_token_key_id is changed to a new key and the old key is supplied in this field, then this facilitates key rotation because FusionAuth will trust JWTs signed by both keys, while only signing JWTs with the new key. Requires FusionAuth 1.69.0 or later.",
+						},
 						"id_token_key_id": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Computed:     true,
 							ValidateFunc: validation.IsUUID,
 							Description:  "The unique id of the signing key used to sign the Id token.",
+						},
+						"id_token_verification_key_ids": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.IsUUID,
+							},
+							Description: "The list of Id token verification key Ids that are trusted by this tenant. id_token_key_id is implicitly included in this list and does not need to be explicitly specified. If id_token_key_id is changed to a new key and the old key is supplied in this field, then this facilitates key rotation because FusionAuth will trust JWTs signed by both keys, while only signing JWTs with the new key. Requires FusionAuth 1.69.0 or later.",
 						},
 						"refresh_token_expiration_policy": {
 							Type:     schema.TypeString,

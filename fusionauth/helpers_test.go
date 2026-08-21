@@ -116,3 +116,75 @@ func Test_intMapToStringMap(t *testing.T) {
 		})
 	}
 }
+
+func Test_alignVerificationKeyIDs(t *testing.T) {
+	tests := []struct {
+		name      string
+		prior     []interface{}
+		apiValues []string
+		want      []string
+	}{
+		{
+			name:      "no prior state",
+			prior:     []interface{}{},
+			apiValues: []string{"a", "b"},
+			want:      []string{"a", "b"},
+		},
+		{
+			name:      "api returned nothing",
+			prior:     []interface{}{"a"},
+			apiValues: []string{},
+			want:      []string{},
+		},
+		{
+			name:      "reordered tail keeps the prior order",
+			prior:     []interface{}{"a", "c", "b"},
+			apiValues: []string{"a", "b", "c"},
+			want:      []string{"a", "c", "b"},
+		},
+		{
+			name:      "already aligned",
+			prior:     []interface{}{"a", "b"},
+			apiValues: []string{"a", "b"},
+			want:      []string{"a", "b"},
+		},
+		{
+			name:      "default key changed",
+			prior:     []interface{}{"a", "b"},
+			apiValues: []string{"b", "a"},
+			want:      []string{"b", "a"},
+		},
+		{
+			name:      "key added",
+			prior:     []interface{}{"a", "b"},
+			apiValues: []string{"a", "b", "c"},
+			want:      []string{"a", "b", "c"},
+		},
+		{
+			name:      "key replaced",
+			prior:     []interface{}{"a", "b"},
+			apiValues: []string{"a", "c"},
+			want:      []string{"a", "c"},
+		},
+		{
+			name:      "duplicate in prior is not a match",
+			prior:     []interface{}{"a", "a"},
+			apiValues: []string{"a", "b"},
+			want:      []string{"a", "b"},
+		},
+		{
+			name:      "nil element in prior",
+			prior:     []interface{}{"a", nil},
+			apiValues: []string{"a", "b"},
+			want:      []string{"a", "b"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := alignVerificationKeyIDs(tt.prior, tt.apiValues); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("alignVerificationKeyIDs() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

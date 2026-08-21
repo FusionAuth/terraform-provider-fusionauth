@@ -39,7 +39,9 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 		JwtConfiguration: fusionauth.JWTConfiguration{
 			Enableable:                      buildEnableable("jwt_configuration.0.enabled", data),
 			AccessTokenKeyId:                data.Get("jwt_configuration.0.access_token_id").(string),
+			AccessTokenVerificationKeyIds:   handleStringSliceFromSet(data.Get("jwt_configuration.0.access_token_verification_key_ids").(*schema.Set)),
 			IdTokenKeyId:                    data.Get("jwt_configuration.0.id_token_key_id").(string),
+			IdTokenVerificationKeyIds:       handleStringSliceFromSet(data.Get("jwt_configuration.0.id_token_verification_key_ids").(*schema.Set)),
 			RefreshTokenTimeToLiveInMinutes: data.Get("jwt_configuration.0.refresh_token_ttl_minutes").(int),
 			TimeToLiveInSeconds:             data.Get("jwt_configuration.0.ttl_seconds").(int),
 			RefreshTokenExpirationPolicy:    fusionauth.RefreshTokenExpirationPolicy(data.Get("jwt_configuration.0.refresh_token_expiration_policy").(string)),
@@ -162,6 +164,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			CallbackURL:              data.Get("samlv2_configuration.0.callback_url").(string),
 			Debug:                    data.Get("samlv2_configuration.0.debug").(bool),
 			DefaultVerificationKeyId: data.Get("samlv2_configuration.0.default_verification_key_id").(string),
+			VerificationKeyIds:       handleStringSliceFromList(data.Get("samlv2_configuration.0.verification_key_ids").([]interface{})),
 			InitiatedLogin: fusionauth.SAMLv2IdPInitiatedLoginConfiguration{
 				Enableable:   buildEnableable("samlv2_configuration.0.initiated_login.0.enabled", data),
 				NameIdFormat: data.Get("samlv2_configuration.0.initiated_login.0.name_id_format").(string),
@@ -176,6 +179,7 @@ func buildApplication(data *schema.ResourceData) fusionauth.Application {
 			Logout: fusionauth.SAMLv2Logout{
 				Behavior:                 fusionauth.SAMLLogoutBehavior(data.Get("samlv2_configuration.0.logout.0.behavior").(string)),
 				DefaultVerificationKeyId: data.Get("samlv2_configuration.0.logout.0.default_verification_key_id").(string),
+				VerificationKeyIds:       handleStringSliceFromList(data.Get("samlv2_configuration.0.logout.0.verification_key_ids").([]interface{})),
 				KeyId:                    data.Get("samlv2_configuration.0.logout.0.key_id").(string),
 				RequireSignedRequests:    data.Get("samlv2_configuration.0.logout.0.require_signed_requests").(bool),
 				SingleLogout: fusionauth.SAMLv2SingleLogout{
@@ -349,10 +353,12 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 
 	err = data.Set("jwt_configuration", []map[string]interface{}{
 		{
-			"enabled":                         a.JwtConfiguration.Enabled,
-			"access_token_id":                 a.JwtConfiguration.AccessTokenKeyId,
-			"id_token_key_id":                 a.JwtConfiguration.IdTokenKeyId,
-			"refresh_token_expiration_policy": a.JwtConfiguration.RefreshTokenExpirationPolicy,
+			"enabled":                                             a.JwtConfiguration.Enabled,
+			"access_token_id":                                     a.JwtConfiguration.AccessTokenKeyId,
+			"access_token_verification_key_ids":                   a.JwtConfiguration.AccessTokenVerificationKeyIds,
+			"id_token_key_id":                                     a.JwtConfiguration.IdTokenKeyId,
+			"id_token_verification_key_ids":                       a.JwtConfiguration.IdTokenVerificationKeyIds,
+			"refresh_token_expiration_policy":                     a.JwtConfiguration.RefreshTokenExpirationPolicy,
 			"refresh_token_one_time_use_grace_period_in_seconds":  a.JwtConfiguration.RefreshTokenOneTimeUseConfiguration.GracePeriodInSeconds,
 			"refresh_token_sliding_window_maximum_ttl_in_minutes": a.JwtConfiguration.RefreshTokenSlidingWindowConfiguration.MaximumTimeToLiveInMinutes,
 			"refresh_token_ttl_minutes":                           a.JwtConfiguration.RefreshTokenTimeToLiveInMinutes,
@@ -597,6 +603,10 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"callback_url":                a.Samlv2Configuration.CallbackURL,
 			"debug":                       a.Samlv2Configuration.Debug,
 			"default_verification_key_id": a.Samlv2Configuration.DefaultVerificationKeyId,
+			"verification_key_ids": alignVerificationKeyIDs(
+				data.Get("samlv2_configuration.0.verification_key_ids").([]interface{}),
+				a.Samlv2Configuration.VerificationKeyIds,
+			),
 			"initiated_login": []map[string]interface{}{
 				{
 					"enabled":        a.Samlv2Configuration.InitiatedLogin.Enabled,
@@ -615,8 +625,12 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 				{
 					"behavior":                    a.Samlv2Configuration.Logout.Behavior,
 					"default_verification_key_id": a.Samlv2Configuration.Logout.DefaultVerificationKeyId,
-					"key_id":                      a.Samlv2Configuration.Logout.KeyId,
-					"require_signed_requests":     a.Samlv2Configuration.Logout.RequireSignedRequests,
+					"verification_key_ids": alignVerificationKeyIDs(
+						data.Get("samlv2_configuration.0.logout.0.verification_key_ids").([]interface{}),
+						a.Samlv2Configuration.Logout.VerificationKeyIds,
+					),
+					"key_id":                  a.Samlv2Configuration.Logout.KeyId,
+					"require_signed_requests": a.Samlv2Configuration.Logout.RequireSignedRequests,
 					"single_logout": []map[string]interface{}{
 						{
 							"enabled":                               a.Samlv2Configuration.Logout.SingleLogout.Enabled,

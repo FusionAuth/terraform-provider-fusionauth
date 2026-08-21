@@ -79,7 +79,7 @@ jobs:
             echo "::error::FUSIONAUTH_LICENSE_ID secret is required for acceptance tests"; exit 1
           fi
           curl -fsS -X POST http://localhost:9011/api/reactor \
-            -H "Authorization: 34c20e2d-15e1-40a2-ac1d-af0c85e35ced" \
+            -H "Authorization: this-is-a-test-key" \
             -H "Content-Type: application/json" \
             -d "{\"licenseId\":\"${FA_LICENSE_ID}\"}"
 
@@ -88,4 +88,4 @@ jobs:
         env:
           TF_ACC: "1"
           FA_DOMAIN: http://localhost:9011
-          FA_API_KEY: 34c20e2d-15e1-40a2-ac1d-af0c85e35ced
+          FA_API_KEY: this-is-a-test-key

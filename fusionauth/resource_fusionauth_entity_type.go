@@ -60,6 +60,16 @@ func resourceEntityType() *schema.Resource {
 							Description:  "The unique id of the signing key used to sign the access token. Required when enabled is set to true.",
 							ValidateFunc: validation.IsUUID,
 						},
+						"access_token_verification_key_ids": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.IsUUID,
+							},
+							Description: "The list of access token verification key Ids that are trusted for this entity type when entity JWTs are presented to /oauth2/introspect or in SCIM use cases. access_token_key_id is implicitly included in this list and does not need to be explicitly specified. If access_token_key_id is changed to a new key and the old key is supplied in this field, then this facilitates key rotation because FusionAuth will trust JWTs signed by both keys, while only signing JWTs with the new key. Requires FusionAuth 1.69.0 or later.",
+						},
 						"time_to_live_in_seconds": {
 							Type:        schema.TypeInt,
 							Optional:    true,
@@ -174,9 +184,10 @@ func dataToEntityTypeRequest(data *schema.ResourceData) (req fusionauth.EntityTy
 // sub-object to a fusionauth entity jwt configuration.
 func dataEntryToEntityJWTConfiguration(data *schema.ResourceData) fusionauth.EntityJWTConfiguration {
 	return fusionauth.EntityJWTConfiguration{
-		Enableable:          buildEnableable("jwt_configuration.0.enabled", data),
-		AccessTokenKeyId:    data.Get("jwt_configuration.0.access_token_key_id").(string),
-		TimeToLiveInSeconds: data.Get("jwt_configuration.0.time_to_live_in_seconds").(int),
+		Enableable:                    buildEnableable("jwt_configuration.0.enabled", data),
+		AccessTokenKeyId:              data.Get("jwt_configuration.0.access_token_key_id").(string),
+		AccessTokenVerificationKeyIds: handleStringSliceFromSet(data.Get("jwt_configuration.0.access_token_verification_key_ids").(*schema.Set)),
+		TimeToLiveInSeconds:           data.Get("jwt_configuration.0.time_to_live_in_seconds").(int),
 	}
 }
 
@@ -197,9 +208,10 @@ func flattenEntityJwtConfiguration(conf fusionauth.EntityJWTConfiguration) []int
 	// jwt_configuration expects a list with a single entry.
 	return []interface{}{
 		map[string]interface{}{
-			"enabled":                 conf.Enabled,
-			"access_token_key_id":     conf.AccessTokenKeyId,
-			"time_to_live_in_seconds": conf.TimeToLiveInSeconds,
+			"enabled":                           conf.Enabled,
+			"access_token_key_id":               conf.AccessTokenKeyId,
+			"access_token_verification_key_ids": conf.AccessTokenVerificationKeyIds,
+			"time_to_live_in_seconds":           conf.TimeToLiveInSeconds,
 		},
 	}
 }

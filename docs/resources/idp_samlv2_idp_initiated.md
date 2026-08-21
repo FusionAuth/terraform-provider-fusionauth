@@ -24,7 +24,7 @@ resource "fusionauth_idp_saml_v2_idp_initated" "Saml" {
 ## Argument Reference
 
 * `issuer` - (Required) The EntityId (unique identifier) of the SAML v2 identity provider. This value should be provided to you. Prior to 1.27.1 this value was required to be a URL.
-* `key_id` - (Required) The id of the key stored in Key Master that is used to verify the SAML response sent back to FusionAuth from the identity provider. This key must be a verification only key or certificate (meaning that it only has a public key component).
+* `key_id` - (Optional, Deprecated) The id of the key stored in Key Master that is used to verify the SAML response sent back to FusionAuth from the identity provider. This key must be a verification only key or certificate (meaning that it only has a public key component). In version 1.69.0 and above, use `verification_key_ids` instead. This field will continue to be populated with the first entry in `verification_key_ids` for backward compatibility, so removing it from your configuration no longer clears it. Set `verification_key_ids` instead. Exactly one of `key_id` or `verification_key_ids` must be set. See the [1.69.0 Key Configuration Migration Guide](https://fusionauth.io/docs/operate/troubleshooting/1-69-0-migration-guide#external-saml-idps).
 * `name` - (Required) The name of this OpenID Connect identity provider. This is only used for display purposes.
 
 ---
@@ -54,3 +54,4 @@ resource "fusionauth_idp_saml_v2_idp_initated" "Saml" {
 * `unique_id_claim` - (Optional) The name of the unique claim in the SAML response that FusionAuth uses to uniquely link the user. If this is not set, the `email_claim` will be used when linking user.
 * `use_name_for_email` - (Optional) Whether or not FusionAuth will use the NameID element value as the email address of the user for reconciliation processing. If this is false, then the `email_claim` property must be set.
 * `username_claim` - (Optional) The name of the claim in the SAML response that FusionAuth uses to identity the username. If this is not set, the NameId value will be used to link a user. This property is required when `linking_strategy` is set to LinkByUsername or LinkByUsernameForExistingUser
+* `verification_key_ids` - (Optional) The Ids of the keys stored in Key Master that are used to verify the SAML response sent back to FusionAuth from the identity provider. These keys must be verification only keys or certificates (meaning that they only have a public key component). The first entry is the default verification key and is the value FusionAuth reports back in `key_id`. Exactly one of `key_id` or `verification_key_ids` must be set. Requires FusionAuth 1.69.0 or later.
