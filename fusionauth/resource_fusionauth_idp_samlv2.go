@@ -212,10 +212,10 @@ func resourceIDPSAMLv2() *schema.Resource {
 				},
 			},
 			"issuer": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "The EntityId (unique identifier) FusionAuth uses as the SAML service provider. FusionAuth expects the Audience value in the SAML assertion to match this value. When not provided, FusionAuth uses the default service provider EntityId of `<base_url>/samlv2/sp/<identityProviderId>`; that default is applied when serving metadata and validating assertions and is not stored on the identity provider, so this attribute stays empty until you set it explicitly. This value is not required to be a URI, but it must not be an empty string when provided.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
+				Description:  "The EntityId (unique identifier) FusionAuth uses as the SAML service provider. FusionAuth expects the Audience value in the SAML assertion to match this value. When not provided, FusionAuth uses the default service provider EntityId of `<base_url>/samlv2/sp/<identityProviderId>`; that default is applied when serving metadata and validating assertions and is not stored on the identity provider, so this attribute stays empty until you set it explicitly. This value is not required to be a URI, but it must not be an empty string when provided.",
 			},
 			"key_id": {
 				Type:         schema.TypeString,

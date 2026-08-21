@@ -82,6 +82,13 @@ func TestAccFusionauthIdpSAMLv2_issuer(t *testing.T) {
 					resource.TestCheckResourceAttr(tfResourcePath, "issuer", customIssuer),
 				),
 			},
+			{
+				Config: testAccIdpSAMLv2ResourceConfig(resourceName, buttonText, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthIdentityProviderExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "issuer", ""),
+				),
+			},
 		},
 	})
 }
