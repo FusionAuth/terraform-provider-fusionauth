@@ -53,7 +53,7 @@ resource "fusionauth_idp_linkedin" "linkedin" {
 * `debug` - (Optional) Determines if debug is enabled for this provider. When enabled, an Event Log is created each time this provider is invoked to reconcile a login.
 * `enabled` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
-* `linking_strategy` - (Optional) The linking strategy to use when creating the link between the Facebook Identity Provider and the user. To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider.
+* `linking_strategy` - (Optional) The linking strategy to use when creating the link between the LinkedIn Identity Provider and the user. To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider.
   The valid values are:
   * `CreatePendingLink` - Do not automatically link, instead return a pending link identifier that can be used to link to an existing user.
   * `Disabled` - Do not automatically link.
