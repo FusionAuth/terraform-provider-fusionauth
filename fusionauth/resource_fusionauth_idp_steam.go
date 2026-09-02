@@ -132,22 +132,7 @@ func resourceIDPSteam() *schema.Resource {
 				Description:  "The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.",
 				ValidateFunc: validation.IsUUID,
 			},
-			"linking_strategy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"CreatePendingLink",
-					"Disabled",
-					"LinkAnonymously",
-					"LinkByEmail",
-					"LinkByEmailForExistingUser",
-					"LinkByUsername",
-					"LinkByUsernameForExistingUser",
-					"Unsupported",
-				}, false),
-				Description: "The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.",
-			},
+			"linking_strategy": newLinkingStrategySchema("Steam"),
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
