@@ -57,6 +57,7 @@ resource "fusionauth_idp_facebook" "facebook" {
 * `linking_strategy` - (Optional) The linking strategy to use when creating the link between the Facebook Identity Provider and the user. To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider.
   The valid values are:
   * `CreatePendingLink` - Do not automatically link, instead return a pending link identifier that can be used to link to an existing user.
+  * `Disabled` - Do not automatically link.
   * `LinkAnonymously` - Always create a link based upon the unique Id returned by the identity provider. A username or email is not required and will not be used to link the user. A reconcile lambda will not be used in this configuration.
   * `LinkByEmail` - Link to an existing user based upon email. A user will be created with the email returned by the identity provider if one does not already exist.
   * `LinkByEmailForExistingUser` - Only link to an existing user based upon email. A user will not be created if one does not already exist with email returned by the identity provider.

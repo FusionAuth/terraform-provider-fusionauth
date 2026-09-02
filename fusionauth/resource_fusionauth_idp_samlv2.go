@@ -238,6 +238,7 @@ func resourceIDPSAMLv2() *schema.Resource {
 				Computed: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"CreatePendingLink",
+					"Disabled",
 					"LinkAnonymously",
 					"LinkByEmail",
 					"LinkByEmailForExistingUser",
