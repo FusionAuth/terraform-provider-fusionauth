@@ -123,7 +123,7 @@ func resourceIDPSonyPSN() *schema.Resource {
 				Description:  "The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.",
 				ValidateFunc: validation.IsUUID,
 			},
-			"linking_strategy": newLinkingStrategySchema("Sony Playstation Network"),
+			"linking_strategy": newLinkingStrategySchema("Sony PlayStation Network"),
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,

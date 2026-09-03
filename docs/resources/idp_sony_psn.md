@@ -1,4 +1,4 @@
-# Sony Playstation Network Identity Provider Resource
+# Sony PlayStation Network Identity Provider Resource
 
 The Sony PlayStation Network identity provider type will use the Sony OAuth v2.0 login API. It will also provide a Login with Sony PlayStation Network button on FusionAuth’s login page that will direct a user to the Sony login page.
 
@@ -17,7 +17,7 @@ resource "fusionauth_idp_sony_psn" "sony_psn" {
     create_registration = true
     enabled             = true
   }
-  button_text   = "Login with Playstation"
+  button_text   = "Login with PlayStation"
   client_id     = "0eb1ce3c-2fb1-4ae9-b361-d49fc6e764cc"
   client_secret = "693s000cbn66k0mxtqzr_c_NfLy3~6_SEA"
 }
@@ -44,7 +44,7 @@ resource "fusionauth_idp_sony_psn" "sony_psn" {
 * `enabled` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
 * `idp_id` - (Optional) The ID to use for the new identity provider. If not specified a secure random UUID will be generated.
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
-* `linking_strategy` - (Optional) The linking strategy to use when creating the link between the Sony Playstation Network Identity Provider and the user. To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider.
+* `linking_strategy` - (Optional) The linking strategy to use when creating the link between the Sony PlayStation Network Identity Provider and the user. To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider.
 * `name` - (Optional) The name of the provider. This is only used for display purposes. The display name of this provider instance. Required when using a provided `tenant_id` or `identity_provider.tenant_id`.
 * `scope` - (Optional) The top-level scope that you are requesting from Sony PlayStation Network.
 * `source` - (Optional) The source of this Identity Provider. The maximum length is 191 characters. This value is only used on create. If updated, a new Identity Provider will be created.
