@@ -136,22 +136,7 @@ func resourceIDPSAMLv2IdPInitiated() *schema.Resource {
 				Description:  "The id of a SAML reconcile lambda that is applied when the identity provider sends back a successful SAML response.",
 				ValidateFunc: validation.IsUUID,
 			},
-			"linking_strategy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"CreatePendingLink",
-					"Disabled",
-					"LinkAnonymously",
-					"LinkByEmail",
-					"LinkByEmailForExistingUser",
-					"LinkByUsername",
-					"LinkByUsernameForExistingUser",
-					"Unsupported",
-				}, false),
-				Description: "The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user.",
-			},
+			"linking_strategy": newLinkingStrategySchema("SAML v2 IdP Initiated"),
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,

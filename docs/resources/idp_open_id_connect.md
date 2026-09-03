@@ -62,7 +62,7 @@ resource "fusionauth_idp_open_id_connect" "OpenID" {
 * `enabled` - (Optional) Determines if this provider is enabled. If it is false then it will be disabled globally.
 * `idp_id` - (Optional) The ID to use for the new identity provider. If not specified a secure random UUID will be generated.
 * `lambda_reconcile_id` - (Optional) The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user.
-* `linking_strategy` - (Optional) The linking strategy to use when creating the link between the {idp_display_name} Identity Provider and the user. To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider.
+* `linking_strategy` - (Optional) The linking strategy to use when creating the link between the OpenID Connect Identity Provider and the user. To change the linking strategy for an enabled identity provider, disable the provider, make your change, then re-enable the provider.
 * `name` - (Optional) The name of the provider. This is only used for display purposes. The display name of this provider instance. Required when using a provided `tenant_id` or `identity_provider.tenant_id`.
 * `oauth2_authorization_endpoint` - (Optional) The top-level authorization endpoint for the OpenID Connect identity provider. You can leave this blank if you provide the issuer field, which will be used to make a request to the OpenID Connect .well-known endpoint in order to dynamically resolve the authorization endpoint. If you provide an issuer then this field will be ignored.
 * `oauth2_client_authentication_method` - (Optional) The client authentication method to use with the OpenID Connect identity provider.

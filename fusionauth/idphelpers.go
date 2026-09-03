@@ -13,9 +13,39 @@ import (
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const NotFoundError string = "404(Not Found)"
+
+// idpLinkingStrategies returns the linking strategies a client may set on an identity provider.
+// Unsupported is excluded: FusionAuth assigns it itself and rejects it on input.
+func idpLinkingStrategies() []string {
+	return []string{
+		"CreatePendingLink",
+		"Disabled",
+		"LinkAnonymously",
+		"LinkByEmail",
+		"LinkByEmailForExistingUser",
+		"LinkByUsername",
+		"LinkByUsernameForExistingUser",
+	}
+}
+
+// newLinkingStrategySchema returns the linking_strategy attribute shared by every fusionauth_idp_*
+// resource. displayName names the provider in the description, e.g. "Apple" or "SAML v2".
+func newLinkingStrategySchema(displayName string) *schema.Schema {
+	return &schema.Schema{
+		Type:         schema.TypeString,
+		Optional:     true,
+		Computed:     true,
+		ValidateFunc: validation.StringInSlice(idpLinkingStrategies(), false),
+		Description: fmt.Sprintf(
+			"The linking strategy to use when creating the link between the %s Identity Provider and the user.",
+			displayName,
+		),
+	}
+}
 
 func deleteIdentityProvider(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)

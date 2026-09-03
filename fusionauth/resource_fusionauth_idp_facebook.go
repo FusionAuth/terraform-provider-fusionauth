@@ -132,21 +132,7 @@ func resourceIDPFacebook() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 				Description:  "The unique Id of the lambda to used during the user reconcile process to map custom claims from the external identity provider to the FusionAuth user. The specified Lambda Id must be of type FacebookReconcile.",
 			},
-			"linking_strategy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"CreatePendingLink",
-					"Disabled",
-					"LinkAnonymously",
-					"LinkByEmail",
-					"LinkByEmailForExistingUser",
-					"LinkByUsername",
-					"LinkByUsernameForExistingUser",
-				}, false),
-				Description: "The linking strategy to use when creating the link between the Facebook Identity Provider and the user.",
-			},
+			"linking_strategy": newLinkingStrategySchema("Facebook"),
 			"login_method": {
 				Type:     schema.TypeString,
 				Optional: true,
