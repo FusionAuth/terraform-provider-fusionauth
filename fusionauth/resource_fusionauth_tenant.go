@@ -80,6 +80,7 @@ func newTenant() *schema.Resource {
 						"secret_key": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Sensitive:   true,
 							Description: "The secret key for this captcha method. This field is required when tenant.captchaConfiguration.enabled is set to true.",
 						},
 						"site_key": {
