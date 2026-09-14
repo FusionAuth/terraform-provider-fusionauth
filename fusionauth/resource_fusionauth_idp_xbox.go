@@ -68,6 +68,7 @@ func resourceIDPXbox() *schema.Resource {
 						"client_secret": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Sensitive:   true,
 							Description: "This is an optional Application specific override for the top level client_secret.",
 						},
 						"create_registration": {
@@ -103,6 +104,7 @@ func resourceIDPXbox() *schema.Resource {
 			"client_secret": {
 				Type:        schema.TypeString,
 				Required:    true,
+				Sensitive:   true,
 				Description: "The top-level client secret to use with the Xbox Identity Provider when retrieving the long-lived token. This value is retrieved from the Xbox developer website when you setup your Xbox developer account.",
 			},
 			"debug": {

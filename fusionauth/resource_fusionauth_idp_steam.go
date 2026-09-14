@@ -99,6 +99,7 @@ func resourceIDPSteam() *schema.Resource {
 						"web_api_key": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Sensitive:   true,
 							Description: "This is an optional Application specific override for the top level webAPIKey.",
 						},
 					},
@@ -154,6 +155,7 @@ func resourceIDPSteam() *schema.Resource {
 			"web_api_key": {
 				Type:        schema.TypeString,
 				Required:    true,
+				Sensitive:   true,
 				Description: "The top-level web API key to use with the Steam Identity Provider when retrieving the player summary info. This value is retrieved from the Steam developer website when you setup your Steam developer account.",
 			},
 			"tenant_configuration": {
