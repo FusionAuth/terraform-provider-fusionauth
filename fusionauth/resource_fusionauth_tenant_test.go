@@ -292,7 +292,7 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.unverified.0.behavior", "Gated"),
 
 		// event_configuration
-		resource.TestCheckResourceAttr(tfResourcePath, "event_configuration.#", "2"),
+		resource.TestCheckResourceAttr(tfResourcePath, "event_configuration.#", "3"),
 		resource.TestCheckTypeSetElemNestedAttrs(tfResourcePath, "event_configuration.*", map[string]string{
 			"event":            "user.delete",
 			"enabled":          "true",
@@ -302,6 +302,11 @@ func testTenantAccTestCheckFuncs(
 			"event":            "user.create",
 			"enabled":          "true",
 			"transaction_type": "SuperMajority",
+		}),
+		resource.TestCheckTypeSetElemNestedAttrs(tfResourcePath, "event_configuration.*", map[string]string{
+			"event":            "user.two-factor.challenge",
+			"enabled":          "true",
+			"transaction_type": "None",
 		}),
 
 		// external_identifier_configuration
@@ -687,6 +692,11 @@ resource "fusionauth_tenant" "test_%[1]s" {
     event            = "user.create"
     enabled          = true
     transaction_type = "SuperMajority"
+  }
+  event_configuration {
+    event            = "user.two-factor.challenge"
+    enabled          = true
+    transaction_type = "None"
   }
   external_identifier_configuration {
     authorization_grant_id_time_to_live_in_seconds = 30

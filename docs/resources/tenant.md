@@ -262,12 +262,27 @@ resource "fusionauth_tenant" "example" {
   }
   event_configuration {
     enabled          = false
+    event            = "user.two-factor.challenge"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.two-factor.failed-attempt"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
     event            = "user.two-factor.method.add"
     transaction_type = "None"
   }
   event_configuration {
     enabled          = false
     event            = "user.two-factor.method.remove"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "user.two-factor.success"
     transaction_type = "None"
   }
   event_configuration {
