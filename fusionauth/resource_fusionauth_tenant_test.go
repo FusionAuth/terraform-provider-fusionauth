@@ -292,7 +292,7 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckResourceAttr(tfResourcePath, "email_configuration.0.unverified.0.behavior", "Gated"),
 
 		// event_configuration
-		resource.TestCheckResourceAttr(tfResourcePath, "event_configuration.#", "3"),
+		resource.TestCheckResourceAttr(tfResourcePath, "event_configuration.#", "5"),
 		resource.TestCheckTypeSetElemNestedAttrs(tfResourcePath, "event_configuration.*", map[string]string{
 			"event":            "user.delete",
 			"enabled":          "true",
@@ -306,6 +306,16 @@ func testTenantAccTestCheckFuncs(
 		resource.TestCheckTypeSetElemNestedAttrs(tfResourcePath, "event_configuration.*", map[string]string{
 			"event":            "user.two-factor.challenge",
 			"enabled":          "true",
+			"transaction_type": "None",
+		}),
+		resource.TestCheckTypeSetElemNestedAttrs(tfResourcePath, "event_configuration.*", map[string]string{
+			"event":            "user.two-factor.success",
+			"enabled":          "true",
+			"transaction_type": "None",
+		}),
+		resource.TestCheckTypeSetElemNestedAttrs(tfResourcePath, "event_configuration.*", map[string]string{
+			"event":            "user.two-factor.failed-attempt",
+			"enabled":          "false",
 			"transaction_type": "None",
 		}),
 
@@ -696,6 +706,16 @@ resource "fusionauth_tenant" "test_%[1]s" {
   event_configuration {
     event            = "user.two-factor.challenge"
     enabled          = true
+    transaction_type = "None"
+  }
+  event_configuration {
+    event            = "user.two-factor.success"
+    enabled          = true
+    transaction_type = "None"
+  }
+  event_configuration {
+    event            = "user.two-factor.failed-attempt"
+    enabled          = false
     transaction_type = "None"
   }
   external_identifier_configuration {
