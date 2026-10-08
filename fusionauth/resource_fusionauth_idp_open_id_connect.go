@@ -152,10 +152,27 @@ func newIDPOpenIDConnect() *schema.Resource {
 				Description: "The top-level client id for your Application.",
 			},
 			"oauth2_client_secret": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: "The top-level client secret to use with the OpenID Connect identity provider.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				Description:   "The top-level client secret to use with the OpenID Connect identity provider.",
+				ConflictsWith: []string{"oauth2_client_secret_wo"},
+			},
+			"oauth2_client_secret_wo": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				WriteOnly:     true,
+				Description:   "The top-level client secret to use with the OpenID Connect identity provider, as a write-only argument that is not stored in state. Requires Terraform 1.11 or later.",
+				ConflictsWith: []string{"oauth2_client_secret"},
+				RequiredWith:  []string{"oauth2_client_secret_wo_version"},
+			},
+			"oauth2_client_secret_wo_version": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Description:  "The version of `oauth2_client_secret_wo`. Change this value to update the client secret when nothing else about the identity provider has changed.",
+				RequiredWith: []string{"oauth2_client_secret_wo"},
+				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"oauth2_client_authentication_method": {
 				Type:     schema.TypeString,
@@ -340,6 +357,14 @@ func buildOpenIDAppConfig(key string, data *schema.ResourceData) map[string]inte
 func createOpenIDConnect(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildOpenIDConnect(data)
 
+	clientSecret, diags := getWriteOnlyString(data, "oauth2_client_secret_wo")
+	if diags.HasError() {
+		return diags
+	}
+	if clientSecret != "" {
+		o.IdentityProvider.Oauth2.ClientSecret = clientSecret
+	}
+
 	b, err := json.Marshal(o)
 	if err != nil {
 		return diag.FromErr(err)
@@ -411,7 +436,11 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 	if err := data.Set("oauth2_client_id", o.Oauth2.ClientId); err != nil {
 		return diag.Errorf("idpOpenIDConnect.oauth2_client_id: %s", err.Error())
 	}
-	if err := data.Set("oauth2_client_secret", o.Oauth2.ClientSecret); err != nil {
+	clientSecret := o.Oauth2.ClientSecret
+	if data.Get("oauth2_client_secret_wo_version").(int) != 0 {
+		clientSecret = ""
+	}
+	if err := data.Set("oauth2_client_secret", clientSecret); err != nil {
 		return diag.Errorf("idpOpenIDConnect.oauth2_client_secret: %s", err.Error())
 	}
 	if err := data.Set("oauth2_client_authentication_method", o.Oauth2.ClientAuthenticationMethod); err != nil {
@@ -484,6 +513,15 @@ func buildResourceFromOpenIDConnect(o fusionauth.OpenIdConnectIdentityProvider, 
 
 func updateOpenIDConnect(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 	o := buildOpenIDConnect(data)
+
+	// The identity provider is replaced on update, so the secret has to be sent every time.
+	clientSecret, diags := getWriteOnlyString(data, "oauth2_client_secret_wo")
+	if diags.HasError() {
+		return diags
+	}
+	if clientSecret != "" {
+		o.IdentityProvider.Oauth2.ClientSecret = clientSecret
+	}
 
 	b, err := json.Marshal(o)
 	if err != nil {

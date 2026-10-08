@@ -7,6 +7,7 @@ import (
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -17,6 +18,10 @@ func resourceAPIKey() *schema.Resource {
 		ReadContext:   readAPIKey,
 		UpdateContext: updateAPIKey,
 		DeleteContext: deleteAPIKey,
+		// Setting key_wo_version on an existing or imported key leaves the key as it is.
+		CustomizeDiff: customdiff.ForceNewIfChange("key_wo_version", func(_ context.Context, o, n, _ interface{}) bool {
+			return o.(int) != 0 && n.(int) != 0
+		}),
 		Schema: map[string]*schema.Schema{
 			"tenant_id": {
 				Type:         schema.TypeString,
@@ -32,12 +37,29 @@ func resourceAPIKey() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 			"key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "API key string. When you create an API key the key is defaulted to a secure random value but the API key is simply a string, so you may call it super-secret-key if you’d like. However a long and random value makes a good API key in that it is unique and difficult to guess.",
-				Sensitive:   true,
-				ForceNew:    true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				Description:   "API key string. When you create an API key the key is defaulted to a secure random value but the API key is simply a string, so you may call it super-secret-key if you’d like. However a long and random value makes a good API key in that it is unique and difficult to guess.",
+				Sensitive:     true,
+				ForceNew:      true,
+				ConflictsWith: []string{"key_wo"},
+			},
+			"key_wo": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				WriteOnly:     true,
+				Description:   "API key string, as a write-only argument that is not stored in state. Requires Terraform 1.11 or later.",
+				ConflictsWith: []string{"key"},
+				RequiredWith:  []string{"key_wo_version"},
+			},
+			"key_wo_version": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Description:  "The version of `key_wo`. The key cannot be updated, so changing this value replaces the API key.",
+				RequiredWith: []string{"key_wo"},
+				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"ip_access_control_list_id": {
 				Type:         schema.TypeString,
@@ -258,6 +280,14 @@ func createAPIKey(_ context.Context, data *schema.ResourceData, i interface{}) d
 	client := i.(Client)
 	ak := buildAPIKey(data)
 
+	key, diags := getWriteOnlyString(data, "key_wo")
+	if diags.HasError() {
+		return diags
+	}
+	if key != "" {
+		ak.Key = key
+	}
+
 	oldTenantID := client.FAClient.TenantId
 	client.FAClient.TenantId = ak.TenantId
 	defer func() {
@@ -413,7 +443,11 @@ func buildResourceDataFromAPIKey(data *schema.ResourceData, res fusionauth.APIKe
 	if err := data.Set("tenant_id", res.TenantId); err != nil {
 		return diag.Errorf("apiKey.tenant_id: %s", err.Error())
 	}
-	if err := data.Set("key", res.Key); err != nil {
+	key := res.Key
+	if data.Get("key_wo_version").(int) != 0 {
+		key = ""
+	}
+	if err := data.Set("key", key); err != nil {
 		return diag.Errorf("apiKey.key: %s", err.Error())
 	}
 	if desc, ok := res.MetaData.Attributes["description"]; ok {

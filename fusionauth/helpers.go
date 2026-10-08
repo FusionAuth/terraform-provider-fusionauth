@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/FusionAuth/go-client/pkg/fusionauth"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -259,4 +260,15 @@ func getValueAndIsSet[T any](d *schema.ResourceData, key string) (T, bool) {
 	}
 
 	return defaultVal, false
+}
+
+// getWriteOnlyString returns the configured value of a write-only string attribute. Write-only
+// values are only present in the raw config during create and update, never in state.
+func getWriteOnlyString(data *schema.ResourceData, key string) (string, diag.Diagnostics) {
+	v, diags := data.GetRawConfigAt(cty.GetAttrPath(key))
+	if diags.HasError() || v.IsNull() || !v.IsKnown() {
+		return "", diags
+	}
+
+	return v.AsString(), nil
 }

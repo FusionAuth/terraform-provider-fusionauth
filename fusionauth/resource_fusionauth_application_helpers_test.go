@@ -3,6 +3,7 @@ package fusionauth
 import (
 	"testing"
 
+	"github.com/FusionAuth/go-client/pkg/fusionauth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -30,6 +31,41 @@ func Test_buildApplication_baseURL(t *testing.T) {
 			data := schema.TestResourceDataRaw(t, newApplication().Schema, tt.raw)
 			if got := buildApplication(data).BaseURL; got != tt.want {
 				t.Fatalf("BaseURL = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_buildResourceDataFromApplication_clientSecret(t *testing.T) {
+	tests := []struct {
+		name string
+		raw  map[string]interface{}
+		want string
+	}{
+		{
+			name: "client_secret",
+			raw:  map[string]interface{}{},
+			want: "secret",
+		},
+		{
+			// The secret is managed through oauth_client_secret_wo, so it must stay out of state.
+			name: "oauth_client_secret_wo",
+			raw:  map[string]interface{}{"oauth_client_secret_wo_version": 1},
+			want: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data := schema.TestResourceDataRaw(t, newApplication().Schema, tt.raw)
+			a := fusionauth.Application{
+				OauthConfiguration: fusionauth.OAuth2Configuration{ClientSecret: "secret"},
+			}
+			if diags := buildResourceDataFromApplication(a, data); diags.HasError() {
+				t.Fatalf("buildResourceDataFromApplication() = %v", diags)
+			}
+			if got := data.Get("oauth_configuration.0.client_secret").(string); got != tt.want {
+				t.Fatalf("client_secret = %q, want %q", got, tt.want)
 			}
 		})
 	}

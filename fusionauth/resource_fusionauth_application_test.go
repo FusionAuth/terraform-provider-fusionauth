@@ -119,6 +119,56 @@ func TestAccFusionauthApplication_deprecatedVerificationKeyId(t *testing.T) {
 	})
 }
 
+func TestAccFusionauthApplication_clientSecretWriteOnly(t *testing.T) {
+	resourceName := randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_application.test_%s", resourceName)
+	startSecret := randString20()
+	endSecret := randString20()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthApplicationDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Test resource create
+				Config: testAccApplicationClientSecretWriteOnlyConfig(resourceName, "start", startSecret, 1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthApplicationExists(tfResourcePath),
+					testAccCheckFusionauthApplicationClientSecret(tfResourcePath, startSecret),
+					resource.TestCheckNoResourceAttr(tfResourcePath, "oauth_client_secret_wo"),
+					resource.TestCheckResourceAttr(tfResourcePath, "oauth_client_secret_wo_version", "1"),
+					resource.TestCheckResourceAttr(tfResourcePath, "oauth_configuration.0.client_secret", ""),
+				),
+			},
+			{
+				// Test resource update without a version change keeps the secret
+				Config: testAccApplicationClientSecretWriteOnlyConfig(resourceName, "end", startSecret, 1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthApplicationClientSecret(tfResourcePath, startSecret),
+					resource.TestCheckResourceAttr(tfResourcePath, "oauth_configuration.0.client_secret", ""),
+				),
+			},
+			{
+				// Test secret rotation
+				Config: testAccApplicationClientSecretWriteOnlyConfig(resourceName, "end", endSecret, 2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthApplicationClientSecret(tfResourcePath, endSecret),
+					resource.TestCheckResourceAttr(tfResourcePath, "oauth_client_secret_wo_version", "2"),
+					resource.TestCheckResourceAttr(tfResourcePath, "oauth_configuration.0.client_secret", ""),
+				),
+			},
+			{
+				// Test importing resource into state
+				ResourceName:            tfResourcePath,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"oauth_client_secret_wo_version", "oauth_configuration.0.client_secret"},
+			},
+		},
+	})
+}
+
 // sortedUUIDs generates n UUIDs sorted ascending, matching how FusionAuth orders verification keys
 // that aren't the default.
 func sortedUUIDs(t *testing.T, n int) []string {
@@ -234,6 +284,21 @@ resource "fusionauth_application" "test_%[1]s" {
 `, resourceName, testKeyName(testSAMLLogoutKey, resourceName))
 }
 
+func testAccApplicationClientSecretWriteOnlyConfig(resourceName, name, clientSecret string, version int) string {
+	return fmt.Sprintf(`
+data "fusionauth_tenant" "default" {
+  name = "Default"
+}
+
+resource "fusionauth_application" "test_%[1]s" {
+  name                           = "test-acc-secret-wo %[1]s %[2]s"
+  tenant_id                      = data.fusionauth_tenant.default.id
+  oauth_client_secret_wo         = "%[3]s"
+  oauth_client_secret_wo_version = %[4]d
+}
+`, resourceName, name, clientSecret, version)
+}
+
 func testAccCheckFusionauthApplicationExists(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
@@ -253,6 +318,29 @@ func testAccCheckFusionauthApplicationExists(resourceName string) resource.TestC
 
 		if app == nil || app.StatusCode != http.StatusOK {
 			return fmt.Errorf("failed to get resource: %#+v", app)
+		}
+
+		return nil
+	}
+}
+
+// testAccCheckFusionauthApplicationClientSecret compares the client secret held by FusionAuth, for
+// when it is kept out of state.
+func testAccCheckFusionauthApplicationClientSecret(resourceName, want string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resourceName)
+		}
+
+		faClient := fusionauthClient()
+		app, err := faClient.RetrieveApplication(rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		if got := app.Application.OauthConfiguration.ClientSecret; got != want {
+			return fmt.Errorf("client secret = %q, want %q", got, want)
 		}
 
 		return nil

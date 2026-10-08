@@ -148,3 +148,9 @@ func randString10() string {
 func randString20() string {
 	return acctest.RandString(20)
 }
+
+func TestProvider(t *testing.T) {
+	if err := Provider().InternalValidate(); err != nil {
+		t.Fatalf("Provider().InternalValidate() = %s", err)
+	}
+}
