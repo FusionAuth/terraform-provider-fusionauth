@@ -113,6 +113,21 @@ resource "fusionauth_application" "Forum" {
 }
 ```
 
+### Write-only Client Secret
+
+With Terraform 1.11 or later, the client secret can be set with `oauth_client_secret_wo` so that it is not stored in the plan or state.
+
+```hcl
+resource "fusionauth_application" "example" {
+  name                           = "Example"
+  tenant_id                      = fusionauth_tenant.portal.id
+  oauth_client_secret_wo         = var.client_secret
+  oauth_client_secret_wo_version = 1
+}
+```
+
+~> **Note:** Terraform cannot detect a change to a write-only argument. To rotate the secret, change `oauth_client_secret_wo` and increment `oauth_client_secret_wo_version`.
+
 ## Argument Reference
 
 * `name` - (Required) The name of the Application.
@@ -180,13 +195,15 @@ resource "fusionauth_application" "Forum" {
   * `login_policy` - (Optional) When enabled and a user has one or more two-factor methods configured, the user will be required to complete a two-factor challenge during login. When disabled, even when a user has configured one or more two-factor methods, the user will not be required to complete a two-factor challenge during login. When required, the user will be required to complete a two-factor challenge during login. When set to `ChallengeOnMediumRisk` or `ChallengeOnHighRisk`, a two-factor challenge is required only when the Intelligent MFA composite risk level is medium-or-higher or high, respectively (available since FusionAuth `1.68.0`). Possible values are `Enabled`, `Disabled`, `Required`, `ChallengeOnMediumRisk` or `ChallengeOnHighRisk`.
   * `sms_template_id` - (Optional) The Id of the SMS template that is used when notifying a user to complete a multi-factor authentication request.
   * `trust_policy` - (Optional) When `multi_factor_configuration.login_policy` is set to `Enabled`, this trust policy is utilized when determining if a user must complete a two-factor challenge during login. Possible values are `Any`, `This` or `None`.
+* `oauth_client_secret_wo` - (Optional) The OAuth 2.0 client secret, as a write-only argument that is not stored in state. It is sent to FusionAuth on create and whenever `oauth_client_secret_wo_version` changes. Conflicts with `oauth_configuration.client_secret`. Requires Terraform 1.11 or later.
+* `oauth_client_secret_wo_version` - (Optional) The version of `oauth_client_secret_wo`. Required with `oauth_client_secret_wo`.
 * `oauth_configuration` - (Optional)
   * `authorized_origin_urls` (Optional) An array of URLs that are the authorized origins for FusionAuth OAuth.
   * `authorized_redirect_urls` - (Optional) An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.
   * `authorized_resource_uris` - (Optional) An array of authorized resource URIs for FusionAuth OAuth.
   * `authorized_url_validation_policy` - (Optional) Determines whether wildcard expressions will be allowed in the authorized_redirect_urls and authorized_origin_urls.
   * `client_authentication_policy` - (Optional) Determines the client authentication requirements for the OAuth 2.0 Token endpoint.
-  * `client_secret` - (Optional) The OAuth 2.0 client secret. If you leave this blank during a POST, a secure secret will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored.
+  * `client_secret` - (Optional) The OAuth 2.0 client secret. If you leave this blank during a POST, a secure secret will be generated for you. If you leave this blank during PUT, the previous value will be maintained. For both POST and PUT you can provide a value and it will be stored. Conflicts with `oauth_client_secret_wo`.
   * `consent_mode` (Optional) Controls the policy for prompting a user to consent to requested OAuth scopes. This configuration only takes effect when `application.oauthConfiguration.relationship` is `ThirdParty`. The possible values are:
     * `AlwaysPrompt` - Always prompt the user for consent.
     * `RememberDecision` - Remember previous consents; only prompt if the choice expires or if the requested or required scopes have changed. The duration of this persisted choice is controlled by the Tenant’s `externalIdentifierConfiguration.rememberOAuthScopeConsentChoiceTimeToLiveInSeconds` value.

@@ -38,6 +38,23 @@ resource "fusionauth_idp_open_id_connect" "OpenID" {
 }
 ```
 
+### Write-only Client Secret
+
+With Terraform 1.11 or later, the client secret can be set with `oauth2_client_secret_wo` so that it is not stored in the plan or state.
+
+```hcl
+resource "fusionauth_idp_open_id_connect" "example" {
+  button_text                     = "Login with OpenID Connect"
+  name                            = "Example OpenID Connect Provider"
+  oauth2_client_id                = "191c23dc-b772-4558-bd21-dc1cbf74ae21"
+  oauth2_client_secret_wo         = var.client_secret
+  oauth2_client_secret_wo_version = 1
+  oauth2_issuer                   = "https://acme.com"
+}
+```
+
+~> **Note:** Terraform cannot detect a change to a write-only argument. To rotate the secret, change `oauth2_client_secret_wo` and increment `oauth2_client_secret_wo_version`.
+
 ## Argument Reference
 
 * `button_text` - (Required) The top-level button text to use on the FusionAuth login page for this Identity Provider.
@@ -66,7 +83,9 @@ resource "fusionauth_idp_open_id_connect" "OpenID" {
 * `name` - (Optional) The name of the provider. This is only used for display purposes. The display name of this provider instance. Required when using a provided `tenant_id` or `identity_provider.tenant_id`.
 * `oauth2_authorization_endpoint` - (Optional) The top-level authorization endpoint for the OpenID Connect identity provider. You can leave this blank if you provide the issuer field, which will be used to make a request to the OpenID Connect .well-known endpoint in order to dynamically resolve the authorization endpoint. If you provide an issuer then this field will be ignored.
 * `oauth2_client_authentication_method` - (Optional) The client authentication method to use with the OpenID Connect identity provider.
-* `oauth2_client_secret` - (Optional) The top-level client secret to use with the OpenID Connect identity provider.
+* `oauth2_client_secret` - (Optional) The top-level client secret to use with the OpenID Connect identity provider. Conflicts with `oauth2_client_secret_wo`.
+* `oauth2_client_secret_wo` - (Optional) The top-level client secret to use with the OpenID Connect identity provider, as a write-only argument that is not stored in state. Conflicts with `oauth2_client_secret`. Requires Terraform 1.11 or later.
+* `oauth2_client_secret_wo_version` - (Optional) The version of `oauth2_client_secret_wo`. Required with `oauth2_client_secret_wo`.
 * `oauth2_email_claim` - (Optional) An optional configuration to modify the expected name of the claim returned by the IdP that contains the email address.
 * `oauth2_email_verified_claim` - (Optional) An optional configuration to modify the expected name of the claim returned by the IdP that contains the email verified status.
 * `oauth2_issuer` - (Optional) The top-level issuer URI for the OpenID Connect identity provider. If this is provided, the authorization endpoint, token endpoint and userinfo endpoint will all be resolved using the issuer URI plus /.well-known/openid-configuration.

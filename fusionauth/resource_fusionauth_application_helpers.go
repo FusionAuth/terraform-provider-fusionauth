@@ -419,6 +419,11 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 		return diag.Errorf("application.name: %s", err.Error())
 	}
 
+	clientSecret := a.OauthConfiguration.ClientSecret
+	if data.Get("oauth_client_secret_wo_version").(int) != 0 {
+		clientSecret = ""
+	}
+
 	err = data.Set("oauth_configuration", []map[string]interface{}{
 		{
 			"authorized_origin_urls":             a.OauthConfiguration.AuthorizedOriginURLs,
@@ -426,7 +431,7 @@ func buildResourceDataFromApplication(a fusionauth.Application, data *schema.Res
 			"authorized_resource_uris":           a.OauthConfiguration.AuthorizedResourceUris,
 			"authorized_url_validation_policy":   a.OauthConfiguration.AuthorizedURLValidationPolicy,
 			"client_authentication_policy":       a.OauthConfiguration.ClientAuthenticationPolicy,
-			"client_secret":                      a.OauthConfiguration.ClientSecret,
+			"client_secret":                      clientSecret,
 			"client_id":                          a.OauthConfiguration.ClientId,
 			"consent_mode":                       a.OauthConfiguration.ConsentMode,
 			"debug":                              a.OauthConfiguration.Debug,

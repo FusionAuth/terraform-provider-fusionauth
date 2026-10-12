@@ -16,6 +16,14 @@ func createApplication(_ context.Context, data *schema.ResourceData, i interface
 		Application: buildApplication(data),
 	}
 
+	clientSecret, diags := getWriteOnlyString(data, "oauth_client_secret_wo")
+	if diags.HasError() {
+		return diags
+	}
+	if clientSecret != "" {
+		ar.Application.OauthConfiguration.ClientSecret = clientSecret
+	}
+
 	oldTenantID := client.FAClient.TenantId
 	client.FAClient.TenantId = ar.Application.TenantId
 	defer func() {
@@ -65,12 +73,33 @@ func updateApplication(_ context.Context, data *schema.ResourceData, i interface
 		Application: buildApplication(data),
 	}
 
+	if data.HasChange("oauth_client_secret_wo_version") {
+		clientSecret, diags := getWriteOnlyString(data, "oauth_client_secret_wo")
+		if diags.HasError() {
+			return diags
+		}
+		if clientSecret != "" {
+			ar.Application.OauthConfiguration.ClientSecret = clientSecret
+		}
+	}
+
 	resp, faErrs, err := client.FAClient.UpdateApplication(data.Id(), ar)
 	if err != nil {
 		return diag.Errorf("UpdateApplication err: %v", err)
 	}
 	if err := checkResponse(resp.StatusCode, faErrs); err != nil {
 		return diag.FromErr(err)
+	}
+
+	// Moving from oauth_configuration.client_secret to oauth_client_secret_wo would otherwise
+	// leave the old secret in state until the next refresh.
+	if data.Get("oauth_client_secret_wo_version").(int) != 0 {
+		if oc, ok := data.Get("oauth_configuration").([]interface{}); ok && len(oc) == 1 && oc[0] != nil {
+			oc[0].(map[string]interface{})["client_secret"] = ""
+			if err := data.Set("oauth_configuration", oc); err != nil {
+				return diag.Errorf("application.oauth_configuration: %s", err.Error())
+			}
+		}
 	}
 
 	return nil
