@@ -107,7 +107,7 @@ func TestAccAPIKey_tenantScoped(t *testing.T) {
 	name := "test-tenant-api-key"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.68.0") },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckAPIKeyDestroy,
 		Steps: []resource.TestStep{
