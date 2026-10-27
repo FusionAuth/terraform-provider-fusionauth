@@ -53,6 +53,36 @@ func newWebhook() *schema.Resource {
 							Optional:    true,
 							Description: "An audit log was created",
 						},
+						"entity_create": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "An entity is being created. Available since FusionAuth 1.69.0",
+						},
+						"entity_create_complete": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "A create entity request completed. Available since FusionAuth 1.69.0",
+						},
+						"entity_delete": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "An entity is being deleted. Available since FusionAuth 1.69.0",
+						},
+						"entity_delete_complete": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "An entity delete request completed. Available since FusionAuth 1.69.0",
+						},
+						"entity_update": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "An entity is being updated. Available since FusionAuth 1.69.0",
+						},
+						"entity_update_complete": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "A request to update an entity has completed. Available since FusionAuth 1.69.0",
+						},
 						"event_log_create": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -193,6 +223,11 @@ func newWebhook() *schema.Resource {
 							Optional:    true,
 							Description: "An existing link has been removed between a user and an identify provider",
 						},
+						"user_identity_update": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "When a user's identity is updated",
+						},
 						"user_identity_verified": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -296,12 +331,12 @@ func newWebhook() *schema.Resource {
 						"user_two_factor_challenge": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "A user has been issued a two-factor challenge",
+							Description: "A user has been issued a two-factor challenge. Available since FusionAuth 1.68.0",
 						},
 						"user_two_factor_failed_attempt": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "A user has failed a two-factor challenge attempt",
+							Description: "A user has failed a two-factor challenge attempt. Available since FusionAuth 1.68.0",
 						},
 						"user_two_factor_method_add": {
 							Type:        schema.TypeBool,
@@ -316,7 +351,7 @@ func newWebhook() *schema.Resource {
 						"user_two_factor_success": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "A user has successfully completed a two-factor challenge",
+							Description: "A user has successfully completed a two-factor challenge. Available since FusionAuth 1.68.0",
 						},
 						"user_update": {
 							Type:        schema.TypeBool,
@@ -456,10 +491,34 @@ func buildSignatureConfiguration(data *schema.ResourceData) fusionauth.WebhookSi
 	}
 }
 
+// webhookEventsOmittedWhenDisabled returns the events only sent when enabled, since FusionAuth versions that
+// predate an event reject the whole request on an unknown event key.
+func webhookEventsOmittedWhenDisabled() []fusionauth.EventType {
+	return []fusionauth.EventType{
+		// 1.68.0
+		fusionauth.EventType_UserTwoFactorChallenge,
+		fusionauth.EventType_UserTwoFactorFailedAttempt,
+		fusionauth.EventType_UserTwoFactorSuccess,
+		// 1.69.0
+		fusionauth.EventType_EntityCreate,
+		fusionauth.EventType_EntityCreateComplete,
+		fusionauth.EventType_EntityDelete,
+		fusionauth.EventType_EntityDeleteComplete,
+		fusionauth.EventType_EntityUpdate,
+		fusionauth.EventType_EntityUpdateComplete,
+	}
+}
+
 func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.EventType]bool {
 	prefix := key + ".0."
-	return map[fusionauth.EventType]bool{
+	events := map[fusionauth.EventType]bool{
 		fusionauth.EventType_AuditLogCreate:                 data.Get(prefix + "audit_log_create").(bool),
+		fusionauth.EventType_EntityCreate:                   data.Get(prefix + "entity_create").(bool),
+		fusionauth.EventType_EntityCreateComplete:           data.Get(prefix + "entity_create_complete").(bool),
+		fusionauth.EventType_EntityDelete:                   data.Get(prefix + "entity_delete").(bool),
+		fusionauth.EventType_EntityDeleteComplete:           data.Get(prefix + "entity_delete_complete").(bool),
+		fusionauth.EventType_EntityUpdate:                   data.Get(prefix + "entity_update").(bool),
+		fusionauth.EventType_EntityUpdateComplete:           data.Get(prefix + "entity_update_complete").(bool),
 		fusionauth.EventType_EventLogCreate:                 data.Get(prefix + "event_log_create").(bool),
 		fusionauth.EventType_GroupCreate:                    data.Get(prefix + "group_create").(bool),
 		fusionauth.EventType_GroupCreateComplete:            data.Get(prefix + "group_create_complete").(bool),
@@ -488,6 +547,7 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 		fusionauth.EventType_UserEmailVerified:              data.Get(prefix + "user_email_verified").(bool),
 		fusionauth.EventType_UserIdentityProviderLink:       data.Get(prefix + "user_identity_provider_link").(bool),
 		fusionauth.EventType_UserIdentityProviderUnlink:     data.Get(prefix + "user_identity_provider_unlink").(bool),
+		fusionauth.EventType_UserIdentityUpdate:             data.Get(prefix + "user_identity_update").(bool),
 		fusionauth.EventType_UserIdentityVerified:           data.Get(prefix + "user_identity_verified").(bool),
 		fusionauth.EventType_UserLoginIdDuplicateOnCreate:   data.Get(prefix + "user_login_id_duplicate_create").(bool),
 		fusionauth.EventType_UserLoginIdDuplicateOnUpdate:   data.Get(prefix + "user_login_id_duplicate_update").(bool),
@@ -516,6 +576,14 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 		fusionauth.EventType_UserUpdate:                     data.Get(prefix + "user_update").(bool),
 		fusionauth.EventType_UserUpdateComplete:             data.Get(prefix + "user_update_complete").(bool),
 	}
+
+	for _, e := range webhookEventsOmittedWhenDisabled() {
+		if !events[e] {
+			delete(events, e)
+		}
+	}
+
+	return events
 }
 
 func createWebhook(_ context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -575,6 +643,12 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 	err = data.Set("events_enabled", []map[string]interface{}{
 		{
 			"audit_log_create":                  l.EventsEnabled[fusionauth.EventType_AuditLogCreate],
+			"entity_create":                     l.EventsEnabled[fusionauth.EventType_EntityCreate],
+			"entity_create_complete":            l.EventsEnabled[fusionauth.EventType_EntityCreateComplete],
+			"entity_delete":                     l.EventsEnabled[fusionauth.EventType_EntityDelete],
+			"entity_delete_complete":            l.EventsEnabled[fusionauth.EventType_EntityDeleteComplete],
+			"entity_update":                     l.EventsEnabled[fusionauth.EventType_EntityUpdate],
+			"entity_update_complete":            l.EventsEnabled[fusionauth.EventType_EntityUpdateComplete],
 			"event_log_create":                  l.EventsEnabled[fusionauth.EventType_EventLogCreate],
 			"group_create":                      l.EventsEnabled[fusionauth.EventType_GroupCreate],
 			"group_create_complete":             l.EventsEnabled[fusionauth.EventType_GroupCreateComplete],
@@ -603,6 +677,7 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 			"user_email_verified":               l.EventsEnabled[fusionauth.EventType_UserEmailVerified],
 			"user_identity_provider_link":       l.EventsEnabled[fusionauth.EventType_UserIdentityProviderLink],
 			"user_identity_provider_unlink":     l.EventsEnabled[fusionauth.EventType_UserIdentityProviderUnlink],
+			"user_identity_update":              l.EventsEnabled[fusionauth.EventType_UserIdentityUpdate],
 			"user_identity_verified":            l.EventsEnabled[fusionauth.EventType_UserIdentityVerified],
 			"user_login_id_duplicate_create":    l.EventsEnabled[fusionauth.EventType_UserLoginIdDuplicateOnCreate],
 			"user_login_id_duplicate_update":    l.EventsEnabled[fusionauth.EventType_UserLoginIdDuplicateOnUpdate],
