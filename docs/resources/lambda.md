@@ -48,6 +48,8 @@ function populate(jwt, user, registration) {
   * `SelfServiceRegistrationValidation`
   * `SonyPSNReconcile`
   * `SteamReconcile`
+  * `TokenExchangePolicy`
+  * `TokenExchangePopulate`
   * `TwitchReconcile`
   * `TwitterReconcile`
   * `UserInfoPopulate`

@@ -41,6 +41,8 @@ data "fusionauth_lambda" "default_google_reconcile" {
   * `SelfServiceRegistrationValidation`
   * `SonyPSNReconcile`
   * `SteamReconcile`
+  * `TokenExchangePolicy`
+  * `TokenExchangePopulate`
   * `TwitchReconcile`
   * `TwitterReconcile`
   * `UserInfoPopulate`

@@ -64,6 +64,10 @@ resource "fusionauth_entity_permission" "file_lawsuit" {
 
 ---
 
+* `act_as_token_exchange_client` - (Optional) Whether this Entity can act as the exchanger in a token exchange request.
+  FusionAuth rejects token exchange requests authenticated with the client credentials of an Entity that doesn't have
+  this enabled. Note: An Enterprise plan is required to utilize Token Exchange. Available since FusionAuth `1.70.0`.
+  Defaults to `false`.
 * `client_id` - (Optional) The OAuth 2.0 client ID. If you leave this blank on create, the value of the Entity ID will
   be used. Must be a UUID.
 * `client_secret` - (Optional) The OAuth 2.0 client secret. If you leave this blank on create, a secure secret will be

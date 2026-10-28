@@ -191,6 +191,127 @@ resource "fusionauth_tenant" "test_%[1]s" {
 `, resourceName)
 }
 
+// TestAccFusionauthTenant_tokenExchange covers the FusionAuth 1.70.0 token exchange configuration;
+// skips on older servers.
+func TestAccFusionauthTenant_tokenExchange(t *testing.T) {
+	resourceName := randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_tenant.test_%s", resourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.70.0") },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthTenantDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTenantResourceTokenExchangeConfig(resourceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.enabled", "true"),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.debug", "true"),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.max_claim_depth", "5"),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.policy_engine", "LAMBDA"),
+					resource.TestCheckResourceAttrPair(tfResourcePath, "token_exchange_configuration.0.policy_engine_lambda_id", fmt.Sprintf("fusionauth_lambda.policy_%s", resourceName), "id"),
+					resource.TestCheckResourceAttrPair(tfResourcePath, "token_exchange_configuration.0.populate_lambda_id", fmt.Sprintf("fusionauth_lambda.populate_%s", resourceName), "id"),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.allowed_issuers.#", "2"),
+					resource.TestCheckTypeSetElemAttr(tfResourcePath, "token_exchange_configuration.0.allowed_issuers.*", "https://issuer.example.com"),
+					resource.TestCheckTypeSetElemAttr(tfResourcePath, "token_exchange_configuration.0.allowed_issuers.*", "http://localhost:9000"),
+					resource.TestCheckTypeSetElemNestedAttrs(tfResourcePath, "event_configuration.*", map[string]string{
+						"event":            "token.exchange",
+						"enabled":          "true",
+						"transaction_type": "Any",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs(tfResourcePath, "event_configuration.*", map[string]string{
+						"event":            "token.exchange.complete",
+						"enabled":          "true",
+						"transaction_type": "None",
+					}),
+				),
+			},
+			{
+				// Partial block: omitted fields must fall back to the server defaults (max_claim_depth 2, not 0).
+				Config: testAccTenantResourceTokenExchangePartialConfig(resourceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.enabled", "true"),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.debug", "false"),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.max_claim_depth", "2"),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.policy_engine", "ENTITY"),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.policy_engine_lambda_id", ""),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.populate_lambda_id", ""),
+					resource.TestCheckResourceAttr(tfResourcePath, "token_exchange_configuration.0.allowed_issuers.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func testAccTenantResourceTokenExchangeConfig(resourceName string) string {
+	return testAccTenantTokenExchangeLambdasConfig(resourceName) + fmt.Sprintf(`
+resource "fusionauth_tenant" "test_%[1]s" {
+  name = "test-acc-token-exchange %[1]s"
+
+  event_configuration {
+    event            = "token.exchange"
+    enabled          = true
+    transaction_type = "Any"
+  }
+  event_configuration {
+    event            = "token.exchange.complete"
+    enabled          = true
+    transaction_type = "None"
+  }
+
+  token_exchange_configuration {
+    enabled                 = true
+    allowed_issuers         = ["https://issuer.example.com", "http://localhost:9000"]
+    debug                   = true
+    max_claim_depth         = 5
+    policy_engine           = "LAMBDA"
+    policy_engine_lambda_id = fusionauth_lambda.policy_%[1]s.id
+    populate_lambda_id      = fusionauth_lambda.populate_%[1]s.id
+  }
+}
+`, resourceName)
+}
+
+func testAccTenantTokenExchangeLambdasConfig(resourceName string) string {
+	return fmt.Sprintf(`
+resource "fusionauth_lambda" "policy_%[1]s" {
+  name = "test-acc-token-exchange-policy %[1]s"
+  type = "TokenExchangePolicy"
+  body = <<EOT
+function policy(result, exchange, context) {
+  result.decision = 'DENY';
+}
+EOT
+}
+
+resource "fusionauth_lambda" "populate_%[1]s" {
+  name = "test-acc-token-exchange-populate %[1]s"
+  type = "TokenExchangePopulate"
+  body = <<EOT
+function populate(jwt, exchange, context) {
+}
+EOT
+}
+`, resourceName)
+}
+
+// testAccTenantResourceTokenExchangePartialConfig keeps the lambdas so Terraform doesn't delete them
+// before the tenant update releases them, which FusionAuth refuses.
+func testAccTenantResourceTokenExchangePartialConfig(resourceName string) string {
+	return testAccTenantTokenExchangeLambdasConfig(resourceName) + fmt.Sprintf(`
+resource "fusionauth_tenant" "test_%[1]s" {
+  name = "test-acc-token-exchange %[1]s"
+
+  token_exchange_configuration {
+    enabled       = true
+    policy_engine = "ENTITY"
+  }
+}
+`, resourceName)
+}
+
 // TestAccFusionauthTenant_verificationKeyIds covers the FusionAuth 1.69.0 JWT verification key
 // lists; skips on older servers.
 func TestAccFusionauthTenant_verificationKeyIds(t *testing.T) {

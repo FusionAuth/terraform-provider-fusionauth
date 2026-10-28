@@ -168,6 +168,16 @@ func newWebhook() *schema.Resource {
 							Optional:    true,
 							Description: "Kickstart completed successfully the system is ready for use",
 						},
+						"token_exchange": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "A token exchange was attempted (transactional). Available since FusionAuth 1.70.0",
+						},
+						"token_exchange_complete": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "A token exchange transaction has completed (non-transactional). Available since FusionAuth 1.70.0",
+						},
 						"user_action": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -506,6 +516,9 @@ func webhookEventsOmittedWhenDisabled() []fusionauth.EventType {
 		fusionauth.EventType_EntityDeleteComplete,
 		fusionauth.EventType_EntityUpdate,
 		fusionauth.EventType_EntityUpdateComplete,
+		// 1.70.0
+		fusionauth.EventType_TokenExchange,
+		fusionauth.EventType_TokenExchangeComplete,
 	}
 }
 
@@ -536,6 +549,8 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 		fusionauth.EventType_JWTRefresh:                     data.Get(prefix + "jwt_refresh").(bool),
 		fusionauth.EventType_JWTRefreshTokenRevoke:          data.Get(prefix + "jwt_refresh_token_revoke").(bool),
 		fusionauth.EventType_KickstartSuccess:               data.Get(prefix + "kickstart_success").(bool),
+		fusionauth.EventType_TokenExchange:                  data.Get(prefix + "token_exchange").(bool),
+		fusionauth.EventType_TokenExchangeComplete:          data.Get(prefix + "token_exchange_complete").(bool),
 		fusionauth.EventType_UserAction:                     data.Get(prefix + "user_action").(bool),
 		fusionauth.EventType_UserBulkCreate:                 data.Get(prefix + "user_bulk_create").(bool),
 		fusionauth.EventType_UserCreate:                     data.Get(prefix + "user_create").(bool),
@@ -666,6 +681,8 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 			"jwt_refresh":                       l.EventsEnabled[fusionauth.EventType_JWTRefresh],
 			"jwt_refresh_token_revoke":          l.EventsEnabled[fusionauth.EventType_JWTRefreshTokenRevoke],
 			"kickstart_success":                 l.EventsEnabled[fusionauth.EventType_KickstartSuccess],
+			"token_exchange":                    l.EventsEnabled[fusionauth.EventType_TokenExchange],
+			"token_exchange_complete":           l.EventsEnabled[fusionauth.EventType_TokenExchangeComplete],
 			"user_action":                       l.EventsEnabled[fusionauth.EventType_UserAction],
 			"user_bulk_create":                  l.EventsEnabled[fusionauth.EventType_UserBulkCreate],
 			"user_create":                       l.EventsEnabled[fusionauth.EventType_UserCreate],

@@ -112,6 +112,16 @@ resource "fusionauth_tenant" "example" {
   }
   event_configuration {
     enabled          = false
+    event            = "token.exchange"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
+    event            = "token.exchange.complete"
+    transaction_type = "None"
+  }
+  event_configuration {
+    enabled          = false
     event            = "user.action"
     transaction_type = "None"
   }
@@ -448,6 +458,12 @@ resource "fusionauth_tenant" "example" {
     threshold       = 0.5
   }
   theme_id = fusionauth_theme.example_theme.id
+  token_exchange_configuration {
+    enabled         = true
+    allowed_issuers = ["https://issuer.example.com"]
+    max_claim_depth = 2
+    policy_engine   = "ENTITY"
+  }
   user_delete_policy {
     unverified_enabled                  = false
     unverified_number_of_days_to_retain = 30
@@ -741,6 +757,14 @@ resource "fusionauth_tenant" "example" {
   * `device_trust_time_to_live_in_seconds` - (Optional) The number of seconds before a trusted device is reset. When reset, a user is forced to complete captcha during login and complete two factor authentication if applicable.
 * `tenant_id` - (Optional) The Id to use for the new Tenant. If not specified a secure random UUID will be generated.
 * `theme_id` - (Optional) The unique Id of the theme to be used to style the login page and other end user templates.
+* `token_exchange_configuration` - (Optional) The RFC 8693 token exchange configuration for this tenant. Note: An Enterprise plan is required to utilize Token Exchange. Available since FusionAuth `1.70.0`.
+  * `allowed_issuers` - (Optional) The issuers whose JWTs the Tenant accepts as subject tokens with the `urn:ietf:params:oauth:token-type:jwt` subject token type. FusionAuth retrieves each issuer's signing keys through OpenID Connect discovery. Each value must be an absolute `https` URL or an `http://localhost` URL. The value `*` accepts any issuer, but FusionAuth rejects it when running in production mode. Access tokens sent with the `urn:ietf:params:oauth:token-type:access_token` subject token type don't use this list.
+  * `debug` - (Optional) Whether FusionAuth writes the reason for each failed token exchange to the Event Log. Defaults to `false`.
+  * `enabled` - (Optional) Whether the Tenant accepts token exchange requests. Defaults to `false`.
+  * `max_claim_depth` - (Optional) The maximum number of actors in the `act` claim of an issued token. FusionAuth rejects an exchange when the subject token's `act` claim already contains this many actors. The value must be between `1` and `10`. Defaults to `2`.
+  * `policy_engine` - (Optional) The policy engine that decides whether to allow a token exchange. The possible values are `ENTITY` and `LAMBDA`. Required when `enabled` is `true`.
+  * `policy_engine_lambda_id` - (Optional) The Id of the Token Exchange Policy lambda to run for each exchange. Required when `policy_engine` is `LAMBDA`.
+  * `populate_lambda_id` - (Optional) The Id of the Token Exchange Populate lambda to run before FusionAuth signs an exchanged token.
 * `username_configuration` - (Optional)
   * `unique` - (Optional) Indicates that users without a verified email address will be permanently deleted after tenant.userDeletePolicy.unverified.numberOfDaysToRetain days.
     * `enabled` - (Optional) When true, FusionAuth will handle username collisions by generating a random suffix.
