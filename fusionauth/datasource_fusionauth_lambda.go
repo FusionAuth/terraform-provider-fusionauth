@@ -68,6 +68,8 @@ func dataSourceLambda() *schema.Resource {
 					string(fusionauth.LambdaType_SelfServiceRegistrationValidation),
 					string(fusionauth.LambdaType_SonyPSNReconcile),
 					string(fusionauth.LambdaType_SteamReconcile),
+					string(fusionauth.LambdaType_TokenExchangePolicy),
+					string(fusionauth.LambdaType_TokenExchangePopulate),
 					string(fusionauth.LambdaType_TwitchReconcile),
 					string(fusionauth.LambdaType_TwitterReconcile),
 					string(fusionauth.LambdaType_UserInfoPopulate),

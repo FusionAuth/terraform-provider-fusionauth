@@ -158,6 +158,8 @@ func resourceAPIKey() *schema.Resource {
 								"/api/system/login-record/export",
 								"/api/system/login-record/search",
 								"/api/system/reindex",
+								"/api/system/token-exchange-audit-log/chain",
+								"/api/system/token-exchange-audit-log/search",
 								"/api/system/version",
 								"/api/system/webhook-attempt-log",
 								"/api/system/webhook-event-log",
