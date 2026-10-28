@@ -44,6 +44,12 @@ resource "fusionauth_webhook" "example" {
 * `description` - (Optional) A description of the Webhook. This is used for display purposes only.
 * `events_enabled` - (Optional) A mapping for the events that are enabled for this Webhook.
   * `audit_log_create` - (Optional) An audit log was created
+  * `entity_create` - (Optional) An entity is being created. Available since FusionAuth `1.69.0`.
+  * `entity_create_complete` - (Optional) A create entity request completed. Available since FusionAuth `1.69.0`.
+  * `entity_delete` - (Optional) An entity is being deleted. Available since FusionAuth `1.69.0`.
+  * `entity_delete_complete` - (Optional) An entity delete request completed. Available since FusionAuth `1.69.0`.
+  * `entity_update` - (Optional) An entity is being updated. Available since FusionAuth `1.69.0`.
+  * `entity_update_complete` - (Optional) A request to update an entity has completed. Available since FusionAuth `1.69.0`.
   * `event_log_create` - (Optional) An event log was created
   * `group_create` - (Optional) A group is being created
   * `group_create_complete` - (Optional) A create group request completed
@@ -72,6 +78,7 @@ resource "fusionauth_webhook" "example" {
   * `user_email_verified` - (Optional) A user has verified their email address
   * `user_identity_provider_link` - (Optional) A link has been established between a user and an identity provider
   * `user_identity_provider_unlink` - (Optional) An existing link has been removed between a user and an identify provider
+  * `user_identity_update` - (Optional) When a user's identity is updated
   * `user_identity_verified` - (Optional) When a user's identity is verified
   * `user_login_id_duplicate_create` - (Optional) A user attempted to register using an email address or username of an existing user
   * `user_login_id_duplicate_update` - (Optional) A user attempted to modify their email address or username to that of an existing user
@@ -92,11 +99,11 @@ resource "fusionauth_webhook" "example" {
   * `user_registration_update` - (Optional) A user registration is being updated
   * `user_registration_update_complete` - (Optional) A user registration update request has completed
   * `user_registration_verified` - (Optional) A user registration has been verified
-  * `user_two_factor_challenge` - (Optional) A user has been issued a two-factor challenge
-  * `user_two_factor_failed_attempt` - (Optional) A user has failed a two-factor challenge attempt
+  * `user_two_factor_challenge` - (Optional) A user has been issued a two-factor challenge. Available since FusionAuth `1.68.0`.
+  * `user_two_factor_failed_attempt` - (Optional) A user has failed a two-factor challenge attempt. Available since FusionAuth `1.68.0`.
   * `user_two_factor_method_add` - (Optional) A user has added a two-factor method
   * `user_two_factor_method_remove` - (Optional) A user has removed a two-factor method
-  * `user_two_factor_success` - (Optional) A user has successfully completed a two-factor challenge
+  * `user_two_factor_success` - (Optional) A user has successfully completed a two-factor challenge. Available since FusionAuth `1.68.0`.
   * `user_update` - (Optional) A user is being updated
   * `user_update_complete` - (Optional) A user update request has completed
 * `global` - (Optional) Whether or not this Webhook is used for all events or just for specific Applications.

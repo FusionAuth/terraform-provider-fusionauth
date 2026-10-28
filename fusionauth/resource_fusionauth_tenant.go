@@ -225,6 +225,12 @@ func newTenant() *schema.Resource {
 							Optional: true,
 							ValidateFunc: validation.StringInSlice([]string{
 								"audit-log.create",
+								"entity.create",
+								"entity.create.complete",
+								"entity.delete",
+								"entity.delete.complete",
+								"entity.update",
+								"entity.update.complete",
 								"event-log.create",
 								"group.create",
 								"group.create.complete",
