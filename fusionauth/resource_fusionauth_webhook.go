@@ -53,6 +53,16 @@ func newWebhook() *schema.Resource {
 							Optional:    true,
 							Description: "An audit log was created",
 						},
+						"cimd_registration_failed": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "A CIMD client registration failed (non-transactional). Available since FusionAuth 1.70.0",
+						},
+						"cimd_registration_success": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "A CIMD client registration succeeded (non-transactional). Available since FusionAuth 1.70.0",
+						},
 						"entity_create": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -517,6 +527,8 @@ func webhookEventsOmittedWhenDisabled() []fusionauth.EventType {
 		fusionauth.EventType_EntityUpdate,
 		fusionauth.EventType_EntityUpdateComplete,
 		// 1.70.0
+		fusionauth.EventType_CimdRegistrationFailed,
+		fusionauth.EventType_CimdRegistrationSuccess,
 		fusionauth.EventType_TokenExchange,
 		fusionauth.EventType_TokenExchangeComplete,
 	}
@@ -526,6 +538,8 @@ func buildEventsEnabled(key string, data *schema.ResourceData) map[fusionauth.Ev
 	prefix := key + ".0."
 	events := map[fusionauth.EventType]bool{
 		fusionauth.EventType_AuditLogCreate:                 data.Get(prefix + "audit_log_create").(bool),
+		fusionauth.EventType_CimdRegistrationFailed:         data.Get(prefix + "cimd_registration_failed").(bool),
+		fusionauth.EventType_CimdRegistrationSuccess:        data.Get(prefix + "cimd_registration_success").(bool),
 		fusionauth.EventType_EntityCreate:                   data.Get(prefix + "entity_create").(bool),
 		fusionauth.EventType_EntityCreateComplete:           data.Get(prefix + "entity_create_complete").(bool),
 		fusionauth.EventType_EntityDelete:                   data.Get(prefix + "entity_delete").(bool),
@@ -658,6 +672,8 @@ func readWebhook(_ context.Context, data *schema.ResourceData, i interface{}) di
 	err = data.Set("events_enabled", []map[string]interface{}{
 		{
 			"audit_log_create":                  l.EventsEnabled[fusionauth.EventType_AuditLogCreate],
+			"cimd_registration_failed":          l.EventsEnabled[fusionauth.EventType_CimdRegistrationFailed],
+			"cimd_registration_success":         l.EventsEnabled[fusionauth.EventType_CimdRegistrationSuccess],
 			"entity_create":                     l.EventsEnabled[fusionauth.EventType_EntityCreate],
 			"entity_create_complete":            l.EventsEnabled[fusionauth.EventType_EntityCreateComplete],
 			"entity_delete":                     l.EventsEnabled[fusionauth.EventType_EntityDelete],

@@ -312,6 +312,71 @@ resource "fusionauth_tenant" "test_%[1]s" {
 `, resourceName)
 }
 
+// TestAccFusionauthTenant_cimd covers the FusionAuth 1.70.0 CIMD rate limit and events; skips on older servers.
+func TestAccFusionauthTenant_cimd(t *testing.T) {
+	resourceName := randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_tenant.test_%s", resourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.70.0") },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthTenantDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTenantResourceCIMDConfig(resourceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.cimd_client_registration.0.enabled", "true"),
+					resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.cimd_client_registration.0.limit", "7"),
+					resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.cimd_client_registration.0.time_period_in_seconds", "120"),
+					// A partial block keeps the schema defaults for the omitted fields.
+					resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.failed_login.0.limit", "5"),
+					resource.TestCheckTypeSetElemNestedAttrs(tfResourcePath, "event_configuration.*", map[string]string{
+						"event":            "cimd.registration.success",
+						"enabled":          "true",
+						"transaction_type": "None",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs(tfResourcePath, "event_configuration.*", map[string]string{
+						"event":            "cimd.registration.failed",
+						"enabled":          "true",
+						"transaction_type": "None",
+					}),
+				),
+			},
+		},
+	})
+}
+
+func testAccTenantResourceCIMDConfig(resourceName string) string {
+	return fmt.Sprintf(`
+resource "fusionauth_tenant" "test_%[1]s" {
+  name = "test-acc-cimd %[1]s"
+
+  event_configuration {
+    event            = "cimd.registration.success"
+    enabled          = true
+    transaction_type = "None"
+  }
+  event_configuration {
+    event            = "cimd.registration.failed"
+    enabled          = true
+    transaction_type = "None"
+  }
+
+  rate_limit_configuration {
+    cimd_client_registration {
+      enabled                = true
+      limit                  = 7
+      time_period_in_seconds = 120
+    }
+    failed_login {
+      enabled = true
+    }
+  }
+}
+`, resourceName)
+}
+
 // TestAccFusionauthTenant_verificationKeyIds covers the FusionAuth 1.69.0 JWT verification key
 // lists; skips on older servers.
 func TestAccFusionauthTenant_verificationKeyIds(t *testing.T) {

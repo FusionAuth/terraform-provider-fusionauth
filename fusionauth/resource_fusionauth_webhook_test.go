@@ -233,6 +233,40 @@ func TestAccFusionauthWebhook_newerEvents(t *testing.T) {
 	})
 }
 
+// TestAccFusionauthWebhook_cimdEvents covers the 1.70.0 CIMD registration events; skips on older servers.
+func TestAccFusionauthWebhook_cimdEvents(t *testing.T) {
+	resourceName := randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_webhook.test_%s", resourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.70.0") },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthWebhookDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWebhookResourceConfig(resourceName, "cimd_registration_success = true\n    cimd_registration_failed = true"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthWebhookEvents(tfResourcePath, map[fa.EventType]bool{
+						fa.EventType_CimdRegistrationFailed:  true,
+						fa.EventType_CimdRegistrationSuccess: true,
+					}),
+					resource.TestCheckResourceAttr(tfResourcePath, "events_enabled.0.cimd_registration_success", "true"),
+				),
+			},
+			{
+				Config: testAccWebhookResourceConfig(resourceName, "cimd_registration_success = false\n    cimd_registration_failed = true"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthWebhookEvents(tfResourcePath, map[fa.EventType]bool{
+						fa.EventType_CimdRegistrationFailed:  true,
+						fa.EventType_CimdRegistrationSuccess: false,
+					}),
+					resource.TestCheckResourceAttr(tfResourcePath, "events_enabled.0.cimd_registration_success", "false"),
+				),
+			},
+		},
+	})
+}
+
 func testAccWebhookResourceConfig(resourceName, events string) string {
 	return fmt.Sprintf(`
 resource "fusionauth_webhook" "test_%[1]s" {
