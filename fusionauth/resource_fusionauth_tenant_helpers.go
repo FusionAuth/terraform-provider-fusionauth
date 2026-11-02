@@ -331,6 +331,11 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			VerifyPhoneNumber:              data.Get("phone_configuration.0.verify_phone_number").(bool),
 		},
 		RateLimitConfiguration: fusionauth.TenantRateLimitConfiguration{
+			CimdClientRegistration: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.cimd_client_registration.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.cimd_client_registration.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.cimd_client_registration.0.time_period_in_seconds").(int),
+			},
 			FailedLogin: fusionauth.RateLimitedRequestConfiguration{
 				Enableable:          buildEnableable("rate_limit_configuration.0.failed_login.0.enabled", data),
 				Limit:               data.Get("rate_limit_configuration.0.failed_login.0.limit").(int),
@@ -980,6 +985,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	err = data.Set("rate_limit_configuration", []map[string]interface{}{
 		{
+			"cimd_client_registration": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.CimdClientRegistration.Enabled,
+				"limit":                  t.RateLimitConfiguration.CimdClientRegistration.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.CimdClientRegistration.TimePeriodInSeconds,
+			}},
 			"failed_login": []map[string]interface{}{{
 				"enabled":                t.RateLimitConfiguration.FailedLogin.Enabled,
 				"limit":                  t.RateLimitConfiguration.FailedLogin.Limit,

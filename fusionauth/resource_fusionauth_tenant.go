@@ -225,6 +225,8 @@ func newTenant() *schema.Resource {
 							Optional: true,
 							ValidateFunc: validation.StringInSlice([]string{
 								"audit-log.create",
+								"cimd.registration.failed",
+								"cimd.registration.success",
 								"entity.create",
 								"entity.create.complete",
 								"entity.delete",
@@ -864,6 +866,36 @@ func newTenant() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"cimd_client_registration": {
+							Optional: true,
+							Computed: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether rate limiting is enabled for CIMD client registrations. When enabled, FusionAuth limits how many new clients each user can register through the Tenant's CIMD domains. Logins with a client that is already registered don't count toward the limit. Available since FusionAuth 1.70.0.",
+									},
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      5,
+										Description:  "The number of new CIMD clients a user can register within the configured timePeriodInSeconds duration. When a user exceeds the limit, the login fails, the client is not registered, and FusionAuth writes an Information entry to the Event Log with the user and the client's `client_id` URL. It also writes an Error entry with the reason code `rateLimited`. Value must be greater than 0. Required when `enabled` is set to `true`.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"time_period_in_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      60,
+										Description:  "The duration, in seconds, for the number of new CIMD clients a user can register before being rate limited. Value must be greater than 0. Required when `enabled` is set to `true`.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
 						"failed_login": {
 							Optional: true,
 							Computed: true,

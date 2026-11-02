@@ -44,6 +44,8 @@ resource "fusionauth_webhook" "example" {
 * `description` - (Optional) A description of the Webhook. This is used for display purposes only.
 * `events_enabled` - (Optional) A mapping for the events that are enabled for this Webhook.
   * `audit_log_create` - (Optional) An audit log was created
+  * `cimd_registration_failed` - (Optional) A CIMD client registration failed (non-transactional). Available since FusionAuth `1.70.0`.
+  * `cimd_registration_success` - (Optional) A CIMD client registration succeeded (non-transactional). Available since FusionAuth `1.70.0`.
   * `entity_create` - (Optional) An entity is being created. Available since FusionAuth `1.69.0`.
   * `entity_create_complete` - (Optional) A create entity request completed. Available since FusionAuth `1.69.0`.
   * `entity_delete` - (Optional) An entity is being deleted. Available since FusionAuth `1.69.0`.

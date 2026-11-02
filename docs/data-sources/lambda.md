@@ -19,6 +19,7 @@ data "fusionauth_lambda" "default_google_reconcile" {
 * `id`   - (Optional) The ID of the Lambda. At least one of `id` or `name` must be specified.
 * `type` - (Required) The Lambda type. The possible values are:
   * `AppleReconcile`
+  * `CimdClientRegistration`
   * `ClientCredentialsJWTPopulate`
   * `EpicGamesReconcile`
   * `ExternalJWTReconcile`

@@ -416,6 +416,11 @@ resource "fusionauth_tenant" "example" {
     validate_on_login   = false
   }
   rate_limit_configuration {
+    cimd_client_registration {
+      enabled                = false
+      limit                  = 5
+      time_period_in_seconds = 60
+    }
     failed_login {
       enabled                = true
       limit                  = 5
@@ -712,6 +717,10 @@ resource "fusionauth_tenant" "example" {
   * `verification_template_id` - (Optional) The Id of the Message Template used to send SMS messages to users to verify that their phone number is valid.
   * `verify_phone_number` - (Optional) Whether a user's phone number is verified when they register with your application. Defaults to `false`.
 * `rate_limit_configuration` - (Optional)
+  * `cimd_client_registration` - (Optional) Available since FusionAuth `1.70.0`. Note: An Enterprise plan is required to utilize rate limiting.
+    * `enabled` - (Optional) Whether rate limiting is enabled for CIMD client registrations. When enabled, FusionAuth limits how many new clients each user can register through the Tenant's CIMD domains. Logins with a client that is already registered don't count toward the limit.
+    * `limit` - (Optional) The number of new CIMD clients a user can register within the configured `time_period_in_seconds` duration. When a user exceeds the limit, the login fails, the client is not registered, and FusionAuth writes an Information entry to the Event Log with the user and the client's `client_id` URL. It also writes an Error entry with the reason code `rateLimited`. Required when `enabled` is set to `true`. Defaults to 5.
+    * `time_period_in_seconds` - (Optional) The duration, in seconds, for the number of new CIMD clients a user can register before being rate limited. Required when `enabled` is set to `true`. Defaults to 60.
   * `failed_login` - (Optional)
     * `enabled` -  (Optional) Whether rate limiting is enabled for failed login.
     * `limit` -  (Optional) The number of times a user can fail to login within the configured `time_period_in_seconds` duration. If a Failed authentication action has been configured then it will take precedence.
