@@ -76,6 +76,7 @@ func TestAccFusionauthCIMDDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(domainPath, "provided_scope_policy.0.profile.0.enabled", "false"),
 					resource.TestCheckResourceAttrPair(scopePath, "cimd_domain_id", domainPath, "id"),
 					resource.TestCheckResourceAttr(scopePath, "name", "data:read"),
+					resource.TestCheckResourceAttrPair(scopePath, "scope_id", scopePath, "id"),
 					resource.TestCheckResourceAttr(scopePath, "description", "read-only access"),
 					resource.TestCheckResourceAttr(scopePath, "required", "true"),
 				),

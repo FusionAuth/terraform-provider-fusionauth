@@ -128,6 +128,9 @@ func createCIMDDomainOAuthScope(_ context.Context, data *schema.ResourceData, i 
 	}
 
 	data.SetId(resp.Scope.Id)
+	if err := data.Set("scope_id", resp.Scope.Id); err != nil {
+		return diag.Errorf("scope.scope_id: %s", err.Error())
+	}
 	return nil
 }
 
