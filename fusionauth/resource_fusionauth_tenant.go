@@ -225,6 +225,8 @@ func newTenant() *schema.Resource {
 							Optional: true,
 							ValidateFunc: validation.StringInSlice([]string{
 								"audit-log.create",
+								"cimd.registration.failed",
+								"cimd.registration.success",
 								"entity.create",
 								"entity.create.complete",
 								"entity.delete",
@@ -248,6 +250,8 @@ func newTenant() *schema.Resource {
 								"jwt.refresh",
 								"jwt.refresh-token.revoke",
 								"kickstart.success",
+								"token.exchange",
+								"token.exchange.complete",
 								"user.action",
 								"user.bulk.create",
 								"user.create",
@@ -862,6 +866,36 @@ func newTenant() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"cimd_client_registration": {
+							Optional: true,
+							Computed: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether rate limiting is enabled for CIMD client registrations. When enabled, FusionAuth limits how many new clients each user can register through the Tenant's CIMD domains. Logins with a client that is already registered don't count toward the limit. Available since FusionAuth 1.70.0.",
+									},
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      5,
+										Description:  "The number of new CIMD clients a user can register within the configured timePeriodInSeconds duration. When a user exceeds the limit, the login fails, the client is not registered, and FusionAuth writes an Information entry to the Event Log with the user and the client's `client_id` URL. It also writes an Error entry with the reason code `rateLimited`. Value must be greater than 0. Required when `enabled` is set to `true`.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"time_period_in_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      60,
+										Description:  "The duration, in seconds, for the number of new CIMD clients a user can register before being rate limited. Value must be greater than 0. Required when `enabled` is set to `true`.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
 						"failed_login": {
 							Optional: true,
 							Computed: true,
@@ -1181,6 +1215,60 @@ func newTenant() *schema.Resource {
 				Computed:     true,
 				Description:  "The unique Id of the theme to be used to style the login page and other end user templates.",
 				ValidateFunc: validation.IsUUID,
+			},
+			"token_exchange_configuration": {
+				Optional:    true,
+				Computed:    true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Description: "The RFC 8693 token exchange configuration for this tenant. Note: An Enterprise plan is required to utilize Token Exchange. Available since FusionAuth 1.70.0.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allowed_issuers": {
+							Type:        schema.TypeSet,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Optional:    true,
+							Description: "The issuers whose JWTs the Tenant accepts as subject tokens with the `urn:ietf:params:oauth:token-type:jwt` subject token type. FusionAuth retrieves each issuer's signing keys through OpenID Connect discovery. Each value must be an absolute `https` URL or an `http://localhost` URL. The value `*` accepts any issuer, but FusionAuth rejects it when running in production mode. Access tokens sent with the `urn:ietf:params:oauth:token-type:access_token` subject token type don't use this list.",
+						},
+						"debug": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether FusionAuth writes the reason for each failed token exchange to the Event Log.",
+						},
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Whether the Tenant accepts token exchange requests.",
+						},
+						"max_claim_depth": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      2,
+							Description:  "The maximum number of actors in the `act` claim of an issued token. FusionAuth rejects an exchange when the subject token's `act` claim already contains this many actors. The value must be between `1` and `10`.",
+							ValidateFunc: validation.IntBetween(1, 10),
+						},
+						"policy_engine": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The policy engine that decides whether to allow a token exchange. The possible values are `ENTITY` and `LAMBDA`. Required when `token_exchange_configuration.enabled` is true.",
+							ValidateFunc: validation.StringInSlice([]string{"ENTITY", "LAMBDA"}, false),
+						},
+						"policy_engine_lambda_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Token Exchange Policy lambda to run for each exchange. Required when `token_exchange_configuration.policy_engine` is `LAMBDA`.",
+							ValidateFunc: validation.IsUUID,
+						},
+						"populate_lambda_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The Id of the Token Exchange Populate lambda to run before FusionAuth signs an exchanged token.",
+							ValidateFunc: validation.IsUUID,
+						},
+					},
+				},
 			},
 			"user_delete_policy": {
 				Optional: true,

@@ -176,6 +176,24 @@ func resourceSystemConfiguration() *schema.Resource {
 				Default:     "America/Denver",
 				Description: "The time zone used to adjust the stored UTC time when generating reports. Since reports are usually rolled up hourly, this timezone will be used for demarcating the hours.",
 			},
+			"token_exchange_audit_log_configuration": {
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				Optional:   true,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"number_of_days_to_retain": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      7,
+							Description:  "The number of days to retain Token Exchange audit log entries. The value must be between `1` and `31`. Available since FusionAuth 1.70.0.",
+							ValidateFunc: validation.IntBetween(1, 31),
+						},
+					},
+				},
+			},
 			"trusted_proxy_configuration": {
 				Type:             schema.TypeList,
 				MaxItems:         1,
@@ -428,6 +446,10 @@ func buildSystemConfigurationRequest(data *schema.ResourceData) fusionauth.Syste
 		sc.SystemConfiguration.ReportTimezone = val
 	}
 
+	if val, isSet := getValueAndIsSet[int](data, "token_exchange_audit_log_configuration.0.number_of_days_to_retain"); isSet {
+		sc.SystemConfiguration.TokenExchangeAuditLogConfiguration.NumberOfDaysToRetain = val
+	}
+
 	if val, isSet := getValueAndIsSet[string](data, "trusted_proxy_configuration.0.trust_policy"); isSet {
 		sc.SystemConfiguration.TrustedProxyConfiguration.TrustPolicy = fusionauth.SystemTrustedProxyConfigurationPolicy(val)
 	}
@@ -532,6 +554,15 @@ func buildResourceFromSystemConfiguration(sc fusionauth.SystemConfiguration, dat
 
 	if err := data.Set("report_timezone", sc.ReportTimezone); err != nil {
 		return diag.Errorf("system_configuration.report_timezone: %s", err.Error())
+	}
+
+	err = data.Set("token_exchange_audit_log_configuration", []map[string]interface{}{
+		{
+			"number_of_days_to_retain": sc.TokenExchangeAuditLogConfiguration.NumberOfDaysToRetain,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("system_configuration.token_exchange_audit_log_configuration: %s", err.Error())
 	}
 
 	err = data.Set("trusted_proxy_configuration", []map[string]interface{}{

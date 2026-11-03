@@ -59,6 +59,7 @@ func newLambda() *schema.Resource {
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					string(fusionauth.LambdaType_AppleReconcile),
+					string(fusionauth.LambdaType_CimdClientRegistration),
 					string(fusionauth.LambdaType_ClientCredentialsJWTPopulate),
 					string(fusionauth.LambdaType_EpicGamesReconcile),
 					string(fusionauth.LambdaType_ExternalJWTReconcile),
@@ -81,6 +82,8 @@ func newLambda() *schema.Resource {
 					string(fusionauth.LambdaType_SelfServiceRegistrationValidation),
 					string(fusionauth.LambdaType_SonyPSNReconcile),
 					string(fusionauth.LambdaType_SteamReconcile),
+					string(fusionauth.LambdaType_TokenExchangePolicy),
+					string(fusionauth.LambdaType_TokenExchangePopulate),
 					string(fusionauth.LambdaType_TwitchReconcile),
 					string(fusionauth.LambdaType_TwitterReconcile),
 					string(fusionauth.LambdaType_UserInfoPopulate),

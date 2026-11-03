@@ -64,12 +64,12 @@ resource "fusionauth_idp_open_id_connect" "example" {
 ---
 
 * `application_configuration` - (Optional) The configuration for each Application that the identity provider is enabled for.
-  * `application_id` - (Optional) ID of the Application to apply this configuration to.
+  * `application_id` - (Optional) ID of the Application to apply this configuration to. Since FusionAuth `1.70.0`, this may also be the Id of a [CIMD domain](cimd_domain.md) to enable the identity provider for every client that registers through that domain.
   * `button_image_url` - (Optional) This is an optional Application specific override for the top level button image URL.
   * `button_text` - (Optional) This is an optional Application specific override for the top level button text.
   * `oauth2_client_id` - (Optional) This is an optional Application specific override for the top level client id.
   * `oauth2_client_secret` - (Optional) This is an optional Application specific override for the top level client secret.
-  * `create_registration` - (Optional) Determines if a UserRegistration is created for the User automatically or not. If a user doesn’t exist in FusionAuth and logs in through an identity provider, this boolean controls whether or not FusionAuth creates a registration for the User in the Application they are logging into.
+  * `create_registration` - (Optional) Determines if a UserRegistration is created for the User automatically or not. If a user doesn’t exist in FusionAuth and logs in through an identity provider, this boolean controls whether or not FusionAuth creates a registration for the User in the Application they are logging into. For a CIMD domain Id this value is always `false`, because FusionAuth does not register users for CIMD clients; set it to `false` to avoid a perpetual diff.
   * `enabled` - (Optional) Determines if this identity provider is enabled for the Application specified by the applicationId key.
   * `oauth2_scope` - (Optional) This is an optional Application specific override for the top level scope.
 * `attribute_mappings` - (Optional) A map of attribute mappings applied during user reconciliation when a reconcile Lambda is not configured. Each key is the FusionAuth target field path and must begin with `user.` or `registration.`. Each value is the source expression in the identity provider response payload. A dot-notated value such as `email` or `id_token.given_name` is converted to a JSON Pointer. A value that starts with `/` is treated as a JSON Pointer as-is. This property cannot be used with `identityProvider.lambdaConfiguration.reconcileId`. This property is ignored when `identityProvider.linkingStrategy` is `LinkAnonymously`. This property defaults to an empty map. Mappings that resolve to null, cannot be extracted, or cannot be written to the target field are ignored. Mappings to `user.password` do not set a password.

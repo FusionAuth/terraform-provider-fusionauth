@@ -44,6 +44,8 @@ resource "fusionauth_webhook" "example" {
 * `description` - (Optional) A description of the Webhook. This is used for display purposes only.
 * `events_enabled` - (Optional) A mapping for the events that are enabled for this Webhook.
   * `audit_log_create` - (Optional) An audit log was created
+  * `cimd_registration_failed` - (Optional) A CIMD client registration failed (non-transactional). Available since FusionAuth `1.70.0`.
+  * `cimd_registration_success` - (Optional) A CIMD client registration succeeded (non-transactional). Available since FusionAuth `1.70.0`.
   * `entity_create` - (Optional) An entity is being created. Available since FusionAuth `1.69.0`.
   * `entity_create_complete` - (Optional) A create entity request completed. Available since FusionAuth `1.69.0`.
   * `entity_delete` - (Optional) An entity is being deleted. Available since FusionAuth `1.69.0`.
@@ -67,6 +69,8 @@ resource "fusionauth_webhook" "example" {
   * `jwt_refresh` - (Optional) A JWT was refreshed using a refresh token
   * `jwt_refresh_token_revoke` - (Optional) One or more refresh tokens were revoked
   * `kickstart_success` - (Optional) Kickstart completed successfully the system is ready for use
+  * `token_exchange` - (Optional) A token exchange was attempted (transactional). Available since FusionAuth `1.70.0`.
+  * `token_exchange_complete` - (Optional) A token exchange transaction has completed (non-transactional). Available since FusionAuth `1.70.0`.
   * `user_action` - (Optional) An action was taken on a user, or an existing event may be changing states if the action is time based
   * `user_bulk_create` - (Optional) One or more users were created using the Bulk create API
   * `user_create` - (Optional) A user is being created

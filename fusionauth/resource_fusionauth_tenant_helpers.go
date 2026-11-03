@@ -331,6 +331,11 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			VerifyPhoneNumber:              data.Get("phone_configuration.0.verify_phone_number").(bool),
 		},
 		RateLimitConfiguration: fusionauth.TenantRateLimitConfiguration{
+			CimdClientRegistration: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.cimd_client_registration.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.cimd_client_registration.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.cimd_client_registration.0.time_period_in_seconds").(int),
+			},
 			FailedLogin: fusionauth.RateLimitedRequestConfiguration{
 				Enableable:          buildEnableable("rate_limit_configuration.0.failed_login.0.enabled", data),
 				Limit:               data.Get("rate_limit_configuration.0.failed_login.0.limit").(int),
@@ -405,6 +410,15 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			DeviceTrustTimeToLiveInSeconds: data.Get("sso_configuration.0.device_trust_time_to_live_in_seconds").(int),
 		},
 		ThemeId: data.Get("theme_id").(string),
+		TokenExchangeConfiguration: fusionauth.TenantTokenExchangeConfiguration{
+			Enableable:           buildEnableable("token_exchange_configuration.0.enabled", data),
+			AllowedIssuers:       handleStringSlice("token_exchange_configuration.0.allowed_issuers", data),
+			Debug:                data.Get("token_exchange_configuration.0.debug").(bool),
+			MaxClaimDepth:        data.Get("token_exchange_configuration.0.max_claim_depth").(int),
+			PolicyEngine:         fusionauth.TokenExchangePolicyEngine(data.Get("token_exchange_configuration.0.policy_engine").(string)),
+			PolicyEngineLambdaId: data.Get("token_exchange_configuration.0.policy_engine_lambda_id").(string),
+			PopulateLambdaId:     data.Get("token_exchange_configuration.0.populate_lambda_id").(string),
+		},
 		UserDeletePolicy: fusionauth.TenantUserDeletePolicy{
 			Unverified: fusionauth.TimeBasedDeletePolicy{
 				Enableable:           buildEnableable("user_delete_policy.0.unverified_enabled", data),
@@ -971,6 +985,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 
 	err = data.Set("rate_limit_configuration", []map[string]interface{}{
 		{
+			"cimd_client_registration": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.CimdClientRegistration.Enabled,
+				"limit":                  t.RateLimitConfiguration.CimdClientRegistration.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.CimdClientRegistration.TimePeriodInSeconds,
+			}},
 			"failed_login": []map[string]interface{}{{
 				"enabled":                t.RateLimitConfiguration.FailedLogin.Enabled,
 				"limit":                  t.RateLimitConfiguration.FailedLogin.Limit,
@@ -1071,6 +1090,21 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 
 	if err := data.Set("theme_id", t.ThemeId); err != nil {
 		return diag.Errorf("tenant.theme_id: %s", err.Error())
+	}
+
+	err = data.Set("token_exchange_configuration", []map[string]interface{}{
+		{
+			"allowed_issuers":         t.TokenExchangeConfiguration.AllowedIssuers,
+			"debug":                   t.TokenExchangeConfiguration.Debug,
+			"enabled":                 t.TokenExchangeConfiguration.Enabled,
+			"max_claim_depth":         t.TokenExchangeConfiguration.MaxClaimDepth,
+			"policy_engine":           t.TokenExchangeConfiguration.PolicyEngine,
+			"policy_engine_lambda_id": t.TokenExchangeConfiguration.PolicyEngineLambdaId,
+			"populate_lambda_id":      t.TokenExchangeConfiguration.PopulateLambdaId,
+		},
+	})
+	if err != nil {
+		return diag.Errorf("tenant.token_exchange_configuration: %s", err.Error())
 	}
 
 	err = data.Set("user_delete_policy", []map[string]interface{}{

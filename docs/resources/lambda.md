@@ -26,6 +26,7 @@ function populate(jwt, user, registration) {
 * `name` - (Required) The name of the lambda.
 * `type` - (Required) The lambda type. The possible values are:
   * `AppleReconcile`
+  * `CimdClientRegistration`
   * `ClientCredentialsJWTPopulate`
   * `EpicGamesReconcile`
   * `ExternalJWTReconcile`
@@ -48,6 +49,8 @@ function populate(jwt, user, registration) {
   * `SelfServiceRegistrationValidation`
   * `SonyPSNReconcile`
   * `SteamReconcile`
+  * `TokenExchangePolicy`
+  * `TokenExchangePopulate`
   * `TwitchReconcile`
   * `TwitterReconcile`
   * `UserInfoPopulate`

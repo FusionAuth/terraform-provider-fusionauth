@@ -25,6 +25,8 @@ func Provider() *schema.Provider {
 			"fusionauth_application":                  newApplication(),
 			"fusionauth_application_role":             newApplicationRole(),
 			"fusionauth_application_oauth_scope":      newApplicationOAuthScope(),
+			"fusionauth_cimd_domain":                  newCIMDDomain(),
+			"fusionauth_cimd_domain_oauth_scope":      newCIMDDomainOAuthScope(),
 			"fusionauth_consent":                      newConsent(),
 			"fusionauth_email":                        newEmail(),
 			"fusionauth_entity":                       resourceEntity(),

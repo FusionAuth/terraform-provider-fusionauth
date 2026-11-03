@@ -2,6 +2,8 @@
 
 [Applications API](https://fusionauth.io/docs/v1/tech/apis/applications)
 
+Each [CIMD domain](cimd_domain.md) is backed by a hidden Application that FusionAuth manages for it. That Application is not returned by the Applications API and must not be managed with this resource; manage it through `fusionauth_cimd_domain` instead.
+
 ## Example Usage
 
 ```hcl

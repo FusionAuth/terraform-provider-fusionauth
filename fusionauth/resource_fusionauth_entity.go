@@ -23,6 +23,12 @@ func resourceEntity() *schema.Resource {
 			StateContext: importEntity,
 		},
 		Schema: map[string]*schema.Schema{
+			"act_as_token_exchange_client": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Whether this Entity can act as the exchanger in a token exchange request. FusionAuth rejects token exchange requests authenticated with the client credentials of an Entity that doesn't have this enabled. Note: An Enterprise plan is required to utilize Token Exchange. Available since FusionAuth 1.70.0.",
+			},
 			"tenant_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -189,12 +195,13 @@ func dataToEntityRequest(data *schema.ResourceData) (req fusionauth.EntityReques
 
 	req = fusionauth.EntityRequest{
 		Entity: fusionauth.Entity{
-			ClientId:     data.Get("client_id").(string),
-			ClientSecret: data.Get("client_secret").(string),
-			Data:         resourceData,
-			Id:           data.Get("entity_id").(string),
-			Name:         data.Get("name").(string),
-			TenantId:     data.Get("tenant_id").(string),
+			ActAsTokenExchangeClient: data.Get("act_as_token_exchange_client").(bool),
+			ClientId:                 data.Get("client_id").(string),
+			ClientSecret:             data.Get("client_secret").(string),
+			Data:                     resourceData,
+			Id:                       data.Get("entity_id").(string),
+			Name:                     data.Get("name").(string),
+			TenantId:                 data.Get("tenant_id").(string),
 			Type: fusionauth.EntityType{
 				Id: data.Get("entity_type_id").(string),
 			},
@@ -208,13 +215,14 @@ func entityResponseToData(data *schema.ResourceData, res *fusionauth.EntityRespo
 	data.SetId(res.Entity.Id)
 
 	dataMapping := map[string]interface{}{
-		"client_id":      res.Entity.ClientId,
-		"client_secret":  res.Entity.ClientSecret,
-		"data":           res.Entity.Data,
-		"entity_id":      res.Entity.Id,
-		"entity_type_id": res.Entity.Type.Id,
-		"name":           res.Entity.Name,
-		"tenant_id":      res.Entity.TenantId,
+		"act_as_token_exchange_client": res.Entity.ActAsTokenExchangeClient,
+		"client_id":                    res.Entity.ClientId,
+		"client_secret":                res.Entity.ClientSecret,
+		"data":                         res.Entity.Data,
+		"entity_id":                    res.Entity.Id,
+		"entity_type_id":               res.Entity.Type.Id,
+		"name":                         res.Entity.Name,
+		"tenant_id":                    res.Entity.TenantId,
 	}
 
 	return setResourceData("entity", data, dataMapping)
