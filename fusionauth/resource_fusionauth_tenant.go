@@ -2320,6 +2320,12 @@ func newPasswordValidationRules() *schema.Resource {
 func newWebAuthnConfiguration() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"allowed_origins": {
+				Type:        schema.TypeSet,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+				Description: "The origins of native Android apps that are allowed to perform WebAuthn ceremonies with this tenant, in the format `android:apk-key-hash:<hash>`, where `<hash>` is the base64url encoded SHA-256 fingerprint of the app's signing certificate without padding. A `relying_party_id` is required when this value is set. Note: A license is required to utilize WebAuthn. Available since FusionAuth 1.71.0.",
+			},
 			"bootstrap_workflow": {
 				Type:             schema.TypeList,
 				MaxItems:         1,

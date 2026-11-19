@@ -312,6 +312,52 @@ resource "fusionauth_tenant" "test_%[1]s" {
 `, resourceName)
 }
 
+// TestAccFusionauthTenant_webAuthnAllowedOrigins covers the FusionAuth 1.71.0 native Android WebAuthn origins;
+// skips on older servers.
+func TestAccFusionauthTenant_webAuthnAllowedOrigins(t *testing.T) {
+	resourceName := randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_tenant.test_%s", resourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.71.0") },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthTenantDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTenantResourceWebAuthnAllowedOriginsConfig(resourceName, `["android:apk-key-hash:FG3pg8VzJMikoLaJJDwBMLOPHxupjntpl_A85hpEX_g", "android:apk-key-hash:vOnJSNV2eQbFFdYPqhLSaoknptz6jnX6Kjfq8JGNODE"]`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "webauthn_configuration.0.relying_party_id", "example.com"),
+					resource.TestCheckResourceAttr(tfResourcePath, "webauthn_configuration.0.allowed_origins.#", "2"),
+					resource.TestCheckTypeSetElemAttr(tfResourcePath, "webauthn_configuration.0.allowed_origins.*", "android:apk-key-hash:FG3pg8VzJMikoLaJJDwBMLOPHxupjntpl_A85hpEX_g"),
+					resource.TestCheckTypeSetElemAttr(tfResourcePath, "webauthn_configuration.0.allowed_origins.*", "android:apk-key-hash:vOnJSNV2eQbFFdYPqhLSaoknptz6jnX6Kjfq8JGNODE"),
+				),
+			},
+			{
+				Config: testAccTenantResourceWebAuthnAllowedOriginsConfig(resourceName, `[]`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "webauthn_configuration.0.allowed_origins.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func testAccTenantResourceWebAuthnAllowedOriginsConfig(resourceName, allowedOrigins string) string {
+	return fmt.Sprintf(`
+resource "fusionauth_tenant" "test_%[1]s" {
+  name = "test-acc-webauthn-origins %[1]s"
+
+  webauthn_configuration {
+    enabled          = true
+    allowed_origins  = %[2]s
+    relying_party_id = "example.com"
+  }
+}
+`, resourceName, allowedOrigins)
+}
+
 // TestAccFusionauthTenant_cimd covers the FusionAuth 1.70.0 CIMD rate limit and events; skips on older servers.
 func TestAccFusionauthTenant_cimd(t *testing.T) {
 	resourceName := randString10()
