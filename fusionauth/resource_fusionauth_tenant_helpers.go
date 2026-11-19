@@ -434,7 +434,8 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			},
 		},
 		WebAuthnConfiguration: fusionauth.TenantWebAuthnConfiguration{
-			Enableable: buildEnableable("webauthn_configuration.0.enabled", data),
+			Enableable:     buildEnableable("webauthn_configuration.0.enabled", data),
+			AllowedOrigins: handleStringSlice("webauthn_configuration.0.allowed_origins", data),
 			BootstrapWorkflow: fusionauth.TenantWebAuthnWorkflowConfiguration{
 				Enableable:                        buildEnableable("webauthn_configuration.0.bootstrap_workflow.0.enabled", data),
 				AuthenticatorAttachmentPreference: fusionauth.AuthenticatorAttachmentPreference(data.Get("webauthn_configuration.0.bootstrap_workflow.0.authenticator_attachment_preference").(string)),
@@ -1133,7 +1134,8 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 
 	err = data.Set("webauthn_configuration", []map[string]interface{}{
 		{
-			"enabled": t.WebAuthnConfiguration.Enabled,
+			"allowed_origins": t.WebAuthnConfiguration.AllowedOrigins,
+			"enabled":         t.WebAuthnConfiguration.Enabled,
 			"bootstrap_workflow": []map[string]interface{}{{
 				"enabled":                             t.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
 				"authenticator_attachment_preference": t.WebAuthnConfiguration.BootstrapWorkflow.AuthenticatorAttachmentPreference,
