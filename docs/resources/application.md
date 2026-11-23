@@ -201,7 +201,7 @@ resource "fusionauth_application" "example" {
 * `oauth_client_secret_wo_version` - (Optional) The version of `oauth_client_secret_wo`. Required with `oauth_client_secret_wo`.
 * `oauth_configuration` - (Optional)
   * `authorized_origin_urls` (Optional) An array of URLs that are the authorized origins for FusionAuth OAuth.
-  * `authorized_redirect_urls` - (Optional) An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.
+  * `authorized_redirect_urls` - (Optional) An array of URLs that are the authorized redirect URLs for FusionAuth OAuth. FusionAuth 1.71.0 and above reject a URL that contains a fragment (`#`).
   * `authorized_resource_uris` - (Optional) An array of authorized resource URIs for FusionAuth OAuth.
   * `authorized_url_validation_policy` - (Optional) Determines whether wildcard expressions will be allowed in the authorized_redirect_urls and authorized_origin_urls.
   * `client_authentication_policy` - (Optional) Determines the client authentication requirements for the OAuth 2.0 Token endpoint.

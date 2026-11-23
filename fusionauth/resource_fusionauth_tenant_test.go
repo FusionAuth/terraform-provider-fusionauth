@@ -2,6 +2,8 @@ package fusionauth
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -375,6 +377,77 @@ resource "fusionauth_tenant" "test_%[1]s" {
   }
 }
 `, resourceName)
+}
+
+// TestAccFusionauthTenant_passwordlessLoginAndAndroidOrigins covers the FusionAuth 1.71.0 passwordless login
+// rate limit and WebAuthn allowed origins; skips on older servers.
+func TestAccFusionauthTenant_passwordlessLoginAndAndroidOrigins(t *testing.T) {
+	resourceName := randString10()
+	tfResourcePath := fmt.Sprintf("fusionauth_tenant.test_%s", resourceName)
+	firstHash, secondHash := sha256.Sum256([]byte("first")), sha256.Sum256([]byte("second"))
+	firstOrigin := "android:apk-key-hash:" + base64.RawURLEncoding.EncodeToString(firstHash[:])
+	secondOrigin := "android:apk-key-hash:" + base64.RawURLEncoding.EncodeToString(secondHash[:])
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); skipIfFusionAuthBelow(t, "1.71.0") },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckFusionauthTenantDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTenantResourcePasswordlessLoginAndAndroidOriginsConfig(resourceName, `"`+firstOrigin+`", "`+secondOrigin+`"`, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.passwordless_login.0.enabled", "true"),
+					// A partial block keeps the schema defaults for the omitted fields.
+					resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.passwordless_login.0.limit", "5"),
+					resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.passwordless_login.0.time_period_in_seconds", "60"),
+					resource.TestCheckResourceAttr(tfResourcePath, "webauthn_configuration.0.allowed_origins.#", "2"),
+					resource.TestCheckTypeSetElemAttr(tfResourcePath, "webauthn_configuration.0.allowed_origins.*", firstOrigin),
+					resource.TestCheckTypeSetElemAttr(tfResourcePath, "webauthn_configuration.0.allowed_origins.*", secondOrigin),
+				),
+			},
+			{
+				Config: testAccTenantResourcePasswordlessLoginAndAndroidOriginsConfig(resourceName, `"`+secondOrigin+`"`, `
+      limit                  = 3
+      time_period_in_seconds = 300`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.passwordless_login.0.limit", "3"),
+					resource.TestCheckResourceAttr(tfResourcePath, "rate_limit_configuration.0.passwordless_login.0.time_period_in_seconds", "300"),
+					resource.TestCheckResourceAttr(tfResourcePath, "webauthn_configuration.0.allowed_origins.#", "1"),
+					resource.TestCheckTypeSetElemAttr(tfResourcePath, "webauthn_configuration.0.allowed_origins.*", secondOrigin),
+				),
+			},
+			{
+				// Removing the last origin must clear it on the server.
+				Config: testAccTenantResourcePasswordlessLoginAndAndroidOriginsConfig(resourceName, "", ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFusionauthTenantExists(tfResourcePath),
+					resource.TestCheckResourceAttr(tfResourcePath, "webauthn_configuration.0.allowed_origins.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func testAccTenantResourcePasswordlessLoginAndAndroidOriginsConfig(resourceName, origins, passwordlessLogin string) string {
+	return fmt.Sprintf(`
+resource "fusionauth_tenant" "test_%[1]s" {
+  name = "test-acc-passwordless-login %[1]s"
+
+  rate_limit_configuration {
+    passwordless_login {
+      enabled = true%[3]s
+    }
+  }
+
+  webauthn_configuration {
+    enabled          = true
+    allowed_origins  = [%[2]s]
+    relying_party_id = "example.com"
+  }
+}
+`, resourceName, origins, passwordlessLogin)
 }
 
 // TestAccFusionauthTenant_verificationKeyIds covers the FusionAuth 1.69.0 JWT verification key

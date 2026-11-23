@@ -956,6 +956,36 @@ func newTenant() *schema.Resource {
 								},
 							},
 						},
+						"passwordless_login": {
+							Optional: true,
+							Computed: true,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Whether rate limiting is enabled for submitting passwordless one-time codes. This rate limit applies only to applications that use the `FormField` passwordless login strategy. When a user reaches the limit, FusionAuth rejects further codes for that user, including the correct code. Available since FusionAuth 1.71.0.",
+									},
+									"limit": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      5,
+										Description:  "The number of times a user can submit a passwordless one-time code within the configured `time_period_in_seconds` duration. Value must be greater than 0. Required when `enabled` is set to `true`.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"time_period_in_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      60,
+										Description:  "The duration for the number of times a user can submit a passwordless one-time code before being rate limited. Value must be greater than 0. Required when `enabled` is set to `true`.",
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+								},
+							},
+						},
 						"send_email_verification": {
 							Optional: true,
 							Computed: true,
@@ -1345,7 +1375,7 @@ func newTenant() *schema.Resource {
 				Type:             schema.TypeList,
 				Optional:         true,
 				MaxItems:         1,
-				DiffSuppressFunc: suppressBlockDiff,
+				DiffSuppressFunc: suppressBlockDiffOnly("webauthn_configuration"),
 				Elem:             newWebAuthnConfiguration(),
 			},
 		},
@@ -2407,6 +2437,12 @@ func newWebAuthnConfiguration() *schema.Resource {
 						},
 					},
 				},
+			},
+			"allowed_origins": {
+				Type:        schema.TypeSet,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+				Description: "The allowed origins for native Android apps that use the Android Credential Manager API to perform WebAuthn ceremonies. Each value must use the format `android:apk-key-hash:<hash>`, where `<hash>` is the base64url-encoded SHA-256 fingerprint of the app's signing certificate. When this value contains one or more origins, `relying_party_id` is required. Available since FusionAuth 1.71.0.",
 			},
 			"relying_party_id": {
 				Type:        schema.TypeString,
