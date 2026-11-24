@@ -431,6 +431,11 @@ resource "fusionauth_tenant" "example" {
       limit                  = 5
       time_period_in_seconds = 60
     }
+    passwordless_login {
+      enabled                = false
+      limit                  = 5
+      time_period_in_seconds = 60
+    }
     send_email_verification {
       enabled                = false
       limit                  = 5
@@ -729,6 +734,10 @@ resource "fusionauth_tenant" "example" {
     * `enabled` - (Optional) Whether rate limiting is enabled for forgot password.
     * `limit` - (Optional) The number of times a user can request a forgot password email within the configured `time_period_in_seconds` duration.
     * `time_period_in_seconds` - (Optional) The duration for the number of times a user can request a forgot password email before being rate limited.
+  * `passwordless_login` - (Optional) Available since FusionAuth `1.71.0`. Note: An Enterprise plan is required to utilize rate limiting.
+    * `enabled` - (Optional) Whether rate limiting is enabled for submitting passwordless one-time codes. This rate limit applies only to applications that use the `FormField` passwordless login strategy. When a user reaches the limit, FusionAuth rejects further codes for that user, including the correct code.
+    * `limit` - (Optional) The number of times a user can submit a passwordless one-time code within the configured `time_period_in_seconds` duration. Required when `enabled` is set to `true`. Defaults to 5.
+    * `time_period_in_seconds` - (Optional) The duration for the number of times a user can submit a passwordless one-time code before being rate limited. Required when `enabled` is set to `true`. Defaults to 60.
   * `send_email_verification` - (Optional)
     * `enabled` - (Optional) Whether rate limiting is enabled for send email verification.
     * `limit` - (Optional) The number of times a user can request a verification email within the configured `time_period_in_seconds` duration.
@@ -784,6 +793,7 @@ resource "fusionauth_tenant" "example" {
   * `unverified_enabled` - (Optional) Indicates that users without a verified email address will be permanently deleted after tenant.userDeletePolicy.unverified.numberOfDaysToRetain days.
   * `unverified_number_of_days_to_retain` - (Optional)
 * `webauthn_configuration` - (Optional) The WebAuthn configuration for this tenant.
+  * `allowed_origins` - (Optional) Available since FusionAuth `1.71.0`. The allowed origins for native Android apps that use the Android Credential Manager API to perform WebAuthn ceremonies. Each value must use the format `android:apk-key-hash:<hash>`, where `<hash>` is the base64url-encoded SHA-256 fingerprint of the app's signing certificate. When this value contains one or more origins, `relying_party_id` is required.
   * `bootstrap_workflow` - (Optional) The Bootstrap Workflow configuration.
     * `authenticator_attachment_preference` - (Optional) Determines the authenticator attachment requirement for WebAuthn passkey registration when using the bootstrap workflow. The possible values are: Any, CrossPlatform and Platform. Note: A license is required to utilize WebAuthn and an Enterprise plan is required to utilize WebAuthn cross-platform authenticators..
     * `enabled` - (Optional) Whether or not this tenant has the WebAuthn bootstrap workflow enabled. The bootstrap workflow is used when the user must "bootstrap" the authentication process by identifying themselves prior to the WebAuthn ceremony and can be used to authenticate from a new device using WebAuthn. Note: A license is required to utilize WebAuthn..

@@ -1042,7 +1042,7 @@ func newOAuthConfiguration() *schema.Resource {
 				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
-				Description: "An array of URLs that are the authorized redirect URLs for FusionAuth OAuth.",
+				Description: "An array of URLs that are the authorized redirect URLs for FusionAuth OAuth. FusionAuth 1.71.0 and above reject a URL that contains a fragment (`#`).",
 			},
 			"authorized_resource_uris": {
 				Type:        schema.TypeSet,

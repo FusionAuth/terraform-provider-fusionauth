@@ -58,3 +58,11 @@ func suppressBlockDiff(_, oldVal, newVal string, _ *schema.ResourceData) bool {
 	}
 	return false
 }
+
+// suppressBlockDiffOnly limits suppressBlockDiff to the block's own count, since SDK v2 also applies a
+// block's DiffSuppressFunc to its nested attributes and would swallow a nested set going from 1 to 0.
+func suppressBlockDiffOnly(key string) schema.SchemaDiffSuppressFunc {
+	return func(k, oldVal, newVal string, d *schema.ResourceData) bool {
+		return k == key+".#" && suppressBlockDiff(k, oldVal, newVal, d)
+	}
+}

@@ -346,6 +346,11 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 				Limit:               data.Get("rate_limit_configuration.0.forgot_password.0.limit").(int),
 				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.forgot_password.0.time_period_in_seconds").(int),
 			},
+			PasswordlessLogin: fusionauth.RateLimitedRequestConfiguration{
+				Enableable:          buildEnableable("rate_limit_configuration.0.passwordless_login.0.enabled", data),
+				Limit:               data.Get("rate_limit_configuration.0.passwordless_login.0.limit").(int),
+				TimePeriodInSeconds: data.Get("rate_limit_configuration.0.passwordless_login.0.time_period_in_seconds").(int),
+			},
 			SendEmailVerification: fusionauth.RateLimitedRequestConfiguration{
 				Enableable:          buildEnableable("rate_limit_configuration.0.send_email_verification.0.enabled", data),
 				Limit:               data.Get("rate_limit_configuration.0.send_email_verification.0.limit").(int),
@@ -434,7 +439,8 @@ func buildTenant(data *schema.ResourceData) (fusionauth.Tenant, diag.Diagnostics
 			},
 		},
 		WebAuthnConfiguration: fusionauth.TenantWebAuthnConfiguration{
-			Enableable: buildEnableable("webauthn_configuration.0.enabled", data),
+			Enableable:     buildEnableable("webauthn_configuration.0.enabled", data),
+			AllowedOrigins: handleStringSlice("webauthn_configuration.0.allowed_origins", data),
 			BootstrapWorkflow: fusionauth.TenantWebAuthnWorkflowConfiguration{
 				Enableable:                        buildEnableable("webauthn_configuration.0.bootstrap_workflow.0.enabled", data),
 				AuthenticatorAttachmentPreference: fusionauth.AuthenticatorAttachmentPreference(data.Get("webauthn_configuration.0.bootstrap_workflow.0.authenticator_attachment_preference").(string)),
@@ -1000,6 +1006,11 @@ func buildResourceDataFromTenant(t fusionauth.Tenant, data *schema.ResourceData)
 				"limit":                  t.RateLimitConfiguration.ForgotPassword.Limit,
 				"time_period_in_seconds": t.RateLimitConfiguration.ForgotPassword.TimePeriodInSeconds,
 			}},
+			"passwordless_login": []map[string]interface{}{{
+				"enabled":                t.RateLimitConfiguration.PasswordlessLogin.Enabled,
+				"limit":                  t.RateLimitConfiguration.PasswordlessLogin.Limit,
+				"time_period_in_seconds": t.RateLimitConfiguration.PasswordlessLogin.TimePeriodInSeconds,
+			}},
 			"send_email_verification": []map[string]interface{}{{
 				"enabled":                t.RateLimitConfiguration.SendEmailVerification.Enabled,
 				"limit":                  t.RateLimitConfiguration.SendEmailVerification.Limit,
@@ -1133,7 +1144,8 @@ func buildAdditionalResourceDataFromTenant(t fusionauth.Tenant, data *schema.Res
 
 	err = data.Set("webauthn_configuration", []map[string]interface{}{
 		{
-			"enabled": t.WebAuthnConfiguration.Enabled,
+			"enabled":         t.WebAuthnConfiguration.Enabled,
+			"allowed_origins": t.WebAuthnConfiguration.AllowedOrigins,
 			"bootstrap_workflow": []map[string]interface{}{{
 				"enabled":                             t.WebAuthnConfiguration.BootstrapWorkflow.Enabled,
 				"authenticator_attachment_preference": t.WebAuthnConfiguration.BootstrapWorkflow.AuthenticatorAttachmentPreference,
